@@ -21,7 +21,7 @@ class Bulker
     /**
      * @var array
      */
-    private static $params = ['body' => []];
+    private $params = ['body' => []];
 
     /**
      * @var int
@@ -37,6 +37,11 @@ class Bulker
      * @var bool
      */
     private $singleIndex = false;
+
+    /**
+     * @var bool
+     */
+    private $enableSha1 = true;
 
     /**
      * @param Client          $client
@@ -65,7 +70,7 @@ class Bulker
      *
      * @return Bulker
      */
-    public function setSize(int $size)
+    public function setSize(int $size): Bulker
     {
         $this->size = $size;
 
@@ -75,11 +80,23 @@ class Bulker
     /**
      * @param bool $singleIndex
      *
-     * @return $this
+     * @return Bulker
      */
-    public function setSingleIndex(bool $singleIndex)
+    public function setSingleIndex(bool $singleIndex): Bulker
     {
         $this->singleIndex = $singleIndex;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $enableSha1
+     *
+     * @return Bulker
+     */
+    public function setEnableSha1(bool $enableSha1): Bulker
+    {
+        $this->enableSha1 = $enableSha1;
 
         return $this;
     }
@@ -92,8 +109,12 @@ class Bulker
      */
     public function index(array $config, array $body): bool
     {
-        self::$params['body'][] = ['index' => $config];
-        self::$params['body'][] = $body;
+        if ($this->enableSha1) {
+            $body['sha1'] = sha1(json_encode($body));
+        }
+
+        $this->params['body'][] = ['index' => $config];
+        $this->params['body'][] = $body;
 
         $this->counter++;
 
@@ -129,15 +150,15 @@ class Bulker
      */
     public function send($force = false): bool
     {
-        if (!$force && $this->counter < $this->size || empty(self::$params['body'])) {
+        if (!$force && $this->counter < $this->size || empty($this->params['body'])) {
             return false;
         }
 
         try {
-            $response = $this->client->bulk(self::$params);
+            $response = $this->client->bulk($this->params);
             $this->logResponse($response);
 
-            self::$params = ['body' => []];
+            $this->params = ['body' => []];
             $this->counter = 0;
         } catch (\Exception $e) {
             $this->logger->critical($e->getMessage());
