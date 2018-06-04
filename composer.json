@@ -1,0 +1,34 @@
+{
+	"name" : "elasticms/common-bundle",
+	"description" : "All code shared between the EMS client helper and the EMS core",
+	"type" : "symfony-bundle",
+	"keywords" : [
+		"elasticms"
+	],
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "David Mattei",
+			"email" : "david.mattei@smals.be"
+		}
+	],
+	"require" : {
+		"php" : ">=7.1",
+		"symfony/symfony" : "^3.4",
+		"elasticsearch/elasticsearch" : "^5.3",
+		"guzzlehttp/guzzle" : "^6.3",
+		"ninoskopac/php-tika-wrapper": "^1.0"
+	},
+	"autoload" : {
+		"psr-4" : {
+			"EMS\\CommonBundle\\" : ""
+		},
+		"exclude-from-classmap" : [
+			"/Tests/"
+		]
+	},
+	"extra" : {
+		"branch-alias" : {
+			"dev-master" : "0.1-dev"
+		}
+	}
+}
