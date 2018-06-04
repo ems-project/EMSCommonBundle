@@ -15,7 +15,12 @@ interface DocumentInterface
     public function getType(): string;
 
     /**
+     * @return string
+     */
+    public function getEmsId(): string;
+
+    /**
      * @return array
      */
-    public function getBody(): array;
+    public function getSource(): array;
 }
