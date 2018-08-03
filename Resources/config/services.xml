@@ -3,9 +3,17 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services
         http://symfony.com/schema/dic/services/services-1.0.xsd">
+
     <services>
-        <prototype namespace="EMS\CommonBundle\EventSubscriber\" resource="../../EventSubscriber/*">
+        <defaults public="false" />
+
+        <!-- use this factory services, it will set the tracer to common.ems.logger -->
+        <service id="ems_common.elasticsearch.factory" class="EMS\CommonBundle\Elasticsearch\Factory">
+            <argument type="service" id="ems_common.logger" />
+        </service>
+
+        <service id="ems_common.event_listener.command" class="EMS\CommonBundle\EventListener\CommandEventListener">
             <tag name="kernel.event_subscriber" />
-        </prototype>
+        </service>
     </services>
 </container>

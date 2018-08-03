@@ -134,7 +134,7 @@ class Bulker
             '_type'  => ($this->singleIndex ? 'doc' : $document->getType()),
             '_id'    => $document->getId(),
         ];
-        $body = $document->getBody();
+        $body = $document->getSource();
 
         if ($this->singleIndex) {
             $body = array_merge(['contenttype' => $document->getType()], $body);
