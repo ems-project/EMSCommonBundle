@@ -3,6 +3,7 @@
 namespace EMS\CommonBundle\Elasticsearch;
 
 use Elasticsearch\ClientBuilder;
+use Elasticsearch\ConnectionPool\SniffingConnectionPool;
 use Psr\Log\LoggerInterface;
 
 class Factory
@@ -28,6 +29,7 @@ class Factory
     public function fromConfig(array $config)
     {
         $config['Tracer'] = $this->logger;
+        $config['connectionPool'] = SniffingConnectionPool::class;
 
         return ClientBuilder::fromConfig($config);
     }

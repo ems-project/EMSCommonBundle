@@ -41,8 +41,7 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
     }
 
     /**
-     * Divide by 3 because for every elasticsearch call we get 3 log lines
-     * Request Body, Request Success, Response
+     * Divide by 2 because for every elasticsearch call we get 2 log lines (Request/Response)
      *
      * @return int
      */

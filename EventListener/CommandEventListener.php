@@ -1,6 +1,6 @@
 <?php
 
-namespace EMS\CommonBundle\EventSubscriber;
+namespace EMS\CommonBundle\EventListener;
 
 use EMS\CommonBundle\Command\CommandInterface;
 use Symfony\Component\Console\ConsoleEvents;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
-class CommandSubscriber implements EventSubscriberInterface
+class CommandEventListener implements EventSubscriberInterface
 {
     /**
      * @var Stopwatch
@@ -79,7 +79,7 @@ class CommandSubscriber implements EventSubscriberInterface
      */
     private function formatBytes($bytes, $precision = 2) 
     { 
-        $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
         $bytes = max($bytes, 0); 
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
