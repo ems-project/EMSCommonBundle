@@ -14,11 +14,18 @@ class Factory
     private $logger;
 
     /**
-     * @param LoggerInterface $logger
+     * @var string
      */
-    public function __construct(LoggerInterface $logger)
+    private $env;
+
+    /**
+     * @param LoggerInterface $logger
+     * @param string $env
+     */
+    public function __construct(LoggerInterface $logger, string $env)
     {
         $this->logger = $logger;
+        $this->env = $env;
     }
 
     /**
@@ -28,7 +35,11 @@ class Factory
      */
     public function fromConfig(array $config)
     {
-        $config['Tracer'] = $this->logger;
+        if ( $this->env == "dev" )
+        {
+            //for performance reason only in dev mode: https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_configuration.html#enabling_logger
+            $config['Tracer'] = $this->logger;
+        }
         $config['connectionPool'] = SniffingConnectionPool::class;
 
         return ClientBuilder::fromConfig($config);
