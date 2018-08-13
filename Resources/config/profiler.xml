@@ -7,22 +7,10 @@
     <services>
         <defaults public="false" />
 
-        <service id="ems_common.logger" parent="monolog.logger_prototype" public="false">
-            <argument index="0">ems</argument>
-            <call method="useMicrosecondTimestamps">
-                <argument>%monolog.use_microseconds%</argument>
-            </call>
-            <call method="pushProcessor">
-                <argument type="collection">
-                    <argument type="service" id="ems_common.data_collector.elasticsearch_processor" />
-                    <argument>processRecord</argument>
-                </argument>
-            </call>
-        </service>
         <service id="ems_common.data_collector.elasticsearch_processor" class="EMS\CommonBundle\DataCollector\ElasticsearchProcessor">
             <argument type="service" id="ems_common.data_collector.elasticsearch_data_collector" />
+            <tag name="monolog.processor" channel="elasticsearch" />
         </service>
-
         <service id="ems_common.data_collector.elasticsearch_data_collector" class="EMS\CommonBundle\DataCollector\ElasticsearchDataCollector">
             <tag name="data_collector"
                  template="@EMSCommon/DataCollector/template.html.twig"
