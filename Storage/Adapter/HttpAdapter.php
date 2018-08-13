@@ -2,7 +2,7 @@
 
 namespace EMS\CommonBundle\Storage\Adapter;
 
-use EMS\CommonBundle\Http\ClientFactory;
+use EMS\CommonBundle\Common\HttpClientFactory;
 
 class HttpAdapter implements AdapterInterface
 {
@@ -23,7 +23,7 @@ class HttpAdapter implements AdapterInterface
      */
     public function __construct(string $path, string $baseUrl, string $token)
     {
-        $this->client = ClientFactory::create($baseUrl, ['X-Auth-Token' => $token]);
+        $this->client = HttpClientFactory::create($baseUrl, ['X-Auth-Token' => $token]);
         $this->fileAdapter = new FileAdapter($path);
     }
 

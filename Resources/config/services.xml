@@ -14,7 +14,7 @@
             <tag name="monolog.logger" channel="elasticsearch"/>
         </service>
 
-        <service id="ems_common.event_listener.command" class="EMS\CommonBundle\EventListener\CommandEventListener">
+        <service id="ems_common.event_listener.command" class="EMS\CommonBundle\EventListener\CommandListener">
             <tag name="kernel.event_subscriber" />
         </service>
     </services>

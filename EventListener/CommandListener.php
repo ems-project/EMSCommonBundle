@@ -10,7 +10,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
-class CommandEventListener implements EventSubscriberInterface
+class CommandListener implements EventSubscriberInterface
 {
     /**
      * @var Stopwatch

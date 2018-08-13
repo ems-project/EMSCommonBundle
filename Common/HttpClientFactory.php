@@ -1,10 +1,10 @@
 <?php
 
-namespace EMS\CommonBundle\Http;
+namespace EMS\CommonBundle\Common;
 
 use GuzzleHttp\Client;
 
-class ClientFactory
+class HttpClientFactory
 {
     /**
      * @param string $baseUrl
