@@ -3,6 +3,7 @@
 namespace EMS\CommonBundle\EventListener;
 
 use EMS\CommonBundle\Command\CommandInterface;
+use EMS\CommonBundle\Common\Converter;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
@@ -67,26 +68,7 @@ class CommandListener implements EventSubscriberInterface
         $io = new SymfonyStyle($event->getInput(), $event->getOutput());
         $io->listing([
             sprintf('Duration: %d s', $stopwatch->getDuration() / 1000),
-            sprintf('Memory: %s',  $this->formatBytes($stopwatch->getMemory()))
+            sprintf('Memory: %s',  Converter::formatBytes($stopwatch->getMemory()))
         ]);
     }
-    
-    /**
-     * @param int $bytes
-     * @param int $precision
-     *
-     * @return string
-     */
-    private function formatBytes($bytes, $precision = 2) 
-    { 
-        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-
-        $bytes = max($bytes, 0); 
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
-        $pow = min($pow, count($units) - 1); 
-
-        $bytes /= (1 << (10 * $pow)); 
-
-        return round($bytes, $precision) . ' ' . $units[$pow]; 
-    } 
 }

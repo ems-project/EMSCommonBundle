@@ -2,7 +2,7 @@
 
 namespace EMS\CommonBundle\Controller;
 
-use EMS\CommonBundle\Common\AsciiConverter;
+use EMS\CommonBundle\Common\Converter;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -76,7 +76,7 @@ class FileController extends AbstractController
 
         $response = $this->createResponse($sha1);
         $response->headers->set('Content-Type', $type);
-        $response->setContentDisposition($disposition, AsciiConverter::toAscii($name));
+        $response->setContentDisposition($disposition, Converter::toAscii($name));
 
         return $response;
     }

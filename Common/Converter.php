@@ -2,18 +2,17 @@
 
 namespace EMS\CommonBundle\Common;
 
-/**
- * Convert a string into an url friendly string
- * http://cubiq.org/the-perfect-php-clean-url-generator
- */
-class AsciiConverter
+class Converter
 {
     /**
+     * Convert a string into an url friendly string
+     * http://cubiq.org/the-perfect-php-clean-url-generator
+     *
      * @param string $str
      *
      * @return string
      */
-    public static function toAscii($str)
+    public static function toAscii(string $str): string
     {
         try {
             $clean = iconv('UTF-8', 'ASCII//TRANSLIT', $str);
@@ -33,5 +32,24 @@ class AsciiConverter
         $clean = preg_replace("/[\/\_\|\ \-]+/", '-', $clean);
 
         return $clean;
+    }
+
+    /**
+     * @param int $bytes
+     * @param int $precision
+     *
+     * @return float
+     */
+    public static function formatBytes(int $bytes, int $precision = 2): float
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+
+        // Uncomment one of the following alternatives
+        $bytes /= pow(1024, $pow);
+
+        return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }
