@@ -35,8 +35,7 @@ class FileController extends AbstractController
      */
     public function view(Request $request, string $sha1)
     {
-        //http://blog.alterphp.com/2012/08/how-to-deal-with-asynchronous-request.html
-        $request->getSession()->save();
+        $this->closeSession($request);
 
         return $this->getFile($request, $sha1, ResponseHeaderBag::DISPOSITION_INLINE);
 
@@ -50,8 +49,7 @@ class FileController extends AbstractController
      */
     public function download(Request $request, string $sha1)
     {
-        //http://blog.alterphp.com/2012/08/how-to-deal-with-asynchronous-request.html
-        $request->getSession()->save();
+        $this->closeSession($request);
 
         return $this->getFile($request, $sha1, ResponseHeaderBag::DISPOSITION_ATTACHMENT);
     }
@@ -118,5 +116,19 @@ class FileController extends AbstractController
         }
 
         return false;
+    }
+
+    /**
+     * http://blog.alterphp.com/2012/08/how-to-deal-with-asynchronous-request.html
+     *
+     * @param Request $request
+     */
+    private function closeSession(Request $request)
+    {
+        $session = $request->getSession();
+
+        if ($session && $session->isStarted()) {
+            $session->save();
+        }
     }
 }
