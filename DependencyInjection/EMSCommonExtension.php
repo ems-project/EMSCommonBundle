@@ -15,7 +15,20 @@ class EMSCommonExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('logging.xml');
         $loader->load('services.xml');
+        $loader->load('twig.xml');
+
+        $configuration = new Configuration();
+        $config = $this->processConfiguration($configuration, $configs);
+
+        if ($config['profiler']) {
+            $loader->load('profiler.xml');
+        }
+
+        if ($config['storage']) {
+            $loader->load('storage.xml');
+        }
+
+
     }
 }

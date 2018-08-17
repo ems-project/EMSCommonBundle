@@ -22,7 +22,7 @@ class ElasticsearchProcessor
      *
      * @return array
      */
-    public function processRecord(array $record)
+    public function __invoke(array $record)
     {
         $this->collector->addData($record);
 

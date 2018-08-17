@@ -9,11 +9,12 @@
 
         <!-- use this factory services, it will set the tracer to common.ems.logger -->
         <service id="ems_common.elasticsearch.factory" class="EMS\CommonBundle\Elasticsearch\Factory">
-            <argument type="service" id="ems_common.logger" />
+            <argument type="service" id="logger" />
             <argument>%kernel.environment%</argument>
+            <tag name="monolog.logger" channel="elasticsearch"/>
         </service>
 
-        <service id="ems_common.event_listener.command" class="EMS\CommonBundle\EventListener\CommandEventListener">
+        <service id="ems_common.event_listener.command" class="EMS\CommonBundle\EventListener\CommandListener">
             <tag name="kernel.event_subscriber" />
         </service>
     </services>

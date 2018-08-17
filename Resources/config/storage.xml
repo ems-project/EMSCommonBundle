@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <defaults public="false" />
+
+        <service id="ems_common.storage.manager" class="EMS\CommonBundle\Storage\StorageManager">
+            <argument type="tagged" tag="ems_common.storage.adapter"/>
+        </service>
+        <service id="ems_common.controller.file" class="EMS\CommonBundle\Controller\FileController">
+            <argument type="service" id="ems_common.storage.manager"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+    </services>
+</container>
