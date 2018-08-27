@@ -5,6 +5,8 @@ namespace EMS\CommonBundle\Controller;
 use EMS\CommonBundle\Common\Converter;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
+use Exception;
+use function substr;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,9 +74,22 @@ class FileController extends AbstractController
         $name = $request->query->get('name', 'upload.bin');
         $type = $request->query->get('type', 'application/bin');
 
-        $response = $this->createResponse($sha1);
-        $response->headers->set('Content-Type', $type);
-        $response->setContentDisposition($disposition, Converter::toAscii($name));
+        try {
+            $response = $this->createResponse($sha1);
+            $response->headers->set('Content-Type', $type);
+            $response->setContentDisposition($disposition, Converter::toAscii($name));
+        } catch (Exception $e) {
+            if(substr($type, 0, 5) === 'image')
+            {
+                $ballPath= $this->get('kernel')->locateResource('@EMSCommonBundle/Resources/public/image-not-found.svg');
+                $response = new BinaryFileResponse($ballPath);
+                $response->setPublic();
+            }
+            else
+            {
+                $response = new Response('File not found', 404);
+            }
+        }
 
         return $response;
     }
