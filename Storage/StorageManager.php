@@ -37,11 +37,9 @@ class StorageManager
     public function getFile(string $sha1): string
     {
         foreach ($this->adapters as $adapter) {
-            if (!$adapter->exists($sha1)) {
-                continue;
+            if ($adapter->exists($sha1)) {
+                return $adapter->read($sha1);
             }
-
-            return $adapter->read($sha1);
         }
 
         throw new NotFoundException($sha1);
