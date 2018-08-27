@@ -3,6 +3,7 @@
 namespace EMS\CommonBundle\Storage\Adapter;
 
 use EMS\CommonBundle\Common\HttpClientFactory;
+use GuzzleHttp\Exception\GuzzleException;
 
 class HttpAdapter implements AdapterInterface
 {
@@ -19,11 +20,10 @@ class HttpAdapter implements AdapterInterface
     /**
      * @param string $path
      * @param string $baseUrl
-     * @param string $token
      */
-    public function __construct(string $path, string $baseUrl, string $token)
+    public function __construct(string $path, string $baseUrl)
     {
-        $this->client = HttpClientFactory::create($baseUrl, ['X-Auth-Token' => $token]);
+        $this->client = HttpClientFactory::create($baseUrl);
         $this->fileAdapter = new FileAdapter($path);
     }
 
@@ -32,9 +32,12 @@ class HttpAdapter implements AdapterInterface
      */
     public function exists(string $sha1): bool
     {
-        $response = $this->client->request('HEAD', '/api/file/'.$sha1);
-
-        return $response->getStatusCode() === 200;
+        try {
+            $response = $this->client->request('HEAD', '/public/file/' . $sha1);
+            return $response->getStatusCode() === 200;
+        } catch (GuzzleException $e) {
+            return false;
+        }
     }
 
     /**
@@ -46,7 +49,7 @@ class HttpAdapter implements AdapterInterface
             return $this->fileAdapter->read($sha1);
         }
 
-        $response = $this->client->request('GET', '/api/file/'.$sha1);
+        $response = $this->client->request('GET', '/public/file/'.$sha1);
 
         return $this->fileAdapter->create($sha1, $response->getBody()->getContents());
     }
