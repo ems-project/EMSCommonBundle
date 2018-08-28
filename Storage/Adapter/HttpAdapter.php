@@ -55,19 +55,6 @@ class HttpAdapter implements AdapterInterface
     }
 
     /**
-     * @todo make create call
-     *
-     * @param string $sha1
-     * @param string $content
-     *
-     * @return string
-     */
-    public function create(string $sha1, string $content): string
-    {
-        throw new \Exception('not supported!');
-    }
-
-    /**
      * @inheritdoc
      */
     public function health(): bool
