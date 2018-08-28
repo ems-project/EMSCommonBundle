@@ -19,14 +19,6 @@ interface AdapterInterface
     public function read(string $sha1): string;
 
     /**
-     * @param string $sha1
-     * @param string $content
-     *
-     * @return string
-     */
-    public function create(string $sha1, string $content): string;
-
-    /**
      * @return bool
      */
     public function health(): bool;
