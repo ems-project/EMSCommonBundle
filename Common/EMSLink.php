@@ -36,7 +36,18 @@ class EMSLink
      * Example: <a href="ems://object:page:AV44kX4b1tfmVMOaE61u">example</a>
      * link_type => object, content_type => page, ouuid => AV44kX4b1tfmVMOaE61u
      */
-    const REGEX = '/ems:\/\/(?P<link_type>.*?):(?:(?P<content_type>.*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)(?:\?(?P<query>(?:[^"|\'|\s]*)))?/';
+    const PATTERN = '/ems:\/\/(?P<link_type>.*?):(?:(?P<content_type>.*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)(?:\?(?P<query>(?:[^"|\'|\s]*)))?/';
+    const SIMPLE_PATTERN = '/(?:(?P<content_type>.*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)/';
+
+    private function __construct() {}
+
+    public static function fromText(string $text): EMSLink
+    {
+        $pattern = substr($text, 0, 6) === 'ems://' ? self::PATTERN : self::SIMPLE_PATTERN;
+        preg_match($pattern, $text, $match);
+
+        return self::fromMatch($match);
+    }
 
     /**
      * @param array $match
@@ -46,46 +57,32 @@ class EMSLink
     public static function fromMatch(array $match): EMSLink
     {
         $link = new self();
-        $link->linkType = $match['link_type'];
-        $link->ouuid = $match['ouuid'];
 
-        if (isset($match['content_type'])) {
+        if (!isset($match['ouuid'])) {
+            throw new \InvalidArgumentException('ouuid is required!');
+        }
+
+        $link->ouuid = $match['ouuid'];
+        $link->linkType = $match['link_type'] ?? 'object';
+
+        if (!empty($match['content_type'])) {
             $link->contentType = $match['content_type'];
         }
 
-        if (isset($match['query'])) {
+        if (!empty($match['query'])) {
             $link->query = html_entity_decode($match['query']);
         }
 
-
         return $link;
     }
 
-    /**
-     * @param string $string
-     *
-     * @return EMSLink
-     */
-    public static function fromString(string $string): EMSLink
-    {
-        $split = preg_split('/:/', $string);
-
-        $link = new self();
-        $link->contentType = $split[0];
-        $link->ouuid = $split[1];
-
-        return $link;
-    }
-
-    /**
-     * @param array $document
-     *
-     * @return EMSLink
-     */
     public static function fromDocument(array $document): EMSLink
     {
+        $source = $document['_source'];
+
         $link = new self();
-        $link->contentType = $document['_source']['_contenttype'];
+
+        $link->contentType = isset($source['_contenttype']) ? $source['_contenttype'] : $document['_type'] ;
         $link->ouuid = $document['_id'];
 
         return $link;
