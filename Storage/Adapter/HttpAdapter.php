@@ -21,10 +21,15 @@ class HttpAdapter implements AdapterInterface
      * @param string $path
      * @param string $baseUrl
      */
-    public function __construct(string $path, string $baseUrl)
+    public function __construct(string $path, $baseUrl)
     {
-        $this->client = HttpClientFactory::create($baseUrl);
-        $this->fileAdapter = new FileAdapter($path);
+        if($baseUrl) {
+            $this->client = HttpClientFactory::create($baseUrl);
+            $this->fileAdapter = new FileAdapter($path);
+        }
+        else {
+            $this->client = false;
+        }
     }
 
     /**
@@ -32,6 +37,9 @@ class HttpAdapter implements AdapterInterface
      */
     public function exists(string $sha1): bool
     {
+        if($this->client === false)  {
+            return false;
+        }
         try {
             $response = $this->client->request('HEAD', '/public/file/' . $sha1);
             return $response->getStatusCode() === 200;
@@ -45,6 +53,10 @@ class HttpAdapter implements AdapterInterface
      */
     public function read(string $sha1): string
     {
+        if($this->client === false)  {
+            throw new \Exception('HttpAdapter not initialized');
+        }
+
         if ($this->fileAdapter->exists($sha1)) {
             return $this->fileAdapter->read($sha1);
         }
@@ -59,6 +71,10 @@ class HttpAdapter implements AdapterInterface
      */
     public function health(): bool
     {
+        if($this->client === false)  {
+            return true;
+        }
+
         $response = $this->client->request('HEAD');
 
         return $response->getStatusCode() === 200;
