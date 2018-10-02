@@ -50,6 +50,6 @@ class CommonExtension extends AbstractExtension
      */
     public function getOuuid(string $emsLink): string
     {
-        return EMSLink::fromString($emsLink)->getOuuid();
+        return EMSLink::fromText($emsLink)->getOuuid();
     }
 }
