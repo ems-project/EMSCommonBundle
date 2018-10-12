@@ -40,7 +40,7 @@ class Converter
      *
      * @return float
      */
-    public static function formatBytes(int $bytes, int $precision = 2): float
+    public static function formatBytes(int $bytes, int $precision = 2)
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $bytes = max($bytes, 0);
