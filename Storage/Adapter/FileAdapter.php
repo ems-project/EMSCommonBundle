@@ -4,7 +4,7 @@ namespace EMS\CommonBundle\Storage\Adapter;
 
 use Symfony\Component\Filesystem\Filesystem;
 
-class FileAdapter implements AdapterInterface
+class FileAdapter implements CacheAdapterInterface
 {
     /**
      * @var string
@@ -28,34 +28,34 @@ class FileAdapter implements AdapterInterface
     /**
      * @inheritdoc
      */
-    public function exists(string $sha1): bool
+    public function exists(string $hash, ?string $context = null): bool
     {
-        return file_exists($this->getFilename($sha1));
+        return file_exists($this->getFilename($hash, $context));
     }
 
     /**
      * @inheritdoc
      */
-    public function read(string $sha1): string
+    public function read(string $hash, ?string $context = null): string
     {
-        return $this->getFilename($sha1);
+        return $this->getFilename($hash, $context);
     }
 
     /**
      * @inheritdoc
      */
-    public function create(string $sha1, string $content): string
+    public function create(string $hash, string $content, ?string $context = null)
     {
-        $filename = $this->getFilename($sha1);
+        $filename = $this->getFilename($hash, $context);
 
-        if (!$this->filesystem->exists($this->getDir($sha1))) {
-            $this->filesystem->mkdir($this->getDir($sha1));
+        if (!$this->filesystem->exists($this->getDir($hash, $context))) {
+            $this->filesystem->mkdir($this->getDir($hash, $context));
         }
 
         $this->filesystem->touch($filename);
         $this->filesystem->dumpFile($filename, $content);
 
-        return $filename;
+        return $this->read($hash);
     }
 
     /**
@@ -67,22 +67,40 @@ class FileAdapter implements AdapterInterface
     }
 
     /**
-     * @param string $sha1
-     *
-     * @return string
+     * @inheritdoc
      */
-    private function getFilename(string $sha1): string
+    public function getLastUpdateDate(string $hash, ?string $context = null): ?\DateTime
     {
-        return $this->getDir($sha1).'/'.$sha1;
+        if (!$this->exists($hash, $context)) {
+            return null;
+        }
+
+        $time = @filemtime($this->getFilename($hash, $context));
+
+        return $time ? \DateTime::createFromFormat('U', $time) : null;
     }
 
     /**
-     * @param $sha1
+     * @param string      $hash
+     * @param string|null $context
      *
      * @return string
      */
-    private function getDir($sha1): string
+    private function getFilename(string $hash, ?string $context = null): string
     {
-        return $this->path.'/'.substr($sha1, 0, 3);
+        return $this->getDir($hash, $context).'/'.$hash;
+    }
+
+    /**
+     * @param string      $hash
+     * @param string|null $context
+     *
+     * @return string
+     */
+    private function getDir($hash, ?string $context = null): string
+    {
+        $dir = substr($hash, 0, 3);
+
+        return $context ? sprintf('%s/%s/%s', $this->path, $context, $dir) : $this->path.'/'.$dir;
     }
 }

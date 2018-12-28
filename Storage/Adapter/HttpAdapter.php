@@ -3,12 +3,13 @@
 namespace EMS\CommonBundle\Storage\Adapter;
 
 use EMS\CommonBundle\Common\HttpClientFactory;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 
 class HttpAdapter implements AdapterInterface
 {
     /**
-     * @var string
+     * @var Client
      */
     private $client;
 
@@ -26,8 +27,7 @@ class HttpAdapter implements AdapterInterface
         if($baseUrl) {
             $this->client = HttpClientFactory::create($baseUrl);
             $this->fileAdapter = new FileAdapter($path);
-        }
-        else {
+        } else {
             $this->client = false;
         }
     }
@@ -35,13 +35,13 @@ class HttpAdapter implements AdapterInterface
     /**
      * @inheritdoc
      */
-    public function exists(string $sha1): bool
+    public function exists(string $hash, ?string $context = null): bool
     {
         if($this->client === false)  {
             return false;
         }
         try {
-            $response = $this->client->request('HEAD', '/public/file/' . $sha1);
+            $response = $this->client->request('HEAD', '/public/file/' . $hash);
             return $response->getStatusCode() === 200;
         } catch (GuzzleException $e) {
             return false;
@@ -51,19 +51,27 @@ class HttpAdapter implements AdapterInterface
     /**
      * @inheritdoc
      */
-    public function read(string $sha1): string
+    public function read(string $hash, ?string $context = null): string
     {
         if($this->client === false)  {
             throw new \Exception('HttpAdapter not initialized');
         }
 
-        if ($this->fileAdapter->exists($sha1)) {
-            return $this->fileAdapter->read($sha1);
+        if ($this->fileAdapter->exists($hash, $context)) {
+            return $this->fileAdapter->read($hash, $context);
         }
 
-        $response = $this->client->request('GET', '/public/file/'.$sha1);
+        $response = $this->client->request('GET', '/public/file/'.$hash);
 
-        return $this->fileAdapter->create($sha1, $response->getBody()->getContents());
+        return $this->fileAdapter->create($hash, $response->getBody()->getContents(), $context);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function create(string $hash, string $content, ?string $context = null)
+    {
+        return false;
     }
 
     /**
