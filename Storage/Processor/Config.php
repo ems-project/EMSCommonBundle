@@ -2,121 +2,185 @@
 
 namespace EMS\CommonBundle\Storage\Processor;
 
+use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
+use Symfony\Component\OptionsResolver\Options;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
 final class Config
 {
     /** @var string */
-    private $identifier;
-    /** @var \DateTime */
-    private $lastUpdateDate;
-
+    private $processor;
     /** @var string */
-    private $configType;
-    /** @var null|int */
-    private $quality;
-    /** @var string */
-    private $background;
-
-    /** @var null|string */
-    private $resize;
-    /** @var string */
-    private $width;
-    /** @var string */
-    private $height;
-    /** @var string */
-    private $gravity;
-
-    /** @var null|string */
-    private $radius;
+    private $assetHash;
     /** @var array */
-    private $radiusGeometry;
-    /** @var null|string */
-    private $borderColor;
+    private $options;
+    /** @var string */
+    private $configHash;
 
-    /** @var null|array  */
-    private $watermark;
-
-    public function __construct(string $identifier, array $doc = [])
+    public function __construct(string $processor, string $assetHash, array $options = [])
     {
-        $this->identifier = $identifier;
-        $this->configType = $doc['_config_type'] ?? 'image';
-        $this->quality = $doc['_quality'] ?? null;
-        $this->background = $doc['_background'] ?? '#FFFFFF';
+        $this->processor = $processor;
+        $this->assetHash = $assetHash;
+        $this->options = $this->resolve($options);
 
-        $this->resize = $doc['_resize'] ?? null;
-        $this->width =  $doc['_width'] ?? '*';
-        $this->height =  $doc['_height'] ?? '*';
-        $this->gravity = $doc['_gravity'] ?? 'center';
+        unset($options['_published_datetime']); //the date can not change the cache id
 
-        $this->radius = $doc['_radius'] ?? null;
-        $this->radiusGeometry = $doc['_radius_geometry'] ?? ['topleft', 'topright', 'bottomright', 'bottomleft'];
-        $this->borderColor = $doc['_border_color'] ?? null;
-
-        $this->watermark = $doc['_watermark'] ?? null;
-        $this->lastUpdateDate = isset($doc['_published_datetime']) ? new \DateTime($doc['_published_datetime']) : new \DateTime();
+        $this->configHash = sha1(json_encode($options));
     }
 
-    public function getIdentifier(): string
+    public function getProcessor(): string
     {
-        return $this->identifier;
+        return $this->processor;
     }
 
-    public function getLastUpdateDate(): \DateTime
+    public function getAssetHash(): string
     {
-        return $this->lastUpdateDate;
+        return $this->assetHash;
+    }
+
+    public function getConfigHash(): string
+    {
+        return $this->configHash;
+    }
+
+    /**
+     * Asset_config_type is optional, so _published_datetime can be null
+     */
+    public function isValid(\DateTime $lastCacheDate = null): bool
+    {
+        $publishedDateTime = $this->getLastUpdateDate();
+
+        if ($publishedDateTime && $publishedDateTime < $lastCacheDate) {
+            return true;
+        }
+
+        return null === $publishedDateTime && null !== $lastCacheDate;
+    }
+
+    public function getLastUpdateDate(): ?\DateTime
+    {
+        return $this->options['_published_datetime'];
+    }
+
+    public function getCacheKey(): string
+    {
+        return $this->assetHash . '_' . $this->configHash;
     }
 
     public function getConfigType(): string
     {
-        return $this->configType;
+        return $this->options['_config_type'];
     }
 
     public function getQuality(): ?int
     {
-        return $this->quality;
+        return $this->options['_quality'];
     }
 
     public function getBackground(): string
     {
-        return $this->background;
+        return $this->options['_background'];
     }
 
     public function getResize(): ?string
     {
-        return $this->resize;
+        return $this->options['_resize'];
     }
 
     public function getWidth(): string
     {
-        return $this->width;
+        return $this->options['_width'];
     }
 
     public function getHeight(): string
     {
-        return $this->height;
+        return $this->options['_height'];
     }
 
     public function getGravity(): string
     {
-        return $this->gravity;
+        return $this->options['_gravity'];
     }
 
     public function getRadius(): ?string
     {
-        return $this->radius;
+        return $this->options['_radius'];
     }
 
     public function getRadiusGeometry(): array
     {
-        return $this->radiusGeometry;
+        return $this->options['_radius_geometry'];
     }
 
     public function getBorderColor(): ?string
     {
-        return $this->borderColor;
+        return $this->options['_border_color'];
     }
 
     public function getWatermark(): ?string
     {
-        return $this->watermark['sha1'] ?? null;
+        return isset($this->options['_watermark']['sha1']) ? $this->options['_watermark']['sha1'] : null;
+    }
+
+    public function getMimeType(): string
+    {
+        if ($this->isSvg()) {
+            return $this->options['_type'];
+        }
+
+        return $this->getQuality() ? 'image/jpeg' : 'image/png';
+    }
+
+    public function isSvg(): bool
+    {
+        return $this->options['_type'] ? preg_match('/image\/svg.*/', $this->options['_type']) : false;
+    }
+
+    private function resolve(array $options): array
+    {
+        $defaults = self::getDefaults();
+
+        $resolver = new OptionsResolver();
+        $resolver
+            ->setDefaults($defaults)
+            ->setAllowedValues('_config_type', 'image')
+            ->setAllowedValues('_radius_geometry', function ($values) use ($defaults) {
+                if (!is_array($values)){
+                    return false;
+                }
+
+                foreach ($values as $value) {
+                    if (!in_array($value, $defaults['_radius_geometry'])){
+                        throw new UndefinedOptionsException(sprintf('_radius_geometry %s is invalid (%s)', $value, implode(',', $defaults['_radius_geometry'])));
+                    }
+                }
+
+                return true;
+            })
+            ->setNormalizer('_published_datetime', function (Options $options, $value) {
+                return null !== $value ? new \DateTime($value) : null;
+            })
+        ;
+
+        return $resolver->resolve($options);
+    }
+
+    public static function getDefaults(): array
+    {
+        return [
+            '_config_type' => 'image',
+            '_quality' => null,
+            '_background' => '#FFFFFF',
+            '_resize' => null,
+            '_width' => '*',
+            '_height' => '*',
+            '_gravity' => 'center',
+            '_radius' => null,
+            '_radius_geometry' => ['topleft', 'topright', 'bottomright', 'bottomleft'],
+            '_border_color' => null,
+            '_watermark' => null,
+            '_published_datetime' => null,
+            '_type' => null,
+        ];
     }
 }

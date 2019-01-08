@@ -19,6 +19,8 @@
 
         <service id="ems_common.storage.processor" class="EMS\CommonBundle\Storage\Processor\Processor">
             <argument type="service" id="ems_common.storage.manager"/>
+            <argument type="service" id="logger" />
+            <tag name="monolog.logger" channel="ems_common"/>
         </service>
 
         <service id="EMS\CommonBundle\Storage\StorageManager" alias="ems_common.storage.manager" />
