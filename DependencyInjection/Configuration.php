@@ -20,7 +20,6 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('profiler')->defaultFalse()->end()
-                ->booleanNode('storage')->defaultFalse()->end()
             ->end()
         ;
 

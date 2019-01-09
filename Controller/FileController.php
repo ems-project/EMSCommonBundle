@@ -78,8 +78,7 @@ class FileController extends AbstractController
             $response->setContentDisposition($disposition, Converter::toAscii($name));
         } catch (\Exception $e) {
             if(\substr($type, 0, 5) === 'image') {
-                $ballPath= $this->get('kernel')->locateResource('@EMSCommonBundle/Resources/public/image-not-found.svg');
-                $response = new BinaryFileResponse($ballPath);
+                $response = new BinaryFileResponse($this->storageManager->getPublicImage('image-not-found.svg'));
                 $response->setPublic();
             } else {
                 $response = new Response('File not found', 404);

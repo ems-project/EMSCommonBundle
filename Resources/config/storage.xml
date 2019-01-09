@@ -8,11 +8,22 @@
         <defaults public="false" />
 
         <service id="ems_common.storage.manager" class="EMS\CommonBundle\Storage\StorageManager">
+            <argument type="service" id="file_locator" />
             <argument type="tagged" tag="ems_common.storage.adapter"/>
+            <argument type="tagged" tag="ems_common.storage.cache_adapter"/>
         </service>
         <service id="ems_common.controller.file" class="EMS\CommonBundle\Controller\FileController">
             <argument type="service" id="ems_common.storage.manager"/>
             <tag name="controller.service_arguments"/>
         </service>
+
+        <service id="ems_common.storage.processor" class="EMS\CommonBundle\Storage\Processor\Processor">
+            <argument type="service" id="ems_common.storage.manager"/>
+            <argument type="service" id="logger" />
+            <tag name="monolog.logger" channel="ems_common"/>
+        </service>
+
+        <service id="EMS\CommonBundle\Storage\StorageManager" alias="ems_common.storage.manager" />
+        <service id="EMS\CommonBundle\Storage\Processor\Processor" alias="ems_common.storage.processor" />
     </services>
 </container>

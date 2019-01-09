@@ -21,14 +21,10 @@ class EMSCommonExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
+        $loader->load('storage.xml');
+
         if ($config['profiler']) {
             $loader->load('profiler.xml');
         }
-
-        if ($config['storage']) {
-            $loader->load('storage.xml');
-        }
-
-
     }
 }
