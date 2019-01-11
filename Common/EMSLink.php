@@ -30,13 +30,10 @@ class EMSLink
      * Regex for searching ems links in content
      * content_type and query can be empty/optional
      *
-     * Regex101.com:
-     * ems:\/\/(?P<link_type>.*?):(?:(?P<content_type>.*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)(?:\?(?P<query>(?:[^"|\'|\s]*)))?
-     *
      * Example: <a href="ems://object:page:AV44kX4b1tfmVMOaE61u">example</a>
      * link_type => object, content_type => page, ouuid => AV44kX4b1tfmVMOaE61u
      */
-    const PATTERN = '/ems:\/\/(?P<link_type>.*?):(?:(?P<content_type>.*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)(?:\?(?P<query>(?:[^"|\'|\s]*)))?/';
+    const PATTERN = '/ems:\/\/(?P<link_type>.*?):(?:(?P<content_type>[[:alnum:]]*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)(?:\?(?P<query>(?:[^"|\'|\s]*)))?/';
     const SIMPLE_PATTERN = '/(?:(?P<content_type>.*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)/';
 
     private function __construct() {}
@@ -59,7 +56,7 @@ class EMSLink
         $link = new self();
 
         if (!isset($match['ouuid'])) {
-            throw new \InvalidArgumentException('ouuid is required!');
+            throw new \InvalidArgumentException(sprintf('ouuid is required! (%s)', implode(',', $match)));
         }
 
         $link->ouuid = $match['ouuid'];
@@ -67,6 +64,8 @@ class EMSLink
 
         if (!empty($match['content_type'])) {
             $link->contentType = $match['content_type'];
+        } else if (!empty($match['link_type'])) {
+            $link->contentType = $match['link_type'];
         }
 
         if (!empty($match['query'])) {
