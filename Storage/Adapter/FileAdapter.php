@@ -55,7 +55,7 @@ class FileAdapter implements CacheAdapterInterface
         $this->filesystem->touch($filename);
         $this->filesystem->dumpFile($filename, $content);
 
-        return $this->read($hash);
+        return $this->read($hash, $context);
     }
 
     /**
