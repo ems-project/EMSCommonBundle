@@ -13,6 +13,7 @@
 	],
 	"require" : {
 		"php" : ">=7.1",
+		"aws/aws-sdk-php": "^3.87",
 		"elasticsearch/elasticsearch" : "^5.3",
 		"guzzlehttp/guzzle" : "^6.3"
 	},
