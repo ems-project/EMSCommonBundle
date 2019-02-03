@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class FileController extends AbstractController
@@ -91,17 +92,33 @@ class FileController extends AbstractController
     /**
      * @param string
      *
-     * @return BinaryFileResponse
+     * @return Response
      */
     private function createResponse(string $sha1)
     {
+        $response = null;
         try {
-            $file = $this->storageManager->getFile($sha1);
+
+            $handler = $this->storageManager()->getResource($sha1);
+
+            if(!$handler){
+                throw new NotFoundHttpException('Impossible to find the item corresponding to this id: '.$sha1);
+            }
+
+            $response = new StreamedResponse(
+                function () use ($handler) {
+                    while (!feof($handler)) {
+                        print fread($handler, 8192);
+                    }
+                }, 200, [
+//                'Content-Disposition' => $disposition.'; '.HeaderUtils::toString(array('filename' => $name), ';'),
+//                'Content-Type' => $type,
+            ]);
+
         } catch (NotFoundException $ex) {
             throw new NotFoundHttpException('file not found');
         }
 
-        $response = new BinaryFileResponse($file);
         $response->setEtag($sha1);
         $response->setPublic();
 
