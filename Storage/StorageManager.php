@@ -74,7 +74,19 @@ class StorageManager
      *
      * @return resource
      */
-    public function getFile(string $hash, ?string $context = null)
+    public function getResource(string $hash, ?string $context = null)
+    {
+        return $this->read($this->adapters, $hash, $context);
+    }
+
+    /**
+     * @deprecated
+     * @param string      $hash
+     * @param string|null $context
+     *
+     * @return string
+     */
+    public function getFile(string $hash, ?string $context = null): string
     {
         $resource = $this->read($this->adapters, $hash, $context);
         $filename = tempnam(sys_get_temp_dir(), 'EMS');
