@@ -2,19 +2,18 @@
 
 namespace EMS\CommonBundle\Storage;
 
-use EMS\CommonBundle\Storage\Adapter\AdapterInterface;
-use EMS\CommonBundle\Storage\Adapter\CacheAdapterInterface;
+use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Symfony\Component\Config\FileLocatorInterface;
 
 class StorageManager
 {
     /**
-     * @var AdapterInterface[]
+     * @var StorageInterface[]
      */
     private $adapters = [];
 
     /**
-     * @var CacheAdapterInterface[]
+     * @var StorageInterface[]
      */
     private $cacheAdapters = [];
 
@@ -26,58 +25,88 @@ class StorageManager
     public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, iterable $cacheAdapters)
     {
         $this->fileLocator = $fileLocator;
-        $this->adapters = $adapters;
 
-        foreach ($cacheAdapters as $cacheAdapter) {
-            if (!$cacheAdapter instanceof CacheAdapterInterface) {
-                throw new \InvalidArgumentException(sprintf('Adapter %s can not be used for caching', get_class($cacheAdapter)));
-            }
+        foreach ($adapters as $adapters) {
+            $this->adapters[] = $adapters;
         }
 
-        $this->cacheAdapters = $cacheAdapters;
+        foreach ($cacheAdapters as $cacheAdapter) {
+            $this->cacheAdapters[] = $cacheAdapter;
+        }
+
+//        $this->adapters = $adapters;
+//
+//        foreach ($cacheAdapters as $cacheAdapter) {
+//            if (!$cacheAdapter instanceof CacheAdapterInterface) {
+//                throw new \InvalidArgumentException(sprintf('Adapter %s can not be used for caching', get_class($cacheAdapter)));
+//            }
+//        }
+//
+//        $this->cacheAdapters = $cacheAdapters;
     }
 
     /**
-     * @return AdapterInterface[]|iterable
+     * @return StorageInterface[]|iterable
      */
     public function getAdapters()
     {
         return $this->adapters;
     }
 
+
     /**
-     * @param string      $hash
-     * @param string|null $context
-     *
-     * @return string
+     * @param StorageInterface $storageAdapter
+     * @return StorageManager
      */
-    public function getFile(string $hash, ?string $context = null): string
-    {
-        return $this->read($this->adapters, $hash, $context);
+    public function addAdapter(StorageInterface $storageAdapter) {
+
+        $this->adapters[] = $storageAdapter;
+        if($storageAdapter->supportCacheStore())
+        {
+            $this->cacheAdapters[] = $storageAdapter;
+        }
+        return $this;
     }
 
     /**
      * @param string      $hash
      * @param string|null $context
      *
-     * @return string
+     * @return resource
      */
-    public function getCacheFile(string $hash, ?string $context = null): string
+    public function getFile(string $hash, ?string $context = null)
     {
-        return $this->read($this->cacheAdapters, $hash, $context);
+        $resource = $this->read($this->adapters, $hash, $context);
+        $filename = tempnam(sys_get_temp_dir(), 'EMS');
+        file_put_contents($filename, $resource);
+        return $filename;
     }
 
     /**
      * @param string      $hash
-     * @param string      $content
+     * @param string|null $context
+     *
+     * @return resource
+     */
+    public function getCacheFile(string $hash, ?string $context = null)
+    {
+        $resource = $this->read($this->cacheAdapters, $hash, $context);
+        $filename = tempnam(sys_get_temp_dir(), 'EMS');
+        file_put_contents($filename, $resource);
+        return $filename;
+    }
+
+    /**
+     * @param string      $hash
+     * @param string      $fileName
      * @param string|null $context
      *
      * @return bool
      */
-    public function createCacheFile(string $hash, string $content, ?string $context = null): bool
+    public function createCacheFile(string $hash, string $fileName, ?string $context = null): bool
     {
         foreach ($this->cacheAdapters as $cacheAdapter) {
-            if ($cacheAdapter->create($hash, $content, $context)) {
+            if ($cacheAdapter->create($hash, $fileName, $context)) {
                 return true;
             }
         }
@@ -117,17 +146,16 @@ class StorageManager
     }
 
     /**
-     * @param AdapterInterface[]|iterable $adapters
+     * @param StorageInterface[]|iterable $adapters
      * @param string                      $hash
      * @param string|null                 $context
      *
-     * @return string
+     * @return resource
      */
-    private function read(iterable $adapters, string $hash, ?string $context = null): string
+    private function read(iterable $adapters, string $hash, ?string $context = null)
     {
         foreach ($adapters as $adapter) {
-            dump($adapter);
-            if ($adapter->exists($hash, $context)) {
+            if ($adapter->head($hash, $context)) {
                 return $adapter->read($hash, $context);
             }
         }

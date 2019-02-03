@@ -91,7 +91,7 @@ class Processor
 
         $response = new BinaryFileResponse($file);
         $response->headers->set('Content-Type', $type);
-        $response->headers->set('X-EMS-CACHED-FILES', 1);
+        $response->headers->set('X-Ems-Cached-Files', 1);
         $response->setPrivate()->setLastModified($lastModified)->setEtag($cacheKey);
 
         return $response;
@@ -110,7 +110,7 @@ class Processor
     private function generate(Config $config): string
     {
         $generated = $this->generateImage($config);
-        $this->storageManager->createCacheFile($config->getCacheKey(), file_get_contents($generated), $config->getProcessor());
+        $this->storageManager->createCacheFile($config->getCacheKey(), $generated, $config->getProcessor());
 
         return $generated;
     }
