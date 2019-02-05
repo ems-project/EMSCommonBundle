@@ -126,7 +126,6 @@ class StorageManager
     private function read(iterable $adapters, string $hash, ?string $context = null): string
     {
         foreach ($adapters as $adapter) {
-            dump($adapter);
             if ($adapter->exists($hash, $context)) {
                 return $adapter->read($hash, $context);
             }
