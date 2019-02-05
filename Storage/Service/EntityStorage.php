@@ -12,6 +12,9 @@ use Exception;
 use function file_get_contents;
 use function filemtime;
 use function filesize;
+use function is_resource;
+use function rewind;
+use function strlen;
 
 class EntityStorage implements StorageInterface
 {
@@ -132,16 +135,26 @@ class EntityStorage implements StorageInterface
     /**
      * @param string $hash
      * @param bool|string $cacheContext
-     * @return bool|resource
+     * @param bool $confirmed
+     * @return resource|bool
      */
-    public function read($hash, $cacheContext = false)
+    public function read($hash, $cacheContext = false, $confirmed=true)
     {
         if ($cacheContext === false || $this->contextSupport) {
             $this->init();
             /**@var AssetStorage $entity */
-            $entity = $this->repository->findByHash($hash, $cacheContext);
+            $entity = $this->repository->findByHash($hash, $cacheContext, $confirmed);
             if ($entity) {
-                return $entity->getContents();
+                $out = $entity->getContents();
+                if(is_resource($out))
+                {
+                    return $out;
+                }
+                $resource = fopen('php://memory', 'w+');
+                fwrite($resource, $out);
+
+                rewind($resource);
+                return $resource;
             }
         }
         return false;
@@ -157,7 +170,8 @@ class EntityStorage implements StorageInterface
         if ($context === false || $this->contextSupport) {
             $this->init();
             try {
-                return $this->repository->getLastUpdateDate($hash, $context);
+                $time = $this->repository->getLastUpdateDate($hash, $context);
+                return $time ? \DateTime::createFromFormat('U', $time) : null;
             } catch (NoResultException $e) {
             }
         }
@@ -205,25 +219,82 @@ class EntityStorage implements StorageInterface
     }
 
     /**
-     * @inheritdoc
+     * @param string      $hash
+     * @param integer     $size
+     * @param string      $name
+     * @param string      $type
+     * @param string|null $context
+     *
+     * @return bool
      */
-    public function initUpload(string $hash, ?string $context = null): bool
+    public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool
     {
         if ($context === false || $this->contextSupport) {
 
-            $entity = $this->createEntity($hash, $context);
+            $entity = $this->repository->findByHash($hash, $context, false);
+            if(!$entity)
+            {
+                $entity = $this->createEntity($hash, $context);
+            }
 
             $entity->setSize(0);
-            $entity->setContents("");
+            $entity->setContents('');
             $entity->setLastUpdateDate(time());
             $entity->setConfirmed(false);
 
             $this->manager->persist($entity);
-            $this->manager->flush();
+            $this->manager->flush($entity);
 
             return true;
         }
         return false;
 
+    }
+
+    /**
+     * @param string      $hash
+     * @param string|null $context
+     *
+     * @return bool
+     */
+    public function finalizeUpload(string $hash, ?string $context = null): bool
+    {
+        $this->init();
+        $entity = $this->repository->findByHash($hash, $context, false);
+        if($entity)
+        {
+            $entity->setConfirmed(true);
+            $entity->setSize(strlen($entity->getContents()));
+            $this->manager->persist($entity);
+            $this->manager->flush();
+            return true;
+        }
+        return false;
+
+    }
+
+
+
+    /**
+     * @param string      $hash
+     * @param string      $chunk
+     * @param string|null $context
+     *
+     * @return bool
+     */
+    public function addChunk(string $hash, string $chunk, ?string $context = null): bool
+    {
+        $this->init();
+        $entity = $this->repository->findByHash($hash, $context, false);
+        if($entity)
+        {
+            $entity->setContents(stream_get_contents($entity->getContents()).$chunk);
+
+            $entity->setSize($entity->getSize() + strlen($chunk));
+            $this->manager->persist($entity);
+            $this->manager->flush($entity);
+            return true;
+        }
+        return false;
     }
 }
