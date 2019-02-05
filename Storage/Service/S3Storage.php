@@ -20,12 +20,6 @@ class S3Storage implements StorageInterface
      */
     private $bucket;
 
-
-//    /**
-//     * @var string|null
-//     */
-//    private $region;
-
     /**
      * @var array|null
      */
@@ -81,7 +75,7 @@ class S3Storage implements StorageInterface
 
     private function getKey($hash, $context)
     {
-        return $context?$context.'/'.$hash:$hash;
+        return $context?'cache/'.$context.'/'.$hash:$hash;
     }
 
     /**
@@ -91,7 +85,7 @@ class S3Storage implements StorageInterface
     public function remove($hash)
     {
         $this->init();
-        // TODO: Implement clearCache() method.
+        // TODO: Implement remove() method.
     }
 
     /**
@@ -133,10 +127,11 @@ class S3Storage implements StorageInterface
         $this->s3Client->putObject(array(
             'Bucket'     => $this->bucket,
 //            'LocationConstraint' => $this->region,
-            'Key'        => $context?$context.'/'.$hash:$hash,
+            'Key'        => $this->getKey($hash, $context),
             'SourceFile' => $filename,
             'Metadata'   => array(
                 'LastUpdateDate' => $time,
+                'Confirmed' => true,
             )
         ));
 
@@ -179,7 +174,7 @@ class S3Storage implements StorageInterface
         {
             $result =  $this->s3Client->headObject([
                 'Bucket'     => $this->bucket,
-                'Key'        => $context?$context.'/'.$hash:$hash,
+                'Key'        => $this->getKey($hash, $context),
             ]);
 
             if(isset($result['Metadata']['LastUpdateDate'])){
@@ -204,11 +199,10 @@ class S3Storage implements StorageInterface
         $this->init();
         $result =  $this->s3Client->headObject([
             'Bucket'     => $this->bucket,
-            'Key'        => $context?$context.'/'.$hash:$hash,
+            'Key'        => $this->getKey($hash, $context),
         ]);
 
         if(isset($result['ContentLength'])){
-
             return $result['ContentLength'];
         }
         return null;
@@ -221,32 +215,21 @@ class S3Storage implements StorageInterface
     }
 
     /**
-     * @param string      $hash
-     * @param string|null $context
-     *
-     * @return string
+     * @inheritdoc
      */
-    private function getCacheFilename(string $hash, ?string $context = null): string
+    public function initUpload(string $hash, ?string $context = null): bool
     {
-        return $this->getCacheDir($hash, $context).'/'.$hash;
-    }
 
-    /**
-     * @param string      $hash
-     * @param string|null $context
-     *
-     * @return string
-     */
-    private function getCacheDir($hash, ?string $context = null): string
-    {
-        $dir = substr($hash, 0, 3);
-        $out = $context ? sprintf('%s%s/%s', sys_get_temp_dir(), $context, $dir) : sys_get_temp_dir().$dir;
+        $this->init();
 
-
-        if (!file_exists($out)) {
-            mkdir($out, 0777, true);
-        }
-
-        return $out;
+        $this->s3Client->putObject(array(
+            'Bucket'     => $this->bucket,
+//            'LocationConstraint' => $this->region,
+            'Key'        => $this->getKey($hash, $context),
+//            'SourceFile' => $filename,
+            'Metadata'   => array(
+                'Confirmed' => false,
+            )
+        ));
     }
 }
