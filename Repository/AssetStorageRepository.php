@@ -17,12 +17,14 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param string $hash
      * @param false|string $context
+     * @param boolean $confirmed
      * @return \Doctrine\ORM\QueryBuilder
      */
-    private function getQuery($hash, $context)
+    private function getQuery($hash, $context, $confirmed)
     {
         $qb = $this->createQueryBuilder('a');
         $qb->where($qb->expr()->eq('a.hash', ':hash'));
+        $qb->andWhere($qb->expr()->eq('a.confirmed', ':confirmed'));
 
         if($context)
         {
@@ -30,12 +32,14 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
             $qb->setParameters([
                 ':hash' => $hash,
                 ':context' => $context,
+                ':confirmed' => $confirmed,
             ]);
         }
         else{
             $qb->andWhere('a.context is null');
             $qb->setParameters([
                 ':hash' => $hash,
+                ':confirmed' => $confirmed,
             ]);
         }
         return $qb;
@@ -44,13 +48,13 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param string $hash
      * @param string $context
+     * @param boolean $confirmed
      * @return bool
-     * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function head($hash, $context)
+    public function head($hash, $context, $confirmed=true)
     {
         try{
-            $qb = $this->getQuery($hash, $context)->select('count(a.hash)');
+            $qb = $this->getQuery($hash, $context, $confirmed)->select('count(a.hash)');
             return $qb->getQuery()->getSingleScalarResult() !== 0;
         }
         catch (NonUniqueResultException $e){
@@ -96,11 +100,12 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param string $hash
      * @param string $context
+     * @param boolean $confirmed
      * @return null|AssetStorage
      */
-    public function findByHash($hash, $context)
+    public function findByHash($hash, $context, $confirmed=true)
     {
-        $qb = $this->getQuery($hash, $context)->select('a');
+        $qb = $this->getQuery($hash, $context, $confirmed)->select('a');
 
         try
         {
@@ -114,15 +119,17 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
 
 
     /**
+     * @deprecated
      * @param $hash
      * @param $context
+     * @param boolean $confirmed
      * @return mixed
      * @throws NonUniqueResultException
      * @throws \Doctrine\ORM\NoResultException
      */
-    public function lastUpdateDate($hash, $context)
+    public function lastUpdateDate($hash, $context, $confirmed=true)
     {
-        $qb = $this->getQuery($hash, $context)->select('a.modified');
+        $qb = $this->getQuery($hash, $context, $confirmed)->select('a.modified');
 
         $date = $qb->getQuery()->getSingleResult()['modified'];
         return $date;
@@ -131,13 +138,14 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param string $hash
      * @param string $context
+     * @param boolean $confirmed
      * @return int
      */
-    public function getSize($hash, $context)
+    public function getSize($hash, $context, $confirmed=true)
     {
         try
         {
-            $qb = $this->getQuery($hash, $context)->select('a.size');
+            $qb = $this->getQuery($hash, $context, $confirmed)->select('a.size');
             return $qb->getQuery()->getSingleScalarResult();
         }
         catch (NonUniqueResultException $e){
@@ -148,14 +156,15 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param string $hash
      * @param string $context
+     * @param boolean $confirmed
      * @return int
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function getLastUpdateDate($hash, $context)
+    public function getLastUpdateDate($hash, $context, $confirmed=true)
     {
         try
         {
-            $qb = $this->getQuery($hash, $context)->select('a.lastUpdateDate');
+            $qb = $this->getQuery($hash, $context, $confirmed)->select('a.lastUpdateDate');
             return $qb->getQuery()->getSingleScalarResult();
         }
         catch (NonUniqueResultException $e){
