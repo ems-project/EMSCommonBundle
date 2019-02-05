@@ -73,6 +73,13 @@ class AssetStorage
     private $size;
 
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="confirmed", type="boolean", options={"default" : 0})
+     */
+    private $confirmed;
+
+    /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
      */
@@ -230,6 +237,24 @@ class AssetStorage
     public function setContext($context): AssetStorage
     {
         $this->context = $context;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isConfirmed(): bool
+    {
+        return $this->confirmed;
+    }
+
+    /**
+     * @param bool $confirmed
+     * @return AssetStorage
+     */
+    public function setConfirmed(bool $confirmed): AssetStorage
+    {
+        $this->confirmed = $confirmed;
         return $this;
     }
 
