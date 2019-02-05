@@ -184,4 +184,13 @@ class HttpStorage implements StorageInterface
         // TODO: should probably be implemented, but how?
         return false;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function initUpload(string $hash, ?string $context = null): bool
+    {
+        // TODO: should probably be implemented, but how?
+        return false;
+    }
 }

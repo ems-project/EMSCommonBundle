@@ -37,9 +37,10 @@ interface StorageInterface
     /**
      * @param string $hash
      * @param bool|string $cacheContext
+     * @param bool $confirmed
      * @return resource|bool
      */
-    public function read($hash, $cacheContext = false);
+    public function read($hash, $cacheContext = false, $confirmed=true);
     //public function read(string $hash, ?string $context = null): string;
 
 
@@ -73,4 +74,37 @@ interface StorageInterface
      * @return null|\DateTime
      */
     public function getLastUpdateDate(string $hash, ?string $context = null): ?\DateTime;
+
+
+
+    /**
+     * @param string      $hash
+     * @param integer     $size
+     * @param string      $name
+     * @param string      $type
+     * @param string|null $context
+     *
+     * @return bool
+     */
+    public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool ;
+
+    /**
+     * @param string      $hash
+     * @param string      $chunk
+     * @param string|null $context
+     *
+     * @return bool
+     */
+    public function addChunk(string $hash, string $chunk, ?string $context = null): bool ;
+
+    /**
+     * @param string      $hash
+     * @param string|null $context
+     *
+     * @return bool
+     */
+    public function finalizeUpload(string $hash, ?string $context = null): bool ;
+
+
+
 }

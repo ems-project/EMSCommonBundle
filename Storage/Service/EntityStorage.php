@@ -102,29 +102,31 @@ class EntityStorage implements StorageInterface
     {
         if ($cacheContext === false || $this->contextSupport) {
 
-            $this->init();
+            $entity = $this->createEntity($hash, $cacheContext);
 
-            /**@var AssetStorage $entity */
-            $entity = $this->repository->findByHash($hash, $cacheContext);
-            if ($entity) {
-                $entity->setLastUpdateDate(filemtime($filename));
-                $entity->setSize(filesize($filename));
-                $entity->setContents(file_get_contents($filename));
-            }
-            else{
-                $entity = new AssetStorage();
-                $entity->setHash($hash);
-                $entity->setContext($cacheContext ? $cacheContext : null);
-                $entity->setLastUpdateDate(filemtime($filename));
-                $entity->setSize(filesize($filename));
-                $entity->setContents(file_get_contents($filename));
-            }
+            $entity->setSize(filesize($filename));
+            $entity->setContents(file_get_contents($filename));
+            $entity->setLastUpdateDate(filemtime($filename));
+            $entity->setConfirmed(true);
+
             $this->manager->persist($entity);
             $this->manager->flush();
 
             return true;
         }
         return false;
+    }
+
+    private function createEntity($hash, $cacheContext = false)
+    {
+        /**@var AssetStorage $entity */
+        $entity = $this->repository->findByHash($hash, $cacheContext);
+        if (!$entity) {
+            $entity = new AssetStorage();
+            $entity->setHash($hash);
+            $entity->setContext($cacheContext ? $cacheContext : null);
+        }
+        return $entity;
     }
 
     /**
@@ -155,7 +157,7 @@ class EntityStorage implements StorageInterface
         if ($context === false || $this->contextSupport) {
             $this->init();
             try {
-                return $this->repository->lastUpdateDate($hash, $context);
+                return $this->repository->getLastUpdateDate($hash, $context);
             } catch (NoResultException $e) {
             }
         }
@@ -200,5 +202,28 @@ class EntityStorage implements StorageInterface
     {
         $this->init();
         return $this->repository->removeByHash($hash);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initUpload(string $hash, ?string $context = null): bool
+    {
+        if ($context === false || $this->contextSupport) {
+
+            $entity = $this->createEntity($hash, $context);
+
+            $entity->setSize(0);
+            $entity->setContents("");
+            $entity->setLastUpdateDate(time());
+            $entity->setConfirmed(false);
+
+            $this->manager->persist($entity);
+            $this->manager->flush();
+
+            return true;
+        }
+        return false;
+
     }
 }

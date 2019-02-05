@@ -8,6 +8,7 @@ use Symfony\Component\Finder\Finder;
 use function file_exists;
 use function filesize;
 use function fopen;
+use function touch;
 use function unlink;
 
 class FileSystemStorage implements StorageInterface
@@ -25,17 +26,26 @@ class FileSystemStorage implements StorageInterface
         return file_exists($this->getPath($hash, $cacheContext));
     }
 
-    private function getPath($hash, $cacheContext = null)
+    private function getPath($hash, $cacheContext = null, $confirmed = true)
     {
         if (!file_exists($this->storagePath)) {
             mkdir($this->storagePath, 0777, true);
         }
 
         $out = $this->storagePath;
+
+        if (!$confirmed) {
+            $out .= DIRECTORY_SEPARATOR . 'uploads';
+        }
+
         if ($cacheContext) {
             $out .= DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . $cacheContext;
         }
-        $out .= DIRECTORY_SEPARATOR . substr($hash, 0, 3);
+
+        if($confirmed)
+        {
+            $out .= DIRECTORY_SEPARATOR . substr($hash, 0, 3);
+        }
 
 
         if (!file_exists($out)) {
@@ -56,9 +66,15 @@ class FileSystemStorage implements StorageInterface
         return true;
     }
 
-    public function read($hash, $cacheContext = false)
+    /**
+     * @param string $hash
+     * @param bool|string $cacheContext
+     * @param bool $confirmed
+     * @return resource|bool
+     */
+    public function read($hash, $cacheContext = false, $confirmed=true)
     {
-        $out = $this->getPath($hash, $cacheContext);
+        $out = $this->getPath($hash, $cacheContext, $confirmed);
         if (!file_exists($out)) {
             return false;
         }
@@ -127,5 +143,49 @@ class FileSystemStorage implements StorageInterface
             unlink($file);
         }
         return true;
+    }
+
+
+    /**
+     * @inheritdoc
+     */
+    public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool
+    {
+        $path = $this->getPath($hash, $context, false);
+        return file_put_contents($path, "") !== FALSE;
+    }
+
+
+
+    /**
+     * @param string      $hash
+     * @param string      $chunk
+     * @param string|null $context
+     *
+     * @return bool
+     */
+    public function addChunk(string $hash, string $chunk, ?string $context = null): bool
+    {
+        $path = $this->getPath($hash, $context, false);
+		if(!file_exists($path)) {
+			throw new NotFoundHttpException('temporary file not found');
+		}
+
+		$myFile = fopen($path, "a");
+		$result = (fwrite($myFile, $chunk) !== FALSE);
+		fflush($myFile);
+		fclose($myFile);
+		return $result;
+    }
+
+    /**
+     * @param string      $hash
+     * @param string|null $context
+     *
+     * @return bool
+     */
+    public function finalizeUpload(string $hash, ?string $context = null): bool
+    {
+        return copy($this->getPath($hash, $context, false), $this->getPath($hash, $context));
     }
 }

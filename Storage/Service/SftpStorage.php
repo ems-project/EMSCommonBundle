@@ -92,16 +92,23 @@ class SftpStorage implements StorageInterface
     /**
      * @param $hash
      * @param null $cacheContext
+     * @param boolean $confirmed
      * @return string
      * @throws Exception
      */
-    private function getPath($hash, $cacheContext = null)
+    private function getPath($hash, $cacheContext = null, $confirmed=true)
     {
         $out = $this->path;
-        if ($cacheContext) {
-            $out .= DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . $cacheContext;
+
+        if(!$confirmed)
+        {
+            $out = '/uploads';
         }
-        $out .= DIRECTORY_SEPARATOR . substr($hash, 0, 3);
+
+        if ($cacheContext) {
+            $out .= '/cache/' . $cacheContext;
+        }
+        $out .= '/' . substr($hash, 0, 3);
 
         $this->init();
         if (is_resource($this->sftp)) {
@@ -256,5 +263,13 @@ class SftpStorage implements StorageInterface
         } catch (Exception $e) {
         }
         return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initUpload(string $hash, ?string $context = null): bool
+    {
+        return file_put_contents('ssh2.sftp://' . intval($this->sftp) . $this->getPath($hash, $context, false), "") !== FALSE;
     }
 }
