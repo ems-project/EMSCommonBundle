@@ -35,9 +35,14 @@ class Image
         if (null !== $this->config->getResize()) {
             $image = $this->applyResize($image, $width, $height, $size);
         }
+        else if (null !== $this->config->getBackground()) {
+            $image = $this->applyBackground($image, $width, $height);
+        }
+
         if (null !== $this->config->getRadius()) {
             $image = $this->applyCorner($image, $width, $height);
         }
+
         if (null !== $this->watermark) {
             $image = $this->applyWatermark($image, $width, $height);
         }
@@ -140,6 +145,30 @@ class Image
         } else {
             call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $size[0], $size[1]);
         }
+
+        return $temp;
+    }
+
+    private function applyBackground($image, $width, $height)
+    {
+        if (function_exists("imagecreatetruecolor") && ($temp = imagecreatetruecolor($width, $height))) {
+            $resizeFunction = 'imagecopyresampled';
+        } else {
+            $temp = imagecreate($width, $height);
+            $resizeFunction = 'imagecopyresized';
+        }
+
+        $background = $this->config->getBackground();
+        $solid_colour = imagecolorallocate(
+            $temp,
+            hexdec(substr($background, 1, 2)),
+            hexdec(substr($background, 3, 2)),
+            hexdec(substr($background, 5, 2))
+        );
+        imagefill($temp, 0, 0, $solid_colour);
+
+
+        call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $width, $height);
 
         return $temp;
     }

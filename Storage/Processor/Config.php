@@ -169,18 +169,18 @@ final class Config
     {
         return [
             '_config_type' => 'image',
-            '_quality' => null,
+            '_quality' => 70,
             '_background' => '#FFFFFF',
-            '_resize' => null,
-            '_width' => '*',
-            '_height' => '*',
+            '_resize' => 'fill',
+            '_width' => 300,
+            '_height' => 200,
             '_gravity' => 'center',
             '_radius' => null,
             '_radius_geometry' => ['topleft', 'topright', 'bottomright', 'bottomleft'],
             '_border_color' => null,
             '_watermark' => null,
-            '_published_datetime' => null,
-            '_type' => null,
+            '_published_datetime' => '2018-02-05T16:08:56+01:00',
+            '_type' => 'image',
         ];
     }
 }
