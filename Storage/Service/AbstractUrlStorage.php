@@ -1,0 +1,227 @@
+<?php
+
+namespace EMS\CommonBundle\Storage\Service;
+
+
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
+use function file_exists;
+use function filesize;
+use function fopen;
+use function touch;
+use function unlink;
+
+abstract class AbstractUrlStorage implements StorageInterface
+{
+
+    /**
+     * Returns the base url of the storage service
+     * @return string
+     */
+    abstract protected function getBaseUrl():string;
+
+    /**
+     * returns the a file path or a resource url that can be handled by file function such as fopen
+     *
+     * @param $hash
+     * @param string|null $cacheContext
+     * @param bool $confirmed
+     * @param string $ds
+     * @return string
+     */
+    protected function getPath($hash, string $cacheContext = null, $confirmed = true, $ds='/'): string
+    {
+        $out = $this->getBaseUrl();
+
+        if (!$confirmed) {
+            $out .= $ds . 'uploads';
+        }
+
+        //isolate cached files
+        if ($cacheContext) {
+            $out .= $ds . 'cache' . $ds . $cacheContext;
+        }
+
+        //in order to avoid a folder with a to big number of files in
+        if($confirmed)
+        {
+            $out .= $ds . substr($hash, 0, 3);
+        }
+
+        //create folder if missing
+        if (!file_exists($out)) {
+            mkdir($out, 0777, true);
+        }
+
+        return $out . $ds . $hash;
+    }
+
+    /**
+     * @param string $hash
+     * @param string $cacheContext
+     * @return bool
+     */
+    public function head(string $hash, ?string $cacheContext = null):bool
+    {
+        return file_exists($this->getPath($hash, $cacheContext));
+    }
+
+    /**
+     * @param string $hash
+     * @param string $filename
+     * @param string $cacheContext
+     * @return bool
+     */
+    public function create(string $hash, string $filename, ?string $cacheContext = null):bool
+    {
+        return copy($filename, $this->getPath($hash, $cacheContext));
+    }
+
+    /**
+     * @return bool
+     */
+    public function supportCacheStore()
+    {
+        return true;
+    }
+
+    /**
+     * @param string $hash
+     * @param bool|string $cacheContext
+     * @param bool $confirmed
+     * @return resource|bool
+     */
+    public function read(string $hash, ?string $cacheContext = null, bool $confirmed=true)
+    {
+        $out = $this->getPath($hash, $cacheContext, $confirmed);
+        if (!file_exists($out)) {
+            return false;
+        }
+
+        return fopen($out, 'rb');
+    }
+
+    /**
+     * @param string $hash
+     * @param null|string $context
+     * @return \DateTime|null
+     */
+    public function getLastUpdateDate(string $hash, ?string $context = null): ?\DateTime
+    {
+        $path = $this->getPath($hash, $context);
+        if (file_exists($path)) {
+            $time = @filemtime($path);
+            return $time ? \DateTime::createFromFormat('U', $time) : null;
+
+        }
+        return null;
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function health(): bool
+    {
+        return is_dir($this->storagePath);
+    }
+
+    /**
+     * @param string $hash
+     * @param null|string $cacheContext
+     * @return int
+     */
+    public function getSize(string $hash, ?string $cacheContext = null): ?int
+    {
+        $path = $this->getPath($hash, $cacheContext);
+        if (file_exists($path)) {
+            return @filesize($path);
+        }
+        return null;
+    }
+
+    /**
+     * Use to display the service in the console
+     * @return string
+     */
+    abstract public function __toString():string;
+
+    /**
+     * @return bool
+     */
+    public function clearCache()
+    {
+        $fileSystem = new Filesystem();
+        $fileSystem->remove($this->storagePath . '/cache');
+        return true;
+    }
+
+    /**
+     * @param string $hash
+     * @return bool
+     */
+    public function remove(string $hash):bool
+    {
+        $file = $this->getPath($hash);
+        if (file_exists($file)) {
+
+            unlink($file);
+        }
+        $finder = new Finder();
+        $finder->name($hash);
+        foreach ($finder->in($this->storagePath . DIRECTORY_SEPARATOR . 'cache') as $file) {
+            unlink($file);
+        }
+        return true;
+    }
+
+
+    /**
+     * @param string $hash
+     * @param int $size
+     * @param string $name
+     * @param string $type
+     * @param null|string $context
+     * @return bool
+     */
+    public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool
+    {
+        $path = $this->getPath($hash, $context, false);
+        return file_put_contents($path, "") !== FALSE;
+    }
+
+
+
+    /**
+     * @param string      $hash
+     * @param string      $chunk
+     * @param string|null $context
+     *
+     * @return bool
+     */
+    public function addChunk(string $hash, string $chunk, ?string $context = null): bool
+    {
+        $path = $this->getPath($hash, $context, false);
+		if(!file_exists($path)) {
+			throw new NotFoundHttpException('temporary file not found');
+		}
+
+		$myFile = fopen($path, "a");
+		$result = (fwrite($myFile, $chunk) !== FALSE);
+		fflush($myFile);
+		fclose($myFile);
+		return $result;
+    }
+
+    /**
+     * @param string      $hash
+     * @param string|null $context
+     *
+     * @return bool
+     */
+    public function finalizeUpload(string $hash, ?string $context = null): bool
+    {
+        return copy($this->getPath($hash, $context, false), $this->getPath($hash, $context));
+    }
+
+}

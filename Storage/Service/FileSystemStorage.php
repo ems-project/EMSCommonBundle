@@ -11,181 +11,45 @@ use function fopen;
 use function touch;
 use function unlink;
 
-class FileSystemStorage implements StorageInterface
+class FileSystemStorage extends AbstractUrlStorage
 {
 
+    /**
+     * Store the base url or the directory path
+     * @var string
+     */
     private $storagePath;
 
-    public function __construct($storagePath)
+    /**
+     * Just an exception for the windows systems
+     * @var string
+     */
+    private $directorySeparator;
+
+    /**
+     * FileSystemStorage constructor.
+     * @param string $storagePath
+     * @param string $directorySeparator
+     */
+    public function __construct(string $storagePath, string $directorySeparator=DIRECTORY_SEPARATOR)
     {
         $this->storagePath = $storagePath;
-    }
-
-    public function head($hash, $cacheContext = false)
-    {
-        return file_exists($this->getPath($hash, $cacheContext));
-    }
-
-    private function getPath($hash, $cacheContext = null, $confirmed = true)
-    {
-        if (!file_exists($this->storagePath)) {
-            mkdir($this->storagePath, 0777, true);
-        }
-
-        $out = $this->storagePath;
-
-        if (!$confirmed) {
-            $out .= DIRECTORY_SEPARATOR . 'uploads';
-        }
-
-        if ($cacheContext) {
-            $out .= DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . $cacheContext;
-        }
-
-        if($confirmed)
-        {
-            $out .= DIRECTORY_SEPARATOR . substr($hash, 0, 3);
-        }
-
-
-        if (!file_exists($out)) {
-            mkdir($out, 0777, true);
-        }
-
-        return $out . DIRECTORY_SEPARATOR . $hash;
-    }
-
-    public function create($hash, $filename, $cacheContext = false)
-    {
-
-        return copy($filename, $this->getPath($hash, $cacheContext));
-    }
-
-    public function supportCacheStore()
-    {
-        return true;
-    }
-
-    /**
-     * @param string $hash
-     * @param bool|string $cacheContext
-     * @param bool $confirmed
-     * @return resource|bool
-     */
-    public function read($hash, $cacheContext = false, $confirmed=true)
-    {
-        $out = $this->getPath($hash, $cacheContext, $confirmed);
-        if (!file_exists($out)) {
-            return false;
-        }
-
-        return fopen($out, 'rb');
+        $this->directorySeparator = $directorySeparator;
     }
 
     /**
      * @inheritdoc
      */
-    public function getLastUpdateDate(string $hash, ?string $context = null): ?\DateTime
+    protected function getBaseUrl(): string
     {
-        $path = $this->getPath($hash, $context);
-        if (file_exists($path)) {
-            $time = @filemtime($path);
-            return $time ? \DateTime::createFromFormat('U', $time) : null;
-
-        }
-        return null;
+        return $this->storagePath;
     }
-
-
 
     /**
      * @inheritdoc
      */
-    public function health(): bool
-    {
-        return is_dir($this->storagePath);
-    }
-
-    public function getSize($hash, $cacheContext = false)
-    {
-        $path = $this->getPath($hash, $cacheContext);
-        if (file_exists($path)) {
-            return @filesize($path);
-        }
-        return false;
-    }
-
-    public function __toString()
+    public function __toString(): string
     {
         return FileSystemStorage::class . " ($this->storagePath)";
-    }
-
-    /**
-     * @return bool
-     */
-    public function clearCache()
-    {
-        $fileSystem = new Filesystem();
-        $fileSystem->remove($this->storagePath . DIRECTORY_SEPARATOR . 'cache');
-        return true;
-    }
-
-    public function remove($hash)
-    {
-        $file = $this->getPath($hash);
-        if (file_exists($file)) {
-
-            unlink($file);
-        }
-        $finder = new Finder();
-        $finder->name($hash);
-        foreach ($finder->in($this->storagePath . DIRECTORY_SEPARATOR . 'cache') as $file) {
-            unlink($file);
-        }
-        return true;
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool
-    {
-        $path = $this->getPath($hash, $context, false);
-        return file_put_contents($path, "") !== FALSE;
-    }
-
-
-
-    /**
-     * @param string      $hash
-     * @param string      $chunk
-     * @param string|null $context
-     *
-     * @return bool
-     */
-    public function addChunk(string $hash, string $chunk, ?string $context = null): bool
-    {
-        $path = $this->getPath($hash, $context, false);
-		if(!file_exists($path)) {
-			throw new NotFoundHttpException('temporary file not found');
-		}
-
-		$myFile = fopen($path, "a");
-		$result = (fwrite($myFile, $chunk) !== FALSE);
-		fflush($myFile);
-		fclose($myFile);
-		return $result;
-    }
-
-    /**
-     * @param string      $hash
-     * @param string|null $context
-     *
-     * @return bool
-     */
-    public function finalizeUpload(string $hash, ?string $context = null): bool
-    {
-        return copy($this->getPath($hash, $context, false), $this->getPath($hash, $context));
     }
 }
