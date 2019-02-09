@@ -7,49 +7,47 @@ interface StorageInterface
 
     /**
      * @param string $hash
-     * @param bool|string $cacheContext
+     * @param string $cacheContext
      * @return bool
      */
-    public function head($hash, $cacheContext = false);
+    public function head(string $hash, ?string $cacheContext = null):bool;
 
 
     /**
      * @return bool
      */
-    public function health(): bool;
+    public function health():bool;
 
 
     /**
      * Use to display the service in the console
      * @return string
      */
-    public function __toString();
+    public function __toString():string;
 
     /**
      * @param string $hash
      * @param string $filename
-     * @param bool|string $cacheContext
+     * @param string|null $cacheContext
      * @return bool
      */
-    public function create($hash, $filename, $cacheContext = false);
-//    public function create(string $hash, string $content, ?string $context = null);
+    public function create(string $hash, string $filename, ?string $cacheContext = null):bool;
 
     /**
      * @param string $hash
-     * @param bool|string $cacheContext
+     * @param string|null $cacheContext
      * @param bool $confirmed
-     * @return resource|bool
+     * @return resource|null
      */
-    public function read($hash, $cacheContext = false, $confirmed=true);
-    //public function read(string $hash, ?string $context = null): string;
+    public function read(string $hash, ?string $cacheContext = null, bool $confirmed = true);
 
 
     /**
      * @param string $hash
-     * @param bool|string $cacheContext
-     * @return integer
+     * @param null|string $cacheContext
+     * @return int
      */
-    public function getSize($hash, $cacheContext = false);
+    public function getSize(string $hash, ?string $cacheContext = null): ?int;
 
     /**
      * @return bool
@@ -62,10 +60,10 @@ interface StorageInterface
     public function clearCache();
 
     /**
-     * @param $hash
+     * @param string $hash
      * @return bool
      */
-    public function remove($hash);
+    public function remove(string $hash):bool;
 
     /**
      * @param string      $hash
