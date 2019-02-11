@@ -3,12 +3,12 @@
 namespace EMS\CommonBundle\Storage\Service;
 
 
+use function strlen;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 use function file_exists;
 use function filesize;
 use function fopen;
-use function touch;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use function unlink;
 
 abstract class AbstractUrlStorage implements StorageInterface
@@ -80,7 +80,7 @@ abstract class AbstractUrlStorage implements StorageInterface
     /**
      * @return bool
      */
-    public function supportCacheStore()
+    public function supportCacheStore(): bool
     {
         return true;
     }
@@ -112,7 +112,6 @@ abstract class AbstractUrlStorage implements StorageInterface
         if (file_exists($path)) {
             $time = @filemtime($path);
             return $time ? \DateTime::createFromFormat('U', $time) : null;
-
         }
         return null;
     }
@@ -123,7 +122,7 @@ abstract class AbstractUrlStorage implements StorageInterface
      */
     public function health(): bool
     {
-        return is_dir($this->storagePath);
+        return is_dir($this->getBaseUrl());
     }
 
     /**
@@ -149,10 +148,10 @@ abstract class AbstractUrlStorage implements StorageInterface
     /**
      * @return bool
      */
-    public function clearCache()
+    public function clearCache():bool
     {
         $fileSystem = new Filesystem();
-        $fileSystem->remove($this->storagePath . '/cache');
+        $fileSystem->remove($this->getBaseUrl() . '/cache');
         return true;
     }
 
@@ -164,12 +163,6 @@ abstract class AbstractUrlStorage implements StorageInterface
     {
         $file = $this->getPath($hash);
         if (file_exists($file)) {
-
-            unlink($file);
-        }
-        $finder = new Finder();
-        $finder->name($hash);
-        foreach ($finder->in($this->storagePath . DIRECTORY_SEPARATOR . 'cache') as $file) {
             unlink($file);
         }
         return true;
@@ -190,8 +183,6 @@ abstract class AbstractUrlStorage implements StorageInterface
         return file_put_contents($path, "") !== FALSE;
     }
 
-
-
     /**
      * @param string      $hash
      * @param string      $chunk
@@ -206,11 +197,26 @@ abstract class AbstractUrlStorage implements StorageInterface
 			throw new NotFoundHttpException('temporary file not found');
 		}
 
-		$myFile = fopen($path, "a");
-		$result = (fwrite($myFile, $chunk) !== FALSE);
-		fflush($myFile);
-		fclose($myFile);
-		return $result;
+//		if($this->supportAppend())
+//        {
+            $file = fopen($path, "a");
+            $result = fwrite($file, $chunk);
+//        }
+//        else{
+//            $file = fopen($path, 'w');
+//            fseek($file, 0, SEEK_END);
+//            $result = fwrite($file, $chunk);
+//        }
+
+        fflush($file);
+        fclose($file);
+
+        if($result === FALSE || $result != strlen($chunk))
+        {
+            return false;
+        }
+
+		return true;
     }
 
     /**
