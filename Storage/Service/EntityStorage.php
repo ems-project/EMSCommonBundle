@@ -37,25 +37,25 @@ class EntityStorage implements StorageInterface
     {
         $this->doctrine = $doctrine;
         $this->contextSupport = $contextSupport;
-        $this->repository = false;
+        $this->repository = null;
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
-    public function supportCacheStore()
+    public function supportCacheStore(): bool
     {
         return $this->contextSupport;
     }
 
     /**
      * @param string $hash
-     * @param bool|string $cacheContext
+     * @param string $cacheContext
      * @return bool
      */
-    public function head($hash, $cacheContext = false)
+    public function head(string $hash, ?string $cacheContext = null):bool
     {
-        if ($cacheContext === false || $this->contextSupport) {
+        if (!$cacheContext || $this->contextSupport) {
             $this->init();
             try {
                 return $this->repository->head($hash, $cacheContext);
@@ -70,7 +70,7 @@ class EntityStorage implements StorageInterface
      */
     private function init()
     {
-        if ($this->repository === false) {
+        if (!$this->repository) {
             $this->manager = $this->doctrine->getManager();
             $this->repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
         }
@@ -78,12 +78,12 @@ class EntityStorage implements StorageInterface
 
     /**
      * @param string $hash
-     * @param bool|string $cacheContext
-     * @return bool|int
+     * @param null|string $cacheContext
+     * @return int
      */
-    public function getSize($hash, $cacheContext = false)
+    public function getSize(string $hash, ?string $cacheContext = null): ?int
     {
-        if ($cacheContext === false || $this->contextSupport) {
+        if (!$cacheContext || $this->contextSupport) {
             $this->init();
             try {
                 return $this->repository->getSize($hash, $cacheContext);
@@ -94,16 +94,15 @@ class EntityStorage implements StorageInterface
     }
 
 
-
     /**
      * @param string $hash
      * @param string $filename
-     * @param bool|string $cacheContext
+     * @param string|null $cacheContext
      * @return bool
      */
-    public function create($hash, $filename, $cacheContext = false)
+    public function create(string $hash, string $filename, ?string $cacheContext = null):bool
     {
-        if ($cacheContext === false || $this->contextSupport) {
+        if (!$cacheContext || $this->contextSupport) {
 
             $entity = $this->createEntity($hash, $cacheContext);
 
@@ -134,18 +133,19 @@ class EntityStorage implements StorageInterface
 
     /**
      * @param string $hash
-     * @param bool|string $cacheContext
+     * @param string|null $cacheContext
      * @param bool $confirmed
-     * @return resource|bool
+     * @return resource|null
      */
-    public function read($hash, $cacheContext = false, $confirmed=true)
+    public function read(string $hash, ?string $cacheContext = null, bool $confirmed = true)
     {
-        if ($cacheContext === false || $this->contextSupport) {
+        if (!$cacheContext || $this->contextSupport) {
             $this->init();
             /**@var AssetStorage $entity */
             $entity = $this->repository->findByHash($hash, $cacheContext, $confirmed);
             if ($entity) {
                 $out = $entity->getContents();
+
                 if(is_resource($out))
                 {
                     return $out;
@@ -167,7 +167,7 @@ class EntityStorage implements StorageInterface
      */
     public function getLastUpdateDate(string $hash, ?string $context = null): ?\DateTime
     {
-        if ($context === false || $this->contextSupport) {
+        if (!$context || $this->contextSupport) {
             $this->init();
             try {
                 $time = $this->repository->getLastUpdateDate($hash, $context);
@@ -185,7 +185,8 @@ class EntityStorage implements StorageInterface
     {
         try
         {
-            return ($this->repository->count() >= 0);
+            $this->init();
+            return ($this->repository->count([]) >= 0);
         }
         catch (Exception $e)
         {
@@ -194,7 +195,11 @@ class EntityStorage implements StorageInterface
     }
 
 
-    public function __toString()
+    /**
+     * Use to display the service in the console
+     * @return string
+     */
+    public function __toString():string
     {
         return EntityStorage::class;
     }
@@ -202,17 +207,17 @@ class EntityStorage implements StorageInterface
     /**
      * @return bool
      */
-    public function clearCache()
+    public function clearCache():bool
     {
         $this->init();
         return $this->repository->clearCache();
     }
 
     /**
-     * @param $hash
+     * @param string $hash
      * @return bool
      */
-    public function remove($hash)
+    public function remove(string $hash):bool
     {
         $this->init();
         return $this->repository->removeByHash($hash);
@@ -229,7 +234,8 @@ class EntityStorage implements StorageInterface
      */
     public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool
     {
-        if ($context === false || $this->contextSupport) {
+
+        if (!$context || $this->contextSupport) {
 
             $entity = $this->repository->findByHash($hash, $context, false);
             if(!$entity)
@@ -288,7 +294,13 @@ class EntityStorage implements StorageInterface
         $entity = $this->repository->findByHash($hash, $context, false);
         if($entity)
         {
-            $entity->setContents(stream_get_contents($entity->getContents()).$chunk);
+            $contents = $entity->getContents();
+            if(is_resource($contents))
+            {
+                $contents = stream_get_contents($contents);
+            }
+
+            $entity->setContents($contents.$chunk);
 
             $entity->setSize($entity->getSize() + strlen($chunk));
             $this->manager->persist($entity);

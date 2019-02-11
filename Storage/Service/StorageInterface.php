@@ -52,12 +52,12 @@ interface StorageInterface
     /**
      * @return bool
      */
-    public function supportCacheStore();
+    public function supportCacheStore():bool;
 
     /**
      * @return bool
      */
-    public function clearCache();
+    public function clearCache():bool;
 
     /**
      * @param string $hash
@@ -102,7 +102,6 @@ interface StorageInterface
      * @return bool
      */
     public function finalizeUpload(string $hash, ?string $context = null): bool ;
-
 
 
 }
