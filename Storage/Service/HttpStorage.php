@@ -8,7 +8,6 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use function in_array;
 use function intval;
-use Symfony\Component\Routing\Router;
 use function urlencode;
 
 class HttpStorage  extends AbstractUrlStorage
@@ -198,26 +197,6 @@ class HttpStorage  extends AbstractUrlStorage
         }
         return FALSE;
     }
-//
-//
-//
-//    /**
-//     * @inheritdoc
-//     */
-//    public function health(): bool
-//    {
-//
-//        //https://stackoverflow.com/questions/1545432/what-is-the-easiest-way-to-use-the-head-command-of-http-in-php?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-//        try {
-//            $context = stream_context_create(array('http' => array('method' => 'HEAD')));
-//            $fd = fopen($this->postUrl, 'rb', false, $context);
-//            fclose($fd);
-//            return TRUE;
-//        } catch (Exception $e) {
-//            //So it's a FALSE
-//        }
-//        return FALSE;
-//    }
 
     /**
      * @param string $hash
@@ -253,25 +232,6 @@ class HttpStorage  extends AbstractUrlStorage
 
         return true;
     }
-//
-//    public function supportCacheStore()
-//    {
-//        return false;
-//    }
-//
-//    public function read($hash, $cacheContext = false)
-//    {
-//        if ($cacheContext) {
-//            return false;
-//        }
-//
-//        try {
-//            //https://stackoverflow.com/questions/3938534/download-file-to-server-from-url?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-//            return @fopen($this->getUrl . $hash, 'rb');
-//        } catch (Exception $e) {
-//            return false;
-//        }
-//    }
 
     /**
      * @inheritdoc
@@ -328,11 +288,11 @@ class HttpStorage  extends AbstractUrlStorage
                 }
             }
         } catch (Exception $e) {
-            //So it's a FALSE
+            //So it's a NULL
         }
         return null;
     }
-//
+
     /**
      * @inheritdoc
      */
@@ -341,35 +301,6 @@ class HttpStorage  extends AbstractUrlStorage
         return HttpStorage::class . " ($this->baseUrl)";
     }
 
-//
-//
-//    /**
-//     * @return bool
-//     */
-//    public function clearCache()
-//    {
-//        // TODO: should probably be implemented, but how?
-//        return false;
-//    }
-//
-//    /**
-//     * @param $hash
-//     * @return bool
-//     */
-//    public function remove($hash)
-//    {
-//        // TODO: should probably be implemented, but how?
-//        return false;
-//    }
-//
-//    /**
-//     * @inheritdoc
-//     */
-//    public function initUpload(string $hash, ?string $context = null): bool
-//    {
-//        // TODO: should probably be implemented, but how?
-//        return false;
-//    }
 
     /**
      * @param string $hash

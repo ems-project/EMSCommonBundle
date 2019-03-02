@@ -2,7 +2,6 @@
 
 namespace EMS\CommonBundle\Entity;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**

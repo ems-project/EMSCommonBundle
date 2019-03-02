@@ -3,12 +3,12 @@
 namespace EMS\CommonBundle\Storage\Service;
 
 
-use function strlen;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use function file_exists;
 use function filesize;
 use function fopen;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use function strlen;
 use function unlink;
 
 abstract class AbstractUrlStorage implements StorageInterface
@@ -197,16 +197,8 @@ abstract class AbstractUrlStorage implements StorageInterface
 			throw new NotFoundHttpException('temporary file not found');
 		}
 
-//		if($this->supportAppend())
-//        {
-            $file = fopen($path, "a");
-            $result = fwrite($file, $chunk);
-//        }
-//        else{
-//            $file = fopen($path, 'w');
-//            fseek($file, 0, SEEK_END);
-//            $result = fwrite($file, $chunk);
-//        }
+        $file = fopen($path, "a");
+        $result = fwrite($file, $chunk);
 
         fflush($file);
         fclose($file);

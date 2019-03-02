@@ -59,7 +59,7 @@ class EntityStorage implements StorageInterface
             $this->init();
             try {
                 return $this->repository->head($hash, $cacheContext);
-            } catch (NonUniqueResultException $e) {
+            } catch (Exception $e) {
             }
         }
         return false;
@@ -87,7 +87,7 @@ class EntityStorage implements StorageInterface
             $this->init();
             try {
                 return $this->repository->getSize($hash, $cacheContext);
-            } catch (NonUniqueResultException $e) {
+            } catch (Exception $e) {
             }
         }
         return false;
@@ -172,7 +172,7 @@ class EntityStorage implements StorageInterface
             try {
                 $time = $this->repository->getLastUpdateDate($hash, $context);
                 return $time ? \DateTime::createFromFormat('U', $time) : null;
-            } catch (NoResultException $e) {
+            } catch (Exception $e) {
             }
         }
         return null;

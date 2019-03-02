@@ -34,15 +34,6 @@ class StorageManager
             $this->cacheAdapters[] = $cacheAdapter;
         }
 
-//        $this->adapters = $adapters;
-//
-//        foreach ($cacheAdapters as $cacheAdapter) {
-//            if (!$cacheAdapter instanceof CacheAdapterInterface) {
-//                throw new \InvalidArgumentException(sprintf('Adapter %s can not be used for caching', get_class($cacheAdapter)));
-//            }
-//        }
-//
-//        $this->cacheAdapters = $cacheAdapters;
     }
 
     /**
