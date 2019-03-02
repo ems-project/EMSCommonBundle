@@ -3,14 +3,6 @@
 namespace EMS\CommonBundle\Storage\Service;
 
 
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
-use function file_exists;
-use function filesize;
-use function fopen;
-use function touch;
-use function unlink;
-
 class FileSystemStorage extends AbstractUrlStorage
 {
 
