@@ -2,11 +2,11 @@
 
 namespace EMS\CommonBundle\Controller;
 
-use EMS\CommonBundle\Common\Converter;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -70,14 +70,15 @@ class FileController extends AbstractController
             return $cacheResponse;
         }
 
+        //TODO: name should be part of the route and the mimetype hidden in the configHash
         $name = $request->query->get('name', 'upload.bin');
         $type = $request->query->get('type', 'application/bin');
 
         try {
-            $response = $this->createResponse($sha1);
-            $response->headers->set('Content-Type', $type);
-            $response->setContentDisposition($disposition, Converter::toAscii($name));
-        } catch (\Exception $e) {
+            $response = $this->createResponse($sha1, $type, $name, $disposition);
+
+        }
+        catch (\Exception $e) {
             if(\substr($type, 0, 5) === 'image') {
                 $response = new BinaryFileResponse($this->storageManager->getPublicImage('image-not-found.svg'));
                 $response->setPublic();
@@ -91,10 +92,13 @@ class FileController extends AbstractController
 
     /**
      * @param string
+     * @param string
+     * @param string
+     * @param string
      *
      * @return Response
      */
-    private function createResponse(string $sha1)
+    private function createResponse(string $sha1, string $name, string $type, string $disposition=ResponseHeaderBag::DISPOSITION_INLINE)
     {
         $response = null;
         try {
@@ -111,8 +115,8 @@ class FileController extends AbstractController
                         print fread($handler, 8192);
                     }
                 }, 200, [
-//                'Content-Disposition' => $disposition.'; '.HeaderUtils::toString(array('filename' => $name), ';'),
-//                'Content-Type' => $type,
+                'Content-Disposition' => $disposition.'; '.HeaderUtils::toString(array('filename' => $name), ';'),
+                'Content-Type' => $type,
             ]);
 
         } catch (NotFoundException $ex) {
