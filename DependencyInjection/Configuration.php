@@ -20,6 +20,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->booleanNode('profiler')->defaultFalse()->end()
+                ->scalarNode('hash_algo')->defaultValue('sha1')->end()
             ->end()
         ;
 
