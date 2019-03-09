@@ -12,6 +12,8 @@
         </service>
         <service id="ems_common.twig.runtime.request" class="EMS\CommonBundle\Twig\RequestRuntime">
             <argument type="service" id="request_stack" />
+            <argument type="service" id="ems_common.storage.manager" />
+            <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface" />
             <tag name="twig.runtime" />
         </service>
 
