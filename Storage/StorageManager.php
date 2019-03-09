@@ -4,6 +4,7 @@ namespace EMS\CommonBundle\Storage;
 
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Symfony\Component\Config\FileLocatorInterface;
+use function fread;
 use function hash;
 use function strlen;
 
@@ -79,6 +80,17 @@ class StorageManager
     }
 
     /**
+     * @param string $hash
+     * @param null|string $context
+     * @return string
+     */
+    public function getContents(string $hash, ?string $context = null): string
+    {
+        $resource = $this->read($this->adapters, $hash, $context);
+        return fread($resource);
+    }
+
+    /**
      * @deprecated
      * @param string      $hash
      * @param string|null $context
@@ -87,6 +99,7 @@ class StorageManager
      */
     public function getFile(string $hash, ?string $context = null): string
     {
+        @trigger_error("StorageManager::getFile is deprecated use the getContents or the getResource function", E_USER_DEPRECATED);
         $resource = $this->read($this->adapters, $hash, $context);
         $filename = tempnam(sys_get_temp_dir(), 'EMS');
         file_put_contents($filename, $resource);
@@ -94,6 +107,7 @@ class StorageManager
     }
 
     /**
+     * @deprecated
      * @param string      $hash
      * @param string|null $context
      *
@@ -101,6 +115,7 @@ class StorageManager
      */
     public function getCacheFile(string $hash, ?string $context = null)
     {
+        @trigger_error("StorageManager::getCacheFile is deprecated use the getContents or the getResource function", E_USER_DEPRECATED);
         $resource = $this->read($this->cacheAdapters, $hash, $context);
         $filename = tempnam(sys_get_temp_dir(), 'EMS');
         file_put_contents($filename, $resource);
