@@ -4,6 +4,8 @@ namespace EMS\CommonBundle\Storage;
 
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Symfony\Component\Config\FileLocatorInterface;
+use function hash;
+use function strlen;
 
 class StorageManager
 {
@@ -22,9 +24,15 @@ class StorageManager
      */
     private $fileLocator;
 
-    public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, iterable $cacheAdapters)
+    /**
+     * @var string
+     */
+    private $hashAlgo;
+
+    public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, iterable $cacheAdapters, string $hashAlgo)
     {
         $this->fileLocator = $fileLocator;
+        $this->hashAlgo = $hashAlgo;
 
         foreach ($adapters as $adapters) {
             $this->adapters[] = $adapters;
@@ -164,5 +172,48 @@ class StorageManager
         }
 
         throw new NotFoundException($hash);
+    }
+
+    /**
+     * @return string
+     */
+    public function getHashAlgo()
+    {
+        return $this->hashAlgo;
+    }
+
+
+
+    public function saveContents(string $contents, string $filename, string $mimetype, string $context = null, int $shouldBeSavedOnXServices=0)
+    {
+        $hash = hash($this->hashAlgo, $contents);
+        $out = 0;
+
+        /**@var \EMS\CommonBundle\Storage\Service\StorageInterface $service*/
+        foreach ($this->getAdapters() as $service){
+
+            if($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
+                break;
+            }
+
+            if($service->head($hash, $context)) {
+                ++ $out;
+                continue;
+            }
+
+            if(!$service->initUpload($hash, strlen($contents), $filename,  $mimetype, $context)){
+                continue;
+            }
+
+            if(!$service->addChunk($hash, $contents)) {
+                continue;
+            }
+
+            if($service->finalizeUpload($hash)) {
+                ++ $out;
+            }
+        }
+
+        return $hash;
     }
 }
