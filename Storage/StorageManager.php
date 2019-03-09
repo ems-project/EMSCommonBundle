@@ -87,7 +87,13 @@ class StorageManager
     public function getContents(string $hash, ?string $context = null): string
     {
         $resource = $this->read($this->adapters, $hash, $context);
-        return fread($resource);
+        $out ='';
+        while(!feof($resource)){
+            $out.=fread($resource, 1024);
+        }
+
+        fclose($resource);
+        return $out;
     }
 
     /**
