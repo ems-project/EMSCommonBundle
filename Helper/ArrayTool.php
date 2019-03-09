@@ -42,5 +42,18 @@ class ArrayTool
         return $out;
     }
 
+    /**
+     * Normalize and json encode an array in order to compute it's hash
+     * @param array $array
+     * @param int $sort_flags
+     * @param int $jsonEncodeOptions
+     * @return false|string
+     */
+    public static function normalizeAndSerializeArray (array &$array, int $sort_flags = SORT_REGULAR, int $jsonEncodeOptions = 0)
+    {
+        ArrayTool::normalizeArray($array, $sort_flags);
+        return json_encode($array, $jsonEncodeOptions);
+    }
+
 
 }
