@@ -26,5 +26,7 @@ class EMSCommonExtension extends Extension
         if ($config['profiler']) {
             $loader->load('profiler.xml');
         }
+
+        $container->setParameter('ems_common.hash_algo', $config['hash_algo']);
     }
 }
