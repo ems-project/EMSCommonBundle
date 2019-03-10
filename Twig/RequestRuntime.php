@@ -4,6 +4,7 @@ namespace EMS\CommonBundle\Twig;
 
 use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Helper\EmsConst;
+use EMS\CommonBundle\Storage\Processor\Config;
 use EMS\CommonBundle\Storage\StorageManager;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -59,18 +60,20 @@ class RequestRuntime implements RuntimeExtensionInterface
     {
         $config = $assetConfig;
         if(isset($fileField[$mimeTypeField])) {
-            $config[EmsConst::CONTENT_MIME_TYPE_FIELD] = $fileField[$mimeTypeField];
+            $config['_mime_type'] = $fileField[$mimeTypeField];
         }
         elseif (! isset($assetConfig[EmsConst::CONTENT_MIME_TYPE_FIELD]) && isset($fileField[$filenameField])) {
-            $config[EmsConst::CONTENT_MIME_TYPE_FIELD] = mime_content_type($fileField[$filenameField]);
+            $config['_mime_type'] = mime_content_type($fileField[$filenameField]);
         }
+
+        $configObject = new Config('', '', '', $config);
 
         $hashConfig = $this->storageManager->saveContents(ArrayTool::normalizeAndSerializeArray($config), 'assetConfig.json', 'application/json');
 
         return $this->urlGenerator->generate($route, [
             'hash' => $fileField[$fileHashField],
             'hash_config' => $hashConfig,
-            'filename' => isset($fileField[$filenameField])?$fileField[$filenameField]:'asset',
+            'filename' => (isset($fileField[$filenameField])?$fileField[$filenameField]:'asset').$configObject->getFilenameExtension(),
         ], $referenceType);
     }
 }
