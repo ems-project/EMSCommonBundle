@@ -2,9 +2,11 @@
 
 namespace EMS\CommonBundle\Storage\Processor;
 
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use function strpos;
 
 final class Config
 {
@@ -17,15 +19,22 @@ final class Config
     /** @var string */
     private $configHash;
 
-    public function __construct(string $processor, string $assetHash, array $options = [])
+    /**
+     * Config constructor.
+     * @param string $processor, this parameter should be removed in a near futur
+     * @param string $assetHash
+     * @param string $configHash
+     * @param array $options
+     */
+    public function __construct(string $processor, string $assetHash, string $configHash, array $options = [])
     {
         $this->processor = $processor;
         $this->assetHash = $assetHash;
         $this->options = $this->resolve($options);
+        $this->configHash = $configHash;
 
-        unset($options['_published_datetime']); //the date can not change the cache id
+        unset($options['_published_datetime']); //the published date can't invalidate the cache as it'sbased on the config hash now.
 
-        $this->configHash = sha1(json_encode($options));
     }
 
     public function getProcessor(): string
@@ -67,7 +76,7 @@ final class Config
         return $this->assetHash . '_' . $this->configHash;
     }
 
-    public function getConfigType(): string
+    public function getConfigType(): ?string
     {
         return $this->options['_config_type'];
     }
@@ -117,6 +126,11 @@ final class Config
         return $this->options['_border_color'];
     }
 
+    public function getDisposition(): string
+    {
+        return $this->options['_disposition'];
+    }
+
     public function getWatermark(): ?string
     {
         return isset($this->options['_watermark']['sha1']) ? $this->options['_watermark']['sha1'] : null;
@@ -124,16 +138,58 @@ final class Config
 
     public function getMimeType(): string
     {
-        if ($this->isSvg()) {
-            return $this->options['_type'];
+        if($this->getConfigType() == 'image') {
+            if ($this->isSvg()) {
+                return $this->options['_mime_type'];
+            }
+
+            return $this->getQuality() ? 'image/jpeg' : 'image/png';
         }
 
-        return $this->getQuality() ? 'image/jpeg' : 'image/png';
+        return $this->options['_mime_type'];
+    }
+
+    public function cacheableResult()
+    {
+        //returns the asset itself (it already in the cahce
+        if(!$this->getStorageContext()) {
+            return false;
+        }
+        if( $this->getConfigType() == 'image' && strpos($this->options['_mime_type'], 'image/') === 0 && !$this->isSvg() ) {
+            return true;
+        }
+        return false;
+    }
+
+
+
+    public function getFilenameExtension(): string
+    {
+        if($this->getStorageContext()) {
+            switch ($this->getMimeType()){
+                case 'image/jpeg': return '.jpeg';
+                case 'image/png': return '.png';
+            }
+        }
+        return '';
+    }
+
+    public function getStorageContext(): ?string
+    {
+        if($this->getConfigType() == 'image') {
+            if ($this->isSvg()) {
+                return null;
+            }
+
+            return $this->getConfigHash();
+        }
+
+        return null;
     }
 
     public function isSvg(): bool
     {
-        return $this->options['_type'] ? preg_match('/image\/svg.*/', $this->options['_type']) : false;
+        return $this->options['_mime_type'] ? preg_match('/image\/svg.*/', $this->options['_mime_type']) : false;
     }
 
     private function resolve(array $options): array
@@ -143,7 +199,8 @@ final class Config
         $resolver = new OptionsResolver();
         $resolver
             ->setDefaults($defaults)
-            ->setAllowedValues('_config_type', 'image')
+            ->setAllowedValues('_config_type', [null, 'image'])
+            ->setAllowedValues('_disposition', [ResponseHeaderBag::DISPOSITION_INLINE, ResponseHeaderBag::DISPOSITION_ATTACHMENT])
             ->setAllowedValues('_radius_geometry', function ($values) use ($defaults) {
                 if (!is_array($values)){
                     return false;
@@ -168,7 +225,7 @@ final class Config
     public static function getDefaults(): array
     {
         return [
-            '_config_type' => 'image',
+            '_config_type' => null,
             '_quality' => 70,
             '_background' => '#FFFFFF',
             '_resize' => 'fill',
@@ -180,7 +237,8 @@ final class Config
             '_border_color' => null,
             '_watermark' => null,
             '_published_datetime' => '2018-02-05T16:08:56+01:00',
-            '_type' => 'image',
+            '_mime_type' => 'application/octet-stream',
+            '_disposition' => ResponseHeaderBag::DISPOSITION_INLINE,
         ];
     }
 }
