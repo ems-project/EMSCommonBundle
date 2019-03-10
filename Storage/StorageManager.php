@@ -7,6 +7,7 @@ use Symfony\Component\Config\FileLocatorInterface;
 use function fread;
 use function fstat;
 use function hash;
+use function hash_file;
 use function rewind;
 use function strlen;
 
@@ -256,6 +257,11 @@ class StorageManager
     public function computeStringHash($string):string
     {
         return hash($this->hashAlgo, $string);
+    }
+
+    public function computeFileHash($filename):string
+    {
+        return hash_file($this->hashAlgo, $filename);
     }
 
 
