@@ -5,7 +5,9 @@ namespace EMS\CommonBundle\Storage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Symfony\Component\Config\FileLocatorInterface;
 use function fread;
+use function fstat;
 use function hash;
+use function rewind;
 use function strlen;
 
 class StorageManager
@@ -89,7 +91,7 @@ class StorageManager
         $resource = $this->read($this->adapters, $hash, $context);
         $out ='';
         while(!feof($resource)){
-            $out.=fread($resource, 1024);
+            $out.=fread($resource, 8192);
         }
 
         fclose($resource);
@@ -154,6 +156,8 @@ class StorageManager
      */
     public function getLastCacheDate(string $hash, ?string $context = null): ?\DateTime
     {
+        @trigger_error(sprintf('The "%s::getLastCacheDate" method is deprecated and should not more be used.', StorageManager::class), E_USER_DEPRECATED);
+
         $lastDate = null;
 
         foreach ($this->cacheAdapters as $cacheAdapter) {
@@ -226,15 +230,96 @@ class StorageManager
                 continue;
             }
 
-            if(!$service->addChunk($hash, $contents)) {
+            if(!$service->addChunk($hash, $contents, $context)) {
                 continue;
             }
 
-            if($service->finalizeUpload($hash)) {
+            if($service->finalizeUpload($hash, $context)) {
                 ++ $out;
             }
         }
 
         return $hash;
+    }
+
+
+    public function computeResourceHash($handler):string
+    {
+        $ctx = hash_init($this->hashAlgo);
+        while (!feof($handler)) {
+            hash_update($ctx, fread($handler, 8192));
+        }
+        return hash_final($ctx);
+    }
+
+
+    public function computeStringHash($string):string
+    {
+        return hash($this->hashAlgo, $string);
+    }
+
+
+    public function cacheResource($resource, string $hash, string $context, string $filename, string $mimeType, int $shouldBeSavedOnXServices=0)
+    {
+        $out = 0;
+        $size = 0;
+        $stat = fstat($resource);
+        if(isset($stat['size'])) {
+            $size = $stat['size'];
+        }
+
+        /**@var \EMS\CommonBundle\Storage\Service\StorageInterface $service*/
+        foreach ($this->getAdapters() as $service){
+
+            if($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
+                break;
+            }
+
+
+            if($service->head($hash, $context)) {
+                ++ $out;
+                continue;
+            }
+
+            if(!$service->initUpload($hash, $size, $filename,  $mimeType, $context)){
+                continue;
+            }
+
+            while(!feof($resource)){
+                $str = fread($resource, 8192);
+                if(!$service->addChunk($hash, $str, $context)) {
+                    continue;
+                }
+            }
+
+            if($service->finalizeUpload($hash, $context)) {
+                ++ $out;
+            }
+
+            rewind($resource);
+        }
+
+        return $out;
+    }
+
+
+    /**
+     * @param string $fileHash
+     * @param string $fileSize
+     * @param string $fileName
+     * @param string $mimeType
+     * @param int $uploadMinimumNumberOfReplications
+     * @return int
+     */
+    public function initUploadFile(string $fileHash, string $fileSize, string $fileName, string $mimeType, int $uploadMinimumNumberOfReplications):int
+    {
+        $loopCounter = 0;
+        foreach ($this->storageManager->getAdapters() as $service){
+            if($service->initUpload($fileHash, $fileSize, $fileName, $mimeType) && ++$loopCounter >= $uploadMinimumNumberOfReplications)
+            {
+                break;
+            }
+        }
+        return $loopCounter;
     }
 }
