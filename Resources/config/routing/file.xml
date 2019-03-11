@@ -10,4 +10,7 @@
     <route id="ems_common_file_download" path="/file/download/{sha1}" methods="GET">
         <default key="_controller">ems_common.controller.file::download</default>
     </route>
+    <route id="ems_asset" path="/file/{hash_config}/{hash}/{filename}" methods="GET">
+        <default key="_controller">ems_common.controller.file::asset</default>
+    </route>
 </routes>
