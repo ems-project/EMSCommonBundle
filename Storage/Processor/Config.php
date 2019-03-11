@@ -225,7 +225,7 @@ final class Config
     public static function getDefaults(): array
     {
         return [
-            EmsFields::ASSET_CONFIG_TYPE_IMAGE => null,
+            EmsFields::ASSET_CONFIG_TYPE => null,
             EmsFields::ASSET_CONFIG_QUALITY => 70,
             EmsFields::ASSET_CONFIG_BACKGOUND => '#FFFFFF',
             EmsFields::ASSET_CONFIG_RESIZE => 'fill',
