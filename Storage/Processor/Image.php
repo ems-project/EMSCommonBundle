@@ -33,7 +33,7 @@ class Image
         list ($width, $height) = $this->getWidthHeight($size);
 
         if (null !== $this->config->getResize()) {
-            $image = $this->applyResize($image, $width, $height, $size);
+            $image = $this->applyResizeAndBackground($image, $width, $height, $size);
         }
         else if (null !== $this->config->getBackground()) {
             $image = $this->applyBackground($image, $width, $height);
@@ -91,7 +91,7 @@ class Image
         return [$width, $height];
     }
 
-    private function applyResize($image, $width, $height, $size)
+    private function applyResizeAndBackground($image, $width, $height, $size)
     {
         if (function_exists("imagecreatetruecolor") && ($temp = imagecreatetruecolor($width, $height))) {
             $resizeFunction = 'imagecopyresampled';
