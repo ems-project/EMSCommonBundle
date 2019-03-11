@@ -231,12 +231,14 @@ class HttpStorage  extends AbstractUrlStorage
     }
 
     /**
-     * @inheritdoc
+     * @param string $hash
+     * @param null|string $cacheContext
+     * @return null|int
      */
     public function getSize(string $hash, ?string $cacheContext = null): ?int
     {
         if ($cacheContext) {
-            return false;
+            return null;
         }
 
         //https://stackoverflow.com/questions/1545432/what-is-the-easiest-way-to-use-the-head-command-of-http-in-php?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
@@ -253,7 +255,7 @@ class HttpStorage  extends AbstractUrlStorage
                 }
             }
         } catch (Exception $e) {
-            //So it's a FALSE
+            //So it's a null
         }
         return null;
     }
