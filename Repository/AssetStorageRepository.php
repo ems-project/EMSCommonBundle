@@ -4,7 +4,7 @@ namespace EMS\CommonBundle\Repository;
 
 use Doctrine\ORM\NonUniqueResultException;
 use EMS\CommonBundle\Entity\AssetStorage;
-use Exception;
+use Throwable;
 
 /**
  * AssetStorageRepository
@@ -25,16 +25,14 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
         $qb->where($qb->expr()->eq('a.hash', ':hash'));
         $qb->andWhere($qb->expr()->eq('a.confirmed', ':confirmed'));
 
-        if($context)
-        {
+        if ($context) {
             $qb->andWhere($qb->expr()->eq('a.context', ':context'));
             $qb->setParameters([
                 ':hash' => $hash,
                 ':context' => $context,
                 ':confirmed' => $confirmed,
             ]);
-        }
-        else{
+        } else {
             $qb->andWhere('a.context is null');
             $qb->setParameters([
                 ':hash' => $hash,
@@ -50,13 +48,12 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
      * @param boolean $confirmed
      * @return bool
      */
-    public function head($hash, $context, $confirmed=true)
+    public function head($hash, $context, $confirmed = true)
     {
-        try{
+        try {
             $qb = $this->getQuery($hash, $context, $confirmed)->select('count(a.hash)');
             return $qb->getQuery()->getSingleScalarResult() !== 0;
-        }
-        catch (NonUniqueResultException $e){
+        } catch (NonUniqueResultException $e) {
             return false;
         }
     }
@@ -66,13 +63,11 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
      */
     public function clearCache()
     {
-        try
-        {
+        try {
             $qb = $this->createQueryBuilder('asset')->delete()
                 ->where('asset.context is not null');
             return $qb->getQuery()->execute() !== false;
-        }
-        catch (Exception $e){
+        } catch (Throwable $e) {
             return false;
         }
     }
@@ -82,16 +77,14 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
      */
     public function removeByHash($hash)
     {
-        try
-        {
+        try {
             $qb = $this->createQueryBuilder('asset')->delete();
             $qb->where($qb->expr()->eq('asset.hash', ':hash'));
             $qb->setParameters([
                 ':hash' => $hash,
             ]);
             return $qb->getQuery()->execute() !== false;
-        }
-        catch (Exception $e){
+        } catch (Throwable $e) {
             return false;
         }
     }
@@ -102,16 +95,13 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
      * @param boolean $confirmed
      * @return null|AssetStorage
      */
-    public function findByHash($hash, $context, $confirmed=true)
+    public function findByHash($hash, $context, $confirmed = true)
     {
         $qb = $this->getQuery($hash, $context, $confirmed)->select('a');
 
-        try
-        {
+        try {
             return $qb->getQuery()->getOneOrNullResult();
-        }
-        catch (NonUniqueResultException $e)
-        {
+        } catch (NonUniqueResultException $e) {
             return null;
         }
     }
@@ -126,7 +116,7 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
      * @throws NonUniqueResultException
      * @throws \Doctrine\ORM\NoResultException
      */
-    public function lastUpdateDate($hash, $context, $confirmed=true)
+    public function lastUpdateDate($hash, $context, $confirmed = true)
     {
         $qb = $this->getQuery($hash, $context, $confirmed)->select('a.modified');
 
@@ -140,14 +130,12 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
      * @param boolean $confirmed
      * @return int
      */
-    public function getSize($hash, $context, $confirmed=true)
+    public function getSize($hash, $context, $confirmed = true)
     {
-        try
-        {
+        try {
             $qb = $this->getQuery($hash, $context, $confirmed)->select('a.size');
             return $qb->getQuery()->getSingleScalarResult();
-        }
-        catch (NonUniqueResultException $e){
+        } catch (NonUniqueResultException $e) {
             return false;
         }
     }
@@ -159,14 +147,12 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
      * @return int
      * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function getLastUpdateDate($hash, $context, $confirmed=true)
+    public function getLastUpdateDate($hash, $context, $confirmed = true)
     {
-        try
-        {
+        try {
             $qb = $this->getQuery($hash, $context, $confirmed)->select('a.lastUpdateDate');
             return $qb->getQuery()->getSingleScalarResult();
-        }
-        catch (NonUniqueResultException $e){
+        } catch (NonUniqueResultException $e) {
             return false;
         }
     }
