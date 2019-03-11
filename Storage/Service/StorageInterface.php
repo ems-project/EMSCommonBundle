@@ -66,6 +66,7 @@ interface StorageInterface
     public function remove(string $hash):bool;
 
     /**
+     * @deprecated
      * @param string      $hash
      * @param string|null $context
      *

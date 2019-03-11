@@ -97,12 +97,14 @@ abstract class AbstractUrlStorage implements StorageInterface
     }
 
     /**
+     * @deprecated
      * @param string $hash
      * @param null|string $context
      * @return \DateTime|null
      */
     public function getLastUpdateDate(string $hash, ?string $context = null): ?\DateTime
     {
+        @trigger_error("getLastUpdateDate is deprecated.", E_USER_DEPRECATED);
         $path = $this->getPath($hash, $context);
         if (file_exists($path)) {
             $time = @filemtime($path);
