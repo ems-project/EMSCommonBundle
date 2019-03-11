@@ -32,8 +32,8 @@ class StorageManager
         $this->fileLocator = $fileLocator;
         $this->hashAlgo = $hashAlgo;
 
-        foreach ($adapters as $adapters) {
-            $this->adapters[] = $adapters;
+        foreach ($adapters as $adapter) {
+            $this->adapters[] = $adapter;
         }
 
         foreach ($cacheAdapters as $cacheAdapter) {
