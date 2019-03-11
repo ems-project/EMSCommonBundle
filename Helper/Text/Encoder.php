@@ -17,7 +17,7 @@ class Encoder
     /**
      *
      * Detect telephone information using the '"tel:xxx"' pattern
-     * <a href="tel:02/787.45.23">02/787.45.23</a>
+     * <a href="tel:02/123.45.23">02/123.45.23</a>
      */
     private function encode_phone(string $text): string
     {
@@ -45,10 +45,10 @@ class Encoder
     /**
      *
      * Allow to encode other pii using a class "pii"
-     * <a href="tel:02/787.45.23"><span class="pii">02/787.45.23</span></a>
+     * <a href="tel:02/123.45.23"><span class="pii">02/123.45.23</span></a>
      *
      * The <span> element is consumed and is not kept in the end result.
-     * example browser output: <a href="tel:02/787.45.23">02/787.45.23</a>
+     * example browser output: <a href="tel:02/123.45.23">02/123.45.23</a>
      *
      * If html tags are used inside a pii span, it will be double encoded and give unexpected results on the browser
      */

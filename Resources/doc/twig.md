@@ -13,11 +13,11 @@ The following data can be obfuscated (even inside a wysiwyg field):
 ````
 - phone number in `<a href="tel:____">`
 ````twig
-{{- '<a href="tel:02/787.50.00">repeated here, the number will not be encoded</a>'|emsch_html_encode -}}
+{{- '<a href="tel:02/123.50.00">repeated here, the number will not be encoded</a>'|emsch_html_encode -}}
 ````
 - custom selection of pii using a span with class "pii"
 ````twig
-{{- '<span class="pii">02/787.50.00</span>'|emsch_html_encode -}}
+{{- '<span class="pii">02/123.50.00</span>'|emsch_html_encode -}}
 ````
 
 See unit test for more examples.
