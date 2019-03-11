@@ -2,6 +2,7 @@
 
 namespace EMS\CommonBundle\Storage\Processor;
 
+use EMS\CommonBundle\Helper\EmsFields;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\Options;
@@ -32,7 +33,7 @@ final class Config
         $this->options = $this->resolve($options);
         $this->configHash = $configHash;
 
-        unset($options['_published_datetime']); //the published date can't invalidate the cache as it'sbased on the config hash now.
+        unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); //the published date can't invalidate the cache as it'sbased on the config hash now.
 
     }
 
@@ -67,7 +68,7 @@ final class Config
 
     public function getLastUpdateDate(): ?\DateTime
     {
-        return $this->options['_published_datetime'];
+        return $this->options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD];
     }
 
     public function getCacheKey(): string
@@ -77,75 +78,75 @@ final class Config
 
     public function getConfigType(): ?string
     {
-        return $this->options['_config_type'];
+        return $this->options[EmsFields::ASSET_CONFIG_TYPE];
     }
 
     public function getQuality(): ?int
     {
-        return $this->options['_quality'];
+        return $this->options[EmsFields::ASSET_CONFIG_QUALITY];
     }
 
     public function getBackground(): string
     {
-        return $this->options['_background'];
+        return $this->options[EmsFields::ASSET_CONFIG_BACKGOUND];
     }
 
     public function getResize(): ?string
     {
-        return $this->options['_resize'];
+        return $this->options[EmsFields::ASSET_CONFIG_RESIZE];
     }
 
     public function getWidth(): string
     {
-        return $this->options['_width'];
+        return $this->options[EmsFields::ASSET_CONFIG_WIDTH];
     }
 
     public function getHeight(): string
     {
-        return $this->options['_height'];
+        return $this->options[EmsFields::ASSET_CONFIG_HEIGHT];
     }
 
     public function getGravity(): string
     {
-        return $this->options['_gravity'];
+        return $this->options[EmsFields::ASSET_CONFIG_GRAVITY];
     }
 
     public function getRadius(): ?string
     {
-        return $this->options['_radius'];
+        return $this->options[EmsFields::ASSET_CONFIG_RADIUS];
     }
 
     public function getRadiusGeometry(): array
     {
-        return $this->options['_radius_geometry'];
+        return $this->options[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY];
     }
 
     public function getBorderColor(): ?string
     {
-        return $this->options['_border_color'];
+        return $this->options[EmsFields::ASSET_CONFIG_BORDER_COLOR];
     }
 
     public function getDisposition(): string
     {
-        return $this->options['_disposition'];
+        return $this->options[EmsFields::ASSET_CONFIG_DISPOSITION];
     }
 
     public function getWatermark(): ?string
     {
-        return isset($this->options['_watermark']['sha1']) ? $this->options['_watermark']['sha1'] : null;
+        return isset($this->options[EmsFields::ASSET_CONFIG_WATERMARK_HASH]) ? $this->options[EmsFields::ASSET_CONFIG_WATERMARK_HASH] : null;
     }
 
     public function getMimeType(): string
     {
-        if($this->getConfigType() == 'image') {
+        if($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE) {
             if ($this->isSvg()) {
-                return $this->options['_mime_type'];
+                return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
             }
 
             return $this->getQuality() ? 'image/jpeg' : 'image/png';
         }
 
-        return $this->options['_mime_type'];
+        return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
     }
 
     public function cacheableResult()
@@ -154,7 +155,7 @@ final class Config
         if(!$this->getStorageContext()) {
             return false;
         }
-        if( $this->getConfigType() == 'image' && strpos($this->options['_mime_type'], 'image/') === 0 && !$this->isSvg() ) {
+        if( $this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg() ) {
             return true;
         }
         return false;
@@ -175,7 +176,7 @@ final class Config
 
     public function getStorageContext(): ?string
     {
-        if($this->getConfigType() == 'image') {
+        if($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE) {
             if ($this->isSvg()) {
                 return null;
             }
@@ -188,7 +189,7 @@ final class Config
 
     public function isSvg(): bool
     {
-        return $this->options['_mime_type'] ? preg_match('/image\/svg.*/', $this->options['_mime_type']) : false;
+        return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] ? preg_match('/image\/svg.*/', $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) : false;
     }
 
     private function resolve(array $options): array
@@ -198,22 +199,22 @@ final class Config
         $resolver = new OptionsResolver();
         $resolver
             ->setDefaults($defaults)
-            ->setAllowedValues('_config_type', [null, 'image'])
-            ->setAllowedValues('_disposition', [ResponseHeaderBag::DISPOSITION_INLINE, ResponseHeaderBag::DISPOSITION_ATTACHMENT])
-            ->setAllowedValues('_radius_geometry', function ($values) use ($defaults) {
+            ->setAllowedValues(EmsFields::ASSET_CONFIG_TYPE, [null, EmsFields::ASSET_CONFIG_TYPE_IMAGE])
+            ->setAllowedValues(EmsFields::ASSET_CONFIG_DISPOSITION, [ResponseHeaderBag::DISPOSITION_INLINE, ResponseHeaderBag::DISPOSITION_ATTACHMENT])
+            ->setAllowedValues(EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY, function ($values) use ($defaults) {
                 if (!is_array($values)){
                     return false;
                 }
 
                 foreach ($values as $value) {
-                    if (!in_array($value, $defaults['_radius_geometry'])){
-                        throw new UndefinedOptionsException(sprintf('_radius_geometry %s is invalid (%s)', $value, implode(',', $defaults['_radius_geometry'])));
+                    if (!in_array($value, $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])){
+                        throw new UndefinedOptionsException(sprintf('_radius_geometry %s is invalid (%s)', $value, implode(',', $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])));
                     }
                 }
 
                 return true;
             })
-            ->setNormalizer('_published_datetime', function (Options $options, $value) {
+            ->setNormalizer(EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD, function (Options $options, $value) {
                 return null !== $value ? new \DateTime($value) : null;
             })
         ;
@@ -224,20 +225,20 @@ final class Config
     public static function getDefaults(): array
     {
         return [
-            '_config_type' => null,
-            '_quality' => 70,
-            '_background' => '#FFFFFF',
-            '_resize' => 'fill',
-            '_width' => 300,
-            '_height' => 200,
-            '_gravity' => 'center',
-            '_radius' => null,
-            '_radius_geometry' => ['topleft', 'topright', 'bottomright', 'bottomleft'],
-            '_border_color' => null,
-            '_watermark' => null,
-            '_published_datetime' => '2018-02-05T16:08:56+01:00',
-            '_mime_type' => 'application/octet-stream',
-            '_disposition' => ResponseHeaderBag::DISPOSITION_INLINE,
+            EmsFields::ASSET_CONFIG_TYPE_IMAGE => null,
+            EmsFields::ASSET_CONFIG_QUALITY => 70,
+            EmsFields::ASSET_CONFIG_BACKGOUND => '#FFFFFF',
+            EmsFields::ASSET_CONFIG_RESIZE => 'fill',
+            EmsFields::ASSET_CONFIG_WIDTH => 300,
+            EmsFields::ASSET_CONFIG_HEIGHT => 200,
+            EmsFields::ASSET_CONFIG_GRAVITY => 'center',
+            EmsFields::ASSET_CONFIG_RADIUS => null,
+            EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY => ['topleft', 'topright', 'bottomright', 'bottomleft'],
+            EmsFields::ASSET_CONFIG_BORDER_COLOR => null,
+            EmsFields::ASSET_CONFIG_WATERMARK_HASH => null,
+            EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD => '2018-02-05T16:08:56+01:00',
+            EmsFields::ASSET_CONFIG_MIME_TYPE => 'application/octet-stream',
+            EmsFields::ASSET_CONFIG_DISPOSITION => ResponseHeaderBag::DISPOSITION_INLINE,
         ];
     }
 }
