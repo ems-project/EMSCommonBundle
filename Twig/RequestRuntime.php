@@ -3,7 +3,7 @@
 namespace EMS\CommonBundle\Twig;
 
 use EMS\CommonBundle\Helper\ArrayTool;
-use EMS\CommonBundle\Helper\EmsConst;
+use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\Processor\Config;
 use EMS\CommonBundle\Storage\StorageManager;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -56,13 +56,13 @@ class RequestRuntime implements RuntimeExtensionInterface
      * @param int $referenceType
      * @return string
      */
-    public function assetPath(array $fileField, array $assetConfig=[], string $route = 'ems_asset', string $fileHashField=EmsConst::CONTENT_FILE_HASH_FIELD, $filenameField=EmsConst::CONTENT_FILE_NAME_FIELD, $mimeTypeField=EmsConst::CONTENT_MIME_TYPE_FIELD, $referenceType = UrlGeneratorInterface::RELATIVE_PATH) : string
+    public function assetPath(array $fileField, array $assetConfig=[], string $route = 'ems_asset', string $fileHashField=EmsFields::CONTENT_FILE_HASH_FIELD, $filenameField=EmsFields::CONTENT_FILE_NAME_FIELD, $mimeTypeField=EmsFields::CONTENT_MIME_TYPE_FIELD, $referenceType = UrlGeneratorInterface::RELATIVE_PATH) : string
     {
         $config = $assetConfig;
         if(isset($fileField[$mimeTypeField])) {
             $config['_mime_type'] = $fileField[$mimeTypeField];
         }
-        elseif (! isset($assetConfig[EmsConst::CONTENT_MIME_TYPE_FIELD]) && isset($fileField[$filenameField])) {
+        elseif (! isset($assetConfig[EmsFields::CONTENT_MIME_TYPE_FIELD]) && isset($fileField[$filenameField])) {
             $config['_mime_type'] = mime_content_type($fileField[$filenameField]);
         }
 
