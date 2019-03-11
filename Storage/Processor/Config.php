@@ -6,7 +6,6 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use function strpos;
 
 final class Config
 {

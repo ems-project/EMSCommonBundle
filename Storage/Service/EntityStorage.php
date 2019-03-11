@@ -4,17 +4,9 @@ namespace EMS\CommonBundle\Storage\Service;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use EMS\CommonBundle\Entity\AssetStorage;
 use EMS\CommonBundle\Repository\AssetStorageRepository;
 use Exception;
-use function file_get_contents;
-use function filemtime;
-use function filesize;
-use function is_resource;
-use function rewind;
-use function strlen;
 
 class EntityStorage implements StorageInterface
 {
