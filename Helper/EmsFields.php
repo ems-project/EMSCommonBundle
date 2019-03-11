@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: theus
- * Date: 09/03/2019
- * Time: 14:04
- */
 
 namespace EMS\CommonBundle\Helper;
 
