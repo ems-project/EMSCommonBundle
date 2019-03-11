@@ -2,7 +2,6 @@
 
 namespace EMS\CommonBundle\Twig;
 
-use EMS\ClientHelperBundle\Twig\TextRuntime;
 use EMS\CommonBundle\Common\Converter;
 use EMS\CommonBundle\Common\EMSLink;
 use Twig\Extension\AbstractExtension;

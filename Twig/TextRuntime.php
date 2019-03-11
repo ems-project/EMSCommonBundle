@@ -2,7 +2,7 @@
 
 namespace EMS\CommonBundle\Twig;
 
-use EMS\ClientHelperBundle\Helper\Text\Encoder;
+use EMS\CommonBundle\Helper\Text\Encoder;
 use Twig\Extension\RuntimeExtensionInterface;
 
 class TextRuntime implements RuntimeExtensionInterface
