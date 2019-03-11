@@ -260,12 +260,14 @@ class HttpStorage  extends AbstractUrlStorage
 
 
     /**
+     * @deprecated
      * @param string $hash
      * @param null|string $context
      * @return \DateTime|null
      */
     public function getLastUpdateDate(string $hash, ?string $context = null): ?\DateTime
     {
+        @trigger_error("getLastUpdateDate is deprecated.", E_USER_DEPRECATED);
         if ($context) {
             return null;
         }

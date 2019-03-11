@@ -153,12 +153,14 @@ class EntityStorage implements StorageInterface
     }
 
     /**
+     * @deprecated
      * @param string $hash
-     * @param bool|string $cacheContext
-     * @return bool|int
+     * @param null|string $context
+     * @return \DateTime|null
      */
     public function getLastUpdateDate(string $hash, ?string $context = null): ?\DateTime
     {
+        @trigger_error("getLastUpdateDate is deprecated.", E_USER_DEPRECATED);
         if (!$context || $this->contextSupport) {
             $this->init();
             try {
