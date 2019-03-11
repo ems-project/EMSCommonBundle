@@ -2,8 +2,11 @@
 
 namespace EMS\CommonBundle\Controller;
 
+use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\NotFoundException;
+use EMS\CommonBundle\Storage\Processor\Processor;
 use EMS\CommonBundle\Storage\StorageManager;
+use EMS\CommonBundle\Twig\RequestRuntime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -21,11 +24,38 @@ class FileController extends AbstractController
     private $storageManager;
 
     /**
+     * @var Processor
+     */
+    private $processor;
+
+    /**
+     * @var RequestRuntime
+     */
+    private $requestRuntime;
+
+    /**
      * @param StorageManager $storageManager
      */
-    public function __construct(StorageManager $storageManager)
+    public function __construct(StorageManager $storageManager, Processor $processor, RequestRuntime $requestRuntime)
     {
         $this->storageManager = $storageManager;
+        $this->processor = $processor;
+        $this->requestRuntime = $requestRuntime;
+    }
+
+    /**
+     * @param Request $request
+     * @param string $hash
+     * @param string $hash_config
+     * @param string $filename
+     * @return Response|StreamedResponse
+     */
+    public function asset(Request $request, string $hash, string $hash_config, string $filename)
+    {
+        $this->closeSession($request);
+        
+        return $this->processor->getResponse($request, $hash, $hash_config, $filename);
+
     }
 
     /**
@@ -36,8 +66,10 @@ class FileController extends AbstractController
      */
     public function view(Request $request, string $sha1)
     {
-        $this->closeSession($request);
+        @trigger_error("FileController::view is deprecated use the ems_asset twig filter to generate the route", E_USER_DEPRECATED);
 
+        $this->closeSession($request);
+        
         return $this->getFile($request, $sha1, ResponseHeaderBag::DISPOSITION_INLINE);
 
     }
@@ -50,6 +82,8 @@ class FileController extends AbstractController
      */
     public function download(Request $request, string $sha1)
     {
+        @trigger_error("FileController::download is deprecated use the ems_asset twig filter to generate the route", E_USER_DEPRECATED);
+
         $this->closeSession($request);
 
         return $this->getFile($request, $sha1, ResponseHeaderBag::DISPOSITION_ATTACHMENT);
@@ -62,90 +96,20 @@ class FileController extends AbstractController
      *
      * @return Response
      */
-    private function getFile(Request $request, string $sha1, string $disposition): Response
+    private function getFile(Request $request, string $hash, string $disposition): Response
     {
-        $cacheResponse = $this->cacheResponse($request, $sha1);
+        @trigger_error("FileController::download is deprecated use the ems_asset twig filter to generate the route", E_USER_DEPRECATED);
 
-        if ($cacheResponse) {
-            return $cacheResponse;
-        }
-
-        //TODO: name should be part of the route and the mimetype hidden in the configHash
         $name = $request->query->get('name', 'upload.bin');
         $type = $request->query->get('type', 'application/bin');
-
-        try {
-            $response = $this->createResponse($sha1, $type, $name, $disposition);
-
-        }
-        catch (\Exception $e) {
-            if(\substr($type, 0, 5) === 'image') {
-                $response = new BinaryFileResponse($this->storageManager->getPublicImage('image-not-found.svg'));
-                $response->setPublic();
-            } else {
-                $response = new Response('File not found', 404);
-            }
-        }
-
-        return $response;
-    }
-
-    /**
-     * @param string
-     * @param string
-     * @param string
-     * @param string
-     *
-     * @return Response
-     */
-    private function createResponse(string $sha1, string $name, string $type, string $disposition=ResponseHeaderBag::DISPOSITION_INLINE)
-    {
-        $response = null;
-        try {
-
-            $handler = $this->storageManager()->getResource($sha1);
-
-            if(!$handler){
-                throw new NotFoundHttpException('Impossible to find the item corresponding to this id: '.$sha1);
-            }
-
-            $response = new StreamedResponse(
-                function () use ($handler) {
-                    while (!feof($handler)) {
-                        print fread($handler, 8192);
-                    }
-                }, 200, [
-                'Content-Disposition' => $disposition.'; '.HeaderUtils::toString(array('filename' => $name), ';'),
-                'Content-Type' => $type,
-            ]);
-
-        } catch (NotFoundException $ex) {
-            throw new NotFoundHttpException('file not found');
-        }
-
-        $response->setEtag($sha1);
-        $response->setPublic();
-
-        return $response;
-    }
-
-    /**
-     * @param Request $request
-     * @param string  $sha1
-     *
-     * @return bool|Response
-     */
-    private function cacheResponse(Request $request, string $sha1)
-    {
-        $response = new Response();
-        $response->setPublic();
-        $response->setEtag($sha1);
-
-        if ($response->isNotModified($request)) {
-            return $response; //cached
-        }
-
-        return false;
+        
+        return $this->redirect($this->requestRuntime->assetPath([
+            EmsFields::CONTENT_FILE_HASH_FIELD => $hash,
+            EmsFields::CONTENT_FILE_NAME_FIELD => $name,
+            EmsFields::CONTENT_MIME_TYPE_FIELD => $type,
+        ], [
+            EmsFields::ASSET_CONFIG_DISPOSITION => $disposition,
+        ]));
     }
 
     /**
