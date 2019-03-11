@@ -75,10 +75,7 @@ class EntityStorage implements StorageInterface
     {
         if (!$cacheContext || $this->contextSupport) {
             $this->init();
-            try {
-                return $this->repository->getSize($hash, $cacheContext);
-            } catch (Throwable $e) {
-            }
+            return $this->repository->getSize($hash, $cacheContext);
         }
         return null;
     }
