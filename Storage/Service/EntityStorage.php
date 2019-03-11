@@ -50,10 +50,7 @@ class EntityStorage implements StorageInterface
     {
         if (!$cacheContext || $this->contextSupport) {
             $this->init();
-            try {
-                return $this->repository->head($hash, $cacheContext);
-            } catch (Exception $e) {
-            }
+            return $this->repository->head($hash, $cacheContext);
         }
         return false;
     }
