@@ -13,7 +13,7 @@ use Throwable;
 class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
 {
 
-    /**
+     /**
      * @param string $hash
      * @param false|string $context
      * @param boolean $confirmed
@@ -73,9 +73,10 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
     }
 
     /**
+     * @param $hash
      * @return bool
      */
-    public function removeByHash($hash)
+    public function removeByHash($hash): bool
     {
         try {
             $qb = $this->createQueryBuilder('asset')->delete();
@@ -145,7 +146,6 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
      * @param string $context
      * @param boolean $confirmed
      * @return int
-     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function getLastUpdateDate($hash, $context, $confirmed = true)
     {
