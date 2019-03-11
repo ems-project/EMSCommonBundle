@@ -4,12 +4,6 @@ namespace EMS\CommonBundle\Storage;
 
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Symfony\Component\Config\FileLocatorInterface;
-use function fread;
-use function fstat;
-use function hash;
-use function hash_file;
-use function rewind;
-use function strlen;
 
 class StorageManager
 {

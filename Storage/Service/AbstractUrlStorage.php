@@ -5,11 +5,6 @@ namespace EMS\CommonBundle\Storage\Service;
 
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use function file_exists;
-use function filesize;
-use function fopen;
-use function strlen;
-use function unlink;
 
 abstract class AbstractUrlStorage implements StorageInterface
 {

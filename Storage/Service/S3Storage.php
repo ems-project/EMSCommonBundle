@@ -4,8 +4,6 @@ namespace EMS\CommonBundle\Storage\Service;
 
 use Aws\S3\S3Client;
 use AwsServiceBuilder;
-use function strlen;
-use function substr;
 
 class S3Storage extends AbstractUrlStorage
 {

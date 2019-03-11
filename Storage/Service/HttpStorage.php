@@ -6,9 +6,6 @@ namespace EMS\CommonBundle\Storage\Service;
 use EMS\CommonBundle\Common\HttpClientFactory;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
-use function in_array;
-use function intval;
-use function urlencode;
 
 class HttpStorage  extends AbstractUrlStorage
 {

@@ -4,17 +4,6 @@ namespace EMS\CommonBundle\Storage\Service;
 
 
 use Exception;
-use function file_exists;
-use function file_put_contents;
-use function ssh2_sftp_stat;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
-use function fopen;
-use function is_resource;
-use function ssh2_auth_pubkey_file;
-use function ssh2_sftp_unlink;
-use function tempnam;
-use function tmpfile;
 
 class SftpStorage extends AbstractUrlStorage
 {
