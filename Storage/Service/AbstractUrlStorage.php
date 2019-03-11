@@ -26,29 +26,29 @@ abstract class AbstractUrlStorage implements StorageInterface
      */
     protected function getPath($hash, string $cacheContext = null, $confirmed = true, $ds='/'): string
     {
-        $out = $this->getBaseUrl();
+        $folderName = $this->getBaseUrl();
 
         if (!$confirmed) {
-            $out .= $ds . 'uploads';
+            $folderName .= $ds . 'uploads';
         }
 
         //isolate cached files
         if ($cacheContext) {
-            $out .= $ds . 'cache' . $ds . $cacheContext;
+            $folderName .= $ds . 'cache' . $ds . $cacheContext;
         }
 
         //in order to avoid a folder with a to big number of files in
         if($confirmed)
         {
-            $out .= $ds . substr($hash, 0, 3);
+            $folderName .= $ds . substr($hash, 0, 3);
         }
 
         //create folder if missing
-        if (!file_exists($out)) {
-            mkdir($out, 0777, true);
+        if (!file_exists($folderName)) {
+            mkdir($folderName, 0777, true);
         }
 
-        return $out . $ds . $hash;
+        return $folderName . $ds . $hash;
     }
 
     /**
