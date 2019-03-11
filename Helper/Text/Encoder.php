@@ -1,6 +1,6 @@
 <?php
 
-namespace EMS\ClientHelperBundle\Helper\Text;
+namespace EMS\CommonBundle\Helper\Text;
 
 class Encoder
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace EMS\ClientHelperBundle\Twig;
+namespace EMS\CommonBundle\Twig;
 
 use EMS\ClientHelperBundle\Helper\Text\Encoder;
 use Twig\Extension\RuntimeExtensionInterface;
