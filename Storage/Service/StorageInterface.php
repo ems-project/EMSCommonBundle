@@ -45,7 +45,7 @@ interface StorageInterface
     /**
      * @param string $hash
      * @param null|string $cacheContext
-     * @return int
+     * @return null|int
      */
     public function getSize(string $hash, ?string $cacheContext = null): ?int;
 

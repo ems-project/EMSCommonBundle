@@ -7,6 +7,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use EMS\CommonBundle\Entity\AssetStorage;
 use EMS\CommonBundle\Repository\AssetStorageRepository;
 use Exception;
+use Throwable;
 
 class EntityStorage implements StorageInterface
 {
@@ -71,7 +72,7 @@ class EntityStorage implements StorageInterface
     /**
      * @param string $hash
      * @param null|string $cacheContext
-     * @return int
+     * @return null|int
      */
     public function getSize(string $hash, ?string $cacheContext = null): ?int
     {
@@ -79,10 +80,10 @@ class EntityStorage implements StorageInterface
             $this->init();
             try {
                 return $this->repository->getSize($hash, $cacheContext);
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
             }
         }
-        return false;
+        return null;
     }
 
 
