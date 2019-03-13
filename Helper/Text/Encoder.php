@@ -4,14 +4,14 @@ namespace EMS\CommonBundle\Helper\Text;
 
 class Encoder
 {
-    public function html_encode(string $text): string
+    public function htmlEncode(string $text): string
     {
         return mb_encode_numericentity(html_entity_decode($text), array(0x0, 0xffff, 0, 0xffff), 'UTF-8');
     }
 
-    public function html_encode_pii(string $text): string
+    public function htmlEncodePii(string $text): string
     {
-        return $this->encode_phone($this->encode_email($this->encode_pii_class($text)));
+        return $this->encodePhone($this->encodeEmail($this->encodePiiClass($text)));
     }
 
     /**
@@ -19,12 +19,12 @@ class Encoder
      * Detect telephone information using the '"tel:xxx"' pattern
      * <a href="tel:02/123.45.23">02/123.45.23</a>
      */
-    private function encode_phone(string $text): string
+    private function encodePhone(string $text): string
     {
         $telRegex = '/(?P<tel>"tel:.*")/i';
 
         return preg_replace_callback($telRegex, function ($match) {
-            return $this->html_encode($match['tel']);
+            return $this->htmlEncode($match['tel']);
         }, $text);
     }
 
@@ -33,12 +33,12 @@ class Encoder
      * Detect email information using the 'x@x.x' pattern
      * <a href="mailto:david.meert@smals.be">david.meert@smals.be</a>
      */
-    private function encode_email(string $text): string
+    private function encodeEmail(string $text): string
     {
         $emailRegex = '/(?P<email>[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3}))/i';
 
         return preg_replace_callback($emailRegex, function ($match) {
-            return $this->html_encode($match['email']);
+            return $this->htmlEncode($match['email']);
         }, $text);
     }
 
@@ -52,12 +52,12 @@ class Encoder
      *
      * If html tags are used inside a pii span, it will be double encoded and give unexpected results on the browser
      */
-    private function encode_pii_class(string $text): string
+    private function encodePiiClass(string $text): string
     {
         $piiRegex = '/<span class="pii">(?P<pii>.*)<\/span>/m';
 
         return preg_replace_callback($piiRegex, function ($match) {
-            return $this->html_encode($match['pii']);
+            return $this->htmlEncode($match['pii']);
         }, $text);
     }
 }

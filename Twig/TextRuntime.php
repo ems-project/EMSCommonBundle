@@ -15,13 +15,13 @@ class TextRuntime implements RuntimeExtensionInterface
         $this->encoder = $encoder;
     }
 
-    public function html_encode(string $text)
+    public function htmlEncode(string $text)
     {
-        return $this->encoder->html_encode($text);
+        return $this->encoder->htmlEncode($text);
     }
 
-    public function html_encode_pii(string $text)
+    public function htmlEncodePii(string $text)
     {
-        return $this->encoder->html_encode_pii($text);
+        return $this->encoder->htmlEncodePii($text);
     }
 }

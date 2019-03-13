@@ -35,9 +35,9 @@ class EncoderTest extends TestCase
     /**
      * @dataProvider htmlProvider
      */
-    public function testHtml_encode(string $text, string $expected)
+    public function testHtmlEncode(string $text, string $expected)
     {
-        self::assertSame($expected, $this->encoder->html_encode($text));
+        self::assertSame($expected, $this->encoder->htmlEncode($text));
     }
 
     /**
@@ -64,8 +64,8 @@ class EncoderTest extends TestCase
     /**
      * @dataProvider piiProvider
      */
-    public function testHtml_encode_pii(string $text, string $expected)
+    public function testHtmlEncodePii(string $text, string $expected)
     {
-        self::assertSame($expected, $this->encoder->html_encode_pii($text));
+        self::assertSame($expected, $this->encoder->htmlEncodePii($text));
     }
 }

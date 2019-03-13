@@ -45,5 +45,8 @@
 		"branch-alias" : {
 			"dev-master" : "0.1-dev"
 		}
+	},
+	"scripts": {
+		"phpcs": "phpcs --standard=phpcs.xml.dist"
 	}
 }
