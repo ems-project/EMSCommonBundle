@@ -19,6 +19,8 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('format_bytes', [Converter::class, 'formatBytes']),
             new TwigFilter('emsch_ouuid', [$this, 'getOuuid']),
             new TwigFilter('locale_attr', [RequestRuntime::class, 'localeAttribute']),
+            new TwigFilter('ems_html_encode', [TextRuntime::class, 'html_encode'], ['is_safe' => ['html']]),
+            new TwigFilter('ems_anti_spam', [TextRuntime::class, 'html_encode_pii'], ['is_safe' => ['html']]),
         ];
     }
 

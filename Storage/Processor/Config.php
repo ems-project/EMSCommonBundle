@@ -145,12 +145,12 @@ final class Config
             ->setDefaults($defaults)
             ->setAllowedValues('_config_type', 'image')
             ->setAllowedValues('_radius_geometry', function ($values) use ($defaults) {
-                if (!is_array($values)){
+                if (!is_array($values)) {
                     return false;
                 }
 
                 foreach ($values as $value) {
-                    if (!in_array($value, $defaults['_radius_geometry'])){
+                    if (!in_array($value, $defaults['_radius_geometry'])) {
                         throw new UndefinedOptionsException(sprintf('_radius_geometry %s is invalid (%s)', $value, implode(',', $defaults['_radius_geometry'])));
                     }
                 }

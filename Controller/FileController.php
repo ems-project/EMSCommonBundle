@@ -38,7 +38,6 @@ class FileController extends AbstractController
         $this->closeSession($request);
 
         return $this->getFile($request, $sha1, ResponseHeaderBag::DISPOSITION_INLINE);
-
     }
 
     /**
@@ -77,7 +76,7 @@ class FileController extends AbstractController
             $response->headers->set('Content-Type', $type);
             $response->setContentDisposition($disposition, Converter::toAscii($name));
         } catch (\Exception $e) {
-            if(\substr($type, 0, 5) === 'image') {
+            if (\substr($type, 0, 5) === 'image') {
                 $response = new BinaryFileResponse($this->storageManager->getPublicImage('image-not-found.svg'));
                 $response->setPublic();
             } else {
