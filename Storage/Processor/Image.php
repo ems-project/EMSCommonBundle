@@ -189,22 +189,22 @@ class Image
         $radiusGeometry = $this->config->getRadiusGeometry();
 
         //render the top-left, bottom-left, bottom-right, top-right corners by rotating and copying the mask
-        if (in_array("topleft", $radiusGeometry) !== FALSE) {
+        if (in_array("topleft", $radiusGeometry) !== false) {
             imagecopymerge($image, $cornerImage, 0, 0, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = imagerotate($cornerImage, 90, 0);
 
-        if (in_array("bottomleft", $radiusGeometry) !== FALSE) {
+        if (in_array("bottomleft", $radiusGeometry) !== false) {
             imagecopymerge($image, $cornerImage, 0, $height - $radius, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = imagerotate($cornerImage, 90, 0);
 
-        if (in_array("bottomright", $radiusGeometry) !== FALSE) {
+        if (in_array("bottomright", $radiusGeometry) !== false) {
             imagecopymerge($image, $cornerImage, $width - $radius, $height - $radius, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = imagerotate($cornerImage, 90, 0);
 
-        if (in_array("topright", $radiusGeometry) !== FALSE) {
+        if (in_array("topright", $radiusGeometry) !== false) {
             imagecopymerge($image, $cornerImage, $width - $radius, 0, 0, 0, $radius, $radius, 100);
         }
 
