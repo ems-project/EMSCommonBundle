@@ -34,7 +34,7 @@ class Document implements DocumentInterface
      */
     public function getId(): string
     {
-       return $this->id;
+        return $this->id;
     }
 
     /**

@@ -36,7 +36,9 @@ class EMSLink
     const PATTERN = '/ems:\/\/(?P<link_type>.*?):(?:(?P<content_type>([[:alnum:]]|_)*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)(?:\?(?P<query>(?:[^"|\'|\s]*)))?/';
     const SIMPLE_PATTERN = '/(?:(?P<content_type>.*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)/';
 
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     public static function fromText(string $text): EMSLink
     {

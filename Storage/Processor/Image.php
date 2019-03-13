@@ -34,8 +34,7 @@ class Image
 
         if (null !== $this->config->getResize()) {
             $image = $this->applyResize($image, $width, $height, $size);
-        }
-        else if (null !== $this->config->getBackground()) {
+        } else if (null !== $this->config->getBackground()) {
             $image = $this->applyBackground($image, $width, $height);
         }
 
@@ -134,14 +133,12 @@ class Image
             }
         } else if ($resize == 'fill') {
             if (($size[1] / $height) < ($size[0] / $width)) {
-
                 $thumb_height = $width * $size[1] / $size[0];
                 call_user_func($resizeFunction, $temp, $image, 0, ($height - $thumb_height) / 2, 0, 0, $width, $thumb_height, $size[0], $size[1]);
             } else {
                 $thumb_width = ($size[0] * $height) / $size[1];
                 call_user_func($resizeFunction, $temp, $image, ($width - $thumb_width) / 2, 0, 0, 0, $thumb_width, $height, $size[0], $size[1]);
             }
-
         } else {
             call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $size[0], $size[1]);
         }
@@ -189,22 +186,22 @@ class Image
         $radiusGeometry = $this->config->getRadiusGeometry();
 
         //render the top-left, bottom-left, bottom-right, top-right corners by rotating and copying the mask
-        if (in_array("topleft", $radiusGeometry) !== FALSE) {
+        if (in_array("topleft", $radiusGeometry) !== false) {
             imagecopymerge($image, $cornerImage, 0, 0, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = imagerotate($cornerImage, 90, 0);
 
-        if (in_array("bottomleft", $radiusGeometry) !== FALSE) {
+        if (in_array("bottomleft", $radiusGeometry) !== false) {
             imagecopymerge($image, $cornerImage, 0, $height - $radius, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = imagerotate($cornerImage, 90, 0);
 
-        if (in_array("bottomright", $radiusGeometry) !== FALSE) {
+        if (in_array("bottomright", $radiusGeometry) !== false) {
             imagecopymerge($image, $cornerImage, $width - $radius, $height - $radius, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = imagerotate($cornerImage, 90, 0);
 
-        if (in_array("topright", $radiusGeometry) !== FALSE) {
+        if (in_array("topright", $radiusGeometry) !== false) {
             imagecopymerge($image, $cornerImage, $width - $radius, 0, 0, 0, $radius, $radius, 100);
         }
 

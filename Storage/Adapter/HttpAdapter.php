@@ -24,7 +24,7 @@ class HttpAdapter implements AdapterInterface
      */
     public function __construct(string $path, $baseUrl)
     {
-        if($baseUrl) {
+        if ($baseUrl) {
             $this->client = HttpClientFactory::create($baseUrl);
             $this->fileAdapter = new FileAdapter($path);
         } else {
@@ -37,7 +37,7 @@ class HttpAdapter implements AdapterInterface
      */
     public function exists(string $hash, ?string $context = null): bool
     {
-        if($this->client === false)  {
+        if ($this->client === false) {
             return false;
         }
         try {
@@ -53,7 +53,7 @@ class HttpAdapter implements AdapterInterface
      */
     public function read(string $hash, ?string $context = null): string
     {
-        if($this->client === false)  {
+        if ($this->client === false) {
             throw new \Exception('HttpAdapter not initialized');
         }
 
@@ -79,7 +79,7 @@ class HttpAdapter implements AdapterInterface
      */
     public function health(): bool
     {
-        if($this->client === false)  {
+        if ($this->client === false) {
             return true;
         }
 
