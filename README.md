@@ -12,7 +12,7 @@ composer phpcs
 
 If your code is not compliant, you could try fixing it automatically:
 ````bash
-php vendor/squizlabs/php_codesniffer/bin/phpcbf
+composer phpcbf
 ````
 
 Documentation
