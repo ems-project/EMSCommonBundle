@@ -17,6 +17,33 @@
     <arg value="np"/>
 
     <!-- Include the whole PS2 standard -->
-    <rule ref="PSR1" />
+    <rule ref="Generic.Files.LineEndings">
+        <properties>
+            <property name="eolChar" value="\n"/>
+        </properties>
+    </rule>
+    <!--<rule ref="PSR2" />
+-->
+<!--    &lt;!&ndash; Don't hide tokenizer exceptions &ndash;&gt;
+    <rule ref="Internal.Tokenizer.Exception">
+        <type>error</type>
+    </rule>
+
+    &lt;!&ndash; Only one argument per line in multi-line function calls &ndash;&gt;
+    <rule ref="PEAR.Functions.FunctionCallSignature">
+        <properties>
+            <property name="allowMultipleArguments" value="false"/>
+        </properties>
+    </rule>
+
+    &lt;!&ndash; Private methods MUST not be prefixed with an underscore &ndash;&gt;
+    <rule ref=" PSR2.Methods.MethodDeclaration.Underscore">
+        <type>error</type>
+    </rule>
+
+    &lt;!&ndash; Private properties MUST not be prefixed with an underscore &ndash;&gt;
+    <rule ref="PSR2.Classes.PropertyDeclaration.Underscore">
+        <type>error</type>
+    </rule>-->
 
 </ruleset>
