@@ -32,6 +32,5 @@ before_install:
 script:
   # Search for PHP syntax errors.
   - find -L . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l
-  # Run PHPCS based on standard `phpcs.xml.dist`
-  # like the travis script, phpcs.xml.dist is in the root of the project
-  - if [[ "$SNIFF" == "1" ]]; then ./vendor/bin/phpcs .; fi
+  # Run PHPCS
+  - if [[ "$SNIFF" == "1" ]]; then vendor/bin/phpcs . --standard=phpcs.xml.dist; fi
