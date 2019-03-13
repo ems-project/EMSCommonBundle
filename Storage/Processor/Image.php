@@ -34,8 +34,7 @@ class Image
 
         if (null !== $this->config->getResize()) {
             $image = $this->applyResize($image, $width, $height, $size);
-        }
-        else if (null !== $this->config->getBackground()) {
+        } else if (null !== $this->config->getBackground()) {
             $image = $this->applyBackground($image, $width, $height);
         }
 
@@ -134,14 +133,12 @@ class Image
             }
         } else if ($resize == 'fill') {
             if (($size[1] / $height) < ($size[0] / $width)) {
-
                 $thumb_height = $width * $size[1] / $size[0];
                 call_user_func($resizeFunction, $temp, $image, 0, ($height - $thumb_height) / 2, 0, 0, $width, $thumb_height, $size[0], $size[1]);
             } else {
                 $thumb_width = ($size[0] * $height) / $size[1];
                 call_user_func($resizeFunction, $temp, $image, ($width - $thumb_width) / 2, 0, 0, 0, $thumb_width, $height, $size[0], $size[1]);
             }
-
         } else {
             call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $size[0], $size[1]);
         }

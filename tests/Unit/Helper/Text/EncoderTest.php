@@ -2,7 +2,6 @@
 
 namespace EMS\CommonBundle\Tests\Unit\Helper\Text;
 
-
 use EMS\CommonBundle\Helper\Text\Encoder;
 use PHPUnit\Framework\TestCase;
 
