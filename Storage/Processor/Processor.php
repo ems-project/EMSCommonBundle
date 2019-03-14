@@ -170,7 +170,7 @@ class Processor
             return fopen($this->generateImage($config, $file), 'r');
         }
 
-        throw new Exception('not able to generate processor resource');
+        throw new \Exception('not able to generate processor resource');
     }
 
     private function generateImage(Config $config, string $filename = null): string
