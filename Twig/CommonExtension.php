@@ -6,9 +6,22 @@ use EMS\CommonBundle\Common\Converter;
 use EMS\CommonBundle\Common\EMSLink;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class CommonExtension extends AbstractExtension
 {
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFunctions()
+    {
+        $out = parent::getFunctions();
+        $out[] = new TwigFunction('ems_asset_path', [RequestRuntime::class, 'assetPath'], ['is_safe' => ['html']]);
+        return $out;
+    }
+
     /**
      * {@inheritdoc}
      */

@@ -11,9 +11,12 @@
             <argument type="service" id="file_locator" />
             <argument type="tagged" tag="ems_common.storage.adapter"/>
             <argument type="tagged" tag="ems_common.storage.cache_adapter"/>
+            <argument type="string">%ems_common.hash_algo%</argument>
         </service>
         <service id="ems_common.controller.file" class="EMS\CommonBundle\Controller\FileController">
             <argument type="service" id="ems_common.storage.manager"/>
+            <argument type="service" id="ems_common.storage.processor"/>
+            <argument type="service" id="ems_common.twig.runtime.request"/>
             <tag name="controller.service_arguments"/>
         </service>
 

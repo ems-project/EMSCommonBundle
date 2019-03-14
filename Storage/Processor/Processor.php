@@ -2,11 +2,15 @@
 
 namespace EMS\CommonBundle\Storage\Processor;
 
+use EMS\CommonBundle\Helper\ArrayTool;
+use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Processor
@@ -22,9 +26,41 @@ class Processor
         $this->logger = $logger;
     }
 
+    public function getResponse(Request $request, string $hash, string $configHash, string $filename)
+    {
+        $configJson = $this->storageManager->getContents($configHash);
+        $config = new Config($configHash, $hash, $configHash, json_decode($configJson, true));
+        $cacheKey = $config->getCacheKey();
+
+        $cacheResponse = new Response();
+        $cacheResponse->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
+        if ($cacheResponse->isNotModified($request)) {
+            return $cacheResponse;
+        }
+
+        $handler = $this->getResource($config);
+
+        $response =  new StreamedResponse(
+            function () use ($handler) {
+                while (!feof($handler)) {
+                    print fread($handler, 8192);
+                }
+            },
+            200,
+            [
+            'Content-Disposition' => $config->getDisposition().'; '.HeaderUtils::toString(array('filename' => $filename), ';'),
+            'Content-Type' => $config->getMimeType(),
+            ]
+        );
+        $response->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
+        return $response;
+    }
+
     public function createResponse(Request $request, string $processor, string $assetHash, array $options = []): Response
     {
-        $options['_type'] = $request->query->get('type', null);
+        @trigger_error(sprintf('The "%s::createResponse" method is deprecated. Use %s::getResponse instead.', Processor::class, Processor::class), E_USER_DEPRECATED);
+
+        $options['_config_type'] = $request->query->get('type', null);
         $config = $this->getConfig($processor, $assetHash, $options);
 
         $cacheKey = $config->getCacheKey();
@@ -91,7 +127,7 @@ class Processor
 
         $response = new BinaryFileResponse($file);
         $response->headers->set('Content-Type', $type);
-        $response->headers->set('X-EMS-CACHED-FILES', 1);
+        $response->headers->set('X-Ems-Cached-Files', 1);
         $response->setPrivate()->setLastModified($lastModified)->setEtag($cacheKey);
 
         return $response;
@@ -99,23 +135,45 @@ class Processor
 
     private function getConfig(string $processor, string $hash, array $options): Config
     {
+        $jsonOptions = ArrayTool::normalizeAndSerializeArray($options);
+        $configHash = $this->storageManager->computeStringHash($jsonOptions);
         try {
-            return new Config($processor, $hash, $options);
+            return new Config($processor, $hash, $configHash, $options);
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
-            return new Config($processor, $hash);
+            return new Config($processor, $hash, $configHash);
         }
     }
 
     private function generate(Config $config): string
     {
+        @trigger_error(sprintf('The "%s::generate" method is deprecated s. Use "%s::generateResource" instead.', Processor::class, Processor::class), E_USER_DEPRECATED);
+
         $generated = $this->generateImage($config);
-        $this->storageManager->createCacheFile($config->getCacheKey(), file_get_contents($generated), $config->getProcessor());
+        $this->storageManager->createCacheFile($config->getCacheKey(), $generated, $config->getProcessor());
 
         return $generated;
     }
 
-    private function generateImage(Config $config): string
+
+    /**
+     * @param Config $config
+     * @return resource
+     */
+    private function generateResource(Config $config)
+    {
+        $file = null;
+        if (!$config->cacheableResult()) {
+            $file = $this->storageManager->getPublicImage('big-logo.png');
+        }
+        if ($config->getConfigType() === 'image') {
+            return fopen($this->generateImage($config, $file), 'r');
+        }
+
+        throw new Exception('not able to generate processor resource');
+    }
+
+    private function generateImage(Config $config, string $filename = null): string
     {
         $image = new Image($config);
 
@@ -124,12 +182,44 @@ class Processor
         }
 
         try {
-            $file = $this->storageManager->getFile($config->getAssetHash());
+            if ($filename) {
+                $file = $filename;
+            } else {
+                $file = $this->storageManager->getFile($config->getAssetHash());
+            }
             $generatedImage = $config->isSvg() ? $file : $image->generate($file);
         } catch (\InvalidArgumentException $e) {
             $generatedImage = $image->generate($this->storageManager->getPublicImage('big-logo.png'));
         }
 
         return $generatedImage;
+    }
+
+
+    /**
+     * @param Config $config
+     * @return resource
+     */
+    private function getResource(Config $config)
+    {
+        $cacheableResult = $config->cacheableResult();
+        if (!$config->getStorageContext() || $cacheableResult) {
+            try {
+                return $this->storageManager->getResource($config->getAssetHash(), $config->getStorageContext());
+            } catch (NotFoundException $e) {
+                if (!$config->getStorageContext()) {
+                    throw $e;
+                }
+            }
+        }
+
+
+
+        $generatedResource = $this->generateResource($config);
+        if ($cacheableResult) {
+            $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), 'file'.$config->getFilenameExtension(), $config->getMimeType());
+        }
+
+        return $generatedResource;
     }
 }
