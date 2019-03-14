@@ -90,7 +90,6 @@ class EntityStorage implements StorageInterface
     public function create(string $hash, string $filename, ?string $cacheContext = null):bool
     {
         if (!$cacheContext || $this->contextSupport) {
-
             $entity = $this->createEntity($hash, $cacheContext);
 
             $entity->setSize(filesize($filename));
@@ -133,8 +132,7 @@ class EntityStorage implements StorageInterface
             if ($entity) {
                 $out = $entity->getContents();
 
-                if(is_resource($out))
-                {
+                if (is_resource($out)) {
                     return $out;
                 }
                 $resource = fopen('php://memory', 'w+');
@@ -172,13 +170,10 @@ class EntityStorage implements StorageInterface
      */
     public function health(): bool
     {
-        try
-        {
+        try {
             $this->init();
             return ($this->repository->count([]) >= 0);
-        }
-        catch (Exception $e)
-        {
+        } catch (Exception $e) {
         }
         return false;
     }
@@ -225,10 +220,8 @@ class EntityStorage implements StorageInterface
     {
 
         if (!$context || $this->contextSupport) {
-
             $entity = $this->repository->findByHash($hash, $context, false);
-            if(!$entity)
-            {
+            if (!$entity) {
                 $entity = $this->createEntity($hash, $context);
             }
 
@@ -243,7 +236,6 @@ class EntityStorage implements StorageInterface
             return true;
         }
         return false;
-
     }
 
     /**
@@ -256,8 +248,7 @@ class EntityStorage implements StorageInterface
     {
         $this->init();
         $entity = $this->repository->findByHash($hash, $context, false);
-        if($entity)
-        {
+        if ($entity) {
             $entity->setConfirmed(true);
             $entity->setSize(strlen($entity->getContents()));
             $this->manager->persist($entity);
@@ -265,7 +256,6 @@ class EntityStorage implements StorageInterface
             return true;
         }
         return false;
-
     }
 
 
@@ -281,11 +271,9 @@ class EntityStorage implements StorageInterface
     {
         $this->init();
         $entity = $this->repository->findByHash($hash, $context, false);
-        if($entity)
-        {
+        if ($entity) {
             $contents = $entity->getContents();
-            if(is_resource($contents))
-            {
+            if (is_resource($contents)) {
                 $contents = stream_get_contents($contents);
             }
 

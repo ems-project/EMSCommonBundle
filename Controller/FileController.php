@@ -55,7 +55,6 @@ class FileController extends AbstractController
         $this->closeSession($request);
 
         return $this->processor->getResponse($request, $hash, $hash_config, $filename);
-
     }
 
     /**

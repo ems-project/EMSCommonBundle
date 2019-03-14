@@ -56,13 +56,12 @@ class RequestRuntime implements RuntimeExtensionInterface
      * @param int $referenceType
      * @return string
      */
-    public function assetPath(array $fileField, array $assetConfig=[], string $route = 'ems_asset', string $fileHashField=EmsFields::CONTENT_FILE_HASH_FIELD, $filenameField=EmsFields::CONTENT_FILE_NAME_FIELD, $mimeTypeField=EmsFields::CONTENT_MIME_TYPE_FIELD, $referenceType = UrlGeneratorInterface::RELATIVE_PATH) : string
+    public function assetPath(array $fileField, array $assetConfig = [], string $route = 'ems_asset', string $fileHashField = EmsFields::CONTENT_FILE_HASH_FIELD, $filenameField = EmsFields::CONTENT_FILE_NAME_FIELD, $mimeTypeField = EmsFields::CONTENT_MIME_TYPE_FIELD, $referenceType = UrlGeneratorInterface::RELATIVE_PATH) : string
     {
         $config = $assetConfig;
-        if(isset($fileField[$mimeTypeField])) {
+        if (isset($fileField[$mimeTypeField])) {
             $config['_mime_type'] = $fileField[$mimeTypeField];
-        }
-        elseif (! isset($assetConfig[EmsFields::CONTENT_MIME_TYPE_FIELD]) && isset($fileField[$filenameField])) {
+        } elseif (! isset($assetConfig[EmsFields::CONTENT_MIME_TYPE_FIELD]) && isset($fileField[$filenameField])) {
             $config['_mime_type'] = mime_content_type($fileField[$filenameField]);
         }
 

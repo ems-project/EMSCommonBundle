@@ -45,10 +45,13 @@ class Processor
                 while (!feof($handler)) {
                     print fread($handler, 8192);
                 }
-            }, 200, [
+            },
+            200,
+            [
             'Content-Disposition' => $config->getDisposition().'; '.HeaderUtils::toString(array('filename' => $filename), ';'),
             'Content-Type' => $config->getMimeType(),
-        ]);
+            ]
+        );
         $response->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
         return $response;
     }
@@ -160,10 +163,10 @@ class Processor
     private function generateResource(Config $config)
     {
         $file = null;
-        if(!$config->cacheableResult()) {
+        if (!$config->cacheableResult()) {
             $file = $this->storageManager->getPublicImage('big-logo.png');
         }
-        if($config->getConfigType() === 'image') {
+        if ($config->getConfigType() === 'image') {
             return fopen($this->generateImage($config, $file), 'r');
         }
 
@@ -179,10 +182,9 @@ class Processor
         }
 
         try {
-            if($filename){
+            if ($filename) {
                 $file = $filename;
-            }
-            else {
+            } else {
                 $file = $this->storageManager->getFile($config->getAssetHash());
             }
             $generatedImage = $config->isSvg() ? $file : $image->generate($file);
@@ -201,11 +203,10 @@ class Processor
     private function getResource(Config $config)
     {
         $cacheableResult = $config->cacheableResult();
-        if(!$config->getStorageContext() || $cacheableResult) {
-            try{
+        if (!$config->getStorageContext() || $cacheableResult) {
+            try {
                 return $this->storageManager->getResource($config->getAssetHash(), $config->getStorageContext());
-            }
-            catch (NotFoundException $e) {
+            } catch (NotFoundException $e) {
                 if (!$config->getStorageContext()) {
                     throw $e;
                 }
@@ -215,7 +216,7 @@ class Processor
 
 
         $generatedResource = $this->generateResource($config);
-        if($cacheableResult) {
+        if ($cacheableResult) {
             $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), 'file'.$config->getFilenameExtension(), $config->getMimeType());
         }
 

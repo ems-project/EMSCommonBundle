@@ -20,7 +20,7 @@ class AssetStorage
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-	private $id;
+    private $id;
 
     /**
      * @var \DateTime
@@ -256,6 +256,4 @@ class AssetStorage
         $this->confirmed = $confirmed;
         return $this;
     }
-
 }
-

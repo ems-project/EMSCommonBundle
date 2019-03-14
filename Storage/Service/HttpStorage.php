@@ -2,12 +2,11 @@
 
 namespace EMS\CommonBundle\Storage\Service;
 
-
 use EMS\CommonBundle\Common\HttpClientFactory;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 
-class HttpStorage  extends AbstractUrlStorage
+class HttpStorage extends AbstractUrlStorage
 {
 
     /**
@@ -52,10 +51,9 @@ class HttpStorage  extends AbstractUrlStorage
     /**
      * @inheritdoc
      */
-    protected function getPath($hash, string $cacheContext = null, $confirmed = true, $ds='/'): string
+    protected function getPath($hash, string $cacheContext = null, $confirmed = true, $ds = '/'): string
     {
-        if($cacheContext)
-        {
+        if ($cacheContext) {
             return $this->baseUrl.'/asset/'.urlencode($cacheContext).'/'.$hash;
         }
         return $this->baseUrl.$this->getUrl;
@@ -71,42 +69,35 @@ class HttpStorage  extends AbstractUrlStorage
         try {
             $client = HttpClientFactory::create($this->baseUrl);
             $result = $client->get('/status.json');
-            if($result->getStatusCode() == 200)
-            {
+            if ($result->getStatusCode() == 200) {
                 $status = json_decode($result->getBody(), true);
-                if(isset($status['status']) && in_array($status['status'], ['green', 'yellow']))
-                {
-                    return TRUE;
+                if (isset($status['status']) && in_array($status['status'], ['green', 'yellow'])) {
+                    return true;
                 }
             }
+        } catch (\Exception $e) {
         }
-        catch(\Exception $e)
-        {
-
-        }
-        return FALSE;
+        return false;
     }
 
     /**
      * @inheritdoc
      */
-    public function read(string $hash, ?string $cacheContext = null, bool $confirmed=true)
+    public function read(string $hash, ?string $cacheContext = null, bool $confirmed = true)
     {
         if ($cacheContext) {
             return false;
         }
 
         //https://stackoverflow.com/questions/1545432/what-is-the-easiest-way-to-use-the-head-command-of-http-in-php?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-        try
-        {
+        try {
             $context = stream_context_create(array('http' => array('method' => 'GET')));
             $fd = fopen($this->baseUrl.$this->getUrl . $hash, 'rb', false, $context);
             return $fd;
-        } catch (Exception $e)
-        {
+        } catch (Exception $e) {
             //So it's a FALSE
         }
-        return FALSE;
+        return false;
     }
 
 
@@ -123,8 +114,7 @@ class HttpStorage  extends AbstractUrlStorage
      */
     public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool
     {
-        try
-        {
+        try {
             $client = HttpClientFactory::create($this->baseUrl);
 
             $result = $client->post('/api/file/init-upload/'.urlencode($hash).'/'.$size.'?name='.urlencode($name).'&type='.urlencode($type), [
@@ -134,12 +124,9 @@ class HttpStorage  extends AbstractUrlStorage
 
             ]);
             return $result->getStatusCode() === 200;
-
+        } catch (\Exception $e) {
         }
-        catch(\Exception $e)
-        {
-        }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -147,8 +134,7 @@ class HttpStorage  extends AbstractUrlStorage
      */
     public function addChunk(string $hash, string $chunk, ?string $context = null): bool
     {
-        try
-        {
+        try {
             $client = HttpClientFactory::create($this->baseUrl);
 
             $result = $client->post('/api/file/upload-chunk/'.urlencode($hash), [
@@ -158,12 +144,9 @@ class HttpStorage  extends AbstractUrlStorage
                 'body' => $chunk,
             ]);
             return $result->getStatusCode() === 200;
-
+        } catch (\Exception $e) {
         }
-        catch(\Exception $e)
-        {
-        }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -188,11 +171,11 @@ class HttpStorage  extends AbstractUrlStorage
             $context = stream_context_create(array('http' => array('method' => 'HEAD')));
             $fd = fopen($this->baseUrl.$this->getUrl . $hash, 'rb', false, $context);
             fclose($fd);
-            return TRUE;
+            return true;
         } catch (Exception $e) {
             //So it's a FALSE
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -208,7 +191,6 @@ class HttpStorage  extends AbstractUrlStorage
         }
 
         try {
-
             $client = HttpClientFactory::create($this->baseUrl);
             $client->request('POST', '/api/file', [
                 'multipart' => [
@@ -222,7 +204,6 @@ class HttpStorage  extends AbstractUrlStorage
                 ],
 
             ]);
-
         } catch (GuzzleException $e) {
             return false;
         }
@@ -283,7 +264,6 @@ class HttpStorage  extends AbstractUrlStorage
             if (isset($metas['wrapper_data'])) {
                 foreach ($metas['wrapper_data'] as $meta) {
                     if (preg_match('/^Last\-Modified: (.*)$/', $meta, $matches, PREG_OFFSET_CAPTURE)) {
-
                         return \DateTime::createFromFormat('U', strtotime($matches[1][0]));
                     }
                 }

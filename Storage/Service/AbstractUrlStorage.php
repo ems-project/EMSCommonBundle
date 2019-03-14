@@ -2,7 +2,6 @@
 
 namespace EMS\CommonBundle\Storage\Service;
 
-
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -24,7 +23,7 @@ abstract class AbstractUrlStorage implements StorageInterface
      * @param string $ds
      * @return string
      */
-    protected function getPath($hash, string $cacheContext = null, $confirmed = true, $ds='/'): string
+    protected function getPath($hash, string $cacheContext = null, $confirmed = true, $ds = '/'): string
     {
         $folderName = $this->getBaseUrl();
 
@@ -38,8 +37,7 @@ abstract class AbstractUrlStorage implements StorageInterface
         }
 
         //in order to avoid a folder with a to big number of files in
-        if($confirmed)
-        {
+        if ($confirmed) {
             $folderName .= $ds . substr($hash, 0, 3);
         }
 
@@ -86,7 +84,7 @@ abstract class AbstractUrlStorage implements StorageInterface
      * @param bool $confirmed
      * @return resource|bool
      */
-    public function read(string $hash, ?string $cacheContext = null, bool $confirmed=true)
+    public function read(string $hash, ?string $cacheContext = null, bool $confirmed = true)
     {
         $out = $this->getPath($hash, $cacheContext, $confirmed);
         if (!file_exists($out)) {
@@ -177,7 +175,7 @@ abstract class AbstractUrlStorage implements StorageInterface
     public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool
     {
         $path = $this->getPath($hash, $context, false);
-        return file_put_contents($path, "") !== FALSE;
+        return file_put_contents($path, "") !== false;
     }
 
     /**
@@ -190,9 +188,9 @@ abstract class AbstractUrlStorage implements StorageInterface
     public function addChunk(string $hash, string $chunk, ?string $context = null): bool
     {
         $path = $this->getPath($hash, $context, false);
-		if(!file_exists($path)) {
-			throw new NotFoundHttpException('temporary file not found');
-		}
+        if (!file_exists($path)) {
+            throw new NotFoundHttpException('temporary file not found');
+        }
 
         $file = fopen($path, "a");
         $result = fwrite($file, $chunk);
@@ -200,12 +198,11 @@ abstract class AbstractUrlStorage implements StorageInterface
         fflush($file);
         fclose($file);
 
-        if($result === FALSE || $result != strlen($chunk))
-        {
+        if ($result === false || $result != strlen($chunk)) {
             return false;
         }
 
-		return true;
+        return true;
     }
 
     /**
@@ -218,5 +215,4 @@ abstract class AbstractUrlStorage implements StorageInterface
     {
         return copy($this->getPath($hash, $context, false), $this->getPath($hash, $context));
     }
-
 }

@@ -2,7 +2,6 @@
 
 namespace EMS\CommonBundle\Storage\Service;
 
-
 use Exception;
 
 class SftpStorage extends AbstractUrlStorage
@@ -121,5 +120,4 @@ class SftpStorage extends AbstractUrlStorage
     {
         return SftpStorage::class . " ($this->host)";
     }
-
 }

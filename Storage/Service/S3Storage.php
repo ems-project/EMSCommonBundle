@@ -29,7 +29,6 @@ class S3Storage extends AbstractUrlStorage
         $this->credentials = $s3Credentials;
 
         $this->s3Client = null;
-
     }
 
 
@@ -38,9 +37,7 @@ class S3Storage extends AbstractUrlStorage
      */
     protected function getBaseUrl(): string
     {
-        if($this->s3Client === null)
-        {
-
+        if ($this->s3Client === null) {
             $this->s3Client = new S3Client($this->credentials);
             $this->s3Client->registerStreamWrapper();
         }
@@ -96,5 +93,4 @@ class S3Storage extends AbstractUrlStorage
         ]);
         return $out;
     }
-
 }

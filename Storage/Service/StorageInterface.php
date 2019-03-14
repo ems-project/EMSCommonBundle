@@ -85,7 +85,7 @@ interface StorageInterface
      *
      * @return bool
      */
-    public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool ;
+    public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool;
 
     /**
      * @param string      $hash
@@ -94,7 +94,7 @@ interface StorageInterface
      *
      * @return bool
      */
-    public function addChunk(string $hash, string $chunk, ?string $context = null): bool ;
+    public function addChunk(string $hash, string $chunk, ?string $context = null): bool;
 
     /**
      * @param string      $hash
@@ -102,7 +102,5 @@ interface StorageInterface
      *
      * @return bool
      */
-    public function finalizeUpload(string $hash, ?string $context = null): bool ;
-
-
+    public function finalizeUpload(string $hash, ?string $context = null): bool;
 }

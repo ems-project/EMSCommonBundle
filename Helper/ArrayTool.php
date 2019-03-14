@@ -2,7 +2,6 @@
 
 namespace EMS\CommonBundle\Helper;
 
-
 class ArrayTool
 {
 
@@ -39,6 +38,4 @@ class ArrayTool
             }
         }
     }
-
-
 }

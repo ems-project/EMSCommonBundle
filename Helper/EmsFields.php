@@ -2,7 +2,6 @@
 
 namespace EMS\CommonBundle\Helper;
 
-
 final class EmsFields
 {
     const CONTENT_MIME_TYPE_FIELD = 'mimetype';
@@ -25,5 +24,4 @@ final class EmsFields
     const ASSET_CONFIG_RADIUS_GEOMETRY = '_radius_geometry';
     const ASSET_CONFIG_BORDER_COLOR = '_border_color';
     const ASSET_CONFIG_WATERMARK_HASH = '_watermark_hash';
-
 }

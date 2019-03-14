@@ -34,7 +34,6 @@ final class Config
         $this->configHash = $configHash;
 
         unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); //the published date can't invalidate the cache as it'sbased on the config hash now.
-
     }
 
     public function getProcessor(): string
@@ -138,7 +137,7 @@ final class Config
 
     public function getMimeType(): string
     {
-        if($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE) {
+        if ($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE) {
             if ($this->isSvg()) {
                 return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
             }
@@ -152,10 +151,10 @@ final class Config
     public function cacheableResult()
     {
         //returns the asset itself (it already in the cahce
-        if(!$this->getStorageContext()) {
+        if (!$this->getStorageContext()) {
             return false;
         }
-        if( $this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg() ) {
+        if ($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg()) {
             return true;
         }
         return false;
@@ -165,10 +164,12 @@ final class Config
 
     public function getFilenameExtension(): string
     {
-        if($this->getStorageContext()) {
-            switch ($this->getMimeType()){
-                case 'image/jpeg': return '.jpeg';
-                case 'image/png': return '.png';
+        if ($this->getStorageContext()) {
+            switch ($this->getMimeType()) {
+                case 'image/jpeg':
+                    return '.jpeg';
+                case 'image/png':
+                    return '.png';
             }
         }
         return '';
@@ -176,7 +177,7 @@ final class Config
 
     public function getStorageContext(): ?string
     {
-        if($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE) {
+        if ($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE) {
             if ($this->isSvg()) {
                 return null;
             }

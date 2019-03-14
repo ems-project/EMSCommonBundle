@@ -2,7 +2,6 @@
 
 namespace EMS\CommonBundle\Storage\Service;
 
-
 class FileSystemStorage extends AbstractUrlStorage
 {
 
@@ -23,7 +22,7 @@ class FileSystemStorage extends AbstractUrlStorage
      * @param string $storagePath
      * @param string $directorySeparator
      */
-    public function __construct(string $storagePath, string $directorySeparator=DIRECTORY_SEPARATOR)
+    public function __construct(string $storagePath, string $directorySeparator = DIRECTORY_SEPARATOR)
     {
         $this->storagePath = $storagePath;
         $this->directorySeparator = $directorySeparator;

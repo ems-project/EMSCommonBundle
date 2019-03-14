@@ -39,7 +39,6 @@ class StorageManager
         foreach ($cacheAdapters as $cacheAdapter) {
             $this->cacheAdapters[] = $cacheAdapter;
         }
-
     }
 
     /**
@@ -55,11 +54,11 @@ class StorageManager
      * @param StorageInterface $storageAdapter
      * @return StorageManager
      */
-    public function addAdapter(StorageInterface $storageAdapter) {
+    public function addAdapter(StorageInterface $storageAdapter)
+    {
 
         $this->adapters[] = $storageAdapter;
-        if($storageAdapter->supportCacheStore())
-        {
+        if ($storageAdapter->supportCacheStore()) {
             $this->cacheAdapters[] = $storageAdapter;
         }
         return $this;
@@ -85,7 +84,7 @@ class StorageManager
     {
         $resource = $this->read($this->adapters, $hash, $context);
         $out ='';
-        while(!feof($resource)){
+        while (!feof($resource)) {
             $out.=fread($resource, 8192);
         }
 
@@ -205,32 +204,31 @@ class StorageManager
 
 
 
-    public function saveContents(string $contents, string $filename, string $mimetype, string $context = null, int $shouldBeSavedOnXServices=0)
+    public function saveContents(string $contents, string $filename, string $mimetype, string $context = null, int $shouldBeSavedOnXServices = 0)
     {
         $hash = hash($this->hashAlgo, $contents);
         $out = 0;
 
         /**@var \EMS\CommonBundle\Storage\Service\StorageInterface $service*/
-        foreach ($this->getAdapters() as $service){
-
-            if($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
+        foreach ($this->getAdapters() as $service) {
+            if ($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
                 break;
             }
 
-            if($service->head($hash, $context)) {
+            if ($service->head($hash, $context)) {
                 ++ $out;
                 continue;
             }
 
-            if(!$service->initUpload($hash, strlen($contents), $filename,  $mimetype, $context)){
+            if (!$service->initUpload($hash, strlen($contents), $filename, $mimetype, $context)) {
                 continue;
             }
 
-            if(!$service->addChunk($hash, $contents, $context)) {
+            if (!$service->addChunk($hash, $contents, $context)) {
                 continue;
             }
 
-            if($service->finalizeUpload($hash, $context)) {
+            if ($service->finalizeUpload($hash, $context)) {
                 ++ $out;
             }
         }
@@ -260,40 +258,39 @@ class StorageManager
     }
 
 
-    public function cacheResource($resource, string $hash, string $context, string $filename, string $mimeType, int $shouldBeSavedOnXServices=0)
+    public function cacheResource($resource, string $hash, string $context, string $filename, string $mimeType, int $shouldBeSavedOnXServices = 0)
     {
         $out = 0;
         $size = 0;
         $stat = fstat($resource);
-        if(isset($stat['size'])) {
+        if (isset($stat['size'])) {
             $size = $stat['size'];
         }
 
         /**@var \EMS\CommonBundle\Storage\Service\StorageInterface $service*/
-        foreach ($this->getAdapters() as $service){
-
-            if($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
+        foreach ($this->getAdapters() as $service) {
+            if ($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
                 break;
             }
 
 
-            if($service->head($hash, $context)) {
+            if ($service->head($hash, $context)) {
                 ++ $out;
                 continue;
             }
 
-            if(!$service->initUpload($hash, $size, $filename,  $mimeType, $context)){
+            if (!$service->initUpload($hash, $size, $filename, $mimeType, $context)) {
                 continue;
             }
 
-            while(!feof($resource)){
+            while (!feof($resource)) {
                 $str = fread($resource, 8192);
-                if(!$service->addChunk($hash, $str, $context)) {
+                if (!$service->addChunk($hash, $str, $context)) {
                     continue;
                 }
             }
 
-            if($service->finalizeUpload($hash, $context)) {
+            if ($service->finalizeUpload($hash, $context)) {
                 ++ $out;
             }
 
@@ -315,9 +312,8 @@ class StorageManager
     public function initUploadFile(string $fileHash, string $fileSize, string $fileName, string $mimeType, int $uploadMinimumNumberOfReplications):int
     {
         $loopCounter = 0;
-        foreach ($this->getAdapters() as $service){
-            if($service->initUpload($fileHash, $fileSize, $fileName, $mimeType) && ++$loopCounter >= $uploadMinimumNumberOfReplications)
-            {
+        foreach ($this->getAdapters() as $service) {
+            if ($service->initUpload($fileHash, $fileSize, $fileName, $mimeType) && ++$loopCounter >= $uploadMinimumNumberOfReplications) {
                 break;
             }
         }
