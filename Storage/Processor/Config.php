@@ -202,12 +202,12 @@ final class Config
             ->setAllowedValues(EmsFields::ASSET_CONFIG_TYPE, [null, EmsFields::ASSET_CONFIG_TYPE_IMAGE])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_DISPOSITION, [ResponseHeaderBag::DISPOSITION_INLINE, ResponseHeaderBag::DISPOSITION_ATTACHMENT])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY, function ($values) use ($defaults) {
-                if (!is_array($values)){
+                if (!is_array($values)) {
                     return false;
                 }
 
                 foreach ($values as $value) {
-                    if (!in_array($value, $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])){
+                    if (!in_array($value, $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])) {
                         throw new UndefinedOptionsException(sprintf('_radius_geometry %s is invalid (%s)', $value, implode(',', $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])));
                     }
                 }

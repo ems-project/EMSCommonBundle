@@ -17,5 +17,14 @@
         <service id="ems_common.event_listener.command" class="EMS\CommonBundle\EventListener\CommandListener">
             <tag name="kernel.event_subscriber" />
         </service>
+
+        <service id="ems_common.text.encoder" class="EMS\CommonBundle\Helper\Text\Encoder"/>
+
+        <!-- twig -->
+        <service id="ems_common.twig.runtime.text" class="EMS\CommonBundle\Twig\TextRuntime">
+            <argument type="service" id="ems_common.text.encoder" />
+            <tag name="twig.runtime" />
+        </service>
+
     </services>
 </container>

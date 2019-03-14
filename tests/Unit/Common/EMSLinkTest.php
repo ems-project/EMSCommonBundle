@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class EMSLinkTest extends TestCase
 {
-    public function testFromText()
+    public function testFromTextWithEmsObjectTypeAndOuuid()
     {
         $link = EMSLink::fromText('ems://object:page:AWTLzKLc8K-kdP4iJ3rt');
 
@@ -17,7 +17,7 @@ class EMSLinkTest extends TestCase
         static::assertSame('ems://object:page:AWTLzKLc8K-kdP4iJ3rt', (string) $link);
     }
 
-    public function testFromTextOnlyOuuid()
+    public function testFromTextWithoutEMSObjectTypeAndWithOuuid()
     {
         $link = EMSLink::fromText('AWTLzKLc8K-kdP4iJ3rt');
 
@@ -27,7 +27,7 @@ class EMSLinkTest extends TestCase
         static::assertSame('ems://object:AWTLzKLc8K-kdP4iJ3rt', (string) $link);
     }
 
-    public function testFromMatchNoOuuidShouldInvalidArgumentException()
+    public function testFromMatchWithoutOuuidShouldInvalidArgumentException()
     {
         $this->expectException(\InvalidArgumentException::class);
         EMSLink::fromMatch([]);

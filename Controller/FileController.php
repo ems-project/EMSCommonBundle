@@ -53,7 +53,7 @@ class FileController extends AbstractController
     public function asset(Request $request, string $hash, string $hash_config, string $filename)
     {
         $this->closeSession($request);
-        
+
         return $this->processor->getResponse($request, $hash, $hash_config, $filename);
 
     }
@@ -69,9 +69,8 @@ class FileController extends AbstractController
         @trigger_error("FileController::view is deprecated use the ems_asset twig filter to generate the route", E_USER_DEPRECATED);
 
         $this->closeSession($request);
-        
-        return $this->getFile($request, $sha1, ResponseHeaderBag::DISPOSITION_INLINE);
 
+        return $this->getFile($request, $sha1, ResponseHeaderBag::DISPOSITION_INLINE);
     }
 
     /**
@@ -102,7 +101,7 @@ class FileController extends AbstractController
 
         $name = $request->query->get('name', 'upload.bin');
         $type = $request->query->get('type', 'application/bin');
-        
+
         return $this->redirect($this->requestRuntime->assetPath([
             EmsFields::CONTENT_FILE_HASH_FIELD => $hash,
             EmsFields::CONTENT_FILE_NAME_FIELD => $name,
