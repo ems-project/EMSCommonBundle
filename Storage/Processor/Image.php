@@ -64,27 +64,34 @@ class Image
         $width = $this->config->getWidth();
         $height = $this->config->getHeight();
 
-        if ($this->config->getResize() === 'ratio') {
-            $ratio = $originalWidth / $originalHeight;
 
-            if ($width == '*' || $height == '*') {
-                if ($height == '*') {
-                    // recalculate height
-                    $height = ceil($width / $ratio);
-                } else {
-                    // recalculate width
-                    $width = ceil($ratio * $height);
-                }
-            } else {
-                if (($originalHeight / $height) > ($originalWidth / $width)) {
-                    $width = ceil($ratio * $height);
-                } else {
-                    $height = ceil($width / $ratio);
-                }
-            }
-        } else {
+        if ($this->config->getResize() !== 'ratio') {
             $width = ($width == '*' ? $originalWidth : $width);
             $height = ($height == '*' ? $originalHeight : $height);
+            return [$width, $height];
+        }
+
+        $ratio = $originalWidth / $originalHeight;
+
+        if ($width == '*' && $height == '*') {
+            //unable to calculate ratio, silently return original size (backward compatibility)
+            return [$originalWidth, $originalHeight];
+        }
+
+        if ($width == '*' || $height == '*') {
+            if ($height == '*') {
+                // recalculate height
+                $height = ceil((float) $width / $ratio);
+            } else {
+                // recalculate width
+                $width = ceil($ratio * (float) $height);
+            }
+        } else {
+            if (($originalHeight / $height) > ($originalWidth / $width)) {
+                $width = ceil($ratio * (float) $height);
+            } else {
+                $height = ceil((float) $width / $ratio);
+            }
         }
 
         return [$width, $height];
@@ -172,7 +179,7 @@ class Image
 
     private function applyCorner($image, $width, $height)
     {
-        $radius = $this->config->getRadius();
+        $radius = (int) $this->config->getRadius();
         $color = $this->config->getBorderColor();
 
         $cornerImage = imagecreatetruecolor($radius, $radius);
