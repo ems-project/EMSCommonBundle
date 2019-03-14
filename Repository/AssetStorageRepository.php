@@ -72,11 +72,7 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
         }
     }
 
-    /**
-     * @param $hash
-     * @return bool
-     */
-    public function removeByHash($hash): bool
+    public function removeByHash(string $hash): bool
     {
         try {
             $qb = $this->createQueryBuilder('asset')->delete();
@@ -110,14 +106,17 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
 
     /**
      * @deprecated
-     * @param $hash
-     * @param $context
+     *
+     * @param string $hash
+     * @param false|string $context
      * @param boolean $confirmed
+     *
      * @return mixed
+     *
      * @throws NonUniqueResultException
      * @throws \Doctrine\ORM\NoResultException
      */
-    public function lastUpdateDate($hash, $context, $confirmed = true)
+    public function lastUpdateDate(string $hash, $context, bool $confirmed = true)
     {
         $qb = $this->getQuery($hash, $context, $confirmed)->select('a.modified');
 

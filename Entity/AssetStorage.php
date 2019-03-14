@@ -117,7 +117,8 @@ class AssetStorage
     }
 
     /**
-     * @param $contents
+     * @param resource $contents
+     *
      * @return AssetStorage
      */
     public function setContents($contents): AssetStorage
