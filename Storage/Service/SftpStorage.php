@@ -45,12 +45,12 @@ class SftpStorage extends AbstractUrlStorage
     /**
      * @var resource
      */
-    private $connection;
+    private $connection = null;
 
     /**
      * @var resource
      */
-    private $sftp;
+    private $sftp = null;
 
     /**
      * @var bool
@@ -80,9 +80,6 @@ class SftpStorage extends AbstractUrlStorage
         $this->passwordPhrase = $passwordPhrase;
 
         $this->contextSupport = $contextSupport;
-
-        $this->connection = null;
-        $this->sftp = null;
     }
 
 

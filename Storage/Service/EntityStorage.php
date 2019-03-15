@@ -66,11 +66,6 @@ class EntityStorage implements StorageInterface
         }
     }
 
-    /**
-     * @param string $hash
-     * @param null|string $cacheContext
-     * @return null|int
-     */
     public function getSize(string $hash, ?string $cacheContext = null): ?int
     {
         if (!$cacheContext || $this->contextSupport) {
@@ -130,19 +125,19 @@ class EntityStorage implements StorageInterface
             /**@var AssetStorage $entity */
             $entity = $this->repository->findByHash($hash, $cacheContext, $confirmed);
             if ($entity) {
-                $out = $entity->getContents();
+                $contents = $entity->getContents();
 
-                if (is_resource($out)) {
-                    return $out;
+                if (is_resource($contents)) {
+                    return $contents;
                 }
                 $resource = fopen('php://memory', 'w+');
-                fwrite($resource, $out);
+                fwrite($resource, $contents);
 
                 rewind($resource);
                 return $resource;
             }
         }
-        return false;
+        return null;
     }
 
     /**

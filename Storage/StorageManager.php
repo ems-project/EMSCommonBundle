@@ -111,12 +111,8 @@ class StorageManager
 
     /**
      * @deprecated
-     * @param string      $hash
-     * @param string|null $context
-     *
-     * @return resource
      */
-    public function getCacheFile(string $hash, ?string $context = null)
+    public function getCacheFile(string $hash, ?string $context = null): string
     {
         @trigger_error("StorageManager::getCacheFile is deprecated use the getContents or the getResource function", E_USER_DEPRECATED);
         $resource = $this->read($this->cacheAdapters, $hash, $context);

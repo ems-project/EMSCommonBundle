@@ -11,7 +11,7 @@ class S3Storage extends AbstractUrlStorage
     /**
      * @var S3Client
      */
-    private $s3Client;
+    private $s3Client = null;
 
     /**
      * @var string
@@ -27,8 +27,6 @@ class S3Storage extends AbstractUrlStorage
     {
         $this->bucket = $s3Bucket;
         $this->credentials = $s3Credentials;
-
-        $this->s3Client = null;
     }
 
 
