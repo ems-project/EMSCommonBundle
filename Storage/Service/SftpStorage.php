@@ -45,12 +45,12 @@ class SftpStorage extends AbstractUrlStorage
     /**
      * @var resource
      */
-    private $connection;
+    private $connection = null;
 
     /**
      * @var resource
      */
-    private $sftp;
+    private $sftp = null;
 
     /**
      * @var bool
@@ -58,15 +58,7 @@ class SftpStorage extends AbstractUrlStorage
     private $contextSupport;
 
     /**
-     * SftpStorage constructor.
-     * @param string $host
-     * @param string $path
-     * @param string $username
-     * @param string $publicKeyFile
-     * @param string $privateKeyFile
-     * @param bool $contextSupport
      * @param null $passwordPhrase
-     * @param int $port
      */
     public function __construct(string $host, string $path, string $username, string $publicKeyFile, string $privateKeyFile, bool $contextSupport = false, $passwordPhrase = null, int $port = 22)
     {
@@ -80,9 +72,6 @@ class SftpStorage extends AbstractUrlStorage
         $this->passwordPhrase = $passwordPhrase;
 
         $this->contextSupport = $contextSupport;
-
-        $this->connection = null;
-        $this->sftp = null;
     }
 
 
@@ -97,17 +86,12 @@ class SftpStorage extends AbstractUrlStorage
             throw new Exception("PHP functions Secure Shell are required by $this. (ssh2)");
         }
 
-        if (!$this->connection) {
-            $this->connection = @ssh2_connect($this->host, $this->port);
-            if (!$this->connection) {
-                throw new Exception("Could not connect to $this->host on port $this->port.");
-            }
-            ssh2_auth_pubkey_file($this->connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
-        }
+        $this->setupConnection();
 
-        if (!$this->sftp) {
-            $this->sftp = @ssh2_sftp($this->connection);
-        }
+        ssh2_auth_pubkey_file($this->connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
+
+        $this->setSftp();
+
         return 'ssh2.sftp://' . intval($this->sftp) . $this->path;
     }
 
@@ -119,5 +103,26 @@ class SftpStorage extends AbstractUrlStorage
     public function __toString(): string
     {
         return SftpStorage::class . " ($this->host)";
+    }
+
+    private function setupConnection(): void
+    {
+        if ($this->connection === null) {
+            return;
+        }
+
+        $this->connection = @ssh2_connect($this->host, $this->port);
+        if (!$this->connection) {
+            throw new Exception("Could not connect to $this->host on port $this->port.");
+        }
+    }
+
+    private function setSftp(): void
+    {
+        if ($this->sftp === null) {
+            return;
+        }
+
+        $this->sftp = @ssh2_sftp($this->connection);
     }
 }

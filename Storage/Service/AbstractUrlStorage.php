@@ -16,14 +16,8 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     /**
      * returns the a file path or a resource url that can be handled by file function such as fopen
-     *
-     * @param $hash
-     * @param string|null $cacheContext
-     * @param bool $confirmed
-     * @param string $ds
-     * @return string
      */
-    protected function getPath($hash, string $cacheContext = null, $confirmed = true, $ds = '/'): string
+    protected function getPath(string $hash, ?string $cacheContext = null, bool $confirmed = true, string $ds = '/'): string
     {
         $folderName = $this->getBaseUrl();
 
@@ -79,9 +73,6 @@ abstract class AbstractUrlStorage implements StorageInterface
     }
 
     /**
-     * @param string $hash
-     * @param bool|string $cacheContext
-     * @param bool $confirmed
      * @return resource|bool
      */
     public function read(string $hash, ?string $cacheContext = null, bool $confirmed = true)
