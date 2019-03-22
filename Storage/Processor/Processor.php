@@ -5,6 +5,7 @@ namespace EMS\CommonBundle\Storage\Processor;
 use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
+use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -40,18 +41,31 @@ class Processor
 
         $handler = $this->getResource($config);
 
-        $response =  new StreamedResponse(
-            function () use ($handler) {
+        if ($handler instanceof StreamInterface) {
+            $callback = function () use ($handler) {
+                if ($handler->isSeekable()) {
+                    $handler->rewind();
+                }
+                if (!$handler->isReadable()) {
+                    echo $handler;
+                    return;
+                }
+                while (!$handler->eof()) {
+                    echo $handler->read(8192);
+                }
+            };
+        } else {
+            $callback = function () use ($handler) {
                 while (!feof($handler)) {
                     print fread($handler, 8192);
                 }
-            },
-            200,
-            [
+            };
+        }
+
+        $response =  new StreamedResponse($callback, 200, [
             'Content-Disposition' => $config->getDisposition().'; '.HeaderUtils::toString(array('filename' => $filename), ';'),
             'Content-Type' => $config->getMimeType(),
-            ]
-        );
+        ]);
         $response->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
         return $response;
     }
@@ -198,7 +212,7 @@ class Processor
 
     /**
      * @param Config $config
-     * @return resource
+     * @return resource|StreamInterface
      */
     private function getResource(Config $config)
     {
