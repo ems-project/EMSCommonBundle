@@ -212,7 +212,7 @@ class Processor
 
     /**
      * @param Config $config
-     * @return resource
+     * @return resource|StreamInterface
      */
     private function getResource(Config $config)
     {
