@@ -62,7 +62,7 @@ class Processor
             };
         }
 
-        $response =  new StreamedResponse($callback,200, [
+        $response =  new StreamedResponse($callback, 200, [
             'Content-Disposition' => $config->getDisposition().'; '.HeaderUtils::toString(array('filename' => $filename), ';'),
             'Content-Type' => $config->getMimeType(),
         ]);
