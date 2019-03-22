@@ -51,7 +51,7 @@ class HttpStorage extends AbstractUrlStorage
     /**
      * @inheritdoc
      */
-    protected function getPath($hash, string $cacheContext = null, $confirmed = true, $ds = '/'): string
+    protected function getPath(string $hash, ?string $cacheContext = null, bool $confirmed = true, string $ds = '/'): string
     {
         if ($cacheContext) {
             return $this->baseUrl.'/asset/'.urlencode($cacheContext).'/'.$hash;
