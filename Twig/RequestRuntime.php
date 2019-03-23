@@ -6,6 +6,7 @@ use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\Processor\Config;
 use EMS\CommonBundle\Storage\StorageManager;
+use function GuzzleHttp\Psr7\mimetype_from_filename;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\RuntimeExtensionInterface;
@@ -62,7 +63,7 @@ class RequestRuntime implements RuntimeExtensionInterface
         if (isset($fileField[$mimeTypeField])) {
             $config['_mime_type'] = $fileField[$mimeTypeField];
         } elseif (! isset($assetConfig[EmsFields::CONTENT_MIME_TYPE_FIELD]) && isset($fileField[$filenameField])) {
-            $config['_mime_type'] = mime_content_type($fileField[$filenameField]);
+            $config['_mime_type'] = mimetype_from_filename($fileField[$filenameField])?:'application/octet-stream';
         }
 
         $configObject = new Config('', '', '', $config);
