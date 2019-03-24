@@ -21,6 +21,8 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('profiler')->defaultFalse()->end()
                 ->scalarNode('hash_algo')->defaultValue('sha1')->end()
+                ->scalarNode('storage_path')->defaultValue(null)->end()
+                ->scalarNode('backend_url')->defaultValue(null)->end()
             ->end()
         ;
 
