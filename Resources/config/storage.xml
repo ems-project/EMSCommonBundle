@@ -12,6 +12,8 @@
             <argument type="tagged" tag="ems_common.storage.adapter"/>
             <argument type="tagged" tag="ems_common.storage.cache_adapter"/>
             <argument type="string">%ems_common.hash_algo%</argument>
+            <argument type="string">%ems_common.storage_path%</argument>
+            <argument type="string">%ems_common.backend_url%</argument>
         </service>
         <service id="ems_common.controller.file" class="EMS\CommonBundle\Controller\FileController">
             <argument type="service" id="ems_common.storage.manager"/>

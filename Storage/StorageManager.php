@@ -2,6 +2,8 @@
 
 namespace EMS\CommonBundle\Storage;
 
+use EMS\CommonBundle\Storage\Service\FileSystemStorage;
+use EMS\CommonBundle\Storage\Service\HttpStorage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Symfony\Component\Config\FileLocatorInterface;
 
@@ -27,7 +29,7 @@ class StorageManager
      */
     private $hashAlgo;
 
-    public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, iterable $cacheAdapters, string $hashAlgo)
+    public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, iterable $cacheAdapters, string $hashAlgo, ?string $storagePath, ?string $backendUrl)
     {
         $this->fileLocator = $fileLocator;
         $this->hashAlgo = $hashAlgo;
@@ -38,6 +40,13 @@ class StorageManager
 
         foreach ($cacheAdapters as $cacheAdapter) {
             $this->cacheAdapters[] = $cacheAdapter;
+        }
+
+        if ($storagePath) {
+            $this->addAdapter(new FileSystemStorage($storagePath));
+        }
+        if ($backendUrl) {
+            $this->addAdapter(new HttpStorage($backendUrl, '/public/file/'));
         }
     }
 
@@ -65,7 +74,7 @@ class StorageManager
     }
 
     /**
-     * @param string      $hash
+     * @param string $hash
      * @param string|null $context
      *
      * @return resource
@@ -83,9 +92,9 @@ class StorageManager
     public function getContents(string $hash, ?string $context = null): string
     {
         $resource = $this->read($this->adapters, $hash, $context);
-        $out ='';
+        $out = '';
         while (!feof($resource)) {
-            $out.=fread($resource, 8192);
+            $out .= fread($resource, 8192);
         }
 
         fclose($resource);
@@ -94,7 +103,7 @@ class StorageManager
 
     /**
      * @deprecated
-     * @param string      $hash
+     * @param string $hash
      * @param string|null $context
      *
      * @return string
@@ -122,8 +131,8 @@ class StorageManager
     }
 
     /**
-     * @param string      $hash
-     * @param string      $fileName
+     * @param string $hash
+     * @param string $fileName
      * @param string|null $context
      *
      * @return bool
@@ -169,25 +178,7 @@ class StorageManager
      */
     public function getPublicImage(string $name): string
     {
-        return  $this->fileLocator->locate('@EMSCommonBundle/Resources/public/images/'.$name);
-    }
-
-    /**
-     * @param StorageInterface[]|iterable $adapters
-     * @param string                      $hash
-     * @param string|null                 $context
-     *
-     * @return resource
-     */
-    private function read(iterable $adapters, string $hash, ?string $context = null)
-    {
-        foreach ($adapters as $adapter) {
-            if ($adapter->head($hash, $context)) {
-                return $adapter->read($hash, $context);
-            }
-        }
-
-        throw new NotFoundException($hash);
+        return $this->fileLocator->locate('@EMSCommonBundle/Resources/public/images/' . $name);
     }
 
     /**
@@ -198,21 +189,19 @@ class StorageManager
         return $this->hashAlgo;
     }
 
-
-
     public function saveContents(string $contents, string $filename, string $mimetype, string $context = null, int $shouldBeSavedOnXServices = 0)
     {
         $hash = hash($this->hashAlgo, $contents);
         $out = 0;
 
-        /**@var \EMS\CommonBundle\Storage\Service\StorageInterface $service*/
+        /**@var \EMS\CommonBundle\Storage\Service\StorageInterface $service */
         foreach ($this->getAdapters() as $service) {
             if ($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
                 break;
             }
 
             if ($service->head($hash, $context)) {
-                ++ $out;
+                ++$out;
                 continue;
             }
 
@@ -225,15 +214,14 @@ class StorageManager
             }
 
             if ($service->finalizeUpload($hash, $context)) {
-                ++ $out;
+                ++$out;
             }
         }
 
         return $hash;
     }
 
-
-    public function computeResourceHash($handler):string
+    public function computeResourceHash($handler): string
     {
         $ctx = hash_init($this->hashAlgo);
         while (!feof($handler)) {
@@ -242,17 +230,15 @@ class StorageManager
         return hash_final($ctx);
     }
 
-
-    public function computeStringHash($string):string
+    public function computeStringHash($string): string
     {
         return hash($this->hashAlgo, $string);
     }
 
-    public function computeFileHash($filename):string
+    public function computeFileHash($filename): string
     {
         return hash_file($this->hashAlgo, $filename);
     }
-
 
     public function cacheResource($resource, string $hash, string $context, string $filename, string $mimeType, int $shouldBeSavedOnXServices = 0)
     {
@@ -263,7 +249,7 @@ class StorageManager
             $size = $stat['size'];
         }
 
-        /**@var \EMS\CommonBundle\Storage\Service\StorageInterface $service*/
+        /**@var \EMS\CommonBundle\Storage\Service\StorageInterface $service */
         foreach ($this->getAdapters() as $service) {
             if ($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
                 break;
@@ -271,7 +257,7 @@ class StorageManager
 
 
             if ($service->head($hash, $context)) {
-                ++ $out;
+                ++$out;
                 continue;
             }
 
@@ -287,7 +273,7 @@ class StorageManager
             }
 
             if ($service->finalizeUpload($hash, $context)) {
-                ++ $out;
+                ++$out;
             }
 
             rewind($resource);
@@ -295,7 +281,6 @@ class StorageManager
 
         return $out;
     }
-
 
     /**
      * @param string $fileHash
@@ -305,7 +290,7 @@ class StorageManager
      * @param int $uploadMinimumNumberOfReplications
      * @return int
      */
-    public function initUploadFile(string $fileHash, string $fileSize, string $fileName, string $mimeType, int $uploadMinimumNumberOfReplications):int
+    public function initUploadFile(string $fileHash, string $fileSize, string $fileName, string $mimeType, int $uploadMinimumNumberOfReplications): int
     {
         $loopCounter = 0;
         foreach ($this->getAdapters() as $service) {
@@ -314,5 +299,23 @@ class StorageManager
             }
         }
         return $loopCounter;
+    }
+
+    /**
+     * @param StorageInterface[]|iterable $adapters
+     * @param string $hash
+     * @param string|null $context
+     *
+     * @return resource
+     */
+    private function read(iterable $adapters, string $hash, ?string $context = null)
+    {
+        foreach ($adapters as $adapter) {
+            if ($adapter->head($hash, $context)) {
+                return $adapter->read($hash, $context);
+            }
+        }
+
+        throw new NotFoundException($hash);
     }
 }

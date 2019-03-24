@@ -28,5 +28,7 @@ class EMSCommonExtension extends Extension
         }
 
         $container->setParameter('ems_common.hash_algo', $config['hash_algo']);
+        $container->setParameter('ems_common.storage_path', $config['storage_path']);
+        $container->setParameter('ems_common.backend_url', $config['backend_url']);
     }
 }
