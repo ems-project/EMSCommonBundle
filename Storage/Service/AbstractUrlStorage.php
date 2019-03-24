@@ -204,6 +204,6 @@ abstract class AbstractUrlStorage implements StorageInterface
      */
     public function finalizeUpload(string $hash, ?string $context = null): bool
     {
-        return copy($this->getPath($hash, $context, false), $this->getPath($hash, $context));
+        return rename($this->getPath($hash, $context, false), $this->getPath($hash, $context));
     }
 }
