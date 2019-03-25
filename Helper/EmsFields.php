@@ -8,6 +8,7 @@ final class EmsFields
     const CONTENT_FILE_HASH_FIELD = 'sha1';
     const CONTENT_FILE_SIZE_FIELD = 'filesize';
     const CONTENT_FILE_NAME_FIELD = 'filename';
+    const CONTENT_HASH_ALGO_FIELD = '_hash_algo';
     const CONTENT_PUBLISHED_DATETIME_FIELD = '_published_datetime';
 
     const ASSET_CONFIG_DISPOSITION = '_disposition';
