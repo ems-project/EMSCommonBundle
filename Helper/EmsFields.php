@@ -11,6 +11,7 @@ final class EmsFields
     const CONTENT_HASH_ALGO_FIELD = '_hash_algo';
     const CONTENT_PUBLISHED_DATETIME_FIELD = '_published_datetime';
 
+
     const ASSET_CONFIG_DISPOSITION = '_disposition';
     const ASSET_CONFIG_BACKGOUND = '_background';
     const ASSET_CONFIG_TYPE = '_config_type';
