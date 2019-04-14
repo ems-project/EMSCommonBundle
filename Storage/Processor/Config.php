@@ -3,6 +3,7 @@
 namespace EMS\CommonBundle\Storage\Processor;
 
 use EMS\CommonBundle\Helper\EmsFields;
+use EMS\CommonBundle\Storage\StorageManager;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\Options;
@@ -18,20 +19,37 @@ final class Config
     private $options;
     /** @var string */
     private $configHash;
+    /** @var string */
+    private $filename;
+    /** @var StorageManager */
+    private $storageManager;
 
     /**
      * Config constructor.
+     * @param StorageManager $storageManager
      * @param string $processor, this parameter should be removed in a near futur
      * @param string $assetHash
      * @param string $configHash
      * @param array $options
      */
-    public function __construct(string $processor, string $assetHash, string $configHash, array $options = [])
+    public function __construct(StorageManager $storageManager, string $processor, string $assetHash, string $configHash, array $options = [])
     {
+        $this->storageManager = $storageManager;
         $this->processor = $processor;
         $this->assetHash = $assetHash;
         $this->options = $this->resolve($options);
         $this->configHash = $configHash;
+        $this->filename = null;
+
+        if (!empty($this->getFileNames())) {
+            foreach ($this->getFileNames() as $filename) {
+                if (is_file($filename)) {
+                    $this->filename = $filename;
+                    $this->assetHash = $this->storageManager->computeFileHash($filename);
+                    break;
+                }
+            }
+        }
 
         unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); //the published date can't invalidate the cache as it'sbased on the config hash now.
     }
@@ -49,6 +67,11 @@ final class Config
     public function getConfigHash(): string
     {
         return $this->configHash;
+    }
+
+    public function getFilename(): ?string
+    {
+        return $this->filename;
     }
 
     /**
@@ -85,9 +108,14 @@ final class Config
         return $this->options[EmsFields::ASSET_CONFIG_QUALITY];
     }
 
+    public function getFileNames(): ?array
+    {
+        return $this->options[EmsFields::ASSET_CONFIG_FILE_NAMES];
+    }
+
     public function getBackground(): string
     {
-        return $this->options[EmsFields::ASSET_CONFIG_BACKGOUND];
+        return $this->options[EmsFields::ASSET_CONFIG_BACKGROUND];
     }
 
     public function getResize(): ?string
@@ -137,20 +165,12 @@ final class Config
 
     public function getMimeType(): string
     {
-        if ($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE) {
-            if ($this->isSvg()) {
-                return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
-            }
-
-            return $this->getQuality() ? 'image/jpeg' : 'image/png';
-        }
-
         return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
     }
 
     public function cacheableResult()
     {
-        //returns the asset itself (it already in the cahce
+        //returns the asset itself (it already in the cache
         if (!$this->getStorageContext()) {
             return false;
         }
@@ -158,21 +178,6 @@ final class Config
             return true;
         }
         return false;
-    }
-
-
-
-    public function getFilenameExtension(): string
-    {
-        if ($this->getStorageContext()) {
-            switch ($this->getMimeType()) {
-                case 'image/jpeg':
-                    return '.jpeg';
-                case 'image/png':
-                    return '.png';
-            }
-        }
-        return '';
     }
 
     public function getStorageContext(): ?string
@@ -227,8 +232,9 @@ final class Config
     {
         return [
             EmsFields::ASSET_CONFIG_TYPE => null,
+            EmsFields::ASSET_CONFIG_FILE_NAMES => null,
             EmsFields::ASSET_CONFIG_QUALITY => 70,
-            EmsFields::ASSET_CONFIG_BACKGOUND => '#FFFFFF',
+            EmsFields::ASSET_CONFIG_BACKGROUND => '#FFFFFF',
             EmsFields::ASSET_CONFIG_RESIZE => 'fill',
             EmsFields::ASSET_CONFIG_WIDTH => 300,
             EmsFields::ASSET_CONFIG_HEIGHT => 200,
