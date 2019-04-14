@@ -19,7 +19,7 @@ final class Config
     private $options;
     /** @var string */
     private $configHash;
-    /** @var string */
+    /** @var ?string */
     private $filename;
     /** @var StorageManager */
     private $storageManager;

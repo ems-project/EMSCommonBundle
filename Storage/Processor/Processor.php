@@ -38,7 +38,7 @@ class Processor
             return $cacheResponse;
         }
 
-        $handler = $this->getResource($config);
+        $handler = $this->getResource($config, $filename);
 
         if ($handler instanceof StreamInterface) {
             $callback = function () use ($handler) {
