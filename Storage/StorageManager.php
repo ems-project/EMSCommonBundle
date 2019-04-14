@@ -189,7 +189,7 @@ class StorageManager
         return $this->hashAlgo;
     }
 
-    public function saveContents(string $contents, string $filename, string $mimetype, string $context = null, int $shouldBeSavedOnXServices = 0)
+    public function saveContents(string $contents, string $filename, string $mimetype, string $context = null, int $shouldBeSavedOnXServices = 1)
     {
         $hash = hash($this->hashAlgo, $contents);
         $out = 0;
