@@ -37,6 +37,17 @@ class FileSystemStorage extends AbstractUrlStorage
     }
 
     /**
+     * @param string $hash
+     * @param string $filename
+     *
+     * @return bool
+     */
+    public function symlink(string $hash, string $filename):bool
+    {
+        return \symlink($filename, $this->getPath($hash));
+    }
+
+    /**
      * @inheritdoc
      */
     public function __toString(): string
