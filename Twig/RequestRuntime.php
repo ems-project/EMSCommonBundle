@@ -6,10 +6,10 @@ use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\Processor\Config;
 use EMS\CommonBundle\Storage\StorageManager;
-use function GuzzleHttp\Psr7\mimetype_from_filename;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\RuntimeExtensionInterface;
+use function GuzzleHttp\Psr7\mimetype_from_filename;
 
 class RequestRuntime implements RuntimeExtensionInterface
 {
@@ -35,7 +35,7 @@ class RequestRuntime implements RuntimeExtensionInterface
     }
 
     /**
-     * @param array  $array
+     * @param array $array
      * @param string $attribute
      *
      * @return mixed
@@ -44,7 +44,7 @@ class RequestRuntime implements RuntimeExtensionInterface
     {
         $locale = $this->requestStack->getCurrentRequest()->getLocale();
 
-        return isset($array[$attribute.$locale]) ? $array[$attribute.$locale] : '';
+        return isset($array[$attribute . $locale]) ? $array[$attribute . $locale] : '';
     }
 
     /**
@@ -57,13 +57,13 @@ class RequestRuntime implements RuntimeExtensionInterface
      * @param int $referenceType
      * @return string
      */
-    public function assetPath(array $fileField, array $assetConfig = [], string $route = 'ems_asset', string $fileHashField = EmsFields::CONTENT_FILE_HASH_FIELD, $filenameField = EmsFields::CONTENT_FILE_NAME_FIELD, $mimeTypeField = EmsFields::CONTENT_MIME_TYPE_FIELD, $referenceType = UrlGeneratorInterface::RELATIVE_PATH) : string
+    public function assetPath(array $fileField, array $assetConfig = [], string $route = 'ems_asset', string $fileHashField = EmsFields::CONTENT_FILE_HASH_FIELD, $filenameField = EmsFields::CONTENT_FILE_NAME_FIELD, $mimeTypeField = EmsFields::CONTENT_MIME_TYPE_FIELD, $referenceType = UrlGeneratorInterface::RELATIVE_PATH): string
     {
         $config = $assetConfig;
         if (isset($fileField[$mimeTypeField])) {
             $config['_mime_type'] = $fileField[$mimeTypeField];
-        } elseif (! isset($assetConfig[EmsFields::CONTENT_MIME_TYPE_FIELD]) && isset($fileField[$filenameField])) {
-            $config['_mime_type'] = mimetype_from_filename($fileField[$filenameField])?:'application/octet-stream';
+        } elseif (!isset($assetConfig[EmsFields::CONTENT_MIME_TYPE_FIELD]) && isset($fileField[$filenameField])) {
+            $config['_mime_type'] = mimetype_from_filename($fileField[$filenameField]) ?: 'application/octet-stream';
         }
 
         $configObject = new Config('', '', '', $config);
@@ -73,7 +73,7 @@ class RequestRuntime implements RuntimeExtensionInterface
         return $this->urlGenerator->generate($route, [
             'hash' => $fileField[$fileHashField],
             'hash_config' => $hashConfig,
-            'filename' => (isset($fileField[$filenameField])?$fileField[$filenameField]:'asset').$configObject->getFilenameExtension(),
+            'filename' => (isset($fileField[$filenameField]) ? $fileField[$filenameField] : 'asset') . $configObject->getFilenameExtension(),
         ], $referenceType);
     }
 }
