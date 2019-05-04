@@ -68,7 +68,7 @@ class RequestRuntime implements RuntimeExtensionInterface
 
         $configObject = new Config('', '', '', $config);
 
-        $hashConfig = $this->storageManager->saveContents(ArrayTool::normalizeAndSerializeArray($config), 'assetConfig.json', 'application/json');
+        $hashConfig = $this->storageManager->saveContents(ArrayTool::normalizeAndSerializeArray($config), 'assetConfig.json', 'application/json', null, 1);
 
         return $this->urlGenerator->generate($route, [
             'hash' => $fileField[$fileHashField],
