@@ -3,7 +3,6 @@
 namespace EMS\CommonBundle\Storage\Processor;
 
 use EMS\CommonBundle\Helper\ArrayTool;
-use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
@@ -29,8 +28,8 @@ class Processor
 
     public function getResponse(Request $request, string $hash, string $configHash, string $filename)
     {
-        $configJson = $this->storageManager->getContents($configHash);
-        $config = new Config($configHash, $hash, $configHash, json_decode($configJson, true));
+        $configJson = json_decode($this->storageManager->getContents($configHash), true);
+        $config = new Config($this->storageManager, $configHash, $hash, $configHash, $configJson);
         $cacheKey = $config->getCacheKey();
 
         $cacheResponse = new Response();
@@ -39,7 +38,7 @@ class Processor
             return $cacheResponse;
         }
 
-        $handler = $this->getResource($config);
+        $handler = $this->getResource($config, $filename);
 
         if ($handler instanceof StreamInterface) {
             $callback = function () use ($handler) {
@@ -62,8 +61,8 @@ class Processor
             };
         }
 
-        $response =  new StreamedResponse($callback, 200, [
-            'Content-Disposition' => $config->getDisposition().'; '.HeaderUtils::toString(array('filename' => $filename), ';'),
+        $response = new StreamedResponse($callback, 200, [
+            'Content-Disposition' => $config->getDisposition() . '; ' . HeaderUtils::toString(array('filename' => $filename), ';'),
             'Content-Type' => $config->getMimeType(),
         ]);
         $response->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
@@ -152,10 +151,10 @@ class Processor
         $jsonOptions = ArrayTool::normalizeAndSerializeArray($options);
         $configHash = $this->storageManager->computeStringHash($jsonOptions);
         try {
-            return new Config($processor, $hash, $configHash, $options);
+            return new Config($this->storageManager, $processor, $hash, $configHash, $options);
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage());
-            return new Config($processor, $hash, $configHash);
+            return new Config($this->storageManager, $processor, $hash, $configHash);
         }
     }
 
@@ -170,15 +169,13 @@ class Processor
     }
 
 
-    /**
-     * @param Config $config
-     * @return resource
-     */
     private function generateResource(Config $config)
     {
         $file = null;
         if (!$config->cacheableResult()) {
             $file = $this->storageManager->getPublicImage('big-logo.png');
+        } elseif ($config->getFilename()) {
+            $file = $config->getFilename();
         }
         if ($config->getConfigType() === 'image') {
             return fopen($this->generateImage($config, $file), 'r');
@@ -210,28 +207,22 @@ class Processor
     }
 
 
-    /**
-     * @param Config $config
-     * @return resource|StreamInterface
-     */
-    private function getResource(Config $config)
+    private function getResource(Config $config, string $filename)
     {
         $cacheableResult = $config->cacheableResult();
-        if (!$config->getStorageContext() || $cacheableResult) {
-            try {
-                return $this->storageManager->getResource($config->getAssetHash(), $config->getStorageContext());
-            } catch (NotFoundException $e) {
-                if (!$config->getStorageContext()) {
-                    throw $e;
-                }
+        if (!$config->getStorageContext()) {
+            if ($config->getFilename()) {
+                return fopen($config->getFilename(), 'r');
             }
+
+            return $this->storageManager->getResource($config->getAssetHash(), $config->getStorageContext());
         }
 
 
 
         $generatedResource = $this->generateResource($config);
         if ($cacheableResult) {
-            $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), 'file'.$config->getFilenameExtension(), $config->getMimeType());
+            $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), $filename, $config->getMimeType());
         }
 
         return $generatedResource;
