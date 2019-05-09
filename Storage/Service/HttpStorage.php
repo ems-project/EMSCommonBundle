@@ -67,7 +67,7 @@ class HttpStorage extends AbstractUrlStorage
         if ($cacheContext) {
             return $this->baseUrl.'/asset/'.urlencode($cacheContext).'/'.$hash;
         }
-        return $this->baseUrl.$this->getUrl;
+        return $this->baseUrl.$this->getUrl.$hash;
     }
 
 
