@@ -1,6 +1,6 @@
 <?php
 
-namespace EMS\CommonBundle\Entity;
+namespace EMS\CommonBundle\Common;
 
 class Document
 {
