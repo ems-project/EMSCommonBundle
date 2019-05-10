@@ -1,8 +1,6 @@
 <?php
 
-
 namespace EMS\CommonBundle\Entity;
-
 
 class Document
 {
@@ -34,5 +32,4 @@ class Document
     {
         return $this->source;
     }
-
 }
