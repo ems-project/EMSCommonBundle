@@ -180,7 +180,7 @@ class Image
     private function applyCorner($image, $width, $height)
     {
         $radius = (int) $this->config->getRadius();
-        $color = $this->config->getBorderColor();
+        $color = $this->config->getBorderColor() ?? $this->config->getBackground();
 
         $cornerImage = imagecreatetruecolor($radius, $radius);
         $clearColor = imagecolorallocate($cornerImage, 0, 0, 0);
