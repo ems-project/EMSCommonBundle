@@ -116,7 +116,7 @@ class RequestRuntime implements RuntimeExtensionInterface
             $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
         }
 
-        $hashConfig = $this->storageManager->saveContents(ArrayTool::normalizeAndSerializeArray($config), 'assetConfig.json', 'application/json');
+        $hashConfig = $this->storageManager->saveContents(ArrayTool::normalizeAndSerializeArray($config), 'assetConfig.json', 'application/json', null, 1);
 
         $parameters = [
             'hash_config' => $hashConfig,
