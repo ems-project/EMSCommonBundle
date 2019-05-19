@@ -3,7 +3,9 @@
 namespace EMS\CommonBundle\Storage\Processor;
 
 use EMS\CommonBundle\Helper\ArrayTool;
+use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
+use Exception;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -152,7 +154,7 @@ class Processor
         $configHash = $this->storageManager->computeStringHash($jsonOptions);
         try {
             return new Config($this->storageManager, $processor, $hash, $configHash, $options);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error($e->getMessage());
             return new Config($this->storageManager, $processor, $hash, $configHash);
         }
@@ -207,7 +209,7 @@ class Processor
     }
 
 
-    private function getResource(Config $config, string $filename)
+    public function getResource(Config $config, string $filename)
     {
         $cacheableResult = $config->cacheableResult();
         if (!$config->getStorageContext()) {
@@ -218,13 +220,14 @@ class Processor
             return $this->storageManager->getResource($config->getAssetHash(), $config->getStorageContext());
         }
 
-
-
-        $generatedResource = $this->generateResource($config);
-        if ($cacheableResult) {
-            $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), $filename, $config->getMimeType());
+        try {
+            return $this->storageManager->getResource($config->getAssetHash(), $config->getConfigHash());
+        } catch (NotFoundException $e) {
+            $generatedResource = $this->generateResource($config);
+            if ($cacheableResult) {
+                $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), $filename, $config->getMimeType());
+            }
+            return $generatedResource;
         }
-
-        return $generatedResource;
     }
 }

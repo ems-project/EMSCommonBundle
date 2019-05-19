@@ -4,6 +4,8 @@ namespace EMS\CommonBundle\Twig;
 
 use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Helper\EmsFields;
+use EMS\CommonBundle\Storage\Processor\Config;
+use EMS\CommonBundle\Storage\Processor\Processor;
 use EMS\CommonBundle\Storage\StorageManager;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -21,16 +23,21 @@ class RequestRuntime implements RuntimeExtensionInterface
     /** @var UrlGeneratorInterface */
     private $urlGenerator;
 
+    /** @var Processor  */
+    private $processor;
+
     /**
      * @param RequestStack $requestStack
      * @param StorageManager $storageManager
      * @param UrlGeneratorInterface $urlGenerator
+     * @param Processor $processor
      */
-    public function __construct(RequestStack $requestStack, StorageManager $storageManager, UrlGeneratorInterface $urlGenerator)
+    public function __construct(RequestStack $requestStack, StorageManager $storageManager, UrlGeneratorInterface $urlGenerator, Processor $processor)
     {
         $this->requestStack = $requestStack;
         $this->storageManager = $storageManager;
         $this->urlGenerator = $urlGenerator;
+        $this->processor = $processor;
     }
 
     public static function endsWith($haystack, $needle)
@@ -117,6 +124,16 @@ class RequestRuntime implements RuntimeExtensionInterface
         }
 
         $hashConfig = $this->storageManager->saveContents(ArrayTool::normalizeAndSerializeArray($config), 'assetConfig.json', 'application/json', null, 1);
+
+        if (isset($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) && $config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) {
+            $configObj = new Config($this->storageManager, $hashConfig, $hash, $hashConfig, $config);
+            $temp_file = tempnam(sys_get_temp_dir(), 'GenAsset');
+
+            $fp = $this->processor->getResource($configObj, $filename);
+
+            file_put_contents($temp_file, $fp);
+            return $temp_file;
+        }
 
         $parameters = [
             'hash_config' => $hashConfig,
