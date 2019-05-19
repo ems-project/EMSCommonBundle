@@ -246,6 +246,7 @@ final class Config
             EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD => '2018-02-05T16:08:56+01:00',
             EmsFields::ASSET_CONFIG_MIME_TYPE => 'application/octet-stream',
             EmsFields::ASSET_CONFIG_DISPOSITION => ResponseHeaderBag::DISPOSITION_INLINE,
+            EmsFields::ASSET_CONFIG_GET_FILE_PATH => false,
         ];
     }
 }
