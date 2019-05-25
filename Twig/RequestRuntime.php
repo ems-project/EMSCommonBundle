@@ -125,7 +125,6 @@ class RequestRuntime implements RuntimeExtensionInterface
         $hashConfig = $this->storageManager->saveContents(ArrayTool::normalizeAndSerializeArray($config), 'assetConfig.json', 'application/json', null, 1);
 
         if (isset($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) && $config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) {
-            dump($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]);
             $configObj = new Config($this->storageManager, $hashConfig, $hash, $hashConfig, $config);
 
             $filesystem = new Filesystem();
