@@ -5,7 +5,6 @@ namespace EMS\CommonBundle\Storage\Processor;
 use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
-use Exception;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -154,7 +153,7 @@ class Processor
         $configHash = $this->storageManager->computeStringHash($jsonOptions);
         try {
             return new Config($this->storageManager, $processor, $hash, $configHash, $options);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error($e->getMessage());
             return new Config($this->storageManager, $processor, $hash, $configHash);
         }
