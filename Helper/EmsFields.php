@@ -33,4 +33,18 @@ final class EmsFields
     const ASSET_CONFIG_RADIUS_GEOMETRY = '_radius_geometry';
     const ASSET_CONFIG_BORDER_COLOR = '_border_color';
     const ASSET_CONFIG_WATERMARK_HASH = '_watermark_hash';
+
+
+    const LOG_ENVIRONMENT_FIELD = 'environment';
+    const LOG_CONTENTTYPE_FIELD = 'contenttype';
+    const LOG_OPERATION_FIELD = 'operation';
+    const LOG_OUUID_FIELD = 'ouuid';
+    const LOG_KEY_FIELD = 'key';
+    const LOG_VALUE_FIELD = 'value';
+
+
+    const LOG_OPERATION_CREATE = 'CREATE';
+    const LOG_OPERATION_UPDATE = 'UPDATE';
+    const LOG_OPERATION_READ = 'READ';
+    const LOG_OPERATION_DELETE = 'DELETE';
 }

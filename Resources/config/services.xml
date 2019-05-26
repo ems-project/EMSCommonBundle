@@ -26,5 +26,15 @@
             <tag name="twig.runtime" />
         </service>
 
+        <!-- logger -->
+        <service id="ems_common.monolog.handler" class="EMS\CommonBundle\Logger\LoggerManager">
+            <argument>notice</argument>
+            <argument>%ems_core.instance_id%</argument>
+            <argument>ems_core</argument>
+            <argument type="service" id="app.elasticsearch" />
+            <tag name="kernel.cache_warmer" />
+            <tag name="kernel.event_listener" event="kernel.terminate"/>
+        </service>
+
     </services>
 </container>
