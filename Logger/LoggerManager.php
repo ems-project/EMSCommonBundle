@@ -181,7 +181,7 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
                 }
             }
 
-            if($this->user === null){
+            if ($this->user === null) {
                 $this->user = $this->security->getToken()->getUsername();
                 if ($this->security->isGranted('ROLE_PREVIOUS_ADMIN')) {
                     foreach ($this->security->getToken()->getRoles() as $role) {
