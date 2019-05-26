@@ -12,12 +12,17 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Security\Core\Role\SwitchUserRole;
+use Symfony\Component\Security\Core\Security;
 
 class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInterface, EventSubscriberInterface
 {
 
     /** @var Client */
     private $client;
+
+    /** @var Security */
+    private $security;
 
     /** @var int */
     protected $level;
@@ -28,15 +33,24 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
     /** @var string */
     protected $component;
 
+    /** @var ?string */
+    protected $user;
+
+    /** @var ?string */
+    protected $impersonator;
+
     /** @var array */
     protected $bulk;
 
-    public function __construct(string $level, string $instanceId, string $component, Client $client)
+    public function __construct(string $level, string $instanceId, string $component, Client $client, Security $security)
     {
         $this->client = $client;
         $this->instanceId = $instanceId;
         $this->client = $client;
         $this->component = $component;
+        $this->security = $security;
+        $this->user = null;
+        $this->impersonator = null;
         $this->bulk = [];
         $levelName = strtoupper($level);
         if (isset(Logger::getLevels()[$levelName])) {
@@ -84,6 +98,12 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
                             EmsFields::LOG_OPERATION_FIELD => [
                                 'type' => 'keyword',
                             ],
+                            EmsFields::LOG_USERNAME_FIELD => [
+                                'type' => 'keyword',
+                            ],
+                            EmsFields::LOG_IMPERSONATOR_FIELD => [
+                                'type' => 'keyword',
+                            ],
                             'instance_id' => [
                                 'type' => 'keyword',
                                 'ignore_above' => 256,
@@ -97,6 +117,9 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
                                 'format' => 'date_time_no_millis',
                             ],
                             'level' => [
+                                'type' => 'long',
+                            ],
+                            EmsFields::LOG_REVISION_ID_FIELD => [
                                 'type' => 'long',
                             ],
                             'message' => [
@@ -147,7 +170,7 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
 
             foreach ($record['context'] as $key => &$value) {
                 if (!is_object($value)) {
-                    if (in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD, EmsFields::LOG_OUUID_FIELD])) {
+                    if (in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD, EmsFields::LOG_OUUID_FIELD, EmsFields::LOG_REVISION_ID_FIELD])) {
                         $body[$key] = $value;
                     } else {
                         $body['context'][] = [
@@ -157,6 +180,21 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
                     }
                 }
             }
+
+            if($this->user === null){
+                $this->user = $this->security->getToken()->getUsername();
+                if ($this->security->isGranted('ROLE_PREVIOUS_ADMIN')) {
+                    foreach ($this->security->getToken()->getRoles() as $role) {
+                        if ($role instanceof SwitchUserRole) {
+                            $this->impersonator = $role->getSource()->getUsername();
+                            break;
+                        }
+                    }
+                }
+            }
+            $body[EmsFields::LOG_USERNAME_FIELD] = $this->user;
+            $body[EmsFields::LOG_IMPERSONATOR_FIELD] = $this->impersonator;
+
 
             $this->bulk[] = [
                 'index' => [

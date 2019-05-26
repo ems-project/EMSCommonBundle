@@ -38,7 +38,10 @@ final class EmsFields
     const LOG_ENVIRONMENT_FIELD = 'environment';
     const LOG_CONTENTTYPE_FIELD = 'contenttype';
     const LOG_OPERATION_FIELD = 'operation';
+    const LOG_USERNAME_FIELD = 'username';
+    const LOG_IMPERSONATOR_FIELD = 'impersonator';
     const LOG_OUUID_FIELD = 'ouuid';
+    const LOG_REVISION_ID_FIELD = 'revision_id';
     const LOG_KEY_FIELD = 'key';
     const LOG_VALUE_FIELD = 'value';
 

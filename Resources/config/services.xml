@@ -32,6 +32,7 @@
             <argument>%ems_core.instance_id%</argument>
             <argument>ems_core</argument>
             <argument type="service" id="app.elasticsearch" />
+            <argument type="service" id="security.helper" />
             <tag name="kernel.cache_warmer" />
             <tag name="kernel.event_listener" event="kernel.terminate"/>
         </service>
