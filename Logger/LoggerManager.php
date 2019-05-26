@@ -42,6 +42,9 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
     /** @var array */
     protected $bulk;
 
+    /** @var array */
+    protected $tooLate;
+
     public function __construct(string $level, string $instanceId, string $component, Client $client, Security $security)
     {
         $this->client = $client;
@@ -52,11 +55,12 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
         $this->user = null;
         $this->impersonator = null;
         $this->bulk = [];
+        $this->tooLate = false;
         $levelName = strtoupper($level);
         if (isset(Logger::getLevels()[$levelName])) {
             $this->level = Logger::getLevels()[$levelName];
         } else {
-            $this->level = Logger::NOTICE;
+            $this->level = Logger::INFO;
         }
     }
 
@@ -151,7 +155,7 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
 
     protected function write(array $record)
     {
-        if ($record['level'] >= $this->level) {
+        if ($record['level'] >= $this->level && !$this->tooLate) {
             $datetime = null;
             if ($record['datetime'] instanceof \DateTime) {
                 $datetime = $record['datetime']->format('c');
@@ -181,7 +185,7 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
                 }
             }
 
-            if ($this->user === null) {
+            if ($this->user === null && $this->security->getToken()) {
                 $this->user = $this->security->getToken()->getUsername();
                 if ($this->security->isGranted('ROLE_PREVIOUS_ADMIN')) {
                     foreach ($this->security->getToken()->getRoles() as $role) {
@@ -208,7 +212,7 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
 
     private function treatBulk()
     {
-        if (!empty($this->bulk)) {
+        if (!empty($this->bulk) && !$this->tooLate) {
             $this->client->bulk([
                 'body' => $this->bulk,
             ]);

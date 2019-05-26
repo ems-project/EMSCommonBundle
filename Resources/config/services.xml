@@ -28,7 +28,7 @@
 
         <!-- loggers -->
         <service id="ems_common.monolog.ems_handler" class="EMS\CommonBundle\Logger\LoggerManager">
-            <argument>notice</argument>
+            <argument>info</argument>
             <argument>%ems_core.instance_id%</argument>
             <argument>ems_core</argument>
             <argument type="service" id="app.elasticsearch" />
