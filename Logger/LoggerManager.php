@@ -207,12 +207,17 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
                 ],
             ];
             $this->bulk[] = $body;
+
+            if (count($this->bulk) > 200) {
+                $this->treatBulk();
+            }
         }
     }
 
-    private function treatBulk()
+    private function treatBulk($tooLate = false)
     {
         if (!empty($this->bulk) && !$this->tooLate) {
+            $this->tooLate = $tooLate;
             $this->client->bulk([
                 'body' => $this->bulk,
             ]);
@@ -223,7 +228,7 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
 
     public function onKernelTerminate(PostResponseEvent $event)
     {
-        $this->treatBulk();
+        $this->treatBulk(true);
     }
 
     public static function getSubscribedEvents()
