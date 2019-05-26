@@ -45,8 +45,13 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
     /** @var array */
     protected $tooLate;
 
+    /** @var DateTime */
+    protected $startDateTime;
+
     public function __construct(string $level, string $instanceId, string $component, Client $client, Security $security)
     {
+        $this->startDateTime = new DateTime();
+        parent::__construct();
         $this->client = $client;
         $this->instanceId = $instanceId;
         $this->client = $client;
@@ -107,6 +112,20 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
                             ],
                             EmsFields::LOG_IMPERSONATOR_FIELD => [
                                 'type' => 'keyword',
+                            ],
+                            EmsFields::LOG_HOST_FIELD => [
+                                'type' => 'keyword',
+                            ],
+                            EmsFields::LOG_ROUTE_FIELD => [
+                                'type' => 'keyword',
+                            ],
+                            EmsFields::LOG_URL_FIELD => [
+                                'type' => 'text',
+                                "fields" => [
+                                    "raw" => [
+                                        "type" =>  "keyword"
+                                    ]
+                                ]
                             ],
                             'instance_id' => [
                                 'type' => 'keyword',
@@ -174,7 +193,9 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
 
             foreach ($record['context'] as $key => &$value) {
                 if (!is_object($value)) {
-                    if (in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD, EmsFields::LOG_OUUID_FIELD, EmsFields::LOG_REVISION_ID_FIELD])) {
+                    if (in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
+                        EmsFields::LOG_OUUID_FIELD, EmsFields::LOG_REVISION_ID_FIELD, EmsFields::LOG_HOST_FIELD, EmsFields::LOG_URL_FIELD,
+                        EmsFields::LOG_STATUS_CODE_FIELD, EmsFields::LOG_SIZE_FIELD, EmsFields::LOG_ROUTE_FIELD, EmsFields::LOG_MICROTIME_FIELD])) {
                         $body[$key] = $value;
                     } else {
                         $body['context'][] = [
@@ -228,6 +249,61 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
 
     public function onKernelTerminate(PostResponseEvent $event)
     {
+        switch ($event->getRequest()->getMethod()) {
+            case 'POST':
+            case 'PUT':
+                $operation = EmsFields::LOG_OPERATION_CREATE;
+                break;
+            case 'GET':
+                $operation = EmsFields::LOG_OPERATION_READ;
+                break;
+            case 'PATCH':
+                $operation = EmsFields::LOG_OPERATION_UPDATE;
+                break;
+            case 'DELETE':
+                $operation = EmsFields::LOG_OPERATION_DELETE;
+                break;
+            default:
+                $operation = null;
+        }
+        $route = $event->getRequest()->attributes->get('_route', null);
+        if($operation && $route && !in_array($route, ['_wdt'])){
+            $statusCode = $event->getResponse()->getStatusCode();
+            if($statusCode < 300) {
+                $level = Logger::INFO;
+                $level_name = 'INFO';
+            }
+            else if($statusCode < 400) {
+                $level = Logger::NOTICE;
+                $level_name = 'NOTICE';
+            }
+            else if($statusCode < 500) {
+                $level = Logger::WARNING;
+                $level_name = 'WARNING';
+            }
+            else {
+                $level = Logger::ERROR;
+                $level_name = 'ERROR';
+            }
+
+            $record = [
+                'datetime' => new \DateTime(),
+                'level' => $level,
+                'level_name' => $level_name,
+                'channel' => 'app',
+                'message' => 'app.request',
+                'context' => [
+                    EmsFields::LOG_OPERATION_FIELD => $operation,
+                    EmsFields::LOG_HOST_FIELD => $event->getRequest()->getHost(),
+                    EmsFields::LOG_URL_FIELD => $event->getRequest()->getRequestUri(),
+                    EmsFields::LOG_ROUTE_FIELD => $route,
+                    EmsFields::LOG_STATUS_CODE_FIELD => $statusCode,
+                    EmsFields::LOG_SIZE_FIELD => strlen($event->getResponse()->getContent()),
+                    EmsFields::LOG_MICROTIME_FIELD => (new DateTime())->diff($this->startDateTime)->format('%s.%F'),
+                ],
+            ];
+            $this->write($record);
+        }
         $this->treatBulk(true);
     }
 

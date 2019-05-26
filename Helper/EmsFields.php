@@ -44,6 +44,12 @@ final class EmsFields
     const LOG_REVISION_ID_FIELD = 'revision_id';
     const LOG_KEY_FIELD = 'key';
     const LOG_VALUE_FIELD = 'value';
+    const LOG_HOST_FIELD = 'host';
+    const LOG_URL_FIELD = 'url';
+    const LOG_ROUTE_FIELD = 'route';
+    const LOG_STATUS_CODE_FIELD = 'status_code';
+    const LOG_SIZE_FIELD = 'size';
+    const LOG_MICROTIME_FIELD = 'microtime';
 
 
     const LOG_OPERATION_CREATE = 'CREATE';
