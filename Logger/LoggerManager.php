@@ -267,21 +267,18 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
                 $operation = null;
         }
         $route = $event->getRequest()->attributes->get('_route', null);
-        if($operation && $route && !in_array($route, ['_wdt'])){
+        if ($operation && $route && !in_array($route, ['_wdt'])) {
             $statusCode = $event->getResponse()->getStatusCode();
-            if($statusCode < 300) {
+            if ($statusCode < 300) {
                 $level = Logger::INFO;
                 $level_name = 'INFO';
-            }
-            else if($statusCode < 400) {
+            } else if ($statusCode < 400) {
                 $level = Logger::NOTICE;
                 $level_name = 'NOTICE';
-            }
-            else if($statusCode < 500) {
+            } else if ($statusCode < 500) {
                 $level = Logger::WARNING;
                 $level_name = 'WARNING';
-            }
-            else {
+            } else {
                 $level = Logger::ERROR;
                 $level_name = 'ERROR';
             }
