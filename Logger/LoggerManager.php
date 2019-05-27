@@ -42,7 +42,7 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
     /** @var array */
     protected $bulk;
 
-    /** @var array */
+    /** @var bool */
     protected $tooLate;
 
     /** @var DateTime */
@@ -235,7 +235,7 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
         }
     }
 
-    private function treatBulk($tooLate = false)
+    private function treatBulk(bool $tooLate = false)
     {
         if (!empty($this->bulk) && !$this->tooLate) {
             $this->tooLate = $tooLate;
