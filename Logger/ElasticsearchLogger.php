@@ -48,8 +48,8 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
     /** @var bool */
     protected $tooLate;
 
-    /** @var DateTime */
-    protected $startDateTime;
+    /** @var float */
+    protected $startMicrotime;
 
     public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security)
     {
@@ -61,7 +61,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         }
 
         parent::__construct($this->level);
-        $this->startDateTime = new DateTime();
+        $this->startMicrotime = \microtime(true);
         $this->client = $client;
         $this->instanceId = $instanceId;
         $this->version = $version;
@@ -309,7 +309,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                     EmsFields::LOG_ROUTE_FIELD => $route,
                     EmsFields::LOG_STATUS_CODE_FIELD => $statusCode,
                     EmsFields::LOG_SIZE_FIELD => strlen($event->getResponse()->getContent()),
-                    EmsFields::LOG_MICROTIME_FIELD => (new DateTime())->diff($this->startDateTime)->format('%s.%F'),
+                    EmsFields::LOG_MICROTIME_FIELD => (microtime(true) - $this->startMicrotime),
                 ],
             ];
             $this->write($record);
