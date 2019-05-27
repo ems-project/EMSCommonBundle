@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Role\SwitchUserRole;
 use Symfony\Component\Security\Core\Security;
 
-class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInterface, EventSubscriberInterface
+class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarmerInterface, EventSubscriberInterface
 {
 
     /** @var Client */
@@ -50,8 +50,15 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
 
     public function __construct(string $level, string $instanceId, string $component, Client $client, Security $security)
     {
+        $levelName = strtoupper($level);
+        if (isset(Logger::getLevels()[$levelName])) {
+            $this->level = Logger::getLevels()[$levelName];
+        } else {
+            $this->level = Logger::INFO;
+        }
+
+        parent::__construct($this->level);
         $this->startDateTime = new DateTime();
-        parent::__construct();
         $this->client = $client;
         $this->instanceId = $instanceId;
         $this->client = $client;
@@ -61,12 +68,6 @@ class LoggerManager extends AbstractProcessingHandler implements CacheWarmerInte
         $this->impersonator = null;
         $this->bulk = [];
         $this->tooLate = false;
-        $levelName = strtoupper($level);
-        if (isset(Logger::getLevels()[$levelName])) {
-            $this->level = Logger::getLevels()[$levelName];
-        } else {
-            $this->level = Logger::INFO;
-        }
     }
 
     public function warmUp($cacheDir)

@@ -8,7 +8,7 @@ use Monolog\Logger;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class FlashMessageManager extends AbstractProcessingHandler
+class FlashMessageLogger extends AbstractProcessingHandler
 {
     /** @var Session */
     private $session;
@@ -21,6 +21,7 @@ class FlashMessageManager extends AbstractProcessingHandler
 
     public function __construct(Session $session, TranslatorInterface $translator, string $translationDomain)
     {
+        parent::__construct(Logger::NOTICE);
         $this->session = $session;
         $this->translator = $translator;
         $this->translationDomain = $translationDomain;
