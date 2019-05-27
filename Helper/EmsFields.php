@@ -50,6 +50,8 @@ final class EmsFields
     const LOG_STATUS_CODE_FIELD = 'status_code';
     const LOG_SIZE_FIELD = 'size';
     const LOG_MICROTIME_FIELD = 'microtime';
+    const LOG_ERROR_MESSAGE_FIELD = 'error_message';
+    const LOG_EXCEPTION_FIELD = 'exception';
 
 
     const LOG_OPERATION_CREATE = 'CREATE';
