@@ -154,6 +154,9 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                             EmsFields::LOG_REVISION_ID_FIELD => [
                                 'type' => 'long',
                             ],
+                            EmsFields::LOG_MICROTIME_FIELD => [
+                                'type' => 'float',
+                            ],
                             'message' => [
                                 'type' => 'text',
                             ],
