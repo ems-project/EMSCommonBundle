@@ -31,6 +31,9 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
     protected $instanceId;
 
     /** @var string */
+    protected $version;
+
+    /** @var string */
     protected $component;
 
     /** @var ?string */
@@ -48,7 +51,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
     /** @var DateTime */
     protected $startDateTime;
 
-    public function __construct(string $level, string $instanceId, string $component, Client $client, Security $security)
+    public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security)
     {
         $levelName = strtoupper($level);
         if (isset(Logger::getLevels()[$levelName])) {
@@ -61,6 +64,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         $this->startDateTime = new DateTime();
         $this->client = $client;
         $this->instanceId = $instanceId;
+        $this->version = $version;
         $this->client = $client;
         $this->component = $component;
         $this->security = $security;
@@ -132,6 +136,10 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                                 'type' => 'keyword',
                                 'ignore_above' => 256,
                             ],
+                            'version' => [
+                                'type' => 'keyword',
+                                'ignore_above' => 256,
+                            ],
                             'level_name' => [
                                 'type' => 'keyword',
                                 'ignore_above' => 30,
@@ -188,6 +196,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 'datetime' => $datetime,
             ];
             $body['instance_id'] = $this->instanceId;
+            $body['version'] = $this->version;
             $body['component'] = $this->component;
             $body['context'] = [];
             unset($body['formatted']);
