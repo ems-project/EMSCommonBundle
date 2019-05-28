@@ -29,12 +29,18 @@ class CommonExtension extends AbstractExtension
     {
         return [
             new TwigFilter('array_key', [$this, 'arrayKey']),
+            new TwigFilter('ems_file_exists', [$this, 'fileExists']),
             new TwigFilter('format_bytes', [Converter::class, 'formatBytes']),
             new TwigFilter('emsch_ouuid', [$this, 'getOuuid']),
             new TwigFilter('locale_attr', [RequestRuntime::class, 'localeAttribute']),
             new TwigFilter('ems_html_encode', [TextRuntime::class, 'htmlEncode'], ['is_safe' => ['html']]),
             new TwigFilter('ems_anti_spam', [TextRuntime::class, 'htmlEncodePii'], ['is_safe' => ['html']]),
         ];
+    }
+    
+    public fileExists( string $filename ): bool
+    {
+        return file_exists($filename);
     }
 
     /**
