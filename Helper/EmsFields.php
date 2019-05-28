@@ -33,7 +33,7 @@ final class EmsFields
     const ASSET_CONFIG_RADIUS_GEOMETRY = '_radius_geometry';
     const ASSET_CONFIG_BORDER_COLOR = '_border_color';
     const ASSET_CONFIG_WATERMARK_HASH = '_watermark_hash';
-
+    const ASSET_CONFIG_GET_FILE_PATH = '_get_file_path';
 
     const LOG_ENVIRONMENT_FIELD = 'environment';
     const LOG_CONTENTTYPE_FIELD = 'contenttype';
@@ -52,7 +52,6 @@ final class EmsFields
     const LOG_MICROTIME_FIELD = 'microtime';
     const LOG_ERROR_MESSAGE_FIELD = 'error_message';
     const LOG_EXCEPTION_FIELD = 'exception';
-
 
     const LOG_OPERATION_CREATE = 'CREATE';
     const LOG_OPERATION_UPDATE = 'UPDATE';

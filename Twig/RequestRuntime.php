@@ -4,7 +4,10 @@ namespace EMS\CommonBundle\Twig;
 
 use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Helper\EmsFields;
+use EMS\CommonBundle\Storage\Processor\Config;
+use EMS\CommonBundle\Storage\Processor\Processor;
 use EMS\CommonBundle\Storage\StorageManager;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\RuntimeExtensionInterface;
@@ -21,16 +24,19 @@ class RequestRuntime implements RuntimeExtensionInterface
     /** @var UrlGeneratorInterface */
     private $urlGenerator;
 
-    /**
-     * @param RequestStack $requestStack
-     * @param StorageManager $storageManager
-     * @param UrlGeneratorInterface $urlGenerator
-     */
-    public function __construct(RequestStack $requestStack, StorageManager $storageManager, UrlGeneratorInterface $urlGenerator)
+    /** @var Processor  */
+    private $processor;
+
+    /** @var string  */
+    private $cacheDir;
+
+    public function __construct(RequestStack $requestStack, StorageManager $storageManager, UrlGeneratorInterface $urlGenerator, Processor $processor, string $cacheDir)
     {
         $this->requestStack = $requestStack;
         $this->storageManager = $storageManager;
         $this->urlGenerator = $urlGenerator;
+        $this->processor = $processor;
+        $this->cacheDir = $cacheDir;
     }
 
     public static function endsWith($haystack, $needle)
@@ -117,6 +123,26 @@ class RequestRuntime implements RuntimeExtensionInterface
         }
 
         $hashConfig = $this->storageManager->saveContents(ArrayTool::normalizeAndSerializeArray($config), 'assetConfig.json', 'application/json', null, 1);
+
+        if (isset($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) && $config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) {
+            $configObj = new Config($this->storageManager, $hashConfig, $hash, $hashConfig, $config);
+
+            $filesystem = new Filesystem();
+            if ($hash) {
+                $filesystem->mkdir($this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path'.DIRECTORY_SEPARATOR.$hashConfig);
+                $cacheFilename = $this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path'.DIRECTORY_SEPARATOR.$hashConfig.DIRECTORY_SEPARATOR.$hash;
+            } else {
+                $filesystem->mkdir($this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path');
+                $cacheFilename = $this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path'.DIRECTORY_SEPARATOR.$hashConfig;
+            }
+
+            if (! $filesystem->exists($cacheFilename)) {
+                $fp = $this->processor->getResource($configObj, $filename);
+                file_put_contents($cacheFilename, $fp);
+            }
+
+            return $cacheFilename;
+        }
 
         $parameters = [
             'hash_config' => $hashConfig,

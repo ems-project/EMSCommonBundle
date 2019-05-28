@@ -33,7 +33,8 @@
 		"symfony/options-resolver": "^4.1",
 		"doctrine/doctrine-bundle": "^1.9",
 		"ext-gd": "^7.1",
-		"ext-iconv": "^7.1"
+		"ext-iconv": "^7.1",
+		"ext-json": "*"
 	},
 	"require-dev" : {
 		"phpunit/phpunit" : "^5.7",
