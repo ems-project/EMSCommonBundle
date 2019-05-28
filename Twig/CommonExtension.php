@@ -38,7 +38,7 @@ class CommonExtension extends AbstractExtension
         ];
     }
     
-    public fileExists( string $filename ): bool
+    public function fileExists(string $filename): bool
     {
         return file_exists($filename);
     }
