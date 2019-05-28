@@ -33,4 +33,5 @@ final class EmsFields
     const ASSET_CONFIG_RADIUS_GEOMETRY = '_radius_geometry';
     const ASSET_CONFIG_BORDER_COLOR = '_border_color';
     const ASSET_CONFIG_WATERMARK_HASH = '_watermark_hash';
+    const ASSET_CONFIG_GET_FILE_PATH = '_get_file_path';
 }

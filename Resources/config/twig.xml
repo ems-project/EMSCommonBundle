@@ -15,6 +15,8 @@
             <argument type="service" id="request_stack" />
             <argument type="service" id="ems_common.storage.manager" />
             <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface" />
+            <argument type="service" id="EMS\CommonBundle\Storage\Processor\Processor" />
+            <argument type="string">%kernel.cache_dir%</argument>
             <tag name="twig.runtime" />
         </service>
 

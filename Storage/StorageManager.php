@@ -120,6 +120,9 @@ class StorageManager
 
     /**
      * @deprecated
+     * @param string $hash
+     * @param string|null $context
+     * @return string
      */
     public function getCacheFile(string $hash, ?string $context = null): string
     {
@@ -148,12 +151,6 @@ class StorageManager
         return false;
     }
 
-    /**
-     * @param string $hash
-     * @param string|null $context
-     *
-     * @return null|\DateTime
-     */
     public function getLastCacheDate(string $hash, ?string $context = null): ?\DateTime
     {
         @trigger_error(sprintf('The "%s::getLastCacheDate" method is deprecated and should not more be used.', StorageManager::class), E_USER_DEPRECATED);
@@ -194,7 +191,7 @@ class StorageManager
         $hash = hash($this->hashAlgo, $contents);
         $out = 0;
 
-        /**@var \EMS\CommonBundle\Storage\Service\StorageInterface $service */
+        /**@var StorageInterface $service */
         foreach ($this->getAdapters() as $service) {
             if ($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
                 break;
@@ -249,7 +246,7 @@ class StorageManager
             $size = $stat['size'];
         }
 
-        /**@var \EMS\CommonBundle\Storage\Service\StorageInterface $service */
+        /**@var StorageInterface $service */
         foreach ($this->getAdapters() as $service) {
             if ($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
                 break;
