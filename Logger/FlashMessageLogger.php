@@ -35,9 +35,16 @@ class FlashMessageLogger extends AbstractProcessingHandler
             foreach ($record['context'] as $key => &$value) {
                 $parameters['%'.$key.'%'] = $value;
             }
+
+            if (isset($record['context']['count']) && $record['context']['count']) {
+                $message = $this->translator->transChoice($record['message'], $record['context']['count'], $parameters, $this->translationDomain);
+            } else {
+                $message = $this->translator->trans($record['message'], $parameters, $this->translationDomain);
+            }
+
             $this->session->getFlashBag()->add(
                 strtolower($record['level_name']),
-                $this->translator->trans($record['message'], $parameters, $this->translationDomain)
+                $message
             );
         }
     }
