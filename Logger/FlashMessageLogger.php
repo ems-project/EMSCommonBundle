@@ -35,9 +35,20 @@ class FlashMessageLogger extends AbstractProcessingHandler
             foreach ($record['context'] as $key => &$value) {
                 $parameters['%'.$key.'%'] = $value;
             }
+            //TODO: should be removed with symfony 4.2 (whene the core will be ready)
+            //https://symfony.com/blog/new-in-symfony-4-2-intlmessageformatter
+            //Lastly, the new formatter also deprecates the transChoice() method, which is replaced by the trans() method with a parameter called %count%.
+            //https://symfony.com/doc/current/translation/message_format.html
+
+            if (isset($record['context']['count']) && $record['context']['count']) {
+                $message = $this->translator->transChoice($record['message'], $record['context']['count'], $parameters, $this->translationDomain);
+            } else {
+                $message = $this->translator->trans($record['message'], $parameters, $this->translationDomain);
+            }
+
             $this->session->getFlashBag()->add(
                 strtolower($record['level_name']),
-                $this->translator->trans($record['message'], $parameters, $this->translationDomain)
+                $message
             );
         }
     }
