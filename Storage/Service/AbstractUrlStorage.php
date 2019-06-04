@@ -208,9 +208,16 @@ abstract class AbstractUrlStorage implements StorageInterface
         $destination  = $this->getPath($hash, $context);
         try {
             \rename($source, $destination);
+            return true;
         } catch (\Throwable $e) {
-            \copy($source, $destination);
+            //TODO: add log info or notice
         }
-        return true;
+        try {
+            \copy($source, $destination);
+            return true;
+        } catch (\Throwable $e) {
+            //TODO: add log info or notice
+        }
+        return false;
     }
 }
