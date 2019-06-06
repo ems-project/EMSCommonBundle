@@ -136,6 +136,9 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                                 'type' => 'keyword',
                                 'ignore_above' => 256,
                             ],
+                            EmsFields::LOG_SESSION_ID_FIELD => [
+                                'type' => 'keyword'
+                            ],
                             'version' => [
                                 'type' => 'keyword',
                                 'ignore_above' => 256,
@@ -208,7 +211,8 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 if (!is_object($value)) {
                     if (in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
                         EmsFields::LOG_OUUID_FIELD, EmsFields::LOG_REVISION_ID_FIELD, EmsFields::LOG_HOST_FIELD, EmsFields::LOG_URL_FIELD,
-                        EmsFields::LOG_STATUS_CODE_FIELD, EmsFields::LOG_SIZE_FIELD, EmsFields::LOG_ROUTE_FIELD, EmsFields::LOG_MICROTIME_FIELD])) {
+                        EmsFields::LOG_STATUS_CODE_FIELD, EmsFields::LOG_SIZE_FIELD, EmsFields::LOG_ROUTE_FIELD, EmsFields::LOG_MICROTIME_FIELD,
+                        EmsFields::LOG_SESSION_ID_FIELD])) {
                         $body[$key] = $value;
                     } else {
                         $body['context'][] = [
@@ -312,6 +316,10 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                     EmsFields::LOG_MICROTIME_FIELD => (microtime(true) - $this->startMicrotime),
                 ],
             ];
+            $session = $event->getRequest()->getSession();
+            if ($session !== null && $session->getId() !== null) {
+                $record['context'][EmsFields::LOG_SESSION_ID_FIELD] = $session->getId();
+            }
             $this->write($record);
         }
         $this->treatBulk(true);
