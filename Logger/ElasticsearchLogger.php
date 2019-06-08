@@ -256,9 +256,13 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
     {
         if (!empty($this->bulk) && !$this->tooLate) {
             $this->tooLate = $tooLate;
-            $this->client->bulk([
-                'body' => $this->bulk,
-            ]);
+            try {
+                $this->client->bulk([
+                    'body' => $this->bulk,
+                ]);
+            } catch (\Throwable $e) {
+                // the cluster might be available only in read only (dev behind a reverse proxy)
+            }
             $this->bulk = [];
         }
     }
