@@ -186,32 +186,32 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
 
     protected function write(array $record)
     {
-        if ($record['level'] >= $this->level && !$this->tooLate) {
+        if ($record[EmsFields::LOG_LEVEL_FIELD] >= $this->level && !$this->tooLate) {
             $datetime = null;
-            if ($record['datetime'] instanceof \DateTime) {
-                $datetime = $record['datetime']->format('c');
+            if ($record[EmsFields::LOG_DATETIME_FIELD] instanceof \DateTime) {
+                $datetime = $record[EmsFields::LOG_DATETIME_FIELD]->format('c');
             }
             $body = [
-                'level_name' => $record['level_name'],
-                'level' => $record['level'],
-                'message' => $record['message'],
-                'channel' => $record['channel'],
-                'datetime' => $datetime,
+                EmsFields::LOG_LEVEL_NAME_FIELD => $record[EmsFields::LOG_LEVEL_NAME_FIELD],
+                EmsFields::LOG_LEVEL_FIELD => $record[EmsFields::LOG_LEVEL_FIELD],
+                EmsFields::LOG_MESSAGE_FIELD => $record[EmsFields::LOG_MESSAGE_FIELD],
+                EmsFields::LOG_CHANNEL_FIELD => $record[EmsFields::LOG_CHANNEL_FIELD],
+                EmsFields::LOG_DATETIME_FIELD => $datetime,
+                EmsFields::LOG_INSTANCE_ID_FIELD => $this->instanceId,
+                EmsFields::LOG_VERSION_FIELD => $this->version,
+                EmsFields::LOG_COMPONENT_FIELD => $this->component,
+                EmsFields::LOG_CONTEXT_FIELD => [],
             ];
-            $body['instance_id'] = $this->instanceId;
-            $body['version'] = $this->version;
-            $body['component'] = $this->component;
-            $body['context'] = [];
             unset($body['formatted']);
 
-            foreach ($record['context'] as $key => &$value) {
+            foreach ($record[EmsFields::LOG_CONTEXT_FIELD] as $key => &$value) {
                 if (!is_object($value)) {
                     if (in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
                         EmsFields::LOG_OUUID_FIELD, EmsFields::LOG_REVISION_ID_FIELD, EmsFields::LOG_HOST_FIELD, EmsFields::LOG_URL_FIELD,
                         EmsFields::LOG_STATUS_CODE_FIELD, EmsFields::LOG_SIZE_FIELD, EmsFields::LOG_ROUTE_FIELD, EmsFields::LOG_MICROTIME_FIELD])) {
                         $body[$key] = $value;
                     } else {
-                        $body['context'][] = [
+                        $body[EmsFields::LOG_CONTEXT_FIELD][] = [
                             EmsFields::LOG_KEY_FIELD => $key,
                             EmsFields::LOG_VALUE_FIELD => $value,
                         ];
