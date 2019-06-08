@@ -35,6 +35,8 @@ final class EmsFields
     const ASSET_CONFIG_WATERMARK_HASH = '_watermark_hash';
     const ASSET_CONFIG_GET_FILE_PATH = '_get_file_path';
 
+    const LOG_ALIAS = 'ems_internal_logger_alias';
+    const LOG_TYPE = 'doc';
     const LOG_ENVIRONMENT_FIELD = 'environment';
     const LOG_CONTENTTYPE_FIELD = 'contenttype';
     const LOG_OPERATION_FIELD = 'operation';
@@ -53,6 +55,15 @@ final class EmsFields
     const LOG_ERROR_MESSAGE_FIELD = 'error_message';
     const LOG_EXCEPTION_FIELD = 'exception';
     const LOG_SESSION_ID_FIELD = 'session_id';
+    const LOG_INSTANCE_ID_FIELD = 'instance_id';
+    const LOG_VERSION_FIELD = 'version';
+    const LOG_COMPONENT_FIELD = 'component';
+    const LOG_CONTEXT_FIELD = 'context';
+    const LOG_LEVEL_FIELD = 'level';
+    const LOG_MESSAGE_FIELD = 'message';
+    const LOG_LEVEL_NAME_FIELD = 'level_name';
+    const LOG_CHANNEL_FIELD = 'channel';
+    const LOG_DATETIME_FIELD = 'datetime';
 
     const LOG_OPERATION_CREATE = 'CREATE';
     const LOG_OPERATION_UPDATE = 'UPDATE';
