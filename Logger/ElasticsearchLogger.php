@@ -65,7 +65,6 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         $this->client = $client;
         $this->instanceId = $instanceId;
         $this->version = $version;
-        $this->client = $client;
         $this->component = $component;
         $this->security = $security;
         $this->user = null;
@@ -76,110 +75,114 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
 
     public function warmUp($cacheDir)
     {
-        if ($this->client->indices()->existsTemplate([
-            'name' => 'ems_internal_logger_template',
-        ])) {
-            $this->client->indices()->deleteTemplate([
+        try {
+            if ($this->client->indices()->existsTemplate([
                 'name' => 'ems_internal_logger_template',
-            ]);
-        }
+            ])) {
+                $this->client->indices()->deleteTemplate([
+                    'name' => 'ems_internal_logger_template',
+                ]);
+            }
 
-        $this->client->indices()->putTemplate([
-            'name' => 'ems_internal_logger_template',
-            'body' => [
-                'template' => 'ems_internal_logger_index_*',
-                'aliases' => ['ems_internal_logger_alias' => (object) array()],
-                'mappings' => [
-                    'doc' => [
-                        'properties' => [
-                            'channel' => [
-                                'type' => 'keyword',
-                                'ignore_above' => 256,
-                            ],
-                            'component' => [
-                                'type' => 'keyword',
-                                'ignore_above' => 256,
-                            ],
-                            EmsFields::LOG_CONTENTTYPE_FIELD  => [
-                                'type' => 'keyword',
-                            ],
-                            EmsFields::LOG_OUUID_FIELD => [
-                                'type' => 'keyword',
-                            ],
-                            EmsFields::LOG_ENVIRONMENT_FIELD => [
-                                'type' => 'keyword',
-                            ],
-                            EmsFields::LOG_OPERATION_FIELD => [
-                                'type' => 'keyword',
-                            ],
-                            EmsFields::LOG_USERNAME_FIELD => [
-                                'type' => 'keyword',
-                            ],
-                            EmsFields::LOG_IMPERSONATOR_FIELD => [
-                                'type' => 'keyword',
-                            ],
-                            EmsFields::LOG_HOST_FIELD => [
-                                'type' => 'keyword',
-                            ],
-                            EmsFields::LOG_ROUTE_FIELD => [
-                                'type' => 'keyword',
-                            ],
-                            EmsFields::LOG_URL_FIELD => [
-                                'type' => 'text',
-                                "fields" => [
-                                    "raw" => [
-                                        "type" =>  "keyword"
+            $this->client->indices()->putTemplate([
+                'name' => 'ems_internal_logger_template',
+                'body' => [
+                    'template' => 'ems_internal_logger_index_*',
+                    'aliases' => ['ems_internal_logger_alias' => (object) array()],
+                    'mappings' => [
+                        'doc' => [
+                            'properties' => [
+                                'channel' => [
+                                    'type' => 'keyword',
+                                    'ignore_above' => 256,
+                                ],
+                                'component' => [
+                                    'type' => 'keyword',
+                                    'ignore_above' => 256,
+                                ],
+                                EmsFields::LOG_CONTENTTYPE_FIELD  => [
+                                    'type' => 'keyword',
+                                ],
+                                EmsFields::LOG_OUUID_FIELD => [
+                                    'type' => 'keyword',
+                                ],
+                                EmsFields::LOG_ENVIRONMENT_FIELD => [
+                                    'type' => 'keyword',
+                                ],
+                                EmsFields::LOG_OPERATION_FIELD => [
+                                    'type' => 'keyword',
+                                ],
+                                EmsFields::LOG_USERNAME_FIELD => [
+                                    'type' => 'keyword',
+                                ],
+                                EmsFields::LOG_IMPERSONATOR_FIELD => [
+                                    'type' => 'keyword',
+                                ],
+                                EmsFields::LOG_HOST_FIELD => [
+                                    'type' => 'keyword',
+                                ],
+                                EmsFields::LOG_ROUTE_FIELD => [
+                                    'type' => 'keyword',
+                                ],
+                                EmsFields::LOG_URL_FIELD => [
+                                    'type' => 'text',
+                                    "fields" => [
+                                        "raw" => [
+                                            "type" =>  "keyword"
+                                        ]
                                     ]
-                                ]
-                            ],
-                            'instance_id' => [
-                                'type' => 'keyword',
-                                'ignore_above' => 256,
-                            ],
-                            EmsFields::LOG_SESSION_ID_FIELD => [
-                                'type' => 'keyword'
-                            ],
-                            'version' => [
-                                'type' => 'keyword',
-                                'ignore_above' => 256,
-                            ],
-                            'level_name' => [
-                                'type' => 'keyword',
-                                'ignore_above' => 30,
-                            ],
-                            'datetime' => [
-                                'type' => 'date',
-                                'format' => 'date_time_no_millis',
-                            ],
-                            'level' => [
-                                'type' => 'long',
-                            ],
-                            EmsFields::LOG_REVISION_ID_FIELD => [
-                                'type' => 'long',
-                            ],
-                            EmsFields::LOG_MICROTIME_FIELD => [
-                                'type' => 'float',
-                            ],
-                            'message' => [
-                                'type' => 'text',
-                            ],
-                            'context' => [
-                                'type' => 'nested',
-                                'properties' => [
-                                    'key' => [
-                                        'type' => 'keyword',
-                                        'ignore_above' => 256,
-                                    ],
-                                    'value' => [
-                                        'type' => 'text',
+                                ],
+                                'instance_id' => [
+                                    'type' => 'keyword',
+                                    'ignore_above' => 256,
+                                ],
+                                EmsFields::LOG_SESSION_ID_FIELD => [
+                                    'type' => 'keyword'
+                                ],
+                                'version' => [
+                                    'type' => 'keyword',
+                                    'ignore_above' => 256,
+                                ],
+                                'level_name' => [
+                                    'type' => 'keyword',
+                                    'ignore_above' => 30,
+                                ],
+                                'datetime' => [
+                                    'type' => 'date',
+                                    'format' => 'date_time_no_millis',
+                                ],
+                                'level' => [
+                                    'type' => 'long',
+                                ],
+                                EmsFields::LOG_REVISION_ID_FIELD => [
+                                    'type' => 'long',
+                                ],
+                                EmsFields::LOG_MICROTIME_FIELD => [
+                                    'type' => 'float',
+                                ],
+                                'message' => [
+                                    'type' => 'text',
+                                ],
+                                'context' => [
+                                    'type' => 'nested',
+                                    'properties' => [
+                                        'key' => [
+                                            'type' => 'keyword',
+                                            'ignore_above' => 256,
+                                        ],
+                                        'value' => [
+                                            'type' => 'text',
+                                        ],
                                     ],
                                 ],
                             ],
                         ],
                     ],
                 ],
-            ],
-        ]);
+            ]);
+        } catch (\Throwable $e) {
+        // the cluster might be available only in read only (dev behind a reverse proxy)
+        }
     }
 
     public function isOptional()
