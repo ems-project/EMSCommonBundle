@@ -90,7 +90,7 @@ class RequestRuntime implements RuntimeExtensionInterface
             $filename = $fileField[$filenameField];
         }
 
-        $mimeType = null;
+        $mimeType = 'application/bin';
         if (isset($fileField[EmsFields::CONTENT_MIME_TYPE_FIELD_])) {
             $mimeType = $fileField[EmsFields::CONTENT_MIME_TYPE_FIELD_];
         } else if (isset($fileField[$mimeTypeField])) {
