@@ -32,4 +32,19 @@ class Document
     {
         return $this->source;
     }
+
+    public function _type(): string
+    {
+        return $this->contentType;
+    }
+
+    public function _id(): string
+    {
+        return $this->ouuid;
+    }
+
+    public function _source(): array
+    {
+        return $this->source;
+    }
 }
