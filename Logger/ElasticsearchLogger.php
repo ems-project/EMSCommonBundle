@@ -51,7 +51,10 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
     /** @var float */
     protected $startMicrotime;
 
-    public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security)
+    /** @var bool */
+    protected $byPass;
+
+    public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security, bool $byPass = false)
     {
         $levelName = strtoupper($level);
         if (isset(Logger::getLevels()[$levelName])) {
@@ -71,10 +74,15 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         $this->impersonator = null;
         $this->bulk = [];
         $this->tooLate = false;
+        $this->byPass = $byPass;
     }
 
     public function warmUp($cacheDir)
     {
+        if ($this->byPass) {
+            return;
+        }
+
         try {
             if ($this->client->indices()->existsTemplate([
                 'name' => 'ems_internal_logger_template',
@@ -192,6 +200,10 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
 
     protected function write(array $record)
     {
+        if ($this->byPass) {
+            return;
+        }
+
         if ($record[EmsFields::LOG_LEVEL_FIELD] >= $this->level && !$this->tooLate) {
             $datetime = null;
             if ($record[EmsFields::LOG_DATETIME_FIELD] instanceof \DateTime) {
@@ -257,6 +269,10 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
 
     private function treatBulk(bool $tooLate = false)
     {
+        if ($this->byPass) {
+            return;
+        }
+
         if (!empty($this->bulk) && !$this->tooLate) {
             $this->tooLate = $tooLate;
             try {
@@ -273,6 +289,10 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
 
     public function onKernelTerminate(PostResponseEvent $event)
     {
+        if ($this->byPass) {
+            return;
+        }
+
         switch ($event->getRequest()->getMethod()) {
             case 'POST':
             case 'PUT':
