@@ -4,6 +4,7 @@ namespace EMS\CommonBundle\Storage\Processor;
 
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\StorageManager;
+use function GuzzleHttp\Psr7\mimetype_from_filename;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\Options;
@@ -165,6 +166,9 @@ final class Config
 
     public function getMimeType(): string
     {
+        if ($this->filename !== null) {
+            return mimetype_from_filename($this->filename) ?? 'application/octet-stream';
+        }
         return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
     }
 
