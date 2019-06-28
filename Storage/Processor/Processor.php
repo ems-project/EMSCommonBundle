@@ -216,6 +216,11 @@ class Processor
                 return fopen($config->getFilename(), 'r');
             }
 
+            //it means that we wont be able to locate any file specified in the filenames config
+            if (!empty($config->getFileNames()) && $config->getAssetHash() === $config->getProcessor()) {
+                throw new NotFoundHttpException(sprintf('File %s not found', $filename));
+            }
+
             return $this->storageManager->getResource($config->getAssetHash(), $config->getStorageContext());
         }
 
