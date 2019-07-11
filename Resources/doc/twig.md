@@ -9,15 +9,15 @@ The following data can be obfuscated (even inside a wysiwyg field):
 
 - emailadress `no_reply@example.com`
 ````twig
-{{- 'no_reply@example.com'|ems_html_encode -}}
+{{- 'no_reply@example.com'|ems_anti_spam -}}
 ````
 - phone number in `<a href="tel:____">`
 ````twig
-{{- '<a href="tel:02/123.50.00">repeated here, the number will not be encoded</a>'|ems_html_encode -}}
+{{- '<a href="tel:02/123.50.00">repeated here, the number will not be encoded</a>'|ems_anti_spam -}}
 ````
 - custom selection of pii using a span with class "pii"
 ````twig
-{{- '<span class="pii">02/123.50.00</span>'|ems_html_encode -}}
+{{- '<span class="pii">02/123.50.00</span>'|ems_anti_spam -}}
 ````
 
 See unit test for more examples.
