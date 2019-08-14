@@ -35,6 +35,7 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('locale_attr', [RequestRuntime::class, 'localeAttribute']),
             new TwigFilter('ems_html_encode', [TextRuntime::class, 'htmlEncode'], ['is_safe' => ['html']]),
             new TwigFilter('ems_anti_spam', [TextRuntime::class, 'htmlEncodePii'], ['is_safe' => ['html']]),
+            new TwigFilter('ems_manifest', [ManifestRuntime::class, 'manifest'])
         ];
     }
     
