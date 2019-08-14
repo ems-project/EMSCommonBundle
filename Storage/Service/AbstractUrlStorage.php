@@ -2,6 +2,7 @@
 
 namespace EMS\CommonBundle\Storage\Service;
 
+use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -73,7 +74,7 @@ abstract class AbstractUrlStorage implements StorageInterface
     }
 
     /**
-     * @return resource|bool
+     * @return resource|bool|StreamInterface
      */
     public function read(string $hash, ?string $cacheContext = null, bool $confirmed = true)
     {

@@ -11,14 +11,11 @@ use Throwable;
 
 class EntityStorage implements StorageInterface
 {
-
-    /**@var Registry $doctrine */
-    private $doctrine;
-    /**@var ObjectManager */
+    /** @var ObjectManager */
     private $manager;
-    /**@var AssetStorageRepository */
+    /** @var AssetStorageRepository */
     private $repository;
-    /**@var bool */
+    /** @var bool */
     private $contextSupport;
 
     /**
@@ -28,9 +25,20 @@ class EntityStorage implements StorageInterface
      */
     public function __construct(Registry $doctrine, bool $contextSupport)
     {
-        $this->doctrine = $doctrine;
         $this->contextSupport = $contextSupport;
-        $this->repository = null;
+        $this->manager = $doctrine->getManager();
+
+        //Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
+        $repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
+        if (!$repository instanceof  AssetStorageRepository) {
+            throw new \RuntimeException(sprintf(
+                '%s has a repository that should be of type %s. But %s is given.',
+                EntityStorage::class,
+                AssetStorage::class,
+                get_class($repository)
+            ));
+        }
+        $this->repository = $repository;
     }
 
     /**
@@ -49,27 +57,14 @@ class EntityStorage implements StorageInterface
     public function head(string $hash, ?string $cacheContext = null):bool
     {
         if (!$cacheContext || $this->contextSupport) {
-            $this->init();
             return $this->repository->head($hash, $cacheContext);
         }
         return false;
     }
 
-    /**
-     *
-     */
-    private function init()
-    {
-        if (!$this->repository) {
-            $this->manager = $this->doctrine->getManager();
-            $this->repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
-        }
-    }
-
     public function getSize(string $hash, ?string $cacheContext = null): ?int
     {
         if (!$cacheContext || $this->contextSupport) {
-            $this->init();
             return $this->repository->getSize($hash, $cacheContext);
         }
         return null;
@@ -121,7 +116,6 @@ class EntityStorage implements StorageInterface
     public function read(string $hash, ?string $cacheContext = null, bool $confirmed = true)
     {
         if (!$cacheContext || $this->contextSupport) {
-            $this->init();
             /**@var AssetStorage $entity */
             $entity = $this->repository->findByHash($hash, $cacheContext, $confirmed);
             if ($entity) {
@@ -150,7 +144,6 @@ class EntityStorage implements StorageInterface
     {
         @trigger_error("getLastUpdateDate is deprecated.", E_USER_DEPRECATED);
         if (!$context || $this->contextSupport) {
-            $this->init();
             try {
                 $time = $this->repository->getLastUpdateDate($hash, $context);
                 return $time ? \DateTime::createFromFormat('U', $time) : null;
@@ -166,7 +159,6 @@ class EntityStorage implements StorageInterface
     public function health(): bool
     {
         try {
-            $this->init();
             return ($this->repository->count([]) >= 0);
         } catch (Exception $e) {
         }
@@ -188,7 +180,6 @@ class EntityStorage implements StorageInterface
      */
     public function clearCache():bool
     {
-        $this->init();
         return $this->repository->clearCache();
     }
 
@@ -198,7 +189,6 @@ class EntityStorage implements StorageInterface
      */
     public function remove(string $hash):bool
     {
-        $this->init();
         return $this->repository->removeByHash($hash);
     }
 
@@ -226,7 +216,7 @@ class EntityStorage implements StorageInterface
             $entity->setConfirmed(false);
 
             $this->manager->persist($entity);
-            $this->manager->flush($entity);
+            $this->manager->flush();
 
             return true;
         }
@@ -241,7 +231,6 @@ class EntityStorage implements StorageInterface
      */
     public function finalizeUpload(string $hash, ?string $context = null): bool
     {
-        $this->init();
         $entity = $this->repository->findByHash($hash, $context, false);
         if ($entity) {
             $entity->setConfirmed(true);
@@ -264,7 +253,6 @@ class EntityStorage implements StorageInterface
      */
     public function addChunk(string $hash, string $chunk, ?string $context = null): bool
     {
-        $this->init();
         $entity = $this->repository->findByHash($hash, $context, false);
         if ($entity) {
             $contents = $entity->getContents();
@@ -276,7 +264,7 @@ class EntityStorage implements StorageInterface
 
             $entity->setSize($entity->getSize() + strlen($chunk));
             $this->manager->persist($entity);
-            $this->manager->flush($entity);
+            $this->manager->flush();
             return true;
         }
         return false;
