@@ -9,6 +9,8 @@
 
         <service id="ems_common.data_collector.elasticsearch_processor" class="EMS\CommonBundle\DataCollector\ElasticsearchProcessor">
             <argument type="service" id="ems_common.data_collector.elasticsearch_data_collector" />
+            <argument type="service" id="logger" />
+            <tag name="monolog.logger" channel="elastic"/>
             <tag name="monolog.processor" channel="elasticsearch" />
         </service>
         <service id="ems_common.data_collector.elasticsearch_data_collector" class="EMS\CommonBundle\DataCollector\ElasticsearchDataCollector">
