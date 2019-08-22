@@ -129,11 +129,11 @@ class RequestRuntime implements RuntimeExtensionInterface
 
             $filesystem = new Filesystem();
             if ($hash) {
-                $filesystem->mkdir($this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path'.DIRECTORY_SEPARATOR.$hashConfig);
-                $cacheFilename = $this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path'.DIRECTORY_SEPARATOR.$hashConfig.DIRECTORY_SEPARATOR.$hash;
+                $filesystem->mkdir($this->cacheDir . DIRECTORY_SEPARATOR . 'ems_asset_path' . DIRECTORY_SEPARATOR . $hashConfig);
+                $cacheFilename = $this->cacheDir . DIRECTORY_SEPARATOR . 'ems_asset_path' . DIRECTORY_SEPARATOR . $hashConfig . DIRECTORY_SEPARATOR . $hash;
             } else {
-                $filesystem->mkdir($this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path');
-                $cacheFilename = $this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path'.DIRECTORY_SEPARATOR.$hashConfig;
+                $filesystem->mkdir($this->cacheDir . DIRECTORY_SEPARATOR . 'ems_asset_path');
+                $cacheFilename = $this->cacheDir . DIRECTORY_SEPARATOR . 'ems_asset_path' . DIRECTORY_SEPARATOR . $hashConfig;
             }
 
             if (! $filesystem->exists($cacheFilename)) {

@@ -256,7 +256,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
             $this->bulk[] = [
                 'index' => [
                     '_type' => 'doc',
-                    '_index' => 'ems_internal_logger_index_'.(new DateTime())->format('Ymd'),
+                    '_index' => 'ems_internal_logger_index_' . (new DateTime())->format('Ymd'),
                 ],
             ];
             $this->bulk[] = $body;
