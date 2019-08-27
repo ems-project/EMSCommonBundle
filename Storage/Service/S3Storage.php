@@ -65,7 +65,7 @@ class S3Storage extends AbstractUrlStorage
         $path = $this->getPath($hash, $context, false);
         $result = $this->s3Client->putObject([
             'Bucket'     => $this->bucket,
-            'Key'        => substr($path, 1+strlen($this->getBaseUrl())),
+            'Key'        => substr($path, 1 + strlen($this->getBaseUrl())),
             'Metadata'   => array(
                 'Confirmed' => 'false',
             )
@@ -87,7 +87,7 @@ class S3Storage extends AbstractUrlStorage
         $path = $this->getPath($hash, $context, false);
         $this->s3Client->deleteObject([
             'Bucket'     => $this->bucket,
-            'Key'        => substr($path, 1+strlen($this->getBaseUrl()))
+            'Key'        => substr($path, 1 + strlen($this->getBaseUrl()))
         ]);
         return $out;
     }

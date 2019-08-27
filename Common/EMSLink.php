@@ -98,7 +98,7 @@ class EMSLink
             $this->linkType,
             ($this->contentType ? $this->contentType . ':' : ''),
             $this->ouuid,
-            ($this->query ? '?'. $this->query : '')
+            ($this->query ? '?' . $this->query : '')
         ]);
     }
 

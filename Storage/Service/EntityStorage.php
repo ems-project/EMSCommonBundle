@@ -260,7 +260,7 @@ class EntityStorage implements StorageInterface
                 $contents = stream_get_contents($contents);
             }
 
-            $entity->setContents($contents.$chunk);
+            $entity->setContents($contents . $chunk);
 
             $entity->setSize($entity->getSize() + strlen($chunk));
             $this->manager->persist($entity);

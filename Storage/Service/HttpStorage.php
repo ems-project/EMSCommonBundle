@@ -55,7 +55,7 @@ class HttpStorage extends AbstractUrlStorage
      */
     protected function getBaseUrl(): string
     {
-        return $this->baseUrl.$this->getUrl;
+        return $this->baseUrl . $this->getUrl;
     }
 
 
@@ -65,9 +65,9 @@ class HttpStorage extends AbstractUrlStorage
     protected function getPath(string $hash, ?string $cacheContext = null, bool $confirmed = true, string $ds = '/'): string
     {
         if ($cacheContext) {
-            return $this->baseUrl.'/asset/'.urlencode($cacheContext).'/'.$hash;
+            return $this->baseUrl . '/asset/' . urlencode($cacheContext) . '/' . $hash;
         }
-        return $this->baseUrl.$this->getUrl.$hash;
+        return $this->baseUrl . $this->getUrl . $hash;
     }
 
 
@@ -100,7 +100,7 @@ class HttpStorage extends AbstractUrlStorage
         }
 
         try {
-            return $this->getClient()->get($this->getUrl.$hash)->getBody();
+            return $this->getClient()->get($this->getUrl . $hash)->getBody();
         } catch (Exception $e) {
             return false;
         }
@@ -121,7 +121,7 @@ class HttpStorage extends AbstractUrlStorage
     public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool
     {
         try {
-            $result = $this->getClient()->post('/api/file/init-upload/'.urlencode($hash).'/'.$size.'?name='.urlencode($name).'&type='.urlencode($type), [
+            $result = $this->getClient()->post('/api/file/init-upload/' . urlencode($hash) . '/' . $size . '?name=' . urlencode($name) . '&type=' . urlencode($type), [
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
@@ -140,7 +140,7 @@ class HttpStorage extends AbstractUrlStorage
     public function addChunk(string $hash, string $chunk, ?string $context = null): bool
     {
         try {
-            $result = $this->getClient()->post('/api/file/upload-chunk/'.urlencode($hash), [
+            $result = $this->getClient()->post('/api/file/upload-chunk/' . urlencode($hash), [
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
@@ -170,7 +170,7 @@ class HttpStorage extends AbstractUrlStorage
         }
 
         try {
-            return $this->getClient()->head($this->getUrl.$hash)->getStatusCode() === 200;
+            return $this->getClient()->head($this->getUrl . $hash)->getStatusCode() === 200;
         } catch (Exception $e) {
             return false;
         }
@@ -254,7 +254,7 @@ class HttpStorage extends AbstractUrlStorage
         //https://stackoverflow.com/questions/1545432/what-is-the-easiest-way-to-use-the-head-command-of-http-in-php?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
         try {
             $context = stream_context_create(array('http' => array('method' => 'HEAD')));
-            $fd = fopen($this->baseUrl.$this->getUrl . $hash, 'rb', false, $context);
+            $fd = fopen($this->baseUrl . $this->getUrl . $hash, 'rb', false, $context);
 
             $metas = stream_get_meta_data($fd);
             if (isset($metas['wrapper_data'])) {
