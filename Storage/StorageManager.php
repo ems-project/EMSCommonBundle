@@ -279,19 +279,11 @@ class StorageManager
         return $out;
     }
 
-    /**
-     * @param string $fileHash
-     * @param string $fileSize
-     * @param string $fileName
-     * @param string $mimeType
-     * @param int $uploadMinimumNumberOfReplications
-     * @return int
-     */
-    public function initUploadFile(string $fileHash, string $fileSize, string $fileName, string $mimeType, int $uploadMinimumNumberOfReplications): int
+    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, int $uploadMinimumNumberOfReplications): int
     {
         $loopCounter = 0;
-        foreach ($this->getAdapters() as $service) {
-            if ($service->initUpload($fileHash, $fileSize, $fileName, $mimeType) && ++$loopCounter >= $uploadMinimumNumberOfReplications) {
+        foreach ($this->getAdapters() as $adapter) {
+            if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType) && ++$loopCounter >= $uploadMinimumNumberOfReplications) {
                 break;
             }
         }
