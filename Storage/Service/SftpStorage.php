@@ -85,7 +85,11 @@ class SftpStorage extends AbstractUrlStorage
 
         $this->setupConnection();
 
-        ssh2_auth_pubkey_file($this->connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
+        if ($this->passwordPhrase === null) {
+            ssh2_auth_pubkey_file($this->connection, $this->username, $this->publicKeyFile, $this->privateKeyFile);
+        } else {
+            ssh2_auth_pubkey_file($this->connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
+        }
 
         $this->setSftp();
 
