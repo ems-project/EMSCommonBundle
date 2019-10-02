@@ -260,7 +260,8 @@ class HttpStorage extends AbstractUrlStorage
             if (isset($metas['wrapper_data'])) {
                 foreach ($metas['wrapper_data'] as $meta) {
                     if (preg_match('/^Last\-Modified: (.*)$/', $meta, $matches, PREG_OFFSET_CAPTURE)) {
-                        return \DateTime::createFromFormat('U', strtotime($matches[1][0]));
+                        $time = strtotime($matches[1][0]);
+                        return $time ? \DateTime::createFromFormat('U', (string) $time) : \DateTime::createFromFormat('U', (string) strtotime('now'));
                     }
                 }
             }
