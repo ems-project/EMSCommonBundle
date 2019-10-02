@@ -2,11 +2,8 @@
 
 namespace EMS\CommonBundle\Storage\Service;
 
-use Exception;
-
 class SftpStorage extends AbstractUrlStorage
 {
-
     /**
      * @var string
      */
@@ -83,7 +80,7 @@ class SftpStorage extends AbstractUrlStorage
     {
 
         if (!function_exists('ssh2_connect')) {
-            throw new Exception("PHP functions Secure Shell are required by $this. (ssh2)");
+            throw new \Exception("PHP functions Secure Shell are required by $this. (ssh2)");
         }
 
         $this->setupConnection();
@@ -113,7 +110,7 @@ class SftpStorage extends AbstractUrlStorage
 
         $this->connection = @ssh2_connect($this->host, $this->port);
         if (!$this->connection) {
-            throw new Exception("Could not connect to $this->host on port $this->port.");
+            throw new \Exception("Could not connect to $this->host on port $this->port.");
         }
     }
 

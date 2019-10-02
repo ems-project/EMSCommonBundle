@@ -6,8 +6,6 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Common\Persistence\ObjectManager;
 use EMS\CommonBundle\Entity\AssetStorage;
 use EMS\CommonBundle\Repository\AssetStorageRepository;
-use Exception;
-use Throwable;
 
 class EntityStorage implements StorageInterface
 {
@@ -147,7 +145,7 @@ class EntityStorage implements StorageInterface
             try {
                 $time = $this->repository->getLastUpdateDate($hash, $context);
                 return $time ? \DateTime::createFromFormat('U', $time) : null;
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
             }
         }
         return null;
@@ -160,7 +158,7 @@ class EntityStorage implements StorageInterface
     {
         try {
             return ($this->repository->count([]) >= 0);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
         return false;
     }
