@@ -11,6 +11,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\RuntimeExtensionInterface;
+
 use function GuzzleHttp\Psr7\mimetype_from_filename;
 
 class RequestRuntime implements RuntimeExtensionInterface

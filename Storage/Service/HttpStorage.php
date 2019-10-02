@@ -37,7 +37,7 @@ class HttpStorage extends AbstractUrlStorage
         $this->authKey = $authKey;
     }
 
-    private function getClient() : Client
+    private function getClient(): Client
     {
         static $client = false;
 
@@ -110,7 +110,7 @@ class HttpStorage extends AbstractUrlStorage
     /**
      * @inheritdoc
      */
-    public function supportCacheStore():bool
+    public function supportCacheStore(): bool
     {
         return false;
     }
@@ -163,7 +163,7 @@ class HttpStorage extends AbstractUrlStorage
     /**
      * @inheritdoc
      */
-    public function head(string $hash, ?string $cacheContext = null):bool
+    public function head(string $hash, ?string $cacheContext = null): bool
     {
         if ($cacheContext) {
             return false;
@@ -182,7 +182,7 @@ class HttpStorage extends AbstractUrlStorage
      * @param null|string $cacheContext
      * @return bool
      */
-    public function create(string $hash, string $filename, ?string $cacheContext = null):bool
+    public function create(string $hash, string $filename, ?string $cacheContext = null): bool
     {
         if ($cacheContext) {
             return false;
@@ -273,7 +273,7 @@ class HttpStorage extends AbstractUrlStorage
     /**
      * @inheritdoc
      */
-    public function __toString():string
+    public function __toString(): string
     {
         return HttpStorage::class . " ($this->baseUrl)";
     }
@@ -283,7 +283,7 @@ class HttpStorage extends AbstractUrlStorage
      * @param string $hash
      * @return bool
      */
-    public function remove(string $hash):bool
+    public function remove(string $hash): bool
     {
         return false;
     }

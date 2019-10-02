@@ -54,7 +54,7 @@ class EntityStorage implements StorageInterface
      * @param string $cacheContext
      * @return bool
      */
-    public function head(string $hash, ?string $cacheContext = null):bool
+    public function head(string $hash, ?string $cacheContext = null): bool
     {
         if (!$cacheContext || $this->contextSupport) {
             return $this->repository->head($hash, $cacheContext);
@@ -77,7 +77,7 @@ class EntityStorage implements StorageInterface
      * @param string|null $cacheContext
      * @return bool
      */
-    public function create(string $hash, string $filename, ?string $cacheContext = null):bool
+    public function create(string $hash, string $filename, ?string $cacheContext = null): bool
     {
         if (!$cacheContext || $this->contextSupport) {
             $entity = $this->createEntity($hash, $cacheContext);
@@ -170,7 +170,7 @@ class EntityStorage implements StorageInterface
      * Use to display the service in the console
      * @return string
      */
-    public function __toString():string
+    public function __toString(): string
     {
         return EntityStorage::class;
     }
@@ -178,7 +178,7 @@ class EntityStorage implements StorageInterface
     /**
      * @return bool
      */
-    public function clearCache():bool
+    public function clearCache(): bool
     {
         return $this->repository->clearCache();
     }
@@ -187,7 +187,7 @@ class EntityStorage implements StorageInterface
      * @param string $hash
      * @return bool
      */
-    public function remove(string $hash):bool
+    public function remove(string $hash): bool
     {
         return $this->repository->removeByHash($hash);
     }
