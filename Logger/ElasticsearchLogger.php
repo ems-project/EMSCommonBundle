@@ -82,18 +82,13 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         }
 
         try {
-            if (
-                $this->client->indices()->existsTemplate([
-                'name' => 'ems_internal_logger_template',
-                ])
-            ) {
-                $this->client->indices()->deleteTemplate([
-                    'name' => 'ems_internal_logger_template',
-                ]);
+            $template = ['name' => 'ems_internal_logger_template'];
+            if ($this->client->indices()->existsTemplate($template)) {
+                $this->client->indices()->deleteTemplate($template);
             }
 
             $this->client->indices()->putTemplate([
-                'name' => 'ems_internal_logger_template',
+                'name' => $template['name'],
                 'body' => [
                     'template' => 'ems_internal_logger_index_*',
                     'aliases' => ['ems_internal_logger_alias' => (object) array()],
