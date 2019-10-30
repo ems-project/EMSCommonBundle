@@ -1,6 +1,5 @@
 <?php
 
-
 namespace EMS\CommonBundle\Logger;
 
 use Monolog\Handler\AbstractProcessingHandler;

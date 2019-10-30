@@ -6,8 +6,6 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Common\Persistence\ObjectManager;
 use EMS\CommonBundle\Entity\AssetStorage;
 use EMS\CommonBundle\Repository\AssetStorageRepository;
-use Exception;
-use Throwable;
 
 class EntityStorage implements StorageInterface
 {
@@ -54,7 +52,7 @@ class EntityStorage implements StorageInterface
      * @param string $cacheContext
      * @return bool
      */
-    public function head(string $hash, ?string $cacheContext = null):bool
+    public function head(string $hash, ?string $cacheContext = null): bool
     {
         if (!$cacheContext || $this->contextSupport) {
             return $this->repository->head($hash, $cacheContext);
@@ -77,7 +75,7 @@ class EntityStorage implements StorageInterface
      * @param string|null $cacheContext
      * @return bool
      */
-    public function create(string $hash, string $filename, ?string $cacheContext = null):bool
+    public function create(string $hash, string $filename, ?string $cacheContext = null): bool
     {
         if (!$cacheContext || $this->contextSupport) {
             $entity = $this->createEntity($hash, $cacheContext);
@@ -146,8 +144,8 @@ class EntityStorage implements StorageInterface
         if (!$context || $this->contextSupport) {
             try {
                 $time = $this->repository->getLastUpdateDate($hash, $context);
-                return $time ? \DateTime::createFromFormat('U', $time) : null;
-            } catch (Exception $e) {
+                return $time ? \DateTime::createFromFormat('U', (string) $time) : null;
+            } catch (\Exception $e) {
             }
         }
         return null;
@@ -160,7 +158,7 @@ class EntityStorage implements StorageInterface
     {
         try {
             return ($this->repository->count([]) >= 0);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
         }
         return false;
     }
@@ -170,7 +168,7 @@ class EntityStorage implements StorageInterface
      * Use to display the service in the console
      * @return string
      */
-    public function __toString():string
+    public function __toString(): string
     {
         return EntityStorage::class;
     }
@@ -178,7 +176,7 @@ class EntityStorage implements StorageInterface
     /**
      * @return bool
      */
-    public function clearCache():bool
+    public function clearCache(): bool
     {
         return $this->repository->clearCache();
     }
@@ -187,7 +185,7 @@ class EntityStorage implements StorageInterface
      * @param string $hash
      * @return bool
      */
-    public function remove(string $hash):bool
+    public function remove(string $hash): bool
     {
         return $this->repository->removeByHash($hash);
     }

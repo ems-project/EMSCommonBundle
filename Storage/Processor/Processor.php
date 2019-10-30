@@ -141,7 +141,7 @@ class Processor
 
         $response = new BinaryFileResponse($file);
         $response->headers->set('Content-Type', $type);
-        $response->headers->set('X-Ems-Cached-Files', 1);
+        $response->headers->set('X-Ems-Cached-Files', '1');
         $response->setPrivate()->setLastModified($lastModified)->setEtag($cacheKey);
 
         return $response;

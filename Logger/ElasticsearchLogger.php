@@ -1,6 +1,5 @@
 <?php
 
-
 namespace EMS\CommonBundle\Logger;
 
 use DateTime;
@@ -17,7 +16,6 @@ use Symfony\Component\Security\Core\Security;
 
 class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarmerInterface, EventSubscriberInterface
 {
-
     /** @var Client */
     private $client;
 
@@ -84,16 +82,13 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         }
 
         try {
-            if ($this->client->indices()->existsTemplate([
-                'name' => 'ems_internal_logger_template',
-            ])) {
-                $this->client->indices()->deleteTemplate([
-                    'name' => 'ems_internal_logger_template',
-                ]);
+            $template = ['name' => 'ems_internal_logger_template'];
+            if ($this->client->indices()->existsTemplate($template)) {
+                $this->client->indices()->deleteTemplate($template);
             }
 
             $this->client->indices()->putTemplate([
-                'name' => 'ems_internal_logger_template',
+                'name' => $template['name'],
                 'body' => [
                     'template' => 'ems_internal_logger_index_*',
                     'aliases' => ['ems_internal_logger_alias' => (object) array()],
@@ -224,10 +219,12 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
 
             foreach ($record[EmsFields::LOG_CONTEXT_FIELD] as $key => &$value) {
                 if (!is_object($value)) {
-                    if (in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
+                    if (
+                        in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
                         EmsFields::LOG_OUUID_FIELD, EmsFields::LOG_REVISION_ID_FIELD, EmsFields::LOG_HOST_FIELD, EmsFields::LOG_URL_FIELD,
                         EmsFields::LOG_STATUS_CODE_FIELD, EmsFields::LOG_SIZE_FIELD, EmsFields::LOG_ROUTE_FIELD, EmsFields::LOG_MICROTIME_FIELD,
-                        EmsFields::LOG_SESSION_ID_FIELD])) {
+                        EmsFields::LOG_SESSION_ID_FIELD])
+                    ) {
                         $body[$key] = $value;
                     } else {
                         $body[EmsFields::LOG_CONTEXT_FIELD][] = [

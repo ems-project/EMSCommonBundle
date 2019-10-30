@@ -13,7 +13,7 @@ abstract class AbstractUrlStorage implements StorageInterface
      * Returns the base url of the storage service
      * @return string
      */
-    abstract protected function getBaseUrl():string;
+    abstract protected function getBaseUrl(): string;
 
     /**
      * returns the a file path or a resource url that can be handled by file function such as fopen
@@ -49,7 +49,7 @@ abstract class AbstractUrlStorage implements StorageInterface
      * @param string $cacheContext
      * @return bool
      */
-    public function head(string $hash, ?string $cacheContext = null):bool
+    public function head(string $hash, ?string $cacheContext = null): bool
     {
         return file_exists($this->getPath($hash, $cacheContext));
     }
@@ -60,7 +60,7 @@ abstract class AbstractUrlStorage implements StorageInterface
      * @param string $cacheContext
      * @return bool
      */
-    public function create(string $hash, string $filename, ?string $cacheContext = null):bool
+    public function create(string $hash, string $filename, ?string $cacheContext = null): bool
     {
         return copy($filename, $this->getPath($hash, $cacheContext));
     }
@@ -98,7 +98,7 @@ abstract class AbstractUrlStorage implements StorageInterface
         $path = $this->getPath($hash, $context);
         if (file_exists($path)) {
             $time = @filemtime($path);
-            return $time ? \DateTime::createFromFormat('U', $time) : null;
+            return $time ? \DateTime::createFromFormat('U', (string) $time) : null;
         }
         return null;
     }
@@ -130,12 +130,12 @@ abstract class AbstractUrlStorage implements StorageInterface
      * Use to display the service in the console
      * @return string
      */
-    abstract public function __toString():string;
+    abstract public function __toString(): string;
 
     /**
      * @return bool
      */
-    public function clearCache():bool
+    public function clearCache(): bool
     {
         $fileSystem = new Filesystem();
         $fileSystem->remove($this->getBaseUrl() . '/cache');
@@ -146,7 +146,7 @@ abstract class AbstractUrlStorage implements StorageInterface
      * @param string $hash
      * @return bool
      */
-    public function remove(string $hash):bool
+    public function remove(string $hash): bool
     {
         $file = $this->getPath($hash);
         if (file_exists($file)) {

@@ -10,20 +10,20 @@ interface StorageInterface
      * @param string $cacheContext
      * @return bool
      */
-    public function head(string $hash, ?string $cacheContext = null):bool;
+    public function head(string $hash, ?string $cacheContext = null): bool;
 
 
     /**
      * @return bool
      */
-    public function health():bool;
+    public function health(): bool;
 
 
     /**
      * Use to display the service in the console
      * @return string
      */
-    public function __toString():string;
+    public function __toString(): string;
 
     /**
      * @param string $hash
@@ -31,7 +31,7 @@ interface StorageInterface
      * @param string|null $cacheContext
      * @return bool
      */
-    public function create(string $hash, string $filename, ?string $cacheContext = null):bool;
+    public function create(string $hash, string $filename, ?string $cacheContext = null): bool;
 
     /**
      * @param string $hash
@@ -52,18 +52,18 @@ interface StorageInterface
     /**
      * @return bool
      */
-    public function supportCacheStore():bool;
+    public function supportCacheStore(): bool;
 
     /**
      * @return bool
      */
-    public function clearCache():bool;
+    public function clearCache(): bool;
 
     /**
      * @param string $hash
      * @return bool
      */
-    public function remove(string $hash):bool;
+    public function remove(string $hash): bool;
 
     /**
      * @deprecated

@@ -51,7 +51,7 @@ class AssetStorage
     private $context;
 
     /**
-     * @var resource
+     * @var string|resource
      *
      * @ORM\Column(name="contents", type="blob")
      */
@@ -109,7 +109,7 @@ class AssetStorage
     }
 
     /**
-     *
+     * @return string|resource
      */
     public function getContents()
     {
@@ -117,7 +117,7 @@ class AssetStorage
     }
 
     /**
-     * @param resource $contents
+     * @param string|resource $contents
      *
      * @return AssetStorage
      */
