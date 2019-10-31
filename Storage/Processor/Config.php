@@ -19,6 +19,8 @@ final class Config
     private $options;
     /** @var string */
     private $configHash;
+    /** @var string */
+    private $cacheKey;
     /** @var ?string */
     private $filename;
     /** @var StorageManager */
@@ -40,16 +42,18 @@ final class Config
         $this->options = $this->resolve($options);
         $this->configHash = $configHash;
         $this->filename = null;
+        $this->cacheKey = $this->assetHash . '_' . $this->configHash;
 
         if ($this->getFileNames() !== null) {
             foreach ($this->getFileNames() as $filename) {
                 if (is_file($filename)) {
                     $this->filename = $filename;
-                    $this->assetHash = $this->storageManager->computeFileHash($filename);
+                    $this->cacheKey .= '_' . $this->storageManager->computeFileHash($filename);
                     break;
                 }
             }
         }
+
 
         unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); //the published date can't invalidate the cache as it'sbased on the config hash now.
     }
@@ -95,7 +99,7 @@ final class Config
 
     public function getCacheKey(): string
     {
-        return $this->assetHash . '_' . $this->configHash;
+        return $this->cacheKey;
     }
 
     public function getConfigType(): ?string
