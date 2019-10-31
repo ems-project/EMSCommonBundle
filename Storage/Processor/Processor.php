@@ -33,6 +33,14 @@ class Processor
         $config = new Config($this->storageManager, $configHash, $hash, $configHash, $configJson);
         $cacheKey = $config->getCacheKey();
 
+        if ($config->getFileNames() !== null) {
+            foreach ($config->getFileNames() as $fileName) {
+                if (\file_exists($fileName) && ($filemtime = \filemtime($fileName)) !== false) {
+                    $cacheKey .= sprintf('_%d', $filemtime);
+                }
+            }
+        }
+
         $cacheResponse = new Response();
         $cacheResponse->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
         if ($cacheResponse->isNotModified($request)) {
