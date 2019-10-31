@@ -41,7 +41,7 @@ final class Config
         $this->configHash = $configHash;
         $this->filename = null;
 
-        if (!empty($this->getFileNames())) {
+        if ($this->getFileNames() !== null) {
             foreach ($this->getFileNames() as $filename) {
                 if (is_file($filename)) {
                     $this->filename = $filename;
