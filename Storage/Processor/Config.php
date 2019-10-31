@@ -41,21 +41,27 @@ final class Config
         $this->assetHash = $assetHash;
         $this->options = $this->resolve($options);
         $this->configHash = $configHash;
-        $this->filename = null;
-        $this->cacheKey = $this->assetHash . '_' . $this->configHash;
-
-        if ($this->getFileNames() !== null) {
-            foreach ($this->getFileNames() as $filename) {
-                if (is_file($filename)) {
-                    $this->filename = $filename;
-                    $this->cacheKey .= '_' . $this->storageManager->computeFileHash($filename);
-                    break;
-                }
-            }
-        }
-
+        $this->setCacheKeyAndFilename();
 
         unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); //the published date can't invalidate the cache as it'sbased on the config hash now.
+    }
+
+    private function setCacheKeyAndFilename()
+    {
+        $this->cacheKey = $this->assetHash . '_' . $this->configHash;
+        $this->filename = null;
+
+        if ($this->getFileNames() === null) {
+            return;
+        }
+
+        foreach ($this->getFileNames() as $filename) {
+            if (is_file($filename)) {
+                $this->filename = $filename;
+                $this->cacheKey .= '_' . $this->storageManager->computeFileHash($filename);
+                break;
+            }
+        }
     }
 
     public function getProcessor(): string
