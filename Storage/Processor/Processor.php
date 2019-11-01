@@ -33,10 +33,12 @@ class Processor
         $config = new Config($this->storageManager, $configHash, $hash, $configHash, $configJson);
         $cacheKey = $config->getCacheKey();
 
-        $cacheResponse = new Response();
-        $cacheResponse->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
-        if ($cacheResponse->isNotModified($request)) {
-            return $cacheResponse;
+        if (!$request->headers->getCacheControlDirective('no-cache')) {
+            $cacheResponse = new Response();
+            $cacheResponse->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
+            if ($cacheResponse->isNotModified($request)) {
+                return $cacheResponse;
+            }
         }
 
         $handler = $this->getResource($config, $filename);
