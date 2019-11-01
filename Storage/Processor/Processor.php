@@ -68,7 +68,7 @@ class Processor
             'Content-Disposition' => $config->getDisposition() . '; ' . HeaderUtils::toString(array('filename' => $filename), ';'),
             'Content-Type' => $config->getMimeType(),
         ]);
-        $response->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
+        $response->setPublic()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
         return $response;
     }
 
@@ -107,7 +107,7 @@ class Processor
         $lastModified = $this->storageManager->getLastCacheDate($cacheKey, $context);
 
         $cacheResponse = new Response();
-        $cacheResponse->setPrivate()->setLastModified($lastModified)->setEtag($cacheKey);
+        $cacheResponse->setPublic()->setLastModified($lastModified)->setEtag($cacheKey);
         if ($cacheResponse->isNotModified($request)) {
             return $cacheResponse;
         }
@@ -144,7 +144,7 @@ class Processor
         $response = new BinaryFileResponse($file);
         $response->headers->set('Content-Type', $type);
         $response->headers->set('X-Ems-Cached-Files', '1');
-        $response->setPrivate()->setLastModified($lastModified)->setEtag($cacheKey);
+        $response->setPublic()->setLastModified($lastModified)->setEtag($cacheKey);
 
         return $response;
     }
