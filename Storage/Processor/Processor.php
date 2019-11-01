@@ -35,7 +35,7 @@ class Processor
 
         if (!$request->headers->getCacheControlDirective('no-cache')) {
             $cacheResponse = new Response();
-            $cacheResponse->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
+            $cacheResponse->setPublic()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
             if ($cacheResponse->isNotModified($request)) {
                 return $cacheResponse;
             }
@@ -85,7 +85,7 @@ class Processor
         $lastModified = $config->isValid($lastCacheDate) ? $lastCacheDate : new \DateTime();
 
         $cacheResponse = new Response();
-        $cacheResponse->setPrivate()->setLastModified($lastModified)->setEtag($cacheKey);
+        $cacheResponse->setPublic()->setLastModified($lastModified)->setEtag($cacheKey);
         if ($cacheResponse->isNotModified($request)) {
             return $cacheResponse;
         }
