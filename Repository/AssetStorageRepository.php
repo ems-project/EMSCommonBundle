@@ -54,14 +54,24 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
         }
     }
 
-    public function removeByHash(string $hash): bool
+    public function removeByHash(string $hash, ?string $context = null): bool
     {
         try {
             $qb = $this->createQueryBuilder('asset')->delete();
             $qb->where($qb->expr()->eq('asset.hash', ':hash'));
-            $qb->setParameters([
-                ':hash' => $hash,
-            ]);
+
+            if ($context !== null) {
+                $qb->andWhere($qb->expr()->eq('asset.context', ':context'));
+                $qb->setParameters([
+                    ':hash' => $hash,
+                    ':context' => $context,
+                ]);
+            } else {
+                $qb->setParameters([
+                    ':hash' => $hash,
+                ]);
+            }
+
             return $qb->getQuery()->execute() !== false;
         } catch (Throwable $e) {
             return false;

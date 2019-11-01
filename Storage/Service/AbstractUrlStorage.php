@@ -146,9 +146,9 @@ abstract class AbstractUrlStorage implements StorageInterface
      * @param string $hash
      * @return bool
      */
-    public function remove(string $hash): bool
+    public function remove(string $hash, ?string $context = null): bool
     {
-        $file = $this->getPath($hash);
+        $file = $this->getPath($hash, $context);
         if (file_exists($file)) {
             unlink($file);
         }

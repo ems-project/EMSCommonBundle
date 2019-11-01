@@ -284,7 +284,7 @@ class HttpStorage extends AbstractUrlStorage
      * @param string $hash
      * @return bool
      */
-    public function remove(string $hash): bool
+    public function remove(string $hash, ?string $context = null): bool
     {
         return false;
     }
