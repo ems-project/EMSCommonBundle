@@ -2,6 +2,7 @@
 
 namespace EMS\CommonBundle\Repository;
 
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\QueryBuilder;
 use EMS\CommonBundle\Entity\AssetStorage;
@@ -59,17 +60,11 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
         try {
             $qb = $this->createQueryBuilder('asset')->delete();
             $qb->where($qb->expr()->eq('asset.hash', ':hash'));
+            $qb->setParameter(':hash', $hash, Type::STRING);
 
             if ($context !== null) {
                 $qb->andWhere($qb->expr()->eq('asset.context', ':context'));
-                $qb->setParameters([
-                    ':hash' => $hash,
-                    ':context' => $context,
-                ]);
-            } else {
-                $qb->setParameters([
-                    ':hash' => $hash,
-                ]);
+                $qb->setParameter(':context', $context, Type::STRING);
             }
 
             return $qb->getQuery()->execute() !== false;
