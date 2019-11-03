@@ -52,6 +52,7 @@ final class Config
         unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); //the published date can't invalidate the cache as it'sbased on the config hash now.
     }
 
+
     private function setCacheKeyAndFilename()
     {
         $this->cacheKey = $this->assetHash . '_' . $this->configHash;
@@ -73,9 +74,14 @@ final class Config
             throw new NotFoundHttpException('File not found');
         }
 
-        if (\in_array($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], ['application/octet-stream', 'application/bin', ''])) {
+        if ($this->hasDefaultMimeType()) {
             $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] = mimetype_from_filename($this->filename) ?? $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
         }
+    }
+
+    public function hasDefaultMimeType()
+    {
+        return \in_array($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] ?? '', ['application/octet-stream', 'application/bin', '']);
     }
 
     public function getProcessor(): string
