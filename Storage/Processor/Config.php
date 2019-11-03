@@ -70,7 +70,7 @@ final class Config
         }
 
         if ($this->filename === null) {
-            throw new NotFoundHttpException(sprintf('File not found'));
+            throw new NotFoundHttpException('File not found');
         }
 
         if (\in_array($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], ['application/octet-stream', 'application/bin', ''])) {
