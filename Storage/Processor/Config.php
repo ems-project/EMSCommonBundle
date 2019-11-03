@@ -5,6 +5,7 @@ namespace EMS\CommonBundle\Storage\Processor;
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\StorageManager;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -68,7 +69,11 @@ final class Config
             }
         }
 
-        if ($this->filename !== null && \in_array($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], ['application/octet-stream', 'application/bin', ''])) {
+        if ($this->filename === null) {
+            throw new NotFoundHttpException(sprintf('File not found'));
+        }
+
+        if (\in_array($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], ['application/octet-stream', 'application/bin', ''])) {
             $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] = mimetype_from_filename($this->filename) ?? $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
         }
     }
