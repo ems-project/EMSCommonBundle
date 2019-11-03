@@ -25,6 +25,8 @@ final class Config
     private $filename;
     /** @var StorageManager */
     private $storageManager;
+    /** @var bool */
+    private $cacheableResult;
 
     /**
      * Config constructor.
@@ -42,6 +44,7 @@ final class Config
         $this->options = $this->resolve($options);
         $this->configHash = $configHash;
         $this->setCacheKeyAndFilename();
+        $this->setCacheableResult();
 
         unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); //the published date can't invalidate the cache as it'sbased on the config hash now.
     }
@@ -178,16 +181,14 @@ final class Config
         return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
     }
 
-    public function cacheableResult()
+    public function isCacheableResult()
     {
-        //returns the asset itself (it already in the cache
-        if (!$this->getStorageContext()) {
-            return false;
-        }
-        if ($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg()) {
-            return true;
-        }
-        return false;
+        return $this->cacheableResult;
+    }
+
+    private function setCacheableResult()
+    {
+        $this->cacheableResult = $this->getStorageContext() !== null && $this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg();
     }
 
     public function getStorageContext(): ?string

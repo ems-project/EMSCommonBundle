@@ -173,7 +173,7 @@ class Processor
     private function generateResource(Config $config)
     {
         $file = null;
-        if (!$config->cacheableResult()) {
+        if (!$config->isCacheableResult()) {
             $file = $this->storageManager->getPublicImage('big-logo.png');
         } elseif ($config->getFilename()) {
             $file = $config->getFilename();
@@ -207,30 +207,38 @@ class Processor
         return $generatedImage;
     }
 
+    private function getResourceFromAsset(Config $config)
+    {
+        if ($config->getFilename()) {
+            return fopen($config->getFilename(), 'r');
+        }
+
+        return $this->storageManager->getResource($config->getAssetHash(), $config->getStorageContext());
+    }
 
     public function getResource(Config $config, string $filename, bool $noCache = false)
     {
-        //It's a resource, there is nothing to generate
         if (!$config->getStorageContext()) {
-            if ($config->getFilename()) {
-                return fopen($config->getFilename(), 'r');
-            }
-
-            return $this->storageManager->getResource($config->getAssetHash(), $config->getStorageContext());
+            return $this->getResourceFromAsset($config);
         }
 
-        $cacheableResult = $config->cacheableResult();
-        if ($cacheableResult && !$noCache) {
+        if ($config->isCacheableResult() && !$noCache) {
             try {
                 return $this->storageManager->getResource($config->getAssetHash(), $config->getConfigHash());
             } catch (NotFoundException $e) {
-                //we have tried to get a cached version matching this request
+            } catch (\Exception $e) {
+                $this->logger->warning('log.unexpected_exception', ['error_message' => $e->getMessage()]);
             }
         }
 
         $generatedResource = $this->generateResource($config);
-        if ($cacheableResult) {
-            $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), $filename, $config->getMimeType());
+
+        if ($config->isCacheableResult()) {
+            try {
+                $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), $filename, $config->getMimeType());
+            } catch (\Exception $e) {
+                $this->logger->warning('log.unexpected_exception', ['error_message' => $e->getMessage()]);
+            }
         }
         return $generatedResource;
     }
