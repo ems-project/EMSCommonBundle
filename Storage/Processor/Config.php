@@ -9,6 +9,8 @@ use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+use function GuzzleHttp\Psr7\mimetype_from_filename;
+
 final class Config
 {
     /** @var string */
@@ -64,6 +66,10 @@ final class Config
                 $this->cacheKey .= '_' . $this->storageManager->computeFileHash($filename);
                 break;
             }
+        }
+
+        if ($this->filename !== null && \in_array($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], ['application/octet-stream', 'application/bin', ''])) {
+            $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] = mimetype_from_filename($this->filename) ?? $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
         }
     }
 
