@@ -5,9 +5,12 @@ namespace EMS\CommonBundle\Storage\Processor;
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\StorageManager;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
+use function GuzzleHttp\Psr7\mimetype_from_filename;
 
 final class Config
 {
@@ -19,10 +22,14 @@ final class Config
     private $options;
     /** @var string */
     private $configHash;
+    /** @var string */
+    private $cacheKey;
     /** @var ?string */
     private $filename;
     /** @var StorageManager */
     private $storageManager;
+    /** @var bool */
+    private $cacheableResult;
 
     /**
      * Config constructor.
@@ -39,19 +46,42 @@ final class Config
         $this->assetHash = $assetHash;
         $this->options = $this->resolve($options);
         $this->configHash = $configHash;
+        $this->setCacheKeyAndFilename();
+        $this->setCacheableResult();
+
+        unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); //the published date can't invalidate the cache as it'sbased on the config hash now.
+    }
+
+
+    private function setCacheKeyAndFilename()
+    {
+        $this->cacheKey = $this->assetHash . '_' . $this->configHash;
         $this->filename = null;
 
-        if (!empty($this->getFileNames())) {
-            foreach ($this->getFileNames() as $filename) {
-                if (is_file($filename)) {
-                    $this->filename = $filename;
-                    $this->assetHash = $this->storageManager->computeFileHash($filename);
-                    break;
-                }
+        if ($this->getFileNames() === null) {
+            return;
+        }
+
+        foreach ($this->getFileNames() as $filename) {
+            if (is_file($filename)) {
+                $this->filename = $filename;
+                $this->cacheKey .= '_' . $this->storageManager->computeFileHash($filename);
+                break;
             }
         }
 
-        unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); //the published date can't invalidate the cache as it'sbased on the config hash now.
+        if ($this->filename === null) {
+            throw new NotFoundHttpException('File not found');
+        }
+
+        if ($this->hasDefaultMimeType()) {
+            $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] = mimetype_from_filename($this->filename) ?? $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
+        }
+    }
+
+    public function hasDefaultMimeType()
+    {
+        return \in_array($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] ?? '', ['application/octet-stream', 'application/bin', '']);
     }
 
     public function getProcessor(): string
@@ -95,7 +125,7 @@ final class Config
 
     public function getCacheKey(): string
     {
-        return $this->assetHash . '_' . $this->configHash;
+        return $this->cacheKey;
     }
 
     public function getConfigType(): ?string
@@ -168,16 +198,14 @@ final class Config
         return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
     }
 
-    public function cacheableResult()
+    public function isCacheableResult()
     {
-        //returns the asset itself (it already in the cache
-        if (!$this->getStorageContext()) {
-            return false;
-        }
-        if ($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg()) {
-            return true;
-        }
-        return false;
+        return $this->cacheableResult;
+    }
+
+    private function setCacheableResult()
+    {
+        $this->cacheableResult = $this->getStorageContext() !== null && $this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg();
     }
 
     public function getStorageContext(): ?string

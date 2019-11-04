@@ -254,8 +254,7 @@ class StorageManager
 
 
             if ($service->head($hash, $context)) {
-                ++$out;
-                continue;
+                $service->remove($hash, $context);
             }
 
             if (!$service->initUpload($hash, $size, $filename, $mimeType, $context)) {

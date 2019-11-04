@@ -34,12 +34,12 @@ class Processor
         $cacheKey = $config->getCacheKey();
 
         $cacheResponse = new Response();
-        $cacheResponse->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
+        $cacheResponse->setPublic()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
         if ($cacheResponse->isNotModified($request)) {
             return $cacheResponse;
         }
 
-        $handler = $this->getResource($config, $filename);
+        $handler = $this->getResource($config, $filename, $request->headers->getCacheControlDirective('no-cache') === true);
 
         if ($handler instanceof StreamInterface) {
             $callback = function () use ($handler) {
@@ -66,7 +66,7 @@ class Processor
             'Content-Disposition' => $config->getDisposition() . '; ' . HeaderUtils::toString(array('filename' => $filename), ';'),
             'Content-Type' => $config->getMimeType(),
         ]);
-        $response->setPrivate()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
+        $response->setPublic()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
         return $response;
     }
 
@@ -83,7 +83,7 @@ class Processor
         $lastModified = $config->isValid($lastCacheDate) ? $lastCacheDate : new \DateTime();
 
         $cacheResponse = new Response();
-        $cacheResponse->setPrivate()->setLastModified($lastModified)->setEtag($cacheKey);
+        $cacheResponse->setPublic()->setLastModified($lastModified)->setEtag($cacheKey);
         if ($cacheResponse->isNotModified($request)) {
             return $cacheResponse;
         }
@@ -105,7 +105,7 @@ class Processor
         $lastModified = $this->storageManager->getLastCacheDate($cacheKey, $context);
 
         $cacheResponse = new Response();
-        $cacheResponse->setPrivate()->setLastModified($lastModified)->setEtag($cacheKey);
+        $cacheResponse->setPublic()->setLastModified($lastModified)->setEtag($cacheKey);
         if ($cacheResponse->isNotModified($request)) {
             return $cacheResponse;
         }
@@ -142,7 +142,7 @@ class Processor
         $response = new BinaryFileResponse($file);
         $response->headers->set('Content-Type', $type);
         $response->headers->set('X-Ems-Cached-Files', '1');
-        $response->setPrivate()->setLastModified($lastModified)->setEtag($cacheKey);
+        $response->setPublic()->setLastModified($lastModified)->setEtag($cacheKey);
 
         return $response;
     }
@@ -173,7 +173,7 @@ class Processor
     private function generateResource(Config $config)
     {
         $file = null;
-        if (!$config->cacheableResult()) {
+        if (!$config->isCacheableResult()) {
             $file = $this->storageManager->getPublicImage('big-logo.png');
         } elseif ($config->getFilename()) {
             $file = $config->getFilename();
@@ -207,26 +207,56 @@ class Processor
         return $generatedImage;
     }
 
-
-    public function getResource(Config $config, string $filename)
+    private function getResourceFromAsset(Config $config)
     {
-        $cacheableResult = $config->cacheableResult();
-        if (!$config->getStorageContext()) {
-            if ($config->getFilename()) {
-                return fopen($config->getFilename(), 'r');
-            }
+        if ($config->getFilename()) {
+            return fopen($config->getFilename(), 'r');
+        }
 
-            return $this->storageManager->getResource($config->getAssetHash(), $config->getStorageContext());
+        return $this->storageManager->getResource($config->getAssetHash());
+    }
+
+    private function getGeneratedResourceFromCache(Config $config)
+    {
+        if (!$config->isCacheableResult()) {
+            return null;
         }
 
         try {
             return $this->storageManager->getResource($config->getAssetHash(), $config->getConfigHash());
         } catch (NotFoundException $e) {
-            $generatedResource = $this->generateResource($config);
-            if ($cacheableResult) {
-                $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), $filename, $config->getMimeType());
-            }
-            return $generatedResource;
+        } catch (\Exception $e) {
+            $this->logger->warning('log.unexpected_exception', ['error_message' => $e->getMessage()]);
         }
+
+        return null;
+    }
+
+    private function saveGeneratedResourceToCache($generatedResource, Config $config, string $filename)
+    {
+        if (!$config->isCacheableResult()) {
+            return;
+        }
+
+        try {
+            $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), $filename, $config->getMimeType());
+        } catch (\Exception $e) {
+            $this->logger->warning('log.unexpected_exception', ['error_message' => $e->getMessage()]);
+        }
+    }
+
+    public function getResource(Config $config, string $filename, bool $noCache = false)
+    {
+        if ($config->getStorageContext() === null) {
+            return $this->getResourceFromAsset($config);
+        }
+
+        if (!$noCache && ($cachedResource = $this->getGeneratedResourceFromCache($config)) !== null) {
+            return $cachedResource;
+        }
+
+        $generatedResource = $this->generateResource($config);
+        $this->saveGeneratedResourceToCache($generatedResource, $config, $filename);
+        return $generatedResource;
     }
 }
