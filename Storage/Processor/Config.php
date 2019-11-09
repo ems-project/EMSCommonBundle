@@ -261,8 +261,8 @@ final class Config
         return [
             EmsFields::ASSET_CONFIG_TYPE => null,
             EmsFields::ASSET_CONFIG_FILE_NAMES => null,
-            EmsFields::ASSET_CONFIG_QUALITY => 70,
-            EmsFields::ASSET_CONFIG_BACKGROUND => '#FFFFFF',
+            EmsFields::ASSET_CONFIG_QUALITY => 0,
+            EmsFields::ASSET_CONFIG_BACKGROUND => '#FFFFFFFF',
             EmsFields::ASSET_CONFIG_RESIZE => 'fill',
             EmsFields::ASSET_CONFIG_WIDTH => 300,
             EmsFields::ASSET_CONFIG_HEIGHT => 200,
