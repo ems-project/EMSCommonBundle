@@ -38,7 +38,7 @@ class Image
             $image = $this->applyBackground($image, $width, $height);
         }
 
-        if (null !== $this->config->getRadius()) {
+        if (($this->config->getRadius() ?? 0) > 0) {
             $image = $this->applyCorner($image, $width, $height);
         }
 
@@ -47,7 +47,7 @@ class Image
         }
 
         $path = tempnam(sys_get_temp_dir(), 'ems_image');
-        if ($this->config->getQuality()) {
+        if (($this->config->getQuality() ?? 0)  > 0) {
             imagejpeg($image, $path, $this->config->getQuality());
         } else {
             imagepng($image, $path);
@@ -97,6 +97,21 @@ class Image
         return [$width, $height];
     }
 
+    private function fillBackgroundColor($temp)
+    {
+        $background = $this->config->getBackground();
+        imagesavealpha($temp, true);
+
+        $solid_colour = imagecolorallocatealpha(
+            $temp,
+            \hexdec(\substr($background, 1, 2)),
+            \hexdec(\substr($background, 3, 2)),
+            \hexdec(\substr($background, 5, 2)),
+            \intval(\hexdec(\substr($background, 7, 2) ?? '00') / 2)
+        );
+        imagefill($temp, 0, 0, $solid_colour);
+    }
+
     private function applyResizeAndBackground($image, $width, $height, $size)
     {
         if (function_exists("imagecreatetruecolor") && ($temp = imagecreatetruecolor($width, $height))) {
@@ -106,14 +121,7 @@ class Image
             $resizeFunction = 'imagecopyresized';
         }
 
-        $background = $this->config->getBackground();
-        $solid_colour = imagecolorallocate(
-            $temp,
-            hexdec(substr($background, 1, 2)),
-            hexdec(substr($background, 3, 2)),
-            hexdec(substr($background, 5, 2))
-        );
-        imagefill($temp, 0, 0, $solid_colour);
+        $this->fillBackgroundColor($temp);
 
         $resize = $this->config->getResize();
         $gravity = $this->config->getGravity();
@@ -162,15 +170,7 @@ class Image
             $resizeFunction = 'imagecopyresized';
         }
 
-        $background = $this->config->getBackground();
-        $solid_colour = imagecolorallocate(
-            $temp,
-            hexdec(substr($background, 1, 2)),
-            hexdec(substr($background, 3, 2)),
-            hexdec(substr($background, 5, 2))
-        );
-        imagefill($temp, 0, 0, $solid_colour);
-
+        $this->fillBackgroundColor($temp);
 
         call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $width, $height);
 
