@@ -38,7 +38,7 @@ class Image
             $image = $this->applyBackground($image, $width, $height);
         }
 
-        if (($this->config->getRadius() ?? 0) > 0) {
+        if ($this->config->getRadius() > 0) {
             $image = $this->applyCorner($image, $width, $height);
         }
 
@@ -102,14 +102,14 @@ class Image
         $background = $this->config->getBackground();
         imagesavealpha($temp, true);
 
-        $solid_colour = imagecolorallocatealpha(
+        $solidColour = imagecolorallocatealpha(
             $temp,
             \hexdec(\substr($background, 1, 2)),
             \hexdec(\substr($background, 3, 2)),
             \hexdec(\substr($background, 5, 2)),
             \intval(\hexdec(\substr($background, 7, 2) ?? '00') / 2)
         );
-        imagefill($temp, 0, 0, $solid_colour);
+        imagefill($temp, 0, 0, $solidColour);
     }
 
     private function applyResizeAndBackground($image, $width, $height, $size)
@@ -179,7 +179,7 @@ class Image
 
     private function applyCorner($image, $width, $height)
     {
-        $radius = (int) $this->config->getRadius();
+        $radius = $this->config->getRadius();
         $color = $this->config->getBorderColor() ?? $this->config->getBackground();
 
         $cornerImage = imagecreatetruecolor($radius, $radius);

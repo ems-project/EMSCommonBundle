@@ -168,9 +168,9 @@ final class Config
         return $this->options[EmsFields::ASSET_CONFIG_GRAVITY];
     }
 
-    public function getRadius(): ?string
+    public function getRadius(): int
     {
-        return $this->options[EmsFields::ASSET_CONFIG_RADIUS];
+        return \intval($this->options[EmsFields::ASSET_CONFIG_RADIUS]);
     }
 
     public function getRadiusGeometry(): array
