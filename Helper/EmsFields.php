@@ -64,6 +64,8 @@ final class EmsFields
     const LOG_LEVEL_NAME_FIELD = 'level_name';
     const LOG_CHANNEL_FIELD = 'channel';
     const LOG_DATETIME_FIELD = 'datetime';
+    const LOG_FIELD_IN_ERROR_FIELD = 'field';
+    const LOG_PATH_IN_ERROR_FIELD = 'path';
 
     const LOG_OPERATION_CREATE = 'CREATE';
     const LOG_OPERATION_UPDATE = 'UPDATE';
