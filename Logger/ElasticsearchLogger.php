@@ -193,7 +193,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         return false;
     }
 
-    protected function write(array $record)
+    protected function write(array $record): void
     {
         if ($this->byPass) {
             return;
