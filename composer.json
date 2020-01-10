@@ -25,6 +25,7 @@
 		"doctrine/doctrine-bundle": "^1.11",
 		"elasticsearch/elasticsearch" : "~5.3.0",
 		"guzzlehttp/guzzle" : "^6.3",
+		"monolog/monolog": "^1.19",
 		"symfony/routing": "^4.3",
 		"symfony/http-foundation": "^4.3",
 		"symfony/monolog-bundle": "^3.4",
