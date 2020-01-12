@@ -290,7 +290,8 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
             return;
         }
 
-        switch ($event->getRequest()->getMethod()) {
+        $request = $event->getRequest();
+        switch ($request->getMethod()) {
             case 'POST':
             case 'PUT':
                 $operation = EmsFields::LOG_OPERATION_CREATE;
@@ -307,7 +308,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
             default:
                 $operation = null;
         }
-        $route = $event->getRequest()->attributes->get('_route', null);
+        $route = $request->attributes->get('_route', null);
         if ($operation && $route && !in_array($route, ['_wdt'])) {
             $statusCode = $event->getResponse()->getStatusCode();
             if ($statusCode < 300) {
@@ -332,16 +333,16 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 'message' => 'app.request',
                 'context' => [
                     EmsFields::LOG_OPERATION_FIELD => $operation,
-                    EmsFields::LOG_HOST_FIELD => $event->getRequest()->getHost(),
-                    EmsFields::LOG_URL_FIELD => $event->getRequest()->getRequestUri(),
+                    EmsFields::LOG_HOST_FIELD => $request->getHost(),
+                    EmsFields::LOG_URL_FIELD => $request->getRequestUri(),
                     EmsFields::LOG_ROUTE_FIELD => $route,
                     EmsFields::LOG_STATUS_CODE_FIELD => $statusCode,
                     EmsFields::LOG_SIZE_FIELD => strlen($event->getResponse()->getContent()),
                     EmsFields::LOG_MICROTIME_FIELD => (microtime(true) - $this->startMicrotime),
                 ],
             ];
-            if ($event->getRequest()->hasSession()) {
-                $record['context'][EmsFields::LOG_SESSION_ID_FIELD] = $event->getRequest()->getSession()->getId();
+            if ($request->hasSession()) {
+                $record['context'][EmsFields::LOG_SESSION_ID_FIELD] = $request->getSession()->getId();
             }
             $this->write($record);
         }
