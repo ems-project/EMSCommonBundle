@@ -340,9 +340,8 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                     EmsFields::LOG_MICROTIME_FIELD => (microtime(true) - $this->startMicrotime),
                 ],
             ];
-            $session = $event->getRequest()->getSession();
-            if ($session !== null && $session->getId() !== null) {
-                $record['context'][EmsFields::LOG_SESSION_ID_FIELD] = $session->getId();
+            if ($event->getRequest()->hasSession()) {
+                $record['context'][EmsFields::LOG_SESSION_ID_FIELD] = $event->getRequest()->getSession()->getId();
             }
             $this->write($record);
         }
