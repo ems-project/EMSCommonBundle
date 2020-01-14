@@ -111,9 +111,12 @@ class FileController extends AbstractController
      */
     private function closeSession(Request $request)
     {
-        $session = $request->getSession();
+        if (!$request->hasSession()) {
+            return;
+        }
 
-        if ($session && $session->isStarted()) {
+        $session = $request->getSession();
+        if ($session->isStarted()) {
             $session->save();
         }
     }
