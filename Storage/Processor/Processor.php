@@ -239,7 +239,7 @@ class Processor
         }
 
         try {
-            $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), $filename, $config->getMimeType());
+            $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), $filename, $config->getMimeType(), 1);
         } catch (\Exception $e) {
             $this->logger->warning('log.unexpected_exception', ['error_message' => $e->getMessage()]);
         }
