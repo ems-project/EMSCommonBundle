@@ -67,4 +67,34 @@ class EncoderTest extends TestCase
     {
         self::assertSame($expected, $this->encoder->htmlEncodePii($text));
     }
+
+    /**
+     * format: [text, text;]
+     */
+    public function urlProvider(): array
+    {
+
+        return [
+            ['example', 'example'],
+            ['See //host:80/demo/test.html', 'See <a href="//host:80/demo/test.html">test.html</a>'],
+            ['//host/base/test', '<a href="//host/base/test">test</a>'],
+            ['//host/base/more/complex/test', '<a href="//host/base/more/complex/test">test</a>'],
+            ['//host/test', '<a href="//host/test">test</a>'],
+            ['Before //host/base/test after', 'Before <a href="//host/base/test">test</a> after'],
+            ['See http://host:80/demo/test.html', 'See <a href="http://host:80/demo/test.html">test.html</a>'],
+            ['https://host/base/test', '<a href="https://host/base/test">test</a>'],
+            ['ftp://host/base/more/complex/test', '<a href="ftp://host/base/more/complex/test">test</a>'],
+            ['errr://host/test', '<a href="errr://host/test">test</a>'],
+            ['errr//host/test', 'errr<a href="//host/test">test</a>'],
+        ];
+    }
+
+
+    /**
+     * @dataProvider urlProvider
+     */
+    public function testHtmlEncodeUrl(string $text, string $expected)
+    {
+        self::assertSame($expected, $this->encoder->encodeUrl($text));
+    }
 }
