@@ -95,7 +95,6 @@ class EncoderTest extends TestCase
      */
     public function testHtmlEncodeUrl(string $text, string $expected)
     {
-        echo($this->encoder->encodeUrl($text));
         self::assertSame($expected, $this->encoder->encodeUrl($text));
     }
 }
