@@ -30,6 +30,20 @@ class Encoder
 
     /**
      *
+     * Detect url information using the '"http//host:proto/url/target"' pattern
+     * <a href="http//host:proto/url/target">target</a>
+     */
+    public function encodeUrl(string $text): string
+    {
+        $urlRegex = '/(?P<proto>([\w\d-\.]+:)?)\/\/(?P<host>[\w\d-\.]+(:[0-9]+)?)\/(?P<baseurl>([\w\d-\._]+\/)*)(?P<target>[\w\d-\._]+)/';
+
+        return preg_replace_callback($urlRegex, function ($matches) {
+            return sprintf('<a href="%s//%s/%s%s">%s</a>', $matches['proto'], $matches['host'], $matches['baseurl'], $matches['target'], $matches['target']);
+        }, $text);
+    }
+
+    /**
+     *
      * Detect email information using the 'x@x.x' pattern
      * <a href="mailto:david.meert@smals.be">david.meert@smals.be</a>
      */
