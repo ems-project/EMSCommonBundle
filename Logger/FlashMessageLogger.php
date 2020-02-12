@@ -27,7 +27,7 @@ class FlashMessageLogger extends AbstractProcessingHandler
     }
 
 
-    protected function write(array $record)
+    protected function write(array $record): void
     {
         if ($record['level'] >= Logger::NOTICE) {
             $parameters = [];
