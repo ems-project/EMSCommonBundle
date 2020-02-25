@@ -18,6 +18,24 @@ class Document
         $this->source = $source;
     }
 
+    public function get_type(): string
+    {
+        @trigger_error(sprintf('The "%s::get_type" function is deprecated. Used "%s::getContentType" instead.', Document::class, Document::class), E_USER_DEPRECATED);
+        return $this->getContentType();
+    }
+
+    public function getType(): string
+    {
+        @trigger_error(sprintf('The "%s::getType" function is deprecated. Used "%s::getContentType" instead.', Document::class, Document::class), E_USER_DEPRECATED);
+        return $this->getContentType();
+    }
+
+    public function get_id(): string
+    {
+        @trigger_error(sprintf('The "%s::get_id" function is deprecated. Used "%s::getOuuid" instead.', Document::class, Document::class), E_USER_DEPRECATED);
+        return $this->getOuuid();
+    }
+
     public function getContentType(): string
     {
         return $this->contentType;
