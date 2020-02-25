@@ -47,7 +47,7 @@ class Image
         }
 
         $path = tempnam(sys_get_temp_dir(), 'ems_image');
-        if (($this->config->getQuality() ?? 0)  > 0) {
+        if ($this->config->getQuality()  > 0) {
             imagejpeg($image, $path, $this->config->getQuality());
         } else {
             imagepng($image, $path);
