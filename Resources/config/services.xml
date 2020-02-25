@@ -19,10 +19,12 @@
         </service>
 
         <service id="ems_common.text.encoder" class="EMS\CommonBundle\Helper\Text\Encoder"/>
+        <service id="ems_common.text.decoder" class="EMS\CommonBundle\Helper\Text\Decoder"/>
 
         <!-- twig -->
         <service id="ems_common.twig.runtime.text" class="EMS\CommonBundle\Twig\TextRuntime">
             <argument type="service" id="ems_common.text.encoder" />
+            <argument type="service" id="ems_common.text.decoder" />
             <tag name="twig.runtime" />
         </service>
 
