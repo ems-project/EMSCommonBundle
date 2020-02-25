@@ -133,9 +133,9 @@ final class Config
         return $this->options[EmsFields::ASSET_CONFIG_TYPE];
     }
 
-    public function getQuality(): ?int
+    public function getQuality(): int
     {
-        return $this->options[EmsFields::ASSET_CONFIG_QUALITY];
+        return $this->options[EmsFields::ASSET_CONFIG_QUALITY] ?? 0;
     }
 
     public function getFileNames(): ?array
