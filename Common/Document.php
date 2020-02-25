@@ -18,7 +18,7 @@ class Document
         $this->source = $source;
     }
 
-    public function get_type(): string
+    public function _type(): string
     {
         @trigger_error(sprintf('The "%s::get_type" function is deprecated. Used "%s::getContentType" instead.', Document::class, Document::class), E_USER_DEPRECATED);
         return $this->getContentType();
@@ -30,7 +30,7 @@ class Document
         return $this->getContentType();
     }
 
-    public function get_id(): string
+    public function _id(): string
     {
         @trigger_error(sprintf('The "%s::get_id" function is deprecated. Used "%s::getOuuid" instead.', Document::class, Document::class), E_USER_DEPRECATED);
         return $this->getOuuid();
