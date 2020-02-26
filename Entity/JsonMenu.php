@@ -40,10 +40,10 @@ class JsonMenu
 
     public function getBySlug(string $slug): array
     {
-        return $this->bySlugs[$slug] ?? null;
+        return $this->bySlugs[$slug] ?? [];
     }
 
-    public function getSlug(string $id): string
+    public function getSlug(string $id): ?string
     {
         return $this->slugs[$id] ?? null;
     }
