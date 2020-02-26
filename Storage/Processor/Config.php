@@ -133,9 +133,9 @@ final class Config
         return $this->options[EmsFields::ASSET_CONFIG_TYPE];
     }
 
-    public function getQuality(): ?int
+    public function getQuality(): int
     {
-        return $this->options[EmsFields::ASSET_CONFIG_QUALITY];
+        return $this->options[EmsFields::ASSET_CONFIG_QUALITY] ?? 0;
     }
 
     public function getFileNames(): ?array
@@ -168,9 +168,9 @@ final class Config
         return $this->options[EmsFields::ASSET_CONFIG_GRAVITY];
     }
 
-    public function getRadius(): ?string
+    public function getRadius(): int
     {
-        return $this->options[EmsFields::ASSET_CONFIG_RADIUS];
+        return \intval($this->options[EmsFields::ASSET_CONFIG_RADIUS]);
     }
 
     public function getRadiusGeometry(): array
@@ -261,8 +261,8 @@ final class Config
         return [
             EmsFields::ASSET_CONFIG_TYPE => null,
             EmsFields::ASSET_CONFIG_FILE_NAMES => null,
-            EmsFields::ASSET_CONFIG_QUALITY => 70,
-            EmsFields::ASSET_CONFIG_BACKGROUND => '#FFFFFF',
+            EmsFields::ASSET_CONFIG_QUALITY => 0,
+            EmsFields::ASSET_CONFIG_BACKGROUND => '#FFFFFFFF',
             EmsFields::ASSET_CONFIG_RESIZE => 'fill',
             EmsFields::ASSET_CONFIG_WIDTH => 300,
             EmsFields::ASSET_CONFIG_HEIGHT => 200,
