@@ -7,15 +7,15 @@ namespace EMS\CommonBundle\Service\Pdf;
 class PdfPrintOptions
 {
     /** @var bool */
-    private $compress;
-    /** @var bool */
     private $attachment;
+    /** @var bool */
+    private $compress;
     /** @var bool */
     private $html5Parsing;
 
-    public const HTML5_PARSING = 'html5Parsing';
-    public const COMPRESS = 'compress';
     public const ATTACHMENT = 'attachment';
+    public const COMPRESS = 'compress';
+    public const HTML5_PARSING = 'html5Parsing';
 
     public function __construct(array $options)
     {
@@ -24,24 +24,14 @@ class PdfPrintOptions
         $this->setHtml5Parsing($options[self::HTML5_PARSING] ?? true);
     }
 
-    public function isCompress(): bool
-    {
-        return $this->compress;
-    }
-
-    public function setCompress(bool $compress): void
-    {
-        $this->compress = $compress;
-    }
-
     public function isAttachment(): bool
     {
         return $this->attachment;
     }
 
-    public function setAttachment(bool $attachment): void
+    public function isCompress(): bool
     {
-        $this->attachment = $attachment;
+        return $this->compress;
     }
 
     public function isHtml5Parsing(): bool
@@ -49,7 +39,17 @@ class PdfPrintOptions
         return $this->html5Parsing;
     }
 
-    public function setHtml5Parsing(bool $html5Parsing): void
+    private function setAttachment(bool $attachment): void
+    {
+        $this->attachment = $attachment;
+    }
+
+    private function setCompress(bool $compress): void
+    {
+        $this->compress = $compress;
+    }
+
+    private function setHtml5Parsing(bool $html5Parsing): void
     {
         $this->html5Parsing = $html5Parsing;
     }
