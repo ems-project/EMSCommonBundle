@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Service\Pdf;
 
-class PdfPrintOptions
+final class PdfPrintOptions
 {
     /** @var bool */
     private $attachment;

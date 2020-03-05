@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Service\Pdf;
 
-class Pdf implements PdfInterface
+final class Pdf implements PdfInterface
 {
     /** @var string */
     private $fileName;

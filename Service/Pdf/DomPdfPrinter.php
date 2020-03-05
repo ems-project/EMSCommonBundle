@@ -7,7 +7,7 @@ namespace EMS\CommonBundle\Service\Pdf;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-class DomPdfPrinter implements PdfPrinterInterface
+final class DomPdfPrinter implements PdfPrinterInterface
 {
     public function print(Pdf $pdf, ?PdfPrintOptions $options = null)
     {
