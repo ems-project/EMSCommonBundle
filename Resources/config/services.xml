@@ -28,5 +28,9 @@
             <tag name="twig.runtime" />
         </service>
 
+        <!-- pdf -->
+        <service id="ems_common.pdf.printer.dom" class="EMS\CommonBundle\Service\Pdf\DomPdfPrinter" />
+        <service id="EMS\CommonBundle\Service\Pdf\PdfPrinterInterface" alias="ems_common.pdf.printer.dom" />
+
     </services>
 </container>

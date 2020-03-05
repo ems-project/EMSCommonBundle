@@ -24,6 +24,7 @@
 		"aws/aws-sdk-php": "^3.109",
 		"doctrine/doctrine-bundle": "^1.11",
 		"doctrine/orm": "^2.6",
+		"dompdf/dompdf": "^0.8.5",
 		"elasticsearch/elasticsearch" : "~5.3.0",
 		"guzzlehttp/guzzle" : "^6.3",
 		"symfony/framework-bundle": "^4.4",
