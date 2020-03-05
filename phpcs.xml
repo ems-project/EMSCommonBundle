@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="EMSCommon" xsi:noNamespaceSchemaLocation="phpcs.xsd">
+<ruleset name="EMSCommon">
     <description>The coding standard for EMS Common Bundle.</description>
 
     <file>.</file>
@@ -12,6 +12,7 @@
     <exclude-pattern>*/README\.md</exclude-pattern>
 
     <arg name="basepath" value="."/>
+    <arg name="extensions" value="php" />
     <arg name="colors"/>
     <arg name="parallel" value="75"/>
     <arg value="np"/>
