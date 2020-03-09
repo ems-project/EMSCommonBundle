@@ -7,47 +7,23 @@ namespace EMS\CommonBundle\Service\Pdf;
 final class Pdf implements PdfInterface
 {
     /** @var string */
-    private $fileName;
+    private $filename;
     /** @var string */
     private $html;
-    /** @var string */
-    private $size = 'A4';
-    /** @var string */
-    private $orientation = 'portrait';
 
-    public function __construct(string $fileName, string $html)
+    public function __construct(string $filename, string $html)
     {
-        $this->fileName = $fileName;
+        $this->filename = $filename;
         $this->html = $html;
     }
 
-    public function changeSize(string $size): void
+    public function getFilename(): string
     {
-        $this->size = $size;
-    }
-
-    public function changeOrientation(string $orientation): void
-    {
-        $this->orientation = $orientation;
-    }
-
-    public function getFileName(): string
-    {
-        return $this->fileName;
+        return $this->filename;
     }
 
     public function getHtml(): string
     {
         return $this->html;
-    }
-
-    public function getSize(): string
-    {
-        return $this->size;
-    }
-
-    public function getOrientation(): string
-    {
-        return $this->orientation;
     }
 }

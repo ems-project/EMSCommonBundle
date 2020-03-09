@@ -17,6 +17,7 @@
 	],
 	"require" : {
 		"php" : "^7.2.0",
+		"ext-dom": "*",
 		"ext-gd": "*",
 		"ext-iconv": "*",
 		"ext-json": "*",
@@ -27,6 +28,7 @@
 		"dompdf/dompdf": "^0.8.5",
 		"elasticsearch/elasticsearch" : "~5.3.0",
 		"guzzlehttp/guzzle" : "^6.3",
+		"symfony/dom-crawler": "^4.4",
 		"symfony/framework-bundle": "^4.4",
 		"symfony/http-foundation": "^4.4",
 		"symfony/monolog-bridge": "^4.4",

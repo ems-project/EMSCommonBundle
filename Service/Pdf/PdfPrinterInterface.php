@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Service\Pdf;
 
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 interface PdfPrinterInterface
 {
-    public function print(Pdf $pdf, ?PdfPrintOptions $options = null);
+    public function getStreamedResponse(PdfInterface $pdf, ?PdfPrintOptions $options = null): StreamedResponse;
 }

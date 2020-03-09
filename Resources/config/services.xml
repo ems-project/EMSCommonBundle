@@ -31,6 +31,9 @@
         <!-- pdf -->
         <service id="ems_common.pdf.printer.dom" class="EMS\CommonBundle\Service\Pdf\DomPdfPrinter" />
         <service id="EMS\CommonBundle\Service\Pdf\PdfPrinterInterface" alias="ems_common.pdf.printer.dom" />
+        <service id="emsch.common.pdf_generator" class="EMS\CommonBundle\Service\Pdf\PdfGenerator">
+            <argument type="service" id="EMS\CommonBundle\Service\Pdf\PdfPrinterInterface"/>
+        </service>
 
     </services>
 </container>
