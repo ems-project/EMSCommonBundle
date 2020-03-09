@@ -12,16 +12,34 @@ final class PdfPrintOptions
     private $compress;
     /** @var bool */
     private $html5Parsing;
+    /** @var string */
+    private $orientation;
+    /** @var string */
+    private $size;
 
     public const ATTACHMENT = 'attachment';
     public const COMPRESS = 'compress';
     public const HTML5_PARSING = 'html5Parsing';
+    public const ORIENTATION  = 'orientation';
+    public const SIZE  = 'size';
 
     public function __construct(array $options)
     {
         $this->setAttachment($options[self::ATTACHMENT] ?? true);
         $this->setCompress($options[self::COMPRESS] ?? true);
         $this->setHtml5Parsing($options[self::HTML5_PARSING] ?? true);
+        $this->setOrientation($options[self::ORIENTATION] ?? 'portrait');
+        $this->setSize($options[self::SIZE] ?? 'a4');
+    }
+
+    public function getOrientation(): string
+    {
+        return $this->orientation;
+    }
+
+    public function getSize(): string
+    {
+        return $this->size;
     }
 
     public function isAttachment(): bool
@@ -52,5 +70,15 @@ final class PdfPrintOptions
     private function setHtml5Parsing(bool $html5Parsing): void
     {
         $this->html5Parsing = $html5Parsing;
+    }
+
+    private function setOrientation(string $orientation): void
+    {
+        $this->orientation = $orientation;
+    }
+
+    private function setSize(string $size): void
+    {
+        $this->size = $size;
     }
 }

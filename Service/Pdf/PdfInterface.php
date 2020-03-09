@@ -6,8 +6,8 @@ namespace EMS\CommonBundle\Service\Pdf;
 
 interface PdfInterface
 {
-    public function getFileName(): string;
+    public const FILENAME = 'filename';
+
+    public function getFilename(): string;
     public function getHtml(): string;
-    public function getOrientation(): string;
-    public function getSize(): string;
 }
