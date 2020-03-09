@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class DomPdfPrinter implements PdfPrinterInterface
 {
-    public function getStreamResponse(PdfInterface $pdf, ?PdfPrintOptions $options = null): StreamedResponse
+    public function getStreamedResponse(PdfInterface $pdf, ?PdfPrintOptions $options = null): StreamedResponse
     {
         $options = $options ?? new PdfPrintOptions([]);
 

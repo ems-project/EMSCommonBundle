@@ -17,13 +17,13 @@ class PdfGenerator
         $this->pdfPrinter = $pdfPrinter;
     }
 
-    public function getStreamResponse(string $html): StreamedResponse
+    public function getStreamedResponse(string $html): StreamedResponse
     {
         $metaTags = $this->getMetaTags($html);
         $pdfPrintOptions = new PdfPrintOptions($this->sanitizeMetaTags($metaTags));
         $filename = $metaTags[PdfInterface::FILENAME] ?? 'export.pdf';
 
-        return $this->pdfPrinter->getStreamResponse(new Pdf($filename, $html), $pdfPrintOptions);
+        return $this->pdfPrinter->getStreamedResponse(new Pdf($filename, $html), $pdfPrintOptions);
     }
 
     private function getMetaTags(string $html): array

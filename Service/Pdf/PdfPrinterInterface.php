@@ -8,5 +8,5 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 interface PdfPrinterInterface
 {
-    public function getStreamResponse(PdfInterface $pdf, ?PdfPrintOptions $options = null): StreamedResponse;
+    public function getStreamedResponse(PdfInterface $pdf, ?PdfPrintOptions $options = null): StreamedResponse;
 }
