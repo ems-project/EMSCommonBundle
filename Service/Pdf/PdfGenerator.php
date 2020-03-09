@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Service\Pdf;
 
-use Symfony\Component\DomCrawler\Crawler;
+use EMS\CommonBundle\Service\Dom\HtmlCrawler;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PdfGenerator
@@ -17,7 +17,7 @@ class PdfGenerator
         $this->pdfPrinter = $pdfPrinter;
     }
 
-    public function getResponse(string $html): StreamedResponse
+    public function getStreamResponse(string $html): StreamedResponse
     {
         $metaTags = $this->getMetaTags($html);
         $pdfPrintOptions = new PdfPrintOptions($this->sanitizeMetaTags($metaTags));
@@ -29,15 +29,12 @@ class PdfGenerator
     private function getMetaTags(string $html): array
     {
         $metaTags = [];
+        $crawler = new HtmlCrawler($html);
 
-        $crawler = new Crawler();
-        $crawler->addHtmlContent($html);
-        $crawler->filterXPath('//meta[contains(@name, "pdf:")]')->each(
-            function (Crawler $filterMetaTag) use (&$metaTags) {
-                $name = substr($filterMetaTag->attr('name'), 4);
-                $metaTags[$name] = $filterMetaTag->attr('content');
-            }
-        );
+        foreach ($crawler->getMetaTagsByXpath('//meta[contains(@name, "pdf:")]') as $node) {
+            $name = substr($node->getAttribute('name'), 4);
+            $metaTags[$name] = $node->getAttribute('content');
+        }
 
         return $metaTags;
     }
