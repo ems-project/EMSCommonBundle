@@ -20,7 +20,7 @@ final class HtmlCrawler
     /**
      * @return \DOMElement[]
      */
-    public function getMetaTagsByXpath(string $xPath):  \Generator
+    public function getMetaTagsByXpath(string $xPath): \Generator
     {
         foreach ($this->crawler->filterXPath($xPath) as $metaTag) {
             yield $metaTag;
