@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Service\Dom;
 
 use Symfony\Component\DomCrawler\Crawler;
@@ -20,7 +22,7 @@ final class HtmlCrawler
     /**
      * @return \DOMElement[]
      */
-    public function getMetaTagsByXpath(string $xPath): \Generator
+    public function getMetaTagsByXpath(string $xPath): iterable
     {
         foreach ($this->crawler->filterXPath($xPath) as $metaTag) {
             yield $metaTag;
