@@ -32,7 +32,7 @@ class Document implements DocumentInterface
 
     public function getEmsId(): string
     {
-        return "$this->contentType:$this->id";
+        return sprintf('%s:%s', $this->contentType, $this->id);
     }
 
     public function getSource(): array
