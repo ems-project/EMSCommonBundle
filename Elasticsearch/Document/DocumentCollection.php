@@ -36,9 +36,6 @@ final class DocumentCollection implements DocumentCollectionInterface
         return count($this->documents);
     }
 
-    /**
-     * @return DocumentInterface[]
-     */
     public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->documents);
