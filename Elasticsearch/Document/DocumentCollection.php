@@ -26,11 +26,6 @@ final class DocumentCollection implements DocumentCollectionInterface
         return $collection;
     }
 
-    public function add(DocumentInterface $document): void
-    {
-        $this->documents[] = $document;
-    }
-
     public function count(): int
     {
         return count($this->documents);
@@ -42,5 +37,10 @@ final class DocumentCollection implements DocumentCollectionInterface
     public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->documents);
+    }
+
+    private function add(DocumentInterface $document): void
+    {
+        $this->documents[] = $document;
     }
 }
