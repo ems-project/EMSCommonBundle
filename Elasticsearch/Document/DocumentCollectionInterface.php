@@ -7,7 +7,7 @@ interface DocumentCollectionInterface extends \IteratorAggregate, \Countable
     public function count(): int;
 
     /**
-     * @return \ArrayIterator|DocumentInterface[]
+     * @return DocumentInterface[]
      */
-    public function getIterator(): \ArrayIterator;
+    public function getIterator(): iterable;
 }
