@@ -44,4 +44,3 @@ final class DocumentCollection implements DocumentCollectionInterface
         return new \ArrayIterator($this->documents);
     }
 }
-
