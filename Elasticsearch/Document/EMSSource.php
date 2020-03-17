@@ -19,20 +19,27 @@ final class EMSSource implements EMSSourceInterface
     /** @var array */
     private $source;
 
+    public const FIELD_CONTENT_TYPE = '_contenttype';
+    public const FIELD_FINALIZED_BY = '_finalized_by';
+    public const FIELD_FINALIZATION_DATETIME = '_finalization_datetime';
+    public const FIELD_HASH = '_sha1';
+    public const FIELD_PUBLICATION_DATETIME = '_published_datetime';
+
+
     public function __construct(array $source)
     {
-        $this->contentType = $source['_contenttype'] ?? null;
-        $this->finalizedBy = $source['_finalized_by'] ?? null;
-        $this->hash = $source['_sha1'] ?? null;
+        $this->contentType = $source[self::FIELD_CONTENT_TYPE] ?? null;
+        $this->finalizedBy = $source[self::FIELD_FINALIZED_BY] ?? null;
+        $this->hash = $source[self::FIELD_HASH] ?? null;
         $this->source = $source;
 
         $this->finalizationDateTime = \DateTimeImmutable::createFromFormat(
             \DATE_ATOM,
-            $source['_finalization_datetime']
+            $source[self::FIELD_FINALIZATION_DATETIME]
         );
         $this->publicationDateTime = \DateTimeImmutable::createFromFormat(
             \DATE_ATOM,
-            $source['_published_datetime']
+            $source[self::FIELD_PUBLICATION_DATETIME]
         );
     }
 
