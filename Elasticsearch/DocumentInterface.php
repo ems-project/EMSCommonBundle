@@ -2,6 +2,9 @@
 
 namespace EMS\CommonBundle\Elasticsearch;
 
+/**
+ * @deprecated use EMS\CommonBundle\Elasticsearch\Document\DocumentInterface
+ */
 interface DocumentInterface
 {
     /**
