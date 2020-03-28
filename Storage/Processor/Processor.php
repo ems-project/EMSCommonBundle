@@ -62,10 +62,13 @@ class Processor
             };
         }
 
-        $response = new StreamedResponse($callback, 200, [
+        $response = new StreamedResponse($callback, 200);
+
+        $response->headers->add([
             'Content-Disposition' => $config->getDisposition() . '; ' . HeaderUtils::toString(array('filename' => $filename), ';'),
             'Content-Type' => $config->getMimeType(),
         ]);
+
         $response->setPublic()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
         return $response;
     }
