@@ -3,6 +3,7 @@
 namespace EMS\CommonBundle\Storage\Processor;
 
 use EMS\CommonBundle\Helper\ArrayTool;
+use EMS\CommonBundle\Helper\Header\Range;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
 use Psr\Http\Message\StreamInterface;
@@ -41,11 +42,10 @@ class Processor
 
         $handler = $this->getResource($config, $filename, $request->headers->getCacheControlDirective('no-cache') === true);
 
-
         if ($handler instanceof StreamInterface) {
-            $response = $this->getResponseFromStreamInterface($handler);
+            $response = $this->getResponseFromStreamInterface($handler, $request);
         } else {
-            $response = $this->getResponseFromFileHandler($handler);
+            $response = $this->getResponseFromFileHandler($handler, $request);
         }
 
         $response->headers->add([
@@ -247,8 +247,9 @@ class Processor
         return $generatedResource;
     }
 
-    private function getResponseFromFileHandler($handler): StreamedResponse
+    private function getResponseFromFileHandler($handler, Request $request): StreamedResponse
     {
+        new Range($request, fstat($handler)['size'] ?? null);
         $callback = function () use ($handler) {
             while (!feof($handler)) {
                 print fread($handler, 8192);
@@ -258,8 +259,9 @@ class Processor
         return new StreamedResponse($callback);
     }
 
-    private function getResponseFromStreamInterface(StreamInterface $streamInterface): StreamedResponse
+    private function getResponseFromStreamInterface(StreamInterface $streamInterface, Request $request): StreamedResponse
     {
+        new Range($request, $streamInterface->getSize());
         $callback = function () use ($streamInterface) {
             if ($streamInterface->isSeekable()) {
                 $streamInterface->rewind();
