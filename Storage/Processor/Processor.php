@@ -6,6 +6,7 @@ use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Helper\Header\Range;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
+use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -21,6 +22,8 @@ class Processor
     private $storageManager;
     /** @var LoggerInterface */
     private $logger;
+
+    const BUFFER_SIZE = 8192;
 
     public function __construct(StorageManager $storageManager, LoggerInterface $logger)
     {
@@ -42,11 +45,11 @@ class Processor
 
         $handler = $this->getResource($config, $filename, $request->headers->getCacheControlDirective('no-cache') === true);
 
-        if ($handler instanceof StreamInterface) {
-            $response = $this->getResponseFromStreamInterface($handler, $request);
-        } else {
-            $response = $this->getResponseFromFileHandler($handler, $request);
+        if (! $handler instanceof StreamInterface) {
+            $handler = new Stream($handler);
         }
+
+        $response = $this->getResponseFromStreamInterface($handler, $request);
 
         $response->headers->add([
             'Content-Disposition' => $config->getDisposition() . '; ' . HeaderUtils::toString(array('filename' => $filename), ';'),
@@ -247,18 +250,6 @@ class Processor
         return $generatedResource;
     }
 
-    private function getResponseFromFileHandler($handler, Request $request): StreamedResponse
-    {
-        new Range($request, fstat($handler)['size'] ?? null);
-        $callback = function () use ($handler) {
-            while (!feof($handler)) {
-                print fread($handler, 8192);
-            }
-        };
-
-        return new StreamedResponse($callback);
-    }
-
     private function getResponseFromStreamInterface(StreamInterface $streamInterface, Request $request): StreamedResponse
     {
         new Range($request, $streamInterface->getSize());
@@ -266,13 +257,11 @@ class Processor
             if ($streamInterface->isSeekable()) {
                 $streamInterface->rewind();
             }
-            if (!$streamInterface->isReadable()) {
-                echo $streamInterface;
-                return;
-            }
+
             while (!$streamInterface->eof()) {
-                echo $streamInterface->read(8192);
+                echo $streamInterface->read(self::BUFFER_SIZE);
             }
+            $streamInterface->close();
         };
 
         return new StreamedResponse($callback);
