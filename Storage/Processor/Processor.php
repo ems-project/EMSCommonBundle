@@ -41,6 +41,7 @@ class Processor
 
         $handler = $this->getResource($config, $filename, $request->headers->getCacheControlDirective('no-cache') === true);
 
+
         if ($handler instanceof StreamInterface) {
             $response = $this->getResponseFromStreamInterface($handler);
         } else {
@@ -257,18 +258,18 @@ class Processor
         return new StreamedResponse($callback);
     }
 
-    private function getResponseFromStreamInterface(StreamInterface $handler): StreamedResponse
+    private function getResponseFromStreamInterface(StreamInterface $streamInterface): StreamedResponse
     {
-        $callback = function () use ($handler) {
-            if ($handler->isSeekable()) {
-                $handler->rewind();
+        $callback = function () use ($streamInterface) {
+            if ($streamInterface->isSeekable()) {
+                $streamInterface->rewind();
             }
-            if (!$handler->isReadable()) {
-                echo $handler;
+            if (!$streamInterface->isReadable()) {
+                echo $streamInterface;
                 return;
             }
-            while (!$handler->eof()) {
-                echo $handler->read(8192);
+            while (!$streamInterface->eof()) {
+                echo $streamInterface->read(8192);
             }
         };
 
