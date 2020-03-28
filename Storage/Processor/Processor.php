@@ -42,27 +42,10 @@ class Processor
         $handler = $this->getResource($config, $filename, $request->headers->getCacheControlDirective('no-cache') === true);
 
         if ($handler instanceof StreamInterface) {
-            $callback = function () use ($handler) {
-                if ($handler->isSeekable()) {
-                    $handler->rewind();
-                }
-                if (!$handler->isReadable()) {
-                    echo $handler;
-                    return;
-                }
-                while (!$handler->eof()) {
-                    echo $handler->read(8192);
-                }
-            };
+            $response = $this->getResponseFromStreamInterface($handler);
         } else {
-            $callback = function () use ($handler) {
-                while (!feof($handler)) {
-                    print fread($handler, 8192);
-                }
-            };
+            $response = $this->getResponseFromFileHandler($handler);
         }
-
-        $response = new StreamedResponse($callback, 200);
 
         $response->headers->add([
             'Content-Disposition' => $config->getDisposition() . '; ' . HeaderUtils::toString(array('filename' => $filename), ';'),
@@ -261,5 +244,34 @@ class Processor
         $generatedResource = $this->generateResource($config);
         $this->saveGeneratedResourceToCache($generatedResource, $config, $filename);
         return $generatedResource;
+    }
+
+    private function getResponseFromFileHandler($handler): StreamedResponse
+    {
+        $callback = function () use ($handler) {
+            while (!feof($handler)) {
+                print fread($handler, 8192);
+            }
+        };
+
+        return new StreamedResponse($callback);
+    }
+
+    private function getResponseFromStreamInterface(StreamInterface $handler): StreamedResponse
+    {
+        $callback = function () use ($handler) {
+            if ($handler->isSeekable()) {
+                $handler->rewind();
+            }
+            if (!$handler->isReadable()) {
+                echo $handler;
+                return;
+            }
+            while (!$handler->eof()) {
+                echo $handler->read(8192);
+            }
+        };
+
+        return new StreamedResponse($callback);
     }
 }
