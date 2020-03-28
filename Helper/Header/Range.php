@@ -20,12 +20,16 @@ class Range
     /** @var bool */
     private $satisfiable;
 
+    /** @var bool */
+    private $provided;
+
     const HTTP_RANGE = 'HTTP_RANGE';
     const HTTP_RANGE_REGEX = '/bytes=\h*(?P<rangeStart>\d+)-(?P<rangeEnd>\d*)[\D.*]?/i';
 
     function __construct(Request $request, ?int $fileSize)
     {
         $this->start = 0;
+        $this->provided = false;
         $this->satisfiable = false;
 
         if ($fileSize === null) {
@@ -37,7 +41,13 @@ class Range
 
         $httpRange = $request->server->get(self::HTTP_RANGE);
 
-        if ($httpRange === null || ! preg_match(self::HTTP_RANGE_REGEX, $httpRange, $matches)) {
+        if ($httpRange === null) {
+            return;
+        }
+
+        $this->provided = true;
+
+        if (!preg_match(self::HTTP_RANGE_REGEX, $httpRange, $matches)) {
             return;
         }
 
@@ -76,5 +86,10 @@ class Range
     public function isSatisfiable(): bool
     {
         return $this->satisfiable;
+    }
+
+    public function isProvided(): bool
+    {
+        return $this->provided;
     }
 }
