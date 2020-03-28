@@ -23,12 +23,17 @@ class Range
     const HTTP_RANGE = 'HTTP_RANGE';
     const HTTP_RANGE_REGEX = '/bytes=\h*(?P<rangeStart>\d+)-(?P<rangeEnd>\d*)[\D.*]?/i';
 
-    function __construct(Request $request, int $fileSize)
+    function __construct(Request $request, ?int $fileSize)
     {
         $this->start = 0;
+        $this->satisfiable = false;
+
+        if ($fileSize === null) {
+            return;
+        }
+
         $this->end = $fileSize - 1;
         $this->length = $fileSize;
-        $this->satisfiable = false;
 
         $httpRange = $request->server->get(self::HTTP_RANGE);
 
