@@ -98,7 +98,14 @@ abstract class AbstractUrlStorage implements StorageInterface
         $path = $this->getPath($hash, $context);
         if (file_exists($path)) {
             $time = @filemtime($path);
-            return $time ? \DateTime::createFromFormat('U', (string) $time) : null;
+            if (!$time) {
+                return null;
+            }
+            $dateTime = \DateTime::createFromFormat('U', (string) $time);
+            if (!$dateTime) {
+                return null;
+            }
+            return $dateTime;
         }
         return null;
     }
