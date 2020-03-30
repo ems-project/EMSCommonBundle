@@ -119,18 +119,20 @@ abstract class AbstractUrlStorage implements StorageInterface
         return is_dir($this->getBaseUrl());
     }
 
-    /**
-     * @param string $hash
-     * @param null|string $cacheContext
-     * @return int
-     */
     public function getSize(string $hash, ?string $cacheContext = null): ?int
     {
         $path = $this->getPath($hash, $cacheContext);
-        if (file_exists($path)) {
-            return @filesize($path);
+
+        if (!\file_exists($path)) {
+            return null;
         }
-        return null;
+
+        $size = @filesize($path);
+        if ($size === false) {
+            return null;
+        }
+
+        return $size;
     }
 
     /**
