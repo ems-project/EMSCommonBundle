@@ -5,6 +5,7 @@ namespace EMS\CommonBundle\Storage\Processor;
 use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
+use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -20,6 +21,8 @@ class Processor
     private $storageManager;
     /** @var LoggerInterface */
     private $logger;
+
+    const BUFFER_SIZE = 8192;
 
     public function __construct(StorageManager $storageManager, LoggerInterface $logger)
     {
@@ -41,31 +44,17 @@ class Processor
 
         $handler = $this->getResource($config, $filename, $request->headers->getCacheControlDirective('no-cache') === true);
 
-        if ($handler instanceof StreamInterface) {
-            $callback = function () use ($handler) {
-                if ($handler->isSeekable()) {
-                    $handler->rewind();
-                }
-                if (!$handler->isReadable()) {
-                    echo $handler;
-                    return;
-                }
-                while (!$handler->eof()) {
-                    echo $handler->read(8192);
-                }
-            };
-        } else {
-            $callback = function () use ($handler) {
-                while (!feof($handler)) {
-                    print fread($handler, 8192);
-                }
-            };
+        if (! $handler instanceof StreamInterface) {
+            $handler = new Stream($handler);
         }
 
-        $response = new StreamedResponse($callback, 200, [
+        $response = $this->getResponseFromStreamInterface($handler, $request);
+
+        $response->headers->add([
             'Content-Disposition' => $config->getDisposition() . '; ' . HeaderUtils::toString(array('filename' => $filename), ';'),
             'Content-Type' => $config->getMimeType(),
         ]);
+
         $response->setPublic()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
         return $response;
     }
@@ -258,5 +247,73 @@ class Processor
         $generatedResource = $this->generateResource($config);
         $this->saveGeneratedResourceToCache($generatedResource, $config, $filename);
         return $generatedResource;
+    }
+
+    private function getResponseFromStreamInterface(StreamInterface $streamInterface, Request $request): StreamedResponse
+    {
+        $response = new StreamedResponse(function () use ($streamInterface) {
+            if ($streamInterface->isSeekable()) {
+                $streamInterface->rewind();
+            }
+
+            while (!$streamInterface->eof()) {
+                echo $streamInterface->read(self::BUFFER_SIZE);
+            }
+            $streamInterface->close();
+        });
+
+        if (null === $fileSize = $streamInterface->getSize()) {
+            return $response;
+        }
+        $response->headers->set('Content-Length', strval($fileSize));
+
+        if ($streamInterface->isSeekable()) {
+            $response->headers->set('Accept-Ranges', $request->isMethodSafe() ? 'bytes' : 'none');
+        }
+
+        $range = $request->headers->get('Range');
+
+        if ($range === null) {
+            return $response;
+        }
+
+        list($start, $end) = explode('-', substr($range, 6), 2) + [0];
+
+        $end = ('' === $end) ? $fileSize - 1 : (int) $end;
+
+        if ('' === $start) {
+            $start = $fileSize - $end;
+            $end = $fileSize - 1;
+        } else {
+            $start = (int) $start;
+        }
+
+        if ($start > $end) {
+            return $response;
+        }
+
+        if ($start < 0 || $end > $fileSize - 1) {
+            $response->setStatusCode(StreamedResponse::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE);
+            $response->headers->set('Content-Range', sprintf('bytes */%s', $fileSize));
+        } elseif (0 !== $start || $end !== $fileSize - 1) {
+            $offset = $start;
+            $response->setStatusCode(StreamedResponse::HTTP_PARTIAL_CONTENT);
+            $response->headers->set('Content-Range', sprintf('bytes %s-%s/%s', $start, $end, $fileSize));
+            $response->headers->set('Content-Length', strval($end - $start + 1));
+
+            $response->setCallback(function () use ($streamInterface, $offset, $end) {
+                $buffer = self::BUFFER_SIZE;
+                $streamInterface->seek($offset);
+                while (!$streamInterface->eof() && ($offset = $streamInterface->tell()) < $end) {
+                    if ($offset + $buffer > $end) {
+                        $buffer = $end + 1 - $offset;
+                    }
+                    echo $streamInterface->read($buffer);
+                }
+                $streamInterface->close();
+            });
+        }
+
+        return $response;
     }
 }
