@@ -223,7 +223,7 @@ final class Config
 
     public function isSvg(): bool
     {
-        return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] ? preg_match('/image\/svg.*/', $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) : false;
+        return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] ? (bool) preg_match('/image\/svg.*/', $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) : false;
     }
 
     private function resolve(array $options): array
