@@ -4,54 +4,25 @@ namespace EMS\CommonBundle\Storage\Service;
 
 class SftpStorage extends AbstractUrlStorage
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $host;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     private $path;
-
-    /**
-     * @var int
-     */
+    /** @var int */
     private $port;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     private $username;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     private $publicKeyFile;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     private $privateKeyFile;
-
-    /**
-     * @var null
-     */
+    /** @var null */
     private $passwordPhrase;
-
-    /**
-     * @var resource
-     */
+    /** @var resource */
     private $connection = null;
-
-    /**
-     * @var resource
-     */
+    /** @var resource */
     private $sftp = null;
-
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $contextSupport;
 
     /**
