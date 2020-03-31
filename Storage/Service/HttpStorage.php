@@ -224,6 +224,10 @@ class HttpStorage extends AbstractUrlStorage
             $context = stream_context_create(array('http' => array('method' => 'HEAD')));
             $fd = fopen($this->baseUrl . $this->getUrl . $hash, 'rb', false, $context);
 
+            if ($fd === false) {
+                return null;
+            }
+            
             $metas = stream_get_meta_data($fd);
             if (isset($metas['wrapper_data'])) {
                 foreach ($metas['wrapper_data'] as $meta) {
@@ -255,6 +259,10 @@ class HttpStorage extends AbstractUrlStorage
         try {
             $context = stream_context_create(array('http' => array('method' => 'HEAD')));
             $fd = fopen($this->baseUrl . $this->getUrl . $hash, 'rb', false, $context);
+
+            if ($fd === false) {
+                return null;
+            }
 
             $metas = stream_get_meta_data($fd);
             if (isset($metas['wrapper_data'])) {
