@@ -18,9 +18,9 @@ class SftpStorage extends AbstractUrlStorage
     private $privateKeyFile;
     /** @var null */
     private $passwordPhrase;
-    /** @var resource */
+    /** @var resource|null */
     private $connection = null;
-    /** @var resource */
+    /** @var resource|null */
     private $sftp = null;
     /** @var bool */
     private $contextSupport;
@@ -83,10 +83,12 @@ class SftpStorage extends AbstractUrlStorage
             return;
         }
 
-        $this->connection = @ssh2_connect($this->host, $this->port);
-        if (!$this->connection) {
+        $connection = @ssh2_connect($this->host, $this->port);
+        if ($connection === false) {
             throw new \Exception("Could not connect to $this->host on port $this->port.");
         }
+
+        $this->connection = $connection;
     }
 
     private function setSftp(): void
