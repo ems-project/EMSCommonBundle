@@ -104,9 +104,9 @@ class Image
 
         $solidColour = imagecolorallocatealpha(
             $temp,
-            \hexdec(\substr($background, 1, 2)),
-            \hexdec(\substr($background, 3, 2)),
-            \hexdec(\substr($background, 5, 2)),
+            (int) \hexdec(\substr($background, 1, 2)),
+            (int) \hexdec(\substr($background, 3, 2)),
+            (int) \hexdec(\substr($background, 5, 2)),
             \intval(\hexdec(\substr($background, 7, 2) ?? '00') / 2)
         );
         imagefill($temp, 0, 0, $solidColour);
@@ -184,7 +184,7 @@ class Image
 
         $cornerImage = imagecreatetruecolor($radius, $radius);
         $clearColor = imagecolorallocate($cornerImage, 0, 0, 0);
-        $solidColor = imagecolorallocate($cornerImage, hexdec(substr($color, 1, 2)), hexdec(substr($color, 3, 2)), hexdec(substr($color, 5, 2)));
+        $solidColor = imagecolorallocate($cornerImage, (int) hexdec(substr($color, 1, 2)), (int) hexdec(substr($color, 3, 2)), (int) hexdec(substr($color, 5, 2)));
 
         imagecolortransparent($cornerImage, $clearColor);
         imagefill($cornerImage, 0, 0, $solidColor);
@@ -212,7 +212,7 @@ class Image
             imagecopymerge($image, $cornerImage, $width - $radius, 0, 0, 0, $radius, $radius, 100);
         }
 
-        $transparentColor = imagecolorallocate($image, hexdec(substr($color, 1, 2)), hexdec(substr($color, 3, 2)), hexdec(substr($color, 5, 2)));
+        $transparentColor = imagecolorallocate($image, (int) hexdec(substr($color, 1, 2)), (int) hexdec(substr($color, 3, 2)), (int) hexdec(substr($color, 5, 2)));
         imagecolortransparent($image, $transparentColor);
 
         return $image;
