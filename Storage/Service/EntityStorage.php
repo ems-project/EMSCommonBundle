@@ -144,7 +144,14 @@ class EntityStorage implements StorageInterface
         if (!$context || $this->contextSupport) {
             try {
                 $time = $this->repository->getLastUpdateDate($hash, $context);
-                return $time ? \DateTime::createFromFormat('U', (string) $time) : null;
+                if (!$time) {
+                    return null;
+                }
+                $dateTime = \DateTime::createFromFormat('U', (string) $time);
+                if (!$dateTime) {
+                    return null;
+                }
+                return $dateTime;
             } catch (\Exception $e) {
             }
         }
