@@ -194,8 +194,11 @@ abstract class AbstractUrlStorage implements StorageInterface
         }
 
         $file = fopen($path, "a");
-        $result = fwrite($file, $chunk);
+        if ($file === false) {
+            return false;
+        }
 
+        $result = fwrite($file, $chunk);
         fflush($file);
         fclose($file);
 
