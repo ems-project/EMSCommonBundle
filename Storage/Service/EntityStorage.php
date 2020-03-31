@@ -242,7 +242,7 @@ class EntityStorage implements StorageInterface
         $entity = $this->repository->findByHash($hash, $context, false);
         if ($entity) {
             $entity->setConfirmed(true);
-            $entity->setSize(strlen($entity->getContents()));
+            $entity->setSize(strlen((string) $entity->getContents()));
             $this->manager->persist($entity);
             $this->manager->flush();
             return true;
