@@ -112,8 +112,7 @@ class StorageManager
     {
         @trigger_error("StorageManager::getFile is deprecated use the getContents or the getResource function", E_USER_DEPRECATED);
         $resource = $this->read($this->adapters, $hash, $context);
-        //TODO:use (if neede) http://php.net/manual/en/class.spltempfileobject.php
-        $filename = tempnam(sys_get_temp_dir(), 'EMS');
+        $filename = (string) tempnam(sys_get_temp_dir(), 'EMS');
         file_put_contents($filename, $resource);
         return $filename;
     }
