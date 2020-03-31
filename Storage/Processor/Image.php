@@ -183,6 +183,9 @@ class Image
         $color = $this->config->getBorderColor() ?? $this->config->getBackground();
 
         $cornerImage = imagecreatetruecolor($radius, $radius);
+        if ($cornerImage === false) {
+            throw new \RuntimeException('Could not create cornerImage');
+        }
         $clearColor = imagecolorallocate($cornerImage, 0, 0, 0);
         $solidColor = imagecolorallocate($cornerImage, (int) hexdec(substr($color, 1, 2)), (int) hexdec(substr($color, 3, 2)), (int) hexdec(substr($color, 5, 2)));
 
@@ -221,6 +224,9 @@ class Image
     private function applyWatermark($image, $width, $height)
     {
         $stamp = imagecreatefrompng($this->watermark);
+        if ($stamp === false) {
+            throw new \RuntimeException('Could not convert watermark to image');
+        }
         $sx = imagesx($stamp);
         $sy = imagesy($stamp);
         imagecopy($image, $stamp, (int) ($width - $sx) / 2, (int) ($height - $sy) / 2, 0, 0, $sx, $sy);
