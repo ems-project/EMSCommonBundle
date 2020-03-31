@@ -266,6 +266,9 @@ class StorageManager
 
             while (!feof($resource)) {
                 $str = fread($resource, 8192);
+                if ($str === false) {
+                    continue;
+                }
                 if (!$service->addChunk($hash, $str, $context)) {
                     continue;
                 }
