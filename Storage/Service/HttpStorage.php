@@ -261,7 +261,12 @@ class HttpStorage extends AbstractUrlStorage
                 foreach ($metas['wrapper_data'] as $meta) {
                     if (preg_match('/^Last\-Modified: (.*)$/', $meta, $matches, PREG_OFFSET_CAPTURE)) {
                         $time = strtotime($matches[1][0]);
-                        return $time ? \DateTime::createFromFormat('U', (string) $time) : \DateTime::createFromFormat('U', (string) strtotime('now'));
+                        if ($time === false) {
+                            $now = \DateTime::createFromFormat('U', (string) strtotime('now'));
+                            return $now === false ? null : $now;
+                        }
+                        $dateTime = \DateTime::createFromFormat('U', (string) $time);
+                        return $dateTime === false ? null : $dateTime;
                     }
                 }
             }
