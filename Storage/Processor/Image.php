@@ -223,7 +223,7 @@ class Image
         $stamp = imagecreatefrompng($this->watermark);
         $sx = imagesx($stamp);
         $sy = imagesy($stamp);
-        imagecopy($image, $stamp, ($width - $sx) / 2, ($height - $sy) / 2, 0, 0, $sx, $sy);
+        imagecopy($image, $stamp, (int) ($width - $sx) / 2, (int) ($height - $sy) / 2, 0, 0, $sx, $sy);
 
         return $image;
     }
