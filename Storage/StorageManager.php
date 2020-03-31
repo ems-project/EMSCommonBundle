@@ -225,7 +225,11 @@ class StorageManager
     {
         $ctx = hash_init($this->hashAlgo);
         while (!feof($handler)) {
-            hash_update($ctx, fread($handler, 8192));
+            $read = fread($handler, 8192);
+            if ($read === false) {
+                continue;
+            }
+            hash_update($ctx, $read);
         }
         return hash_final($ctx);
     }
