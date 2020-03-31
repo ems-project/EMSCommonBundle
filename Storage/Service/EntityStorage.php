@@ -123,6 +123,9 @@ class EntityStorage implements StorageInterface
                     return $contents;
                 }
                 $resource = fopen('php://memory', 'w+');
+                if ($resource === false) {
+                    return null;
+                }
                 fwrite($resource, $contents);
 
                 rewind($resource);
