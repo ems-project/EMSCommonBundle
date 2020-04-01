@@ -22,7 +22,14 @@ class Image
     public function generate(string $filename)
     {
         $handle = fopen($filename, "r");
-        $contents = fread($handle, filesize($filename));
+        if ($handle === false) {
+            throw new \RuntimeException('Could not open file');
+        }
+        $length = filesize($filename);
+        if ($length === false) {
+            throw new \RuntimeException('Could not read file');
+        }
+        $contents = fread($handle, $length);
         fclose($handle);
 
         if (!$image = @imagecreatefromstring($contents)) {
