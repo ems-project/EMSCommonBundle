@@ -41,6 +41,9 @@ class Image
         }
 
         $size = @getimagesizefromstring($contents);
+        if ($size === false) {
+            throw new \RuntimeException('Could not get size of image');
+        }
         list ($width, $height) = $this->getWidthHeight($size);
 
         if (null !== $this->config->getResize()) {
