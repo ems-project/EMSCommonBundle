@@ -58,7 +58,12 @@ class RequestRuntime implements RuntimeExtensionInterface
      */
     public function localeAttribute(array $array, string $attribute)
     {
-        $locale = $this->requestStack->getCurrentRequest()->getLocale();
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request === null) {
+            return '';
+        }
+
+        $locale = $request->getLocale();
 
         return isset($array[$attribute . $locale]) ? $array[$attribute . $locale] : '';
     }
