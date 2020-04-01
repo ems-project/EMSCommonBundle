@@ -249,6 +249,9 @@ class StorageManager
         $out = 0;
         $size = 0;
         $stat = fstat($resource);
+        if ($stat === false) {
+            throw new \RuntimeException('Could not get statistics of resource');
+        }
         if (isset($stat['size'])) {
             $size = $stat['size'];
         }
