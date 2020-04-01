@@ -313,7 +313,10 @@ class StorageManager
     {
         foreach ($adapters as $adapter) {
             if ($adapter->head($hash, $context)) {
-                return $adapter->read($hash, $context);
+                $resource = $adapter->read($hash, $context);
+                if ($resource !== null) {
+                    return $resource;
+                }
             }
         }
 
