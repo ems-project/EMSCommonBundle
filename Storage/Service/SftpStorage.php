@@ -48,7 +48,8 @@ class SftpStorage extends AbstractUrlStorage
         return 'ssh2.sftp://' . intval($this->sftp) . $this->path;
     }
 
-    private function connect() {
+    private function connect()
+    {
         if (!function_exists('ssh2_connect')) {
             throw new \Exception("PHP functions Secure Shell are required by $this. (ssh2)");
         }
