@@ -19,8 +19,6 @@ class SftpStorage extends AbstractUrlStorage
     /** @var null */
     private $passwordPhrase;
     /** @var resource|null */
-    private $connection = null;
-    /** @var resource|null */
     private $sftp = null;
     /** @var bool */
     private $contextSupport;
@@ -42,45 +40,17 @@ class SftpStorage extends AbstractUrlStorage
         $this->contextSupport = $contextSupport;
     }
 
-
-
-    /**
-     * @inheritdoc
-     */
     protected function getBaseUrl(): string
     {
-
-        if (!function_exists('ssh2_connect')) {
-            throw new \Exception("PHP functions Secure Shell are required by $this. (ssh2)");
+        if ($this->sftp === null) {
+            $this->connect();
         }
-
-        $this->setupConnection();
-
-        if ($this->passwordPhrase === null) {
-            ssh2_auth_pubkey_file($this->connection, $this->username, $this->publicKeyFile, $this->privateKeyFile);
-        } else {
-            ssh2_auth_pubkey_file($this->connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
-        }
-
-        $this->setSftp();
-
         return 'ssh2.sftp://' . intval($this->sftp) . $this->path;
     }
 
-
-
-    /**
-     * @inheritdoc
-     */
-    public function __toString(): string
-    {
-        return SftpStorage::class . " ($this->host)";
-    }
-
-    private function setupConnection(): void
-    {
-        if ($this->connection === null) {
-            return;
+    private function connect() {
+        if (!function_exists('ssh2_connect')) {
+            throw new \Exception("PHP functions Secure Shell are required by $this. (ssh2)");
         }
 
         $connection = @ssh2_connect($this->host, $this->port);
@@ -88,15 +58,17 @@ class SftpStorage extends AbstractUrlStorage
             throw new \Exception("Could not connect to $this->host on port $this->port.");
         }
 
-        $this->connection = $connection;
-    }
-
-    private function setSftp(): void
-    {
-        if ($this->sftp === null) {
-            return;
+        if ($this->passwordPhrase === null) {
+            ssh2_auth_pubkey_file($connection, $this->username, $this->publicKeyFile, $this->privateKeyFile);
+        } else {
+            ssh2_auth_pubkey_file($connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
         }
 
-        $this->sftp = @ssh2_sftp($this->connection);
+        $this->sftp = @ssh2_sftp($connection);
+    }
+
+    public function __toString(): string
+    {
+        return SftpStorage::class . " ($this->host)";
     }
 }
