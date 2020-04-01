@@ -56,9 +56,7 @@ class Image
             $image = $this->applyCorner($image, $width, $height);
         }
 
-        if (null !== $this->watermark) {
-            $image = $this->applyWatermark($image, $width, $height);
-        }
+        $image = $this->applyWatermark($image, $width, $height);
 
         $path = tempnam(sys_get_temp_dir(), 'ems_image');
         if ($path === false) {
@@ -240,6 +238,9 @@ class Image
 
     private function applyWatermark($image, $width, $height)
     {
+        if (null === $this->watermark) {
+            return $image;
+        }
         $stamp = imagecreatefrompng($this->watermark);
         if ($stamp === false) {
             throw new \RuntimeException('Could not convert watermark to image');
