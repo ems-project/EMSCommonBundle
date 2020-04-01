@@ -21,13 +21,14 @@ class Image
 
     public function generate(string $filename)
     {
-        $handle = fopen($filename, "r");
-        if ($handle === false) {
-            throw new \RuntimeException('Could not open file');
-        }
         $length = filesize($filename);
         if ($length === false) {
             throw new \RuntimeException('Could not read file');
+        }
+
+        $handle = fopen($filename, "r");
+        if ($handle === false) {
+            throw new \RuntimeException('Could not open file');
         }
         $contents = fread($handle, $length);
         fclose($handle);
