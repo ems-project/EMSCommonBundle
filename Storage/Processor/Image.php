@@ -33,6 +33,9 @@ class Image
         $contents = fread($handle, $length);
         fclose($handle);
 
+        if ($contents === false) {
+            throw new \RuntimeException('Could not read file');
+        }
         if (!$image = @imagecreatefromstring($contents)) {
             throw new \InvalidArgumentException('could not make image');
         }
