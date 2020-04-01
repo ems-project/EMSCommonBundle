@@ -61,6 +61,9 @@ class Image
         }
 
         $path = tempnam(sys_get_temp_dir(), 'ems_image');
+        if ($path === false) {
+            throw new \RuntimeException('Could not create file with unique name.');
+        }
         if ($this->config->getQuality()  > 0) {
             imagejpeg($image, $path, $this->config->getQuality());
         } else {
