@@ -235,7 +235,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 }
             }
 
-            if ($this->user === null && $this->security->getToken()) {
+            if ($this->user === null && $this->security->getToken() !== null) {
                 $this->user = $this->security->getToken()->getUsername();
                 if ($this->security->isGranted('ROLE_PREVIOUS_ADMIN')) {
                     foreach ($this->security->getToken()->getRoles() as $role) {
