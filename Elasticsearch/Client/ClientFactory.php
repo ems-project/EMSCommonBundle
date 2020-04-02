@@ -2,17 +2,13 @@
 
 declare(strict_types=1);
 
-namespace EMS\CommonBundle\Elasticsearch;
+namespace EMS\CommonBundle\Elasticsearch\Client;
 
-use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Elasticsearch\ConnectionPool\SniffingConnectionPool;
 use Psr\Log\LoggerInterface;
 
-/**
- * @deprecated please use Elasticsearch\Client\ClientFactory
- */
-class Factory
+final class ClientFactory
 {
     /** @var LoggerInterface */
     private $logger;
@@ -33,6 +29,8 @@ class Factory
         }
         $config['connectionPool'] = SniffingConnectionPool::class;
 
-        return ClientBuilder::fromConfig($config);
+        $elasticsearchClient = ClientBuilder::fromConfig($config);
+
+        return new Client($elasticsearchClient, $this->logger);
     }
 }

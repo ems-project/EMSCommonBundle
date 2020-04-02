@@ -7,6 +7,12 @@
     <services>
         <defaults public="false" />
 
+        <service id="ems_common.elasticsearch.client_factory" class="EMS\CommonBundle\Elasticsearch\Client\ClientFactory">
+            <argument type="service" id="logger" />
+            <argument>%kernel.environment%</argument>
+            <tag name="monolog.logger" channel="elasticsearch"/>
+        </service>
+
         <!-- use this factory services, it will set the tracer to common.ems.logger -->
         <service id="ems_common.elasticsearch.factory" class="EMS\CommonBundle\Elasticsearch\Factory">
             <argument type="service" id="logger" />
