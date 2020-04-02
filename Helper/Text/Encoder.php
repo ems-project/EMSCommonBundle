@@ -70,8 +70,14 @@ class Encoder
     {
         $piiRegex = '/<span class="pii">(?P<pii>.*)<\/span>/m';
 
-        return preg_replace_callback($piiRegex, function ($match) {
+        $encodedText = preg_replace_callback($piiRegex, function ($match) {
             return $this->htmlEncode($match['pii']);
         }, $text);
+
+        if ($encodedText === null) {
+            return $text;
+        }
+
+        return $encodedText;
     }
 }
