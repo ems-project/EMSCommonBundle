@@ -22,6 +22,20 @@ final class Client implements ClientInterface
         $this->logger = $logger;
     }
 
+    public function addAlias(string $alias, string $index): void
+    {
+        $this->client->indices()->updateAliases([
+           'body' => [
+               'actions' => [
+                   'add' => [
+                        'index' => $index,
+                        'alias' => $alias,
+                   ]
+               ]
+           ]
+        ]);
+    }
+
     public function getHealth(): Cluster\HealthInterface
     {
         return new Health($this->client->cluster()->health());
@@ -30,5 +44,24 @@ final class Client implements ClientInterface
     public function getInfo(): Cluster\InfoInterface
     {
         return new Info($this->client->info());
+    }
+
+    public function removeAlias(string $alias, string $index): void
+    {
+        $this->client->indices()->updateAliases([
+            'body' => [
+                'actions' => [
+                    'remove' => [
+                        'index' => $index,
+                        'alias' => $alias,
+                    ]
+                ]
+            ]
+        ]);
+    }
+
+    public function removeIndex(string $index): void
+    {
+        $this->client->indices()->delete(['index' => $index]);
     }
 }

@@ -14,6 +14,8 @@ final class Health implements HealthInterface
     private $activeShards;
     /** @var float */
     private $activeShardsPercentAsNumber;
+    /** @var string */
+    private $clusterName;
     /** @var int */
     private $delayedUnassignedShards;
     /** @var int */
@@ -41,6 +43,7 @@ final class Health implements HealthInterface
         $this->activePrimaryShards = (int) $status['active_primary_shards'];
         $this->activeShards = (int) $status['active_shards'];
         $this->activeShardsPercentAsNumber = (float) $status['active_shards_percent_as_number'];
+        $this->clusterName =  $status['cluster_name'];
         $this->delayedUnassignedShards = (int) $status['delayed_unassigned_shards'];
         $this->initializingShards = (int) $status['initializing_shards'];
         $this->numberOfDataNodes = (int) $status['number_of_data_nodes'];
@@ -68,9 +71,9 @@ final class Health implements HealthInterface
         return $this->activeShardsPercentAsNumber;
     }
 
-    public function getStatus(): string
+    public function getClusterName(): string
     {
-        return $this->status;
+        return $this->clusterName;
     }
 
     public function getDelayedUnassignedShards(): int
@@ -106,6 +109,11 @@ final class Health implements HealthInterface
     public function getRelocatingShards(): int
     {
         return $this->relocatingShards;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
     }
 
     public function getTaskMaxWaitingInQueueMillis(): int

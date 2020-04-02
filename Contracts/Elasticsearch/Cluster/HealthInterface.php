@@ -9,6 +9,7 @@ interface HealthInterface
     public function getActivePrimaryShards(): int;
     public function getActiveShards(): int;
     public function getActiveShardsPercentAsNumber(): float;
+    public function getClusterName(): string;
     public function getDelayedUnassignedShards(): int;
     public function getInitializingShards(): int;
     public function getNumberOfDataNodes(): int;
