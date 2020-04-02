@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch\Document;
 
+use EMS\CommonBundle\Exception\DateTimeCreationException;
+
 final class EMSSource implements EMSSourceInterface
 {
     /** @var string */
@@ -33,14 +35,23 @@ final class EMSSource implements EMSSourceInterface
         $this->hash = $source[self::FIELD_HASH] ?? null;
         $this->source = $source;
 
-        $this->finalizationDateTime = \DateTimeImmutable::createFromFormat(
+        $finalizationDateTime = \DateTimeImmutable::createFromFormat(
             \DATE_ATOM,
             $source[self::FIELD_FINALIZATION_DATETIME]
         );
-        $this->publicationDateTime = \DateTimeImmutable::createFromFormat(
+        if ($finalizationDateTime === false) {
+            throw DateTimeCreationException::fromArray($source, self::FIELD_FINALIZATION_DATETIME);
+        }
+        $this->finalizationDateTime = $finalizationDateTime;
+
+        $publicationDateTime = \DateTimeImmutable::createFromFormat(
             \DATE_ATOM,
             $source[self::FIELD_PUBLICATION_DATETIME]
         );
+        if ($publicationDateTime === false) {
+            throw DateTimeCreationException::fromArray($source, self::FIELD_PUBLICATION_DATETIME);
+        }
+        $this->publicationDateTime = $publicationDateTime;
     }
 
     public function get(string $field, $default = null)

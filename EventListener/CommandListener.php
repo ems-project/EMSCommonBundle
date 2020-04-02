@@ -47,7 +47,7 @@ class CommandListener implements EventSubscriberInterface
             return;
         }
         
-        $this->stopwatch->start($command->getName());
+        $this->stopwatch->start((string) $command->getName());
     }
     
     /**
@@ -63,7 +63,7 @@ class CommandListener implements EventSubscriberInterface
             return;
         }
         
-        $stopwatch = $this->stopwatch->stop($command->getName());
+        $stopwatch = $this->stopwatch->stop((string) $command->getName());
         
         $io = new SymfonyStyle($event->getInput(), $event->getOutput());
         $io->listing([

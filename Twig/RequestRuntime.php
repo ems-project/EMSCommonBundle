@@ -58,7 +58,12 @@ class RequestRuntime implements RuntimeExtensionInterface
      */
     public function localeAttribute(array $array, string $attribute)
     {
-        $locale = $this->requestStack->getCurrentRequest()->getLocale();
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request === null) {
+            return '';
+        }
+
+        $locale = $request->getLocale();
 
         return isset($array[$attribute . $locale]) ? $array[$attribute . $locale] : '';
     }
@@ -123,7 +128,11 @@ class RequestRuntime implements RuntimeExtensionInterface
             $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
         }
 
-        $hashConfig = $this->storageManager->saveContents(ArrayTool::normalizeAndSerializeArray($config), 'assetConfig.json', 'application/json', null, 1);
+        $normalizedArray = ArrayTool::normalizeAndSerializeArray($config);
+        if ($normalizedArray === false) {
+            throw new \RuntimeException('Could not normalize config.');
+        }
+        $hashConfig = $this->storageManager->saveContents($normalizedArray, 'assetConfig.json', 'application/json', null, 1);
 
         if (isset($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) && $config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) {
             $configObj = new Config($this->storageManager, $hashConfig, $hash, $hashConfig, $config);

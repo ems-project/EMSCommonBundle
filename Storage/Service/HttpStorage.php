@@ -224,6 +224,10 @@ class HttpStorage extends AbstractUrlStorage
             $context = stream_context_create(array('http' => array('method' => 'HEAD')));
             $fd = fopen($this->baseUrl . $this->getUrl . $hash, 'rb', false, $context);
 
+            if ($fd === false) {
+                return null;
+            }
+            
             $metas = stream_get_meta_data($fd);
             if (isset($metas['wrapper_data'])) {
                 foreach ($metas['wrapper_data'] as $meta) {
@@ -256,12 +260,21 @@ class HttpStorage extends AbstractUrlStorage
             $context = stream_context_create(array('http' => array('method' => 'HEAD')));
             $fd = fopen($this->baseUrl . $this->getUrl . $hash, 'rb', false, $context);
 
+            if ($fd === false) {
+                return null;
+            }
+
             $metas = stream_get_meta_data($fd);
             if (isset($metas['wrapper_data'])) {
                 foreach ($metas['wrapper_data'] as $meta) {
                     if (preg_match('/^Last\-Modified: (.*)$/', $meta, $matches, PREG_OFFSET_CAPTURE)) {
                         $time = strtotime($matches[1][0]);
-                        return $time ? \DateTime::createFromFormat('U', (string) $time) : \DateTime::createFromFormat('U', (string) strtotime('now'));
+                        if ($time === false) {
+                            $now = \DateTime::createFromFormat('U', (string) strtotime('now'));
+                            return $now === false ? null : $now;
+                        }
+                        $dateTime = \DateTime::createFromFormat('U', (string) $time);
+                        return $dateTime === false ? null : $dateTime;
                     }
                 }
             }

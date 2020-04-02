@@ -123,6 +123,9 @@ class EntityStorage implements StorageInterface
                     return $contents;
                 }
                 $resource = fopen('php://memory', 'w+');
+                if ($resource === false) {
+                    return null;
+                }
                 fwrite($resource, $contents);
 
                 rewind($resource);
@@ -144,7 +147,14 @@ class EntityStorage implements StorageInterface
         if (!$context || $this->contextSupport) {
             try {
                 $time = $this->repository->getLastUpdateDate($hash, $context);
-                return $time ? \DateTime::createFromFormat('U', (string) $time) : null;
+                if (!$time) {
+                    return null;
+                }
+                $dateTime = \DateTime::createFromFormat('U', (string) $time);
+                if (!$dateTime) {
+                    return null;
+                }
+                return $dateTime;
             } catch (\Exception $e) {
             }
         }
@@ -232,7 +242,7 @@ class EntityStorage implements StorageInterface
         $entity = $this->repository->findByHash($hash, $context, false);
         if ($entity) {
             $entity->setConfirmed(true);
-            $entity->setSize(strlen($entity->getContents()));
+            $entity->setSize(strlen((string) $entity->getContents()));
             $this->manager->persist($entity);
             $this->manager->flush();
             return true;

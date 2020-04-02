@@ -112,8 +112,7 @@ class StorageManager
     {
         @trigger_error("StorageManager::getFile is deprecated use the getContents or the getResource function", E_USER_DEPRECATED);
         $resource = $this->read($this->adapters, $hash, $context);
-        //TODO:use (if neede) http://php.net/manual/en/class.spltempfileobject.php
-        $filename = tempnam(sys_get_temp_dir(), 'EMS');
+        $filename = (string) tempnam(sys_get_temp_dir(), 'EMS');
         file_put_contents($filename, $resource);
         return $filename;
     }
@@ -128,7 +127,7 @@ class StorageManager
     {
         @trigger_error("StorageManager::getCacheFile is deprecated use the getContents or the getResource function", E_USER_DEPRECATED);
         $resource = $this->read($this->cacheAdapters, $hash, $context);
-        $filename = tempnam(sys_get_temp_dir(), 'EMS');
+        $filename = (string) tempnam(sys_get_temp_dir(), 'EMS');
         file_put_contents($filename, $resource);
         return $filename;
     }
@@ -175,7 +174,11 @@ class StorageManager
      */
     public function getPublicImage(string $name): string
     {
-        return $this->fileLocator->locate('@EMSCommonBundle/Resources/public/images/' . $name);
+        $file = $this->fileLocator->locate('@EMSCommonBundle/Resources/public/images/' . $name);
+        if (is_array($file)) {
+            return $file[0] ?? '';
+        }
+        return $file;
     }
 
     /**
@@ -222,7 +225,11 @@ class StorageManager
     {
         $ctx = hash_init($this->hashAlgo);
         while (!feof($handler)) {
-            hash_update($ctx, fread($handler, 8192));
+            $read = fread($handler, 8192);
+            if ($read === false) {
+                continue;
+            }
+            hash_update($ctx, $read);
         }
         return hash_final($ctx);
     }
@@ -242,6 +249,9 @@ class StorageManager
         $out = 0;
         $size = 0;
         $stat = fstat($resource);
+        if ($stat === false) {
+            throw new \RuntimeException('Could not get statistics of resource');
+        }
         if (isset($stat['size'])) {
             $size = $stat['size'];
         }
@@ -263,6 +273,9 @@ class StorageManager
 
             while (!feof($resource)) {
                 $str = fread($resource, 8192);
+                if ($str === false) {
+                    continue;
+                }
                 if (!$service->addChunk($hash, $str, $context)) {
                     continue;
                 }
@@ -300,7 +313,10 @@ class StorageManager
     {
         foreach ($adapters as $adapter) {
             if ($adapter->head($hash, $context)) {
-                return $adapter->read($hash, $context);
+                $resource = $adapter->read($hash, $context);
+                if ($resource !== null) {
+                    return $resource;
+                }
             }
         }
 

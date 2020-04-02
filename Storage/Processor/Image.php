@@ -21,15 +21,29 @@ class Image
 
     public function generate(string $filename)
     {
+        $length = filesize($filename);
+        if ($length === false) {
+            throw new \RuntimeException('Could not read file');
+        }
+
         $handle = fopen($filename, "r");
-        $contents = fread($handle, filesize($filename));
+        if ($handle === false) {
+            throw new \RuntimeException('Could not open file');
+        }
+        $contents = fread($handle, $length);
         fclose($handle);
 
+        if ($contents === false) {
+            throw new \RuntimeException('Could not read file');
+        }
         if (!$image = @imagecreatefromstring($contents)) {
             throw new \InvalidArgumentException('could not make image');
         }
 
         $size = @getimagesizefromstring($contents);
+        if ($size === false) {
+            throw new \RuntimeException('Could not get size of image');
+        }
         list ($width, $height) = $this->getWidthHeight($size);
 
         if (null !== $this->config->getResize()) {
@@ -42,11 +56,12 @@ class Image
             $image = $this->applyCorner($image, $width, $height);
         }
 
-        if (null !== $this->watermark) {
-            $image = $this->applyWatermark($image, $width, $height);
-        }
+        $image = $this->applyWatermark($image, $width, $height);
 
         $path = tempnam(sys_get_temp_dir(), 'ems_image');
+        if ($path === false) {
+            throw new \RuntimeException('Could not create file with unique name.');
+        }
         if ($this->config->getQuality()  > 0) {
             imagejpeg($image, $path, $this->config->getQuality());
         } else {
@@ -104,9 +119,9 @@ class Image
 
         $solidColour = imagecolorallocatealpha(
             $temp,
-            \hexdec(\substr($background, 1, 2)),
-            \hexdec(\substr($background, 3, 2)),
-            \hexdec(\substr($background, 5, 2)),
+            (int) \hexdec(\substr($background, 1, 2)),
+            (int) \hexdec(\substr($background, 3, 2)),
+            (int) \hexdec(\substr($background, 5, 2)),
             \intval(\hexdec(\substr($background, 7, 2) ?? '00') / 2)
         );
         imagefill($temp, 0, 0, $solidColour);
@@ -183,8 +198,11 @@ class Image
         $color = $this->config->getBorderColor() ?? $this->config->getBackground();
 
         $cornerImage = imagecreatetruecolor($radius, $radius);
+        if ($cornerImage === false) {
+            throw new \RuntimeException('Could not create cornerImage');
+        }
         $clearColor = imagecolorallocate($cornerImage, 0, 0, 0);
-        $solidColor = imagecolorallocate($cornerImage, hexdec(substr($color, 1, 2)), hexdec(substr($color, 3, 2)), hexdec(substr($color, 5, 2)));
+        $solidColor = imagecolorallocate($cornerImage, (int) hexdec(substr($color, 1, 2)), (int) hexdec(substr($color, 3, 2)), (int) hexdec(substr($color, 5, 2)));
 
         imagecolortransparent($cornerImage, $clearColor);
         imagefill($cornerImage, 0, 0, $solidColor);
@@ -212,7 +230,7 @@ class Image
             imagecopymerge($image, $cornerImage, $width - $radius, 0, 0, 0, $radius, $radius, 100);
         }
 
-        $transparentColor = imagecolorallocate($image, hexdec(substr($color, 1, 2)), hexdec(substr($color, 3, 2)), hexdec(substr($color, 5, 2)));
+        $transparentColor = imagecolorallocate($image, (int) hexdec(substr($color, 1, 2)), (int) hexdec(substr($color, 3, 2)), (int) hexdec(substr($color, 5, 2)));
         imagecolortransparent($image, $transparentColor);
 
         return $image;
@@ -220,10 +238,16 @@ class Image
 
     private function applyWatermark($image, $width, $height)
     {
+        if (null === $this->watermark) {
+            return $image;
+        }
         $stamp = imagecreatefrompng($this->watermark);
+        if ($stamp === false) {
+            throw new \RuntimeException('Could not convert watermark to image');
+        }
         $sx = imagesx($stamp);
         $sy = imagesy($stamp);
-        imagecopy($image, $stamp, ($width - $sx) / 2, ($height - $sy) / 2, 0, 0, $sx, $sy);
+        imagecopy($image, $stamp, (int) ($width - $sx) / 2, (int) ($height - $sy) / 2, 0, 0, $sx, $sy);
 
         return $image;
     }
