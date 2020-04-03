@@ -34,7 +34,8 @@ final class Info implements InfoInterface
         $this->versionNumberLucene = $info['version']['lucene_version'];
 
         $versionBuildDate = \DateTimeImmutable::createFromFormat(
-            'Y-m-d\TH:i:s.u\Z', $info['version']['build_date']
+            'Y-m-d\TH:i:s.u\Z',
+            $info['version']['build_date']
         );
         if ($versionBuildDate === false) {
             throw DateTimeCreationException::fromArray($info['version'], 'build_date');
