@@ -6,12 +6,14 @@ namespace EMS\CommonBundle\Contracts\Elasticsearch;
 
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\HealthInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\InfoInterface;
+use EMS\CommonBundle\Contracts\Elasticsearch\Document\DocumentInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Search\SearchResponseInterface;
 
 interface ClientInterface
 {
     public function addAlias(string $alias, string $index): void;
 
+    public function getDocument(string $index, string $contentType, string $id): ?DocumentInterface;
     public function getInfo(): InfoInterface;
     public function getHealth(): HealthInterface;
 

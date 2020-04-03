@@ -12,5 +12,9 @@ interface SourceInterface
     public function getFinalizationDateTime(): \DateTimeImmutable;
     public function getHash(): ?string;
     public function getPublicationDateTime(): \DateTimeImmutable;
+
+    /**
+     * Please use the other public functions, this toArray() function is for legacy code.
+     */
     public function toArray(): array;
 }

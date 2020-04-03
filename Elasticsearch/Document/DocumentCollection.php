@@ -10,7 +10,7 @@ use EMS\CommonBundle\Contracts\Elasticsearch\Search\SearchResponseInterface;
 
 final class DocumentCollection implements DocumentCollectionInterface
 {
-    /** @var array */
+    /** @var array|DocumentInterface[] */
     private $documents;
 
     private function __construct()
@@ -31,6 +31,18 @@ final class DocumentCollection implements DocumentCollectionInterface
     public function count(): int
     {
         return count($this->documents);
+    }
+
+    public function getIds(): array
+    {
+        return array_map(function (DocumentInterface $document) {
+            return $document->getId();
+        }, $this->documents);
+    }
+
+    public function first(): ?DocumentInterface
+    {
+        return $this->documents[0] ?? null;
     }
 
     public function getIterator(): iterable

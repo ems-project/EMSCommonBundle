@@ -8,6 +8,7 @@ use Elasticsearch\Client as ElasticsearchClient;
 use EMS\CommonBundle\Contracts\Elasticsearch\ClientInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\HealthInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\InfoInterface;
+use EMS\CommonBundle\Contracts\Elasticsearch\Document\DocumentInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Search\SearchResponseInterface;
 use EMS\CommonBundle\Elasticsearch\Cluster\Health;
 use EMS\CommonBundle\Elasticsearch\Cluster\Info;
@@ -39,6 +40,17 @@ final class Client implements ClientInterface
                ]
            ]
         ]);
+    }
+
+    public function getDocument(string $index, string $contentType, string $id): ?DocumentInterface
+    {
+        $search = $this->searchByContentType($index, $contentType, [
+            'query' => [
+                ['term' => ['_id' => $id]]
+            ]
+        ]);
+
+        return $search->getDocumentCollection()->first();
     }
 
     public function getHealth(): HealthInterface
