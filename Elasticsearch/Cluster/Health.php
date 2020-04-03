@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EMS\CommonBundle\Elasticsearch\Client;
+namespace EMS\CommonBundle\Elasticsearch\Cluster;
 
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\HealthInterface;
 

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch\Document;
 
-use EMS\CommonBundle\Elasticsearch\Response\ResponseInterface;
+use EMS\CommonBundle\Contracts\Elasticsearch\Document\DocumentCollectionInterface;
+use EMS\CommonBundle\Contracts\Elasticsearch\Document\DocumentInterface;
+use EMS\CommonBundle\Contracts\Elasticsearch\Search\SearchResponseInterface;
 
 final class DocumentCollection implements DocumentCollectionInterface
 {
@@ -15,7 +17,7 @@ final class DocumentCollection implements DocumentCollectionInterface
     {
     }
 
-    public static function fromResponse(ResponseInterface $response): self
+    public static function fromSearchResponse(SearchResponseInterface $response): self
     {
         $collection = new static();
 

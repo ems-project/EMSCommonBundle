@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace EMS\CommonBundle\Elasticsearch\Document;
+namespace EMS\CommonBundle\Contracts\Elasticsearch\Document;
 
-interface EMSSourceInterface
+interface SourceInterface
 {
     public function get(string $field, $default = null);
     public function getContentType(): string;

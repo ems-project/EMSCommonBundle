@@ -2,27 +2,30 @@
 
 declare(strict_types=1);
 
-namespace EMS\CommonBundle\Elasticsearch\Response;
+namespace EMS\CommonBundle\Elasticsearch\Search;
 
+use EMS\CommonBundle\Contracts\Elasticsearch\Document\DocumentCollectionInterface;
+use EMS\CommonBundle\Contracts\Elasticsearch\Search\SearchResponseInterface;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\DocumentCollection;
 
-final class Response implements ResponseInterface
+final class SearchResponse implements SearchResponseInterface
 {
+    /** @var array */
+    private $hits;
+    /** @var array */
+    private $response;
+    /** @var null|string */
+    private $scrollId;
     /** @var int */
     private $total;
 
-    /** @var array */
-    private $hits;
-
-    /** @var null|string */
-    private $scrollId;
-
     public function __construct(array $response)
     {
-        $this->total = $response['hits']['total'] ?? 0;
         $this->hits = $response['hits']['hits'] ?? [];
+        $this->response = $response;
         $this->scrollId = $response['_scroll_id'] ?? null;
+        $this->total = $response['hits']['total'] ?? 0;
     }
 
     public function hasDocuments(): bool
@@ -37,9 +40,9 @@ final class Response implements ResponseInterface
         }
     }
 
-    public function getDocumentCollection(): DocumentCollection
+    public function getDocumentCollection(): DocumentCollectionInterface
     {
-        return DocumentCollection::fromResponse($this);
+        return DocumentCollection::fromSearchResponse($this);
     }
 
     public function getScrollId(): ?string
@@ -55,5 +58,10 @@ final class Response implements ResponseInterface
     public function getTotalDocuments(): int
     {
         return count($this->hits);
+    }
+
+    public function toArray(): array
+    {
+        return $this->response;
     }
 }

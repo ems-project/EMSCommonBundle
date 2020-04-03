@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace EMS\CommonBundle\Elasticsearch\Client;
+namespace EMS\CommonBundle\Elasticsearch\Cluster;
 
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\InfoInterface;
+use EMS\CommonBundle\Exception\DateTimeCreationException;
 
 final class Info implements InfoInterface
 {
@@ -31,7 +32,14 @@ final class Info implements InfoInterface
         $this->nodeName = $info['name'];
         $this->versionNumber = $info['version']['number'];
         $this->versionNumberLucene = $info['version']['lucene_version'];
-        $this->versionBuildDate = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.u\Z', $info['version']['build_date']);
+
+        $versionBuildDate = \DateTimeImmutable::createFromFormat(
+            'Y-m-d\TH:i:s.u\Z', $info['version']['build_date']
+        );
+        if ($versionBuildDate === false) {
+            throw DateTimeCreationException::fromArray($info['version'], 'build_date');
+        }
+        $this->versionBuildDate = $versionBuildDate;
     }
 
     public function getClusterName(): string
