@@ -9,9 +9,12 @@ use EMS\CommonBundle\Contracts\Elasticsearch\ClientInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\HealthInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\InfoInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Document\DocumentInterface;
+use EMS\CommonBundle\Contracts\Elasticsearch\Search\SearchRequestInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Search\SearchResponseInterface;
 use EMS\CommonBundle\Elasticsearch\Cluster\Health;
 use EMS\CommonBundle\Elasticsearch\Cluster\Info;
+use EMS\CommonBundle\Elasticsearch\Search\Body;
+use EMS\CommonBundle\Elasticsearch\Search\SearchRequest;
 use EMS\CommonBundle\Elasticsearch\Search\SearchResponse;
 use Psr\Log\LoggerInterface;
 
@@ -40,6 +43,11 @@ final class Client implements ClientInterface
                ]
            ]
         ]);
+    }
+
+    public function createSearchRequest(array $indexes = [], array $contentTypes = [], array $body = []): SearchRequestInterface
+    {
+        return new SearchRequest($indexes, $contentTypes, $body);
     }
 
     public function getDocument(string $index, string $contentType, string $id): ?DocumentInterface
@@ -97,7 +105,7 @@ final class Client implements ClientInterface
     public function scrollByContentType(string $index, string $contentType, array $body, int $size = 10, string $scroll = '30s'): iterable
     {
         $scrollResponse = new SearchResponse($this->client->search([
-            'body' => $this->createBodyContentType($contentType, $body),
+            'body' => Body::addContentType($body, $contentType),
             'index' => $index,
             'scroll' => $scroll,
             'size' => $size
@@ -118,32 +126,15 @@ final class Client implements ClientInterface
     public function searchByContentType(string $index, string $contentType, array $body, int $size = 10): SearchResponseInterface
     {
         return new SearchResponse($this->client->search([
-            'body' => $this->createBodyContentType($contentType, $body),
+            'body' => Body::addContentType($body, $contentType),
             'index' => $index,
             'size' => $size
         ]));
     }
 
-    private function createBodyContentType(string $contentType, array $body): array
+    public function searchByRequest(SearchRequestInterface $searchRequest): SearchResponseInterface
     {
-        return [
-            'query' => [
-                'bool' => [
-                    'must' => array_filter([
-                        [
-                            'bool' => [
-                                'minimum_should_match' => 1,
-                                'should' => [
-                                    ['term' => ['_type' => $contentType]],
-                                    ['term' => ['_contenttype' => $contentType]],
-                                ]
-                            ]
-                        ],
-                        $body['query'] ?? []
-                    ])
-                ]
-            ]
-        ];
+        return new SearchResponse($this->client->search($searchRequest->getParams()));
     }
 
     private function doScroll(SearchResponse $scrollResponse, string $scroll): iterable
