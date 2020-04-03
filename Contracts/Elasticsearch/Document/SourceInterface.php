@@ -14,7 +14,7 @@ interface SourceInterface
     public function getPublicationDateTime(): \DateTimeImmutable;
 
     /**
-     * Please use the other public functions, this toArray() function is for legacy code.
+     * @deprecated Please use the other public functions, this toArray() function is for legacy code.
      */
     public function toArray(): array;
 }

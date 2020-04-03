@@ -60,9 +60,6 @@ final class SearchResponse implements SearchResponseInterface
         return count($this->hits);
     }
 
-    /**
-     * Please use the other public functions, this toArray() function is for legacy code.
-     */
     public function toArray(): array
     {
         return $this->response;

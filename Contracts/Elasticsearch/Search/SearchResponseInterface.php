@@ -21,5 +21,8 @@ interface SearchResponseInterface
     public function getTotal(): int;
     public function getTotalDocuments(): int;
 
+    /**
+     * @deprecated Please use the other public functions, this toArray() function is for legacy code.
+     */
     public function toArray(): array;
 }
