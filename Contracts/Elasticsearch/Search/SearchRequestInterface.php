@@ -23,4 +23,5 @@ interface SearchRequestInterface
     public function setSize(int $size): SearchRequestInterface;
     public function setSourceIncludes(array $includes): SearchRequestInterface;
     public function setSourceExcludes(array $excludes): SearchRequestInterface;
+    public function setVersion(bool $version): SearchRequestInterface;
 }

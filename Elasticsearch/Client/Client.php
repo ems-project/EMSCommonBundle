@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Elasticsearch\Client;
 
 use Elasticsearch\Client as ElasticsearchClient;
+use EMS\CommonBundle\Contracts\Elasticsearch\Alias\AliasCollectionInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\ClientInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\HealthInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\InfoInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Document\DocumentInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Search\SearchRequestInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Search\SearchResponseInterface;
+use EMS\CommonBundle\Elasticsearch\Alias\AliasCollection;
 use EMS\CommonBundle\Elasticsearch\Cluster\Health;
 use EMS\CommonBundle\Elasticsearch\Cluster\Info;
 use EMS\CommonBundle\Elasticsearch\Search\Body;
@@ -48,6 +50,11 @@ final class Client implements ClientInterface
     public function createSearchRequest(array $indexes = [], array $contentTypes = [], array $body = []): SearchRequestInterface
     {
         return new SearchRequest($indexes, $contentTypes, $body);
+    }
+
+    public function getAliases(): AliasCollectionInterface
+    {
+        return new AliasCollection($this->client->cat()->aliases([]));
     }
 
     public function getDocument(string $index, string $contentType, string $id): ?DocumentInterface

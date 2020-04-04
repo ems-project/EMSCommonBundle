@@ -18,23 +18,23 @@ final class Body
 
     private static function appendContentTypes(array $body, array $contentTypes): array
     {
-        return [
-            'query' => [
-                'bool' => [
-                    'must' => array_filter([
-                        [
-                            'bool' => [
-                                'minimum_should_match' => 1,
-                                'should' => [
-                                    ['terms' => ['_type' => $contentTypes]],
-                                    ['terms' => ['_contenttype' => $contentTypes]],
-                                ]
+        $query = [
+            'bool' => [
+                'must' => array_filter([
+                    [
+                        'bool' => [
+                            'minimum_should_match' => 1,
+                            'should' => [
+                                ['terms' => ['_type' => $contentTypes]],
+                                ['terms' => ['_contenttype' => $contentTypes]],
                             ]
-                        ],
-                        $body['query'] ?? []
-                    ])
-                ]
+                        ]
+                    ],
+                    $body['query'] ?? []
+                ])
             ]
         ];
+
+        return array_merge($body, ['query' => $query]);
     }
 }

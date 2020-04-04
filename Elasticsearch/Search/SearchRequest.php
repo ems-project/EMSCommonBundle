@@ -22,6 +22,8 @@ final class SearchRequest implements SearchRequestInterface
     private $sourceIncludes = [];
     /** @var array */
     private $sourceExcludes = [];
+    /** @var bool */
+    private $version = false;
 
     public function __construct(array $indexes = [], array $contentTypes = [], array $body = [])
     {
@@ -73,6 +75,7 @@ final class SearchRequest implements SearchRequestInterface
             'from' => $this->from,
             'index' => $this->indexes,
             'size' => $this->size,
+            'version' => $this->version,
             '_source_include' => $this->sourceIncludes,
             '_source_exclude' => $this->sourceExcludes,
         ]);
@@ -123,6 +126,13 @@ final class SearchRequest implements SearchRequestInterface
     public function setSourceExcludes(array $excludes): SearchRequestInterface
     {
         $this->sourceExcludes = $excludes;
+
+        return $this;
+    }
+
+    public function setVersion(bool $version): SearchRequestInterface
+    {
+        $this->version = $version;
 
         return $this;
     }

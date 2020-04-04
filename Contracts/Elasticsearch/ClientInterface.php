@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Contracts\Elasticsearch;
 
+use EMS\CommonBundle\Contracts\Elasticsearch\Alias\AliasCollectionInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\HealthInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Cluster\InfoInterface;
 use EMS\CommonBundle\Contracts\Elasticsearch\Document\DocumentInterface;
@@ -16,6 +17,7 @@ interface ClientInterface
 
     public function createSearchRequest(array $indexes = [], array $contentTypes = [], array $body = []): SearchRequestInterface;
 
+    public function getAliases(): AliasCollectionInterface;
     public function getDocument(string $index, string $contentType, string $id): ?DocumentInterface;
     public function getInfo(): InfoInterface;
     public function getHealth(): HealthInterface;
