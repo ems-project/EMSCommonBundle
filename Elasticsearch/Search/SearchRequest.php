@@ -18,6 +18,10 @@ final class SearchRequest implements SearchRequestInterface
     private $indexes;
     /** @var int */
     private $size = 10;
+    /** @var array */
+    private $sourceIncludes = [];
+    /** @var array */
+    private $sourceExcludes = [];
 
     public function __construct(array $indexes = [], array $contentTypes = [], array $body = [])
     {
@@ -44,14 +48,34 @@ final class SearchRequest implements SearchRequestInterface
         return $this;
     }
 
+    public function addSourceInclude(string $include): SearchRequestInterface
+    {
+        if (!in_array($include, $this->sourceIncludes, true)) {
+            $this->sourceIncludes[] = $include;
+        }
+
+        return $this;
+    }
+
+    public function addSourceExclude(string $exclude): SearchRequestInterface
+    {
+        if (!in_array($exclude, $this->sourceExcludes, true)) {
+            $this->sourceExcludes[] = $exclude;
+        }
+
+        return $this;
+    }
+
     public function getParams(): array
     {
-        return [
+        return array_filter([
             'body' => Body::addContentTypes($this->body, $this->contentTypes),
             'from' => $this->from,
             'index' => $this->indexes,
             'size' => $this->size,
-        ];
+            '_source_include' => $this->sourceIncludes,
+            '_source_exclude' => $this->sourceExcludes,
+        ]);
     }
 
     public function setBody(array $body): SearchRequestInterface
@@ -85,6 +109,20 @@ final class SearchRequest implements SearchRequestInterface
     public function setSize(int $size): SearchRequestInterface
     {
         $this->size = $size;
+
+        return $this;
+    }
+
+    public function setSourceIncludes(array $includes): SearchRequestInterface
+    {
+        $this->sourceIncludes = $includes;
+
+        return $this;
+    }
+
+    public function setSourceExcludes(array $excludes): SearchRequestInterface
+    {
+        $this->sourceExcludes = $excludes;
 
         return $this;
     }
