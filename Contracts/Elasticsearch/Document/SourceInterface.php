@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace EMS\CommonBundle\Elasticsearch\Document;
+namespace EMS\CommonBundle\Contracts\Elasticsearch\Document;
 
-interface EMSSourceInterface
+interface SourceInterface
 {
     public function get(string $field, $default = null);
     public function getContentType(): string;
@@ -12,5 +12,9 @@ interface EMSSourceInterface
     public function getFinalizationDateTime(): \DateTimeImmutable;
     public function getHash(): ?string;
     public function getPublicationDateTime(): \DateTimeImmutable;
+
+    /**
+     * @deprecated Please use the other public functions, this toArray() function is for legacy code.
+     */
     public function toArray(): array;
 }

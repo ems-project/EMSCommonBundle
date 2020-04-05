@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch\Document;
 
+use EMS\CommonBundle\Contracts\Elasticsearch\Document\DocumentInterface;
+use EMS\CommonBundle\Contracts\Elasticsearch\Document\SourceInterface;
+
 class Document implements DocumentInterface
 {
     /** @var string */
-    private $id;
-    /** @var string */
     private $contentType;
+    /** @var string */
+    private $id;
     /** @var array */
     private $source;
 
@@ -18,11 +21,6 @@ class Document implements DocumentInterface
         $this->id = $document['_id'];
         $this->contentType = $document['source']['_contenttype'] ?? $document['_type'];
         $this->source = $document['_source'] ?? [];
-    }
-
-    public function getId(): string
-    {
-        return $this->id;
     }
 
     public function getContentType(): string
@@ -35,13 +33,13 @@ class Document implements DocumentInterface
         return sprintf('%s:%s', $this->contentType, $this->id);
     }
 
-    public function getSource(): array
+    public function getId(): string
     {
-        return $this->source;
+        return $this->id;
     }
 
-    public function getEMSSource(): EMSSourceInterface
+    public function getSource(): SourceInterface
     {
-        return new EMSSource($this->source);
+        return new Source($this->source);
     }
 }
