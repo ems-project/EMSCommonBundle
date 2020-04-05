@@ -23,6 +23,7 @@ interface SearchResponseInterface
 
     /**
      * @deprecated Please use the other public functions, this toArray() function is for legacy code.
+     * No promise for backward compatibility
      */
     public function toArray(): array;
 }
