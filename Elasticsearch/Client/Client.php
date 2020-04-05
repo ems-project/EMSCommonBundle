@@ -115,7 +115,8 @@ final class Client implements ClientInterface
             'body' => Body::addContentType($body, $contentType),
             'index' => $index,
             'scroll' => $scroll,
-            'size' => $size
+            'size' => $size,
+            'version' => true,
         ]));
 
         return $this->doScroll($scrollResponse, $scroll);
@@ -126,7 +127,8 @@ final class Client implements ClientInterface
         return new SearchResponse($this->client->search([
             'body' => $body,
             'index' => $index,
-            'size' => $size
+            'size' => $size,
+            'version' => true,
         ]));
     }
 
@@ -135,7 +137,8 @@ final class Client implements ClientInterface
         return new SearchResponse($this->client->search([
             'body' => Body::addContentType($body, $contentType),
             'index' => $index,
-            'size' => $size
+            'size' => $size,
+            'version' => true,
         ]));
     }
 

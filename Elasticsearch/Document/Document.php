@@ -9,6 +9,8 @@ use EMS\CommonBundle\Contracts\Elasticsearch\Document\SourceInterface;
 
 class Document implements DocumentInterface
 {
+    /** @var array */
+    private $document;
     /** @var string */
     private $contentType;
     /** @var string */
@@ -18,8 +20,9 @@ class Document implements DocumentInterface
 
     public function __construct(array $document)
     {
-        $this->id = $document['_id'];
         $this->contentType = $document['source']['_contenttype'] ?? $document['_type'];
+        $this->document = $document;
+        $this->id = $document['_id'];
         $this->source = $document['_source'] ?? [];
     }
 
@@ -41,5 +44,10 @@ class Document implements DocumentInterface
     public function getSource(): SourceInterface
     {
         return new Source($this->source);
+    }
+
+    public function toArray(): array
+    {
+        return $this->document;
     }
 }

@@ -23,7 +23,7 @@ final class SearchRequest implements SearchRequestInterface
     /** @var array */
     private $sourceExcludes = [];
     /** @var bool */
-    private $version = false;
+    private $version = true;
 
     public function __construct(array $indexes = [], array $contentTypes = [], array $body = [])
     {

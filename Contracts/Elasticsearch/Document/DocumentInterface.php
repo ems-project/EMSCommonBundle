@@ -10,4 +10,9 @@ interface DocumentInterface
     public function getEmsId(): string;
     public function getId(): string;
     public function getSource(): SourceInterface;
+
+    /**
+     * @deprecated Please use the other public functions, this toArray() function is for legacy code.
+     */
+    public function toArray(): array;
 }
