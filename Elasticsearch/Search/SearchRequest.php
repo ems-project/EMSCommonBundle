@@ -19,7 +19,7 @@ final class SearchRequest implements SearchRequestInterface
     /** @var int */
     private $size = 10;
     /** @var bool */
-    private $sourceDisabled = false;
+    private $sourceEnabled = true;
     /** @var array */
     private $sourceExcludes = [];
     /** @var array */
@@ -70,6 +70,20 @@ final class SearchRequest implements SearchRequestInterface
         return $this;
     }
 
+    public function disableSource(): SearchRequestInterface
+    {
+        $this->sourceEnabled = false;
+
+        return $this;
+    }
+
+    public function enableSource(): SearchRequestInterface
+    {
+        $this->sourceEnabled = true;
+
+        return $this;
+    }
+
     public function getParams(): array
     {
         return [
@@ -78,7 +92,7 @@ final class SearchRequest implements SearchRequestInterface
             'index' => $this->indexes,
             'size' => $this->size,
             'version' => $this->version,
-            '_source' => ($this->sourceDisabled ? false : true),
+            '_source' => $this->sourceEnabled,
             '_source_exclude' => $this->sourceExcludes,
             '_source_include' => $this->sourceIncludes,
         ];
@@ -115,13 +129,6 @@ final class SearchRequest implements SearchRequestInterface
     public function setSize(int $size): SearchRequestInterface
     {
         $this->size = $size;
-
-        return $this;
-    }
-
-    public function setSourceDisabled(bool $disabled): SearchRequestInterface
-    {
-        $this->sourceDisabled = $disabled;
 
         return $this;
     }

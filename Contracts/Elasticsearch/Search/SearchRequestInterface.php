@@ -11,6 +11,9 @@ interface SearchRequestInterface
     public function addSourceInclude(string $include): SearchRequestInterface;
     public function addSourceExclude(string $exclude): SearchRequestInterface;
 
+    public function disableSource(): SearchRequestInterface;
+    public function enableSource(): SearchRequestInterface;
+
     /**
      * @internal should only be used by the client
      */
@@ -21,7 +24,6 @@ interface SearchRequestInterface
     public function setIndexes(array $indexes): SearchRequestInterface;
     public function setPage(int $page): SearchRequestInterface;
     public function setSize(int $size): SearchRequestInterface;
-    public function setSourceDisabled(bool $disabled): SearchRequestInterface;
     public function setSourceExcludes(array $excludes): SearchRequestInterface;
     public function setSourceIncludes(array $includes): SearchRequestInterface;
     public function setVersion(bool $version): SearchRequestInterface;
