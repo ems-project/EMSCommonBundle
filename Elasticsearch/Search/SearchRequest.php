@@ -18,10 +18,12 @@ final class SearchRequest implements SearchRequestInterface
     private $indexes;
     /** @var int */
     private $size = 10;
-    /** @var array */
-    private $sourceIncludes = [];
+    /** @var bool */
+    private $sourceDisabled = false;
     /** @var array */
     private $sourceExcludes = [];
+    /** @var array */
+    private $sourceIncludes = [];
     /** @var bool */
     private $version = true;
 
@@ -70,15 +72,16 @@ final class SearchRequest implements SearchRequestInterface
 
     public function getParams(): array
     {
-        return array_filter([
+        return [
             'body' => Body::addContentTypes($this->body, $this->contentTypes),
             'from' => $this->from,
             'index' => $this->indexes,
             'size' => $this->size,
             'version' => $this->version,
-            '_source_include' => $this->sourceIncludes,
+            '_source' => ($this->sourceDisabled ? false : true),
             '_source_exclude' => $this->sourceExcludes,
-        ]);
+            '_source_include' => $this->sourceIncludes,
+        ];
     }
 
     public function setBody(array $body): SearchRequestInterface
@@ -116,9 +119,9 @@ final class SearchRequest implements SearchRequestInterface
         return $this;
     }
 
-    public function setSourceIncludes(array $includes): SearchRequestInterface
+    public function setSourceDisabled(bool $disabled): SearchRequestInterface
     {
-        $this->sourceIncludes = $includes;
+        $this->sourceDisabled = $disabled;
 
         return $this;
     }
@@ -126,6 +129,13 @@ final class SearchRequest implements SearchRequestInterface
     public function setSourceExcludes(array $excludes): SearchRequestInterface
     {
         $this->sourceExcludes = $excludes;
+
+        return $this;
+    }
+
+    public function setSourceIncludes(array $includes): SearchRequestInterface
+    {
+        $this->sourceIncludes = $includes;
 
         return $this;
     }
