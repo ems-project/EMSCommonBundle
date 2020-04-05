@@ -19,15 +19,6 @@ final class AliasCollection implements AliasCollectionInterface
         }
     }
 
-    private function addAlias(string $name): Alias
-    {
-        if (!isset($this->aliases[$name])) {
-            $this->aliases[$name] = new Alias($name);
-        }
-
-        return $this->aliases[$name];
-    }
-
     public function count(): int
     {
         return count($this->aliases);
@@ -36,5 +27,14 @@ final class AliasCollection implements AliasCollectionInterface
     public function getIterator(): iterable
     {
         return new \ArrayIterator($this->aliases);
+    }
+
+    private function addAlias(string $name): Alias
+    {
+        if (!isset($this->aliases[$name])) {
+            $this->aliases[$name] = new Alias($name);
+        }
+
+        return $this->aliases[$name];
     }
 }
