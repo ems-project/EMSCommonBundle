@@ -24,9 +24,9 @@ final class Source implements SourceInterface
 
     public function __construct(array $source)
     {
-        $this->contentType = $source['_contenttype'] ?? null;
-        $this->finalizedBy = $source['_finalized_by'] ?? null;
-        $this->hash = $source['_sha1'] ?? null;
+        $this->contentType = $source['_contenttype'];
+        $this->finalizedBy = $source['_finalized_by'];
+        $this->hash = $source['_sha1'];
         $this->source = $source;
 
         $finalizationDateTime = \DateTimeImmutable::createFromFormat(
