@@ -98,7 +98,14 @@ abstract class AbstractUrlStorage implements StorageInterface
         $path = $this->getPath($hash, $context);
         if (file_exists($path)) {
             $time = @filemtime($path);
-            return $time ? \DateTime::createFromFormat('U', (string) $time) : null;
+            if (!$time) {
+                return null;
+            }
+            $dateTime = \DateTime::createFromFormat('U', (string) $time);
+            if (!$dateTime) {
+                return null;
+            }
+            return $dateTime;
         }
         return null;
     }
@@ -112,18 +119,20 @@ abstract class AbstractUrlStorage implements StorageInterface
         return is_dir($this->getBaseUrl());
     }
 
-    /**
-     * @param string $hash
-     * @param null|string $cacheContext
-     * @return int
-     */
     public function getSize(string $hash, ?string $cacheContext = null): ?int
     {
         $path = $this->getPath($hash, $cacheContext);
-        if (file_exists($path)) {
-            return @filesize($path);
+
+        if (!\file_exists($path)) {
+            return null;
         }
-        return null;
+
+        $size = @filesize($path);
+        if ($size === false) {
+            return null;
+        }
+
+        return $size;
     }
 
     /**
@@ -185,8 +194,11 @@ abstract class AbstractUrlStorage implements StorageInterface
         }
 
         $file = fopen($path, "a");
-        $result = fwrite($file, $chunk);
+        if ($file === false) {
+            return false;
+        }
 
+        $result = fwrite($file, $chunk);
         fflush($file);
         fclose($file);
 

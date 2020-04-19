@@ -198,7 +198,7 @@ class Processor
 
     private function getResourceFromAsset(Config $config)
     {
-        if ($config->getFilename()) {
+        if ($config->getFilename() !== null) {
             return fopen($config->getFilename(), 'r');
         }
 

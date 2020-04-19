@@ -4,54 +4,23 @@ namespace EMS\CommonBundle\Storage\Service;
 
 class SftpStorage extends AbstractUrlStorage
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $host;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     private $path;
-
-    /**
-     * @var int
-     */
+    /** @var int */
     private $port;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     private $username;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     private $publicKeyFile;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     private $privateKeyFile;
-
-    /**
-     * @var null
-     */
+    /** @var null */
     private $passwordPhrase;
-
-    /**
-     * @var resource
-     */
-    private $connection = null;
-
-    /**
-     * @var resource
-     */
+    /** @var resource|null */
     private $sftp = null;
-
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $contextSupport;
 
     /**
@@ -71,59 +40,36 @@ class SftpStorage extends AbstractUrlStorage
         $this->contextSupport = $contextSupport;
     }
 
-
-
-    /**
-     * @inheritdoc
-     */
     protected function getBaseUrl(): string
     {
+        if ($this->sftp === null) {
+            $this->connect();
+        }
+        return 'ssh2.sftp://' . intval($this->sftp) . $this->path;
+    }
 
+    private function connect()
+    {
         if (!function_exists('ssh2_connect')) {
             throw new \Exception("PHP functions Secure Shell are required by $this. (ssh2)");
         }
 
-        $this->setupConnection();
-
-        if ($this->passwordPhrase === null) {
-            ssh2_auth_pubkey_file($this->connection, $this->username, $this->publicKeyFile, $this->privateKeyFile);
-        } else {
-            ssh2_auth_pubkey_file($this->connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
+        $connection = @ssh2_connect($this->host, $this->port);
+        if ($connection === false) {
+            throw new \Exception("Could not connect to $this->host on port $this->port.");
         }
 
-        $this->setSftp();
+        if ($this->passwordPhrase === null) {
+            ssh2_auth_pubkey_file($connection, $this->username, $this->publicKeyFile, $this->privateKeyFile);
+        } else {
+            ssh2_auth_pubkey_file($connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
+        }
 
-        return 'ssh2.sftp://' . intval($this->sftp) . $this->path;
+        $this->sftp = @ssh2_sftp($connection);
     }
 
-
-
-    /**
-     * @inheritdoc
-     */
     public function __toString(): string
     {
         return SftpStorage::class . " ($this->host)";
-    }
-
-    private function setupConnection(): void
-    {
-        if ($this->connection === null) {
-            return;
-        }
-
-        $this->connection = @ssh2_connect($this->host, $this->port);
-        if (!$this->connection) {
-            throw new \Exception("Could not connect to $this->host on port $this->port.");
-        }
-    }
-
-    private function setSftp(): void
-    {
-        if ($this->sftp === null) {
-            return;
-        }
-
-        $this->sftp = @ssh2_sftp($this->connection);
     }
 }

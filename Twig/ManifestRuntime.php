@@ -8,7 +8,13 @@ class ManifestRuntime implements RuntimeExtensionInterface
 {
     public function manifest(string $manifestUrl, string $resource): string
     {
-        $manifest = \json_decode(file_get_contents($manifestUrl), true);
+        $contents = file_get_contents($manifestUrl);
+
+        if ($contents === false) {
+            return $manifestUrl;
+        }
+
+        $manifest = \json_decode($contents, true);
 
         if (!isset($manifest[$resource])) {
             return $manifestUrl;

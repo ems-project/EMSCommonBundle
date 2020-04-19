@@ -235,7 +235,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 }
             }
 
-            if ($this->user === null && $this->security->getToken()) {
+            if ($this->user === null && $this->security->getToken() !== null) {
                 $this->user = $this->security->getToken()->getUsername();
                 if ($this->security->isGranted('ROLE_PREVIOUS_ADMIN')) {
                     foreach ($this->security->getToken()->getRoles() as $role) {
@@ -337,7 +337,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                     EmsFields::LOG_URL_FIELD => $request->getRequestUri(),
                     EmsFields::LOG_ROUTE_FIELD => $route,
                     EmsFields::LOG_STATUS_CODE_FIELD => $statusCode,
-                    EmsFields::LOG_SIZE_FIELD => strlen($event->getResponse()->getContent()),
+                    EmsFields::LOG_SIZE_FIELD => strlen((string) $event->getResponse()->getContent()),
                     EmsFields::LOG_MICROTIME_FIELD => (microtime(true) - $this->startMicrotime),
                 ],
             ];

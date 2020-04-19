@@ -23,9 +23,15 @@ class Encoder
     {
         $telRegex = '/(?P<tel>"tel:.*")/i';
 
-        return preg_replace_callback($telRegex, function ($match) {
+        $encodedText = preg_replace_callback($telRegex, function ($match) {
             return $this->htmlEncode($match['tel']);
         }, $text);
+
+        if ($encodedText === null) {
+            return $text;
+        }
+
+        return $encodedText;
     }
 
     /**
@@ -37,9 +43,15 @@ class Encoder
     {
         $urlRegex = '/(?P<proto>([\w\d-\.]+:)?)\/\/(?P<host>[\w\d-\.]+(:[0-9]+)?)\/(?P<baseurl>([\w\d-\._]+\/)*)(?P<target>[\w\d-\._]+)/';
 
-        return preg_replace_callback($urlRegex, function ($matches) {
+        $encodedText = preg_replace_callback($urlRegex, function ($matches) {
             return sprintf('<a href="%s//%s/%s%s">%s</a>', $matches['proto'], $matches['host'], $matches['baseurl'], $matches['target'], $matches['target']);
         }, $text);
+
+        if ($encodedText === null) {
+            return $text;
+        }
+
+        return $encodedText;
     }
 
     /**
@@ -51,9 +63,15 @@ class Encoder
     {
         $emailRegex = '/(?P<email>[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3}))/i';
 
-        return preg_replace_callback($emailRegex, function ($match) {
+        $encodedText = preg_replace_callback($emailRegex, function ($match) {
             return $this->htmlEncode($match['email']);
         }, $text);
+
+        if ($encodedText === null) {
+            return $text;
+        }
+
+        return $encodedText;
     }
 
     /**
@@ -70,8 +88,14 @@ class Encoder
     {
         $piiRegex = '/<span class="pii">(?P<pii>.*)<\/span>/m';
 
-        return preg_replace_callback($piiRegex, function ($match) {
+        $encodedText = preg_replace_callback($piiRegex, function ($match) {
             return $this->htmlEncode($match['pii']);
         }, $text);
+
+        if ($encodedText === null) {
+            return $text;
+        }
+
+        return $encodedText;
     }
 }

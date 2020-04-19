@@ -2,5 +2,5 @@ parameters:
     excludes_analyse:
         - %currentWorkingDirectory%/vendor/*
         - %currentWorkingDirectory%/DependencyInjection/Configuration.php
-    level: 5
+    level: 7
     inferPrivatePropertyTypeFromConstructor: true
