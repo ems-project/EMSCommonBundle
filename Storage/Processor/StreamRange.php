@@ -47,7 +47,7 @@ class StreamRange
 
     public function isSatisfiable()
     {
-        return $this->supported && $this->start >= 0 && $this->end < $this->fileSize;
+        return !isOutOfRange() && $this->start >= 0 && $this->end < $this->fileSize;
     }
 
     public function rangeRequested()
