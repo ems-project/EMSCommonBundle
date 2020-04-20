@@ -63,18 +63,28 @@ class StreamRange
         return sprintf('bytes */%s', $this->fileSize);
     }
 
+    private function exceptionIfNotSupported()
+    {
+        if (!$this->supported) {
+            throw new \Exception('Range headers not supported');
+        }
+    }
+
     public function getContentLengthHeader()
     {
+        $this->exceptionIfNotSupported();
         return strval($this->end - $this->start + 1);
     }
 
     public function getStart(): int
     {
+        $this->exceptionIfNotSupported();
         return $this->start;
     }
 
     public function getEnd(): int
     {
+        $this->exceptionIfNotSupported();
         return $this->end;
     }
 }
