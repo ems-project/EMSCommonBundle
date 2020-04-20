@@ -249,25 +249,25 @@ class Processor
         return $generatedResource;
     }
 
-    private function getResponseFromStreamInterface(StreamInterface $streamInterface, Request $request): StreamedResponse
+    private function getResponseFromStreamInterface(StreamInterface $stream, Request $request): StreamedResponse
     {
-        $response = new StreamedResponse(function () use ($streamInterface) {
-            if ($streamInterface->isSeekable()) {
-                $streamInterface->rewind();
+        $response = new StreamedResponse(function () use ($stream) {
+            if ($stream->isSeekable()) {
+                $stream->rewind();
             }
 
-            while (!$streamInterface->eof()) {
-                echo $streamInterface->read(self::BUFFER_SIZE);
+            while (!$stream->eof()) {
+                echo $stream->read(self::BUFFER_SIZE);
             }
-            $streamInterface->close();
+            $stream->close();
         });
 
-        if (null === $fileSize = $streamInterface->getSize()) {
+        if (null === $fileSize = $stream->getSize()) {
             return $response;
         }
         $response->headers->set('Content-Length', strval($fileSize));
 
-        if ($streamInterface->isSeekable()) {
+        if ($stream->isSeekable()) {
             $response->headers->set('Accept-Ranges', $request->isMethodSafe() ? 'bytes' : 'none');
         }
 
@@ -284,17 +284,17 @@ class Processor
             $response->headers->set('Content-Range', $streamRange->getContentRangeHeader());
             $response->headers->set('Content-Length', $streamRange->getContentLengthHeader());
 
-            $response->setCallback(function () use ($streamInterface, $streamRange) {
+            $response->setCallback(function () use ($stream, $streamRange) {
                 $offset = $streamRange->getStart();
                 $buffer = self::BUFFER_SIZE;
-                $streamInterface->seek($offset);
-                while (!$streamInterface->eof() && ($offset = $streamInterface->tell()) < $streamRange->getEnd()) {
+                $stream->seek($offset);
+                while (!$stream->eof() && ($offset = $stream->tell()) < $streamRange->getEnd()) {
                     if ($offset + $buffer > $streamRange->getEnd()) {
                         $buffer = $streamRange->getEnd() + 1 - $offset;
                     }
-                    echo $streamInterface->read($buffer);
+                    echo $stream->read($buffer);
                 }
-                $streamInterface->close();
+                $stream->close();
             });
         }
 
