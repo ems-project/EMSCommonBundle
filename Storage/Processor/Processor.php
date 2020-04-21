@@ -5,6 +5,7 @@ namespace EMS\CommonBundle\Storage\Processor;
 use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
+use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -20,6 +21,8 @@ class Processor
     private $storageManager;
     /** @var LoggerInterface */
     private $logger;
+
+    const BUFFER_SIZE = 8192;
 
     public function __construct(StorageManager $storageManager, LoggerInterface $logger)
     {
@@ -41,31 +44,17 @@ class Processor
 
         $handler = $this->getResource($config, $filename, $request->headers->getCacheControlDirective('no-cache') === true);
 
-        if ($handler instanceof StreamInterface) {
-            $callback = function () use ($handler) {
-                if ($handler->isSeekable()) {
-                    $handler->rewind();
-                }
-                if (!$handler->isReadable()) {
-                    echo $handler;
-                    return;
-                }
-                while (!$handler->eof()) {
-                    echo $handler->read(8192);
-                }
-            };
-        } else {
-            $callback = function () use ($handler) {
-                while (!feof($handler)) {
-                    print fread($handler, 8192);
-                }
-            };
+        if (! $handler instanceof StreamInterface) {
+            $handler = new Stream($handler);
         }
 
-        $response = new StreamedResponse($callback, 200, [
+        $response = $this->getResponseFromStreamInterface($handler, $request);
+
+        $response->headers->add([
             'Content-Disposition' => $config->getDisposition() . '; ' . HeaderUtils::toString(array('filename' => $filename), ';'),
             'Content-Type' => $config->getMimeType(),
         ]);
+
         $response->setPublic()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
         return $response;
     }
@@ -258,5 +247,58 @@ class Processor
         $generatedResource = $this->generateResource($config);
         $this->saveGeneratedResourceToCache($generatedResource, $config, $filename);
         return $generatedResource;
+    }
+
+    private function getResponseFromStreamInterface(StreamInterface $stream, Request $request): StreamedResponse
+    {
+        $response = new StreamedResponse(function () use ($stream) {
+            if ($stream->isSeekable()) {
+                $stream->rewind();
+            }
+
+            while (!$stream->eof()) {
+                echo $stream->read(self::BUFFER_SIZE);
+            }
+            $stream->close();
+        });
+
+        if (null === $fileSize = $stream->getSize()) {
+            return $response;
+        }
+        $response->headers->set('Content-Length', strval($fileSize));
+
+        if ($stream->isSeekable()) {
+            $response->headers->set('Accept-Ranges', $request->isMethodSafe() ? 'bytes' : 'none');
+        }
+
+        try {
+            $streamRange = new StreamRange($request->headers, $fileSize);
+        } catch (\RuntimeException $e) {
+            return $response;
+        }
+
+        if (!$streamRange->isSatisfiable()) {
+            $response->setStatusCode(StreamedResponse::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE);
+            $response->headers->set('Content-Range', $streamRange->getContentRangeHeader());
+        } else if ($streamRange->isPartial()) {
+            $response->setStatusCode(StreamedResponse::HTTP_PARTIAL_CONTENT);
+            $response->headers->set('Content-Range', $streamRange->getContentRangeHeader());
+            $response->headers->set('Content-Length', $streamRange->getContentLengthHeader());
+
+            $response->setCallback(function () use ($stream, $streamRange) {
+                $offset = $streamRange->getStart();
+                $buffer = self::BUFFER_SIZE;
+                $stream->seek($offset);
+                while (!$stream->eof() && ($offset = $stream->tell()) < $streamRange->getEnd()) {
+                    if ($offset + $buffer > $streamRange->getEnd()) {
+                        $buffer = $streamRange->getEnd() + 1 - $offset;
+                    }
+                    echo $stream->read($buffer);
+                }
+                $stream->close();
+            });
+        }
+
+        return $response;
     }
 }
