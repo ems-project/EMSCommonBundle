@@ -271,8 +271,9 @@ class Processor
             $response->headers->set('Accept-Ranges', $request->isMethodSafe() ? 'bytes' : 'none');
         }
 
-        $streamRange = new StreamRange($request->headers, $fileSize);
-        if ($streamRange->isOutOfRange()) {
+        try {
+            $streamRange = new StreamRange($request->headers, $fileSize);
+        } catch (\Exception $exception) {
             return $response;
         }
 

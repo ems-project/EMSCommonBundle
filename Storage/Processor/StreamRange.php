@@ -8,8 +8,6 @@ use Symfony\Component\HttpFoundation\HeaderBag;
 
 class StreamRange
 {
-    /** @var bool */
-    private $supported;
     /** @var int */
     private $fileSize;
     /** @var int */
@@ -20,16 +18,12 @@ class StreamRange
     public function __construct(HeaderBag $headerBag, int $fileSize)
     {
         $this->fileSize = $fileSize;
-        $this->supported = false;
-        $this->start = 0;
-        $this->end = $this->fileSize - 1;
 
         $range = $headerBag->get('Range');
         if ($range === null) {
-            return;
+            throw new \RuntimeException('Range in header is null');
         }
 
-        $this->supported = true;
         list($start, $end) = explode('-', substr($range, 6), 2) + [0];
 
         $this->end = ('' === $end) ? $fileSize - 1 : (int) $end;
@@ -40,21 +34,20 @@ class StreamRange
         } else {
             $this->start = (int) $start;
         }
-    }
 
-    public function isOutOfRange()
-    {
-        return !$this->supported || $this->start > $this->end;
+        if ($this->start > $this->end) {
+            throw new \RuntimeException('Data is out of range');
+        }
     }
 
     public function isSatisfiable()
     {
-        return !$this->isOutOfRange() && $this->start >= 0 && $this->end < $this->fileSize;
+        return $this->start >= 0 && $this->end < $this->fileSize;
     }
 
     public function rangeRequested()
     {
-        return $this->supported && (0 !== $this->start || $this->end !== $this->fileSize - 1);
+        return 0 !== $this->start || $this->end !== $this->fileSize - 1;
     }
 
     public function getContentRangeHeader()
