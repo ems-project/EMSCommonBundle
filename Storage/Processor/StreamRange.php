@@ -37,7 +37,7 @@ class StreamRange
 
         list($start, $end) = explode('-', substr($range, 6), 2) + [0];
 
-        $this->end = ('' === $end) ? $this->end : (int) $end;
+        $this->end = ('' === $end) ? $this->fileSize - 1 : (int) $end;
 
         if ('' === $start) {
             $this->start = $this->fileSize - $this->end;
