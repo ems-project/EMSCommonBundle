@@ -271,15 +271,16 @@ class Processor
             $response->headers->set('Accept-Ranges', $request->isMethodSafe() ? 'bytes' : 'none');
         }
 
-        $streamRange = new StreamRange($request->headers, $fileSize);
-        if ($streamRange->isOutOfRange()) {
+        try {
+            $streamRange = new StreamRange($request->headers, $fileSize);
+        } catch (\RuntimeException $e) {
             return $response;
         }
 
         if (!$streamRange->isSatisfiable()) {
             $response->setStatusCode(StreamedResponse::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE);
             $response->headers->set('Content-Range', $streamRange->getContentRangeHeader());
-        } elseif ($streamRange->rangeRequested()) {
+        } else if ($streamRange->isPartial()) {
             $response->setStatusCode(StreamedResponse::HTTP_PARTIAL_CONTENT);
             $response->headers->set('Content-Range', $streamRange->getContentRangeHeader());
             $response->headers->set('Content-Length', $streamRange->getContentLengthHeader());

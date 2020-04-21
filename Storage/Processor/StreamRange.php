@@ -8,8 +8,6 @@ use Symfony\Component\HttpFoundation\HeaderBag;
 
 class StreamRange
 {
-    /** @var bool */
-    private $supported;
     /** @var int */
     private $fileSize;
     /** @var int */
@@ -20,19 +18,26 @@ class StreamRange
     public function __construct(HeaderBag $headerBag, int $fileSize)
     {
         $this->fileSize = $fileSize;
-        $this->supported = false;
         $this->start = 0;
         $this->end = $this->fileSize - 1;
 
+        $this->parseRangeHeader($headerBag);
+
+        if ($this->start > $this->end) {
+            throw new \RuntimeException('Out of range exception');
+        }
+    }
+
+    private function parseRangeHeader(HeaderBag $headerBag)
+    {
         $range = $headerBag->get('Range');
         if ($range === null) {
             return;
         }
 
-        $this->supported = true;
         list($start, $end) = explode('-', substr($range, 6), 2) + [0];
 
-        $this->end = ('' === $end) ? $fileSize - 1 : (int) $end;
+        $this->end = ('' === $end) ? $this->end : (int) $end;
 
         if ('' === $start) {
             $this->start = $this->fileSize - $this->end;
@@ -42,19 +47,14 @@ class StreamRange
         }
     }
 
-    public function isOutOfRange()
-    {
-        return !$this->supported || $this->start > $this->end;
-    }
-
     public function isSatisfiable()
     {
-        return !$this->isOutOfRange() && $this->start >= 0 && $this->end < $this->fileSize;
+        return $this->start >= 0 && $this->end < $this->fileSize;
     }
 
-    public function rangeRequested()
+    public function isPartial()
     {
-        return $this->supported && (0 !== $this->start || $this->end !== $this->fileSize - 1);
+        return $this->isSatisfiable() && ($this->start > 0 || $this->end < ($this->fileSize - 1));
     }
 
     public function getContentRangeHeader()
