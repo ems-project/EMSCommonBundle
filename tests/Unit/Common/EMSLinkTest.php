@@ -10,17 +10,33 @@ class EMSLinkTest extends TestCase
     public function testFromTextWithEmsObjectTypeAndOuuid()
     {
         $link = EMSLink::fromText('ems://object:page:AWTLzKLc8K-kdP4iJ3rt');
-
         static::assertSame('AWTLzKLc8K-kdP4iJ3rt', $link->getOuuid());
         static::assertSame('page', $link->getContentType());
         static::assertSame('object', $link->getLinkType());
         static::assertSame('ems://object:page:AWTLzKLc8K-kdP4iJ3rt', (string) $link);
     }
 
+    public function testGetOuuid()
+    {
+        $link = EMSLink::fromText('ems://object:page:AWTLzKLc8K-kdP4iJ3rt');
+        static::assertSame('AWTLzKLc8K-kdP4iJ3rt', $link->getOuuid());
+    }
+
+    public function testGetcontentType()
+    {
+        $link = EMSLink::fromText('ems://object:page:AWTLzKLc8K-kdP4iJ3rt');
+        static::assertSame('page', $link->getContentType());
+    }
+
+    public function testGetLinkType()
+    {
+        $link = EMSLink::fromText('ems://object:page:AWTLzKLc8K-kdP4iJ3rt');
+        static::assertSame('object', $link->getLinkType());
+    }
+
     public function testFromTextWithoutEMSObjectTypeAndWithOuuid()
     {
         $link = EMSLink::fromText('AWTLzKLc8K-kdP4iJ3rt');
-
         static::assertSame('AWTLzKLc8K-kdP4iJ3rt', $link->getOuuid());
         static::assertSame('object', $link->getLinkType());
         static::assertFalse($link->hasContentType());
