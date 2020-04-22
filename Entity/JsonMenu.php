@@ -14,6 +14,8 @@ class JsonMenu
     private $slugs;
     /** @var array */
     private $bySlugs;
+    /** @var array */
+    private $items;
 
 
     public function __construct(string $source, string $glue)
@@ -23,6 +25,7 @@ class JsonMenu
         $this->structure = json_decode($source, true);
         $this->slugs = [];
         $this->bySlugs = [];
+        $this->items = [];
         $this->recursiveWalk($this->structure);
     }
 
@@ -30,6 +33,7 @@ class JsonMenu
     {
         foreach ($menu as $item) {
             $slug = $basePath . $item['label'];
+            $this->items[$item['id']] = $item;
             $this->slugs[$item['id']] = $slug;
             $this->bySlugs[$slug] = $item;
             if (isset($item['children'])) {
@@ -46,6 +50,11 @@ class JsonMenu
     public function getSlug(string $id): ?string
     {
         return $this->slugs[$id] ?? null;
+    }
+
+    public function getItem(string $id): ?array
+    {
+        return $this->items[$id] ?? null;
     }
 
     public function getUids(): array
