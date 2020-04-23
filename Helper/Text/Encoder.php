@@ -41,7 +41,7 @@ class Encoder
      */
     public function encodeUrl(string $text): string
     {
-        $urlRegex = '/(?P<proto>([\w\d-\.]+:)?)\/\/(?P<host>[\w\d-\.]+(:[0-9]+)?)\/(?P<baseurl>([\w\d-\._]+\/)*)(?P<target>[\w\d-\._]+)/';
+        $urlRegex = '/(?P<proto>([\w\d\-\.]+:)?)\/\/(?P<host>[\w\d\-\.]+(:[0-9]+)?)\/(?P<baseurl>([\w\d\-\._]+\/)*)(?P<target>[\w\d\-\._]+)/';
 
         $encodedText = preg_replace_callback($urlRegex, function ($matches) {
             return sprintf('<a href="%s//%s/%s%s">%s</a>', $matches['proto'], $matches['host'], $matches['baseurl'], $matches['target'], $matches['target']);
