@@ -31,6 +31,11 @@ class TextRuntime implements RuntimeExtensionInterface
 
     public function jsonMenuDecode(string $json, string $glue = '/')
     {
-        return$this->decoder->jsonMenuDecode($json, $glue);
+        return $this->decoder->jsonMenuDecode($json, $glue);
+    }
+
+    public function jsonDecode(string $json, bool $assoc = true, int $depth = 512, int $options = 0)
+    {
+        return \json_decode($json, $assoc, $depth, $options);
     }
 }
