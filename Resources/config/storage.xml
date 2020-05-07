@@ -14,6 +14,8 @@
             <argument type="string">%ems_common.hash_algo%</argument>
             <argument type="string">%ems_common.storage_path%</argument>
             <argument type="string">%ems_common.backend_url%</argument>
+            <argument type="string">%ems_common.s3_credentials%</argument>
+            <argument type="string">%ems_common.s3_bucket%</argument>
         </service>
         <service id="ems_common.controller.file" class="EMS\CommonBundle\Controller\FileController">
             <argument type="service" id="ems_common.storage.manager"/>

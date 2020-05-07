@@ -23,6 +23,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('hash_algo')->defaultValue('sha1')->end()
                 ->scalarNode('storage_path')->defaultValue(null)->end()
                 ->scalarNode('backend_url')->defaultValue(null)->end()
+                ->scalarNode('s3_bucket')->defaultValue(null)->end()
+                ->variableNode('s3_credentials')->defaultValue([])->end()
             ->end()
         ;
 
