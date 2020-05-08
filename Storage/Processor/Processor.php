@@ -252,7 +252,7 @@ class Processor
     private function getResponseFromStreamInterface(StreamInterface $stream, Request $request): StreamedResponse
     {
         $response = new StreamedResponse(function () use ($stream) {
-            if ($stream->isSeekable()) {
+            if ($stream->isSeekable() && $stream->tell() > 0) {
                 $stream->rewind();
             }
 
