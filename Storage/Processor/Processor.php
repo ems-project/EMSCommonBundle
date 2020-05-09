@@ -55,7 +55,15 @@ class Processor
             'Content-Type' => $config->getMimeType(),
         ]);
 
-        $response->setPublic()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
+        $response->setCache([
+            'etag' => $cacheKey,
+            'max_age' => 3600,
+            's_maxage' => 14400,
+            'public' => true,
+            'private' => false,
+        ]);
+        $response->setLastModified($config->getLastUpdateDate());
+
         return $response;
     }
 
