@@ -57,8 +57,8 @@ class Processor
 
         $response->setCache([
             'etag' => $cacheKey,
-            'max_age' => 3600,
-            's_maxage' => 14400,
+            'max_age' => 604800,
+            's_maxage' => 2678400,
             'public' => true,
             'private' => false,
         ]);
