@@ -30,6 +30,20 @@ class Processor
         $this->logger = $logger;
     }
 
+    private function setImmutable(Response$response, string $cacheKey, ?\DateTime $lastUpdateDate)
+    {
+        $response->setCache([
+            'etag' => $cacheKey,
+            'max_age' => 604800,
+            's_maxage' => 2678400,
+            'public' => true,
+            'private' => false,
+            'immutable' => true,
+        ]);
+        $response->setLastModified($lastUpdateDate);
+    }
+
+
     public function getResponse(Request $request, string $hash, string $configHash, string $filename)
     {
         $configJson = json_decode($this->storageManager->getContents($configHash), true);
@@ -37,7 +51,7 @@ class Processor
         $cacheKey = $config->getCacheKey();
 
         $cacheResponse = new Response();
-        $cacheResponse->setPublic()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
+        $this->setImmutable($cacheResponse, $cacheKey, $config->getLastUpdateDate());
         if ($cacheResponse->isNotModified($request)) {
             return $cacheResponse;
         }
@@ -55,15 +69,7 @@ class Processor
             'Content-Type' => $config->getMimeType(),
         ]);
 
-        $response->setCache([
-            'etag' => $cacheKey,
-            'max_age' => 604800,
-            's_maxage' => 2678400,
-            'public' => true,
-            'private' => false,
-        ]);
-        $response->setLastModified($config->getLastUpdateDate());
-
+        $this->setImmutable($response, $cacheKey, $config->getLastUpdateDate());
         return $response;
     }
 
