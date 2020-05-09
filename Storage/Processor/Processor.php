@@ -30,28 +30,28 @@ class Processor
         $this->logger = $logger;
     }
 
-    private function setImmutable(Response$response, string $cacheKey, ?\DateTime $lastUpdateDate)
+    private function makeResponseCacheable(Response $response, string $cacheKey, ?\DateTime $lastUpdateDate, bool $immutable): void
     {
         $response->setCache([
             'etag' => $cacheKey,
-            'max_age' => 604800,
-            's_maxage' => 2678400,
+            'max_age' => $immutable ? 604800 : 600,
+            's_maxage' => $immutable ? 2678400 : 3600,
             'public' => true,
             'private' => false,
-            'immutable' => true,
+            'immutable' => $immutable,
         ]);
         $response->setLastModified($lastUpdateDate);
     }
 
 
-    public function getResponse(Request $request, string $hash, string $configHash, string $filename)
+    public function getResponse(Request $request, string $hash, string $configHash, string $filename, bool $immutableRoute = false)
     {
         $configJson = json_decode($this->storageManager->getContents($configHash), true);
         $config = new Config($this->storageManager, $configHash, $hash, $configHash, $configJson);
         $cacheKey = $config->getCacheKey();
 
         $cacheResponse = new Response();
-        $this->setImmutable($cacheResponse, $cacheKey, $config->getLastUpdateDate());
+        $this->makeResponseCacheable($cacheResponse, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
         if ($cacheResponse->isNotModified($request)) {
             return $cacheResponse;
         }
@@ -69,7 +69,7 @@ class Processor
             'Content-Type' => $config->getMimeType(),
         ]);
 
-        $this->setImmutable($response, $cacheKey, $config->getLastUpdateDate());
+        $this->makeResponseCacheable($response, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
         return $response;
     }
 
