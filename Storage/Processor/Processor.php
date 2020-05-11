@@ -24,11 +24,14 @@ class Processor
     private $logger;
 
     const BUFFER_SIZE = 8192;
+    /**  @var Cache */
+    private $cacheHelper;
 
-    public function __construct(StorageManager $storageManager, LoggerInterface $logger)
+    public function __construct(StorageManager $storageManager, LoggerInterface $logger, Cache $cacheHelper)
     {
         $this->storageManager = $storageManager;
         $this->logger = $logger;
+        $this->cacheHelper = $cacheHelper;
     }
 
 
@@ -39,7 +42,7 @@ class Processor
         $cacheKey = $config->getCacheKey();
 
         $cacheResponse = new Response();
-        Cache::makeResponseCacheable($cacheResponse, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
+        $this->cacheHelper->makeResponseCacheable($cacheResponse, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
         if ($cacheResponse->isNotModified($request)) {
             return $cacheResponse;
         }
@@ -57,7 +60,7 @@ class Processor
             'Content-Type' => $config->getMimeType(),
         ]);
 
-        Cache::makeResponseCacheable($response, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
+        $this->cacheHelper->makeResponseCacheable($response, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
         return $response;
     }
 
