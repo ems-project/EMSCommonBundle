@@ -14,14 +14,13 @@ class Cache
         $this->hashAlgo = $hashAlgo;
     }
 
-    public function generateEtagFromResponse(Response $response, ?\DateTime $lastUpdateDate, bool $immutableRoute): void
+    public function generateEtag(Response $response, ?\DateTime $lastUpdateDate, bool $immutableRoute): ?string
     {
         if (!is_string($response->getContent())) {
-            return;
+            return null;
         }
 
-        $etag = \hash($this->hashAlgo, $response->getContent());
-        $this->makeResponseCacheable($response, $etag, $lastUpdateDate, $immutableRoute);
+        return \hash($this->hashAlgo, $response->getContent());
     }
 
     public function makeResponseCacheable(Response $response, string $etag, ?\DateTime $lastUpdateDate, bool $immutableRoute): void
