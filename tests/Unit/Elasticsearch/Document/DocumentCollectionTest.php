@@ -5,33 +5,33 @@ namespace EMS\CommonBundle\Tests\Unit\Elasticsearch\Document;
 use EMS\CommonBundle\Elasticsearch\Document\DocumentCollection;
 use EMS\CommonBundle\Elasticsearch\Response\ResponseInterface;
 use EMS\CommonBundle\Elasticsearch\Document\DocumentInterface;
-
 use PHPUnit\Framework\TestCase;
 
 class DocumentCollectionTest extends TestCase
 {
-    /** @var \ResponseInterface&\PHPUnit\Framework\MockObject\MockObject $mockResponse */
-    private $mockResponse;
+    /** @var letypehint $mockR */
+    private $mockR;
 
-    public function setUp()
+    protected function setUp(): void
     {
-        $this->mockResponse = $this->createMock(ResponseInterface::class);
-        $this->mockResponse->method('getDocuments')
+        $mockResponse = $this->createMock(ResponseInterface::class);
+        $mockResponse->method('getDocuments')
             ->willReturn([
                 $this->createMock(DocumentInterface::class),
                 $this->createMock(DocumentInterface::class)
             ]);
+        $this->mockR = $mockResponse;
     }
 
-    public function testFromResponse()
+    public function testFromResponse(): void
     {
-        $collection = DocumentCollection::fromResponse($this->mockResponse);
+        $collection = DocumentCollection::fromResponse($this->mockR);
         $this->assertEquals(2, $collection->count());
     }
 
-    public function testGetIterator()
+    public function testGetIterator(): void
     {
-        $collection = DocumentCollection::fromResponse($this->mockResponse);
-        $this->assertEquals(2, \count($collection->getIterator()));
+        $collection = DocumentCollection::fromResponse($this->mockR);
+        $this->assertEquals(2, \iterator_count(($collection->getIterator())));
     }
 }
