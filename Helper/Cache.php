@@ -14,25 +14,25 @@ class Cache
         $this->hashAlgo = $hashAlgo;
     }
 
-    public function generateEtagFromResponse(Response $response, ?\DateTime $lastUpdateDate, bool $immutable): void
+    public function generateEtagFromResponse(Response $response, ?\DateTime $lastUpdateDate, bool $immutableRoute): void
     {
         if (!is_string($response->getContent())) {
             return;
         }
 
         $etag = \hash($this->hashAlgo, $response->getContent());
-        $this->makeResponseCacheable($response, $etag, $lastUpdateDate, $immutable);
+        $this->makeResponseCacheable($response, $etag, $lastUpdateDate, $immutableRoute);
     }
 
-    public function makeResponseCacheable(Response $response, string $etag, ?\DateTime $lastUpdateDate, bool $immutable): void
+    public function makeResponseCacheable(Response $response, string $etag, ?\DateTime $lastUpdateDate, bool $immutableRoute): void
     {
         $response->setCache([
             'etag' => $etag,
-            'max_age' => $immutable ? 604800 : 600,
-            's_maxage' => $immutable ? 2678400 : 3600,
+            'max_age' => $immutableRoute ? 604800 : 600,
+            's_maxage' => $immutableRoute ? 2678400 : 3600,
             'public' => true,
             'private' => false,
-            'immutable' => $immutable,
+            'immutable' => $immutableRoute,
         ]);
 
         if ($lastUpdateDate !== null) {
