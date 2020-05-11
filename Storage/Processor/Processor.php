@@ -3,6 +3,7 @@
 namespace EMS\CommonBundle\Storage\Processor;
 
 use EMS\CommonBundle\Helper\ArrayTool;
+use EMS\CommonBundle\Helper\Cache;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
 use GuzzleHttp\Psr7\Stream;
@@ -30,19 +31,6 @@ class Processor
         $this->logger = $logger;
     }
 
-    private function makeResponseCacheable(Response $response, string $cacheKey, ?\DateTime $lastUpdateDate, bool $immutable): void
-    {
-        $response->setCache([
-            'etag' => $cacheKey,
-            'max_age' => $immutable ? 604800 : 600,
-            's_maxage' => $immutable ? 2678400 : 3600,
-            'public' => true,
-            'private' => false,
-            'immutable' => $immutable,
-        ]);
-        $response->setLastModified($lastUpdateDate);
-    }
-
 
     public function getResponse(Request $request, string $hash, string $configHash, string $filename, bool $immutableRoute = false)
     {
@@ -51,7 +39,7 @@ class Processor
         $cacheKey = $config->getCacheKey();
 
         $cacheResponse = new Response();
-        $this->makeResponseCacheable($cacheResponse, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
+        Cache::makeResponseCacheable($cacheResponse, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
         if ($cacheResponse->isNotModified($request)) {
             return $cacheResponse;
         }
@@ -69,7 +57,7 @@ class Processor
             'Content-Type' => $config->getMimeType(),
         ]);
 
-        $this->makeResponseCacheable($response, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
+        Cache::makeResponseCacheable($response, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
         return $response;
     }
 
