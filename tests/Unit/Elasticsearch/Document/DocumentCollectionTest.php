@@ -9,8 +9,8 @@ use PHPUnit\Framework\TestCase;
 
 class DocumentCollectionTest extends TestCase
 {
-    /** @var letypehint $mockR */
-    private $mockR;
+    /** @var ResponseInterface|PHPUnit\Framework\MockObject\MockObject $mockResponse */
+    private $mockResponse;
 
     protected function setUp(): void
     {
@@ -20,18 +20,18 @@ class DocumentCollectionTest extends TestCase
                 $this->createMock(DocumentInterface::class),
                 $this->createMock(DocumentInterface::class)
             ]);
-        $this->mockR = $mockResponse;
+        $this->mockResponse = $mockResponse;
     }
 
     public function testFromResponse(): void
     {
-        $collection = DocumentCollection::fromResponse($this->mockR);
+        $collection = DocumentCollection::fromResponse($this->mockResponse);
         $this->assertEquals(2, $collection->count());
     }
 
     public function testGetIterator(): void
     {
-        $collection = DocumentCollection::fromResponse($this->mockR);
-        $this->assertEquals(2, \iterator_count(($collection->getIterator())));
+        $collection = DocumentCollection::fromResponse($this->mockResponse);
+        $this->assertEquals(2, \iterator_count($collection->getIterator()));
     }
 }
