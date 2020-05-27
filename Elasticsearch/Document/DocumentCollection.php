@@ -31,7 +31,7 @@ final class DocumentCollection implements DocumentCollectionInterface
         return count($this->documents);
     }
 
-    public function getIterator(): iterable
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->documents);
     }

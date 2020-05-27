@@ -33,11 +33,12 @@ class DocumentCollectionTest extends TestCase
     {
         $collection = DocumentCollection::fromResponse($this->mockResponse);
 
-        if ($collection->getIterator() instanceof \Traversable) {
-            $this->assertEquals(2, \iterator_count($collection->getIterator()));
-            return;
+        $count = 0;
+        foreach ($collection->getIterator() as $document) {
+            self::assertInstanceOf(DocumentInterface::class, $document);
+            $count++;
         }
 
-        $this->assertEquals(2, \count($collection->getIterator()));
+        $this->assertEquals(2, $count);
     }
 }
