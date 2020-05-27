@@ -3,6 +3,7 @@
 namespace EMS\CommonBundle\Storage\Processor;
 
 use EMS\CommonBundle\Helper\ArrayTool;
+use EMS\CommonBundle\Helper\Cache;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
 use GuzzleHttp\Psr7\Stream;
@@ -23,21 +24,25 @@ class Processor
     private $logger;
 
     const BUFFER_SIZE = 8192;
+    /**  @var Cache */
+    private $cacheHelper;
 
-    public function __construct(StorageManager $storageManager, LoggerInterface $logger)
+    public function __construct(StorageManager $storageManager, LoggerInterface $logger, Cache $cacheHelper)
     {
         $this->storageManager = $storageManager;
         $this->logger = $logger;
+        $this->cacheHelper = $cacheHelper;
     }
 
-    public function getResponse(Request $request, string $hash, string $configHash, string $filename)
+
+    public function getResponse(Request $request, string $hash, string $configHash, string $filename, bool $immutableRoute = false)
     {
         $configJson = json_decode($this->storageManager->getContents($configHash), true);
         $config = new Config($this->storageManager, $configHash, $hash, $configHash, $configJson);
         $cacheKey = $config->getCacheKey();
 
         $cacheResponse = new Response();
-        $cacheResponse->setPublic()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
+        $this->cacheHelper->makeResponseCacheable($cacheResponse, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
         if ($cacheResponse->isNotModified($request)) {
             return $cacheResponse;
         }
@@ -55,7 +60,7 @@ class Processor
             'Content-Type' => $config->getMimeType(),
         ]);
 
-        $response->setPublic()->setLastModified($config->getLastUpdateDate())->setEtag($cacheKey);
+        $this->cacheHelper->makeResponseCacheable($response, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
         return $response;
     }
 
@@ -252,7 +257,7 @@ class Processor
     private function getResponseFromStreamInterface(StreamInterface $stream, Request $request): StreamedResponse
     {
         $response = new StreamedResponse(function () use ($stream) {
-            if ($stream->isSeekable()) {
+            if ($stream->isSeekable() && $stream->tell() > 0) {
                 $stream->rewind();
             }
 
