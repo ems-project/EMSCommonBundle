@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Analyzer
  *
- * @ORM\Table(name="asset_storage", uniqueConstraints={@ORM\UniqueConstraint(name="asset_key_index", columns={"hash", "context"})})
+ * @ORM\Table(name="asset_storage")
  * @ORM\Entity(repositoryClass="EMS\CommonBundle\Repository\AssetStorageRepository")
  * @ORM\HasLifecycleCallbacks()
  */
@@ -39,16 +39,9 @@ class AssetStorage
     /**
      * @var string
      *
-     * @ORM\Column(name="hash", type="string", length=128)
+     * @ORM\Column(name="hash", type="string", length=1024, unique=true)
      */
     private $hash;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="context", type="string", length=128, nullable=true)
-     */
-    private $context;
 
     /**
      * @var string|resource
@@ -56,13 +49,6 @@ class AssetStorage
      * @ORM\Column(name="contents", type="blob")
      */
     private $contents;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="last_update_date", type="integer")
-     */
-    private $lastUpdateDate;
 
     /**
      * @var int
@@ -82,7 +68,7 @@ class AssetStorage
      * @ORM\PrePersist
      * @ORM\PreUpdate
      */
-    public function updateModified()
+    public function updateModified(): void
     {
         $this->modified = new \DateTime();
         if (!isset($this->created)) {
@@ -90,19 +76,12 @@ class AssetStorage
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getHash()
+    public function getHash(): string
     {
         return $this->hash;
     }
 
-    /**
-     * @param string $hash
-     * @return AssetStorage
-     */
-    public function setHash($hash): AssetStorage
+    public function setHash(string $hash): AssetStorage
     {
         $this->hash = $hash;
         return $this;
@@ -116,142 +95,58 @@ class AssetStorage
         return $this->contents;
     }
 
-    /**
-     * @param string|resource $contents
-     *
-     * @return AssetStorage
-     */
-    public function setContents($contents): AssetStorage
+    public function setContents(string $contents): AssetStorage
     {
         $this->contents = $contents;
         return $this;
     }
 
 
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * Set created
-     *
-     * @param \DateTime $created
-     *
-     * @return AssetStorage
-     */
-    public function setCreated($created)
+    public function setCreated(\DateTime $created): AssetStorage
     {
         $this->created = $created;
 
         return $this;
     }
 
-    /**
-     * Get created
-     *
-     * @return \DateTime
-     */
-    public function getCreated()
+    public function getCreated(): \DateTime
     {
         return $this->created;
     }
 
-    /**
-     * Set modified
-     *
-     * @param \DateTime $modified
-     *
-     * @return AssetStorage
-     */
-    public function setModified($modified)
+    public function setModified(\DateTime $modified): AssetStorage
     {
         $this->modified = $modified;
 
         return $this;
     }
 
-    /**
-     * Get modified
-     *
-     * @return \DateTime
-     */
-    public function getModified()
+    public function getModified(): \DateTime
     {
         return $this->modified;
     }
 
-    /**
-     * @return integer
-     */
-    public function getLastUpdateDate()
-    {
-        return $this->lastUpdateDate;
-    }
-
-    /**
-     * @param int $lastUpdateDate
-     * @return AssetStorage
-     */
-    public function setLastUpdateDate($lastUpdateDate): AssetStorage
-    {
-        $this->lastUpdateDate = $lastUpdateDate;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
     public function getSize(): int
     {
         return $this->size;
     }
 
-    /**
-     * @param int $size
-     * @return AssetStorage
-     */
     public function setSize(int $size): AssetStorage
     {
         $this->size = $size;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getContext()
-    {
-        return $this->context;
-    }
-
-    /**
-     * @param string $context
-     * @return AssetStorage
-     */
-    public function setContext($context): AssetStorage
-    {
-        $this->context = $context;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
     public function isConfirmed(): bool
     {
         return $this->confirmed;
     }
 
-    /**
-     * @param bool $confirmed
-     * @return AssetStorage
-     */
     public function setConfirmed(bool $confirmed): AssetStorage
     {
         $this->confirmed = $confirmed;

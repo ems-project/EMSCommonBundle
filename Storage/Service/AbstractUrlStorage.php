@@ -9,7 +9,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 abstract class AbstractUrlStorage implements StorageInterface
 {
 
-   abstract protected function getBaseUrl(): string;
+    abstract protected function getBaseUrl(): string;
 
     protected function getPath(string $hash, bool $confirmed = true, string $ds = '/'): string
     {
