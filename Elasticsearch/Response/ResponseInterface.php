@@ -14,6 +14,9 @@ interface ResponseInterface
      * @return DocumentInterface[]
      */
     public function getDocuments(): iterable;
+    /**
+     * @return DocumentCollection<DocumentInterface>
+     */
     public function getDocumentCollection(): DocumentCollection;
     public function getScrollId(): ?string;
     public function getTotal(): int;
