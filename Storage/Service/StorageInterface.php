@@ -16,7 +16,7 @@ interface StorageInterface
 
     public function read(string $hash, bool $confirmed = true): StreamInterface;
 
-    public function getSize(string $hash): ?int;
+    public function getSize(string $hash): int;
 
     public function remove(string $hash): bool;
 

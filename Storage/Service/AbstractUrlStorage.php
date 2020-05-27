@@ -2,41 +2,19 @@
 
 namespace EMS\CommonBundle\Storage\Service;
 
+use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\StreamInterface;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class AbstractUrlStorage implements StorageInterface
 {
 
-    /**
-     * Returns the base url of the storage service
-     * @return string
-     */
-    abstract protected function getBaseUrl(): string;
+   abstract protected function getBaseUrl(): string;
 
-    /**
-     * returns the a file path or a resource url that can be handled by file function such as fopen
-     */
-    protected function getPath(string $hash, ?string $cacheContext = null, bool $confirmed = true, string $ds = '/'): string
+    protected function getPath(string $hash, bool $confirmed = true, string $ds = '/'): string
     {
-        $folderName = $this->getBaseUrl();
+        $folderName = $this->getBaseUrl() . $ds . $confirmed ? substr($hash, 0, 3) : 'uploads';
 
-        if (!$confirmed) {
-            $folderName .= $ds . 'uploads';
-        }
-
-        //isolate cached files
-        if ($cacheContext) {
-            $folderName .= $ds . 'cache' . $ds . $cacheContext;
-        }
-
-        //in order to avoid a folder with a to big number of files in
-        if ($confirmed) {
-            $folderName .= $ds . substr($hash, 0, 3);
-        }
-
-        //create folder if missing
         if (!file_exists($folderName)) {
             mkdir($folderName, 0777, true);
         }
@@ -44,120 +22,53 @@ abstract class AbstractUrlStorage implements StorageInterface
         return $folderName . $ds . $hash;
     }
 
-    /**
-     * @param string $hash
-     * @param string $cacheContext
-     * @return bool
-     */
-    public function head(string $hash, ?string $cacheContext = null): bool
+    public function head(string $hash): bool
     {
-        return file_exists($this->getPath($hash, $cacheContext));
+        return file_exists($this->getPath($hash));
     }
 
-    /**
-     * @param string $hash
-     * @param string $filename
-     * @param string $cacheContext
-     * @return bool
-     */
-    public function create(string $hash, string $filename, ?string $cacheContext = null): bool
+    public function create(string $hash, string $filename): bool
     {
-        return copy($filename, $this->getPath($hash, $cacheContext));
+        return copy($filename, $this->getPath($hash));
     }
 
-    /**
-     * @return bool
-     */
-    public function supportCacheStore(): bool
+    public function read(string $hash, bool $confirmed = true): StreamInterface
     {
-        return true;
-    }
-
-    /**
-     * @return resource|bool|StreamInterface
-     */
-    public function read(string $hash, ?string $cacheContext = null, bool $confirmed = true)
-    {
-        $out = $this->getPath($hash, $cacheContext, $confirmed);
+        $out = $this->getPath($hash, $confirmed);
         if (!file_exists($out)) {
-            return false;
+            throw new NotFoundHttpException($hash);
         }
 
-        return fopen($out, 'rb');
-    }
-
-    /**
-     * @deprecated
-     * @param string $hash
-     * @param null|string $context
-     * @return \DateTime|null
-     */
-    public function getLastUpdateDate(string $hash, ?string $context = null): ?\DateTime
-    {
-        @trigger_error("getLastUpdateDate is deprecated.", E_USER_DEPRECATED);
-        $path = $this->getPath($hash, $context);
-        if (file_exists($path)) {
-            $time = @filemtime($path);
-            if (!$time) {
-                return null;
-            }
-            $dateTime = \DateTime::createFromFormat('U', (string) $time);
-            if (!$dateTime) {
-                return null;
-            }
-            return $dateTime;
-        }
-        return null;
+        return new Stream(fopen($out, 'rb'));
     }
 
 
-    /**
-     * @return bool
-     */
     public function health(): bool
     {
         return is_dir($this->getBaseUrl());
     }
 
-    public function getSize(string $hash, ?string $cacheContext = null): ?int
+    public function getSize(string $hash, ?string $cacheContext = null): int
     {
         $path = $this->getPath($hash, $cacheContext);
 
         if (!\file_exists($path)) {
-            return null;
+            throw new NotFoundHttpException($hash);
         }
 
         $size = @filesize($path);
         if ($size === false) {
-            return null;
+            throw new NotFoundHttpException($hash);
         }
 
         return $size;
     }
 
-    /**
-     * Use to display the service in the console
-     * @return string
-     */
     abstract public function __toString(): string;
 
-    /**
-     * @return bool
-     */
-    public function clearCache(): bool
+    public function remove(string $hash): bool
     {
-        $fileSystem = new Filesystem();
-        $fileSystem->remove($this->getBaseUrl() . '/cache');
-        return true;
-    }
-
-    /**
-     * @param string $hash
-     * @return bool
-     */
-    public function remove(string $hash, ?string $context = null): bool
-    {
-        $file = $this->getPath($hash, $context);
+        $file = $this->getPath($hash);
         if (file_exists($file)) {
             unlink($file);
         }
@@ -165,30 +76,15 @@ abstract class AbstractUrlStorage implements StorageInterface
     }
 
 
-    /**
-     * @param string $hash
-     * @param int $size
-     * @param string $name
-     * @param string $type
-     * @param null|string $context
-     * @return bool
-     */
-    public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool
+    public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
-        $path = $this->getPath($hash, $context, false);
+        $path = $this->getPath($hash, false);
         return file_put_contents($path, "") !== false;
     }
 
-    /**
-     * @param string      $hash
-     * @param string      $chunk
-     * @param string|null $context
-     *
-     * @return bool
-     */
-    public function addChunk(string $hash, string $chunk, ?string $context = null): bool
+    public function addChunk(string $hash, string $chunk): bool
     {
-        $path = $this->getPath($hash, $context, false);
+        $path = $this->getPath($hash, false);
         if (!file_exists($path)) {
             throw new NotFoundHttpException('temporary file not found');
         }
@@ -209,16 +105,10 @@ abstract class AbstractUrlStorage implements StorageInterface
         return true;
     }
 
-    /**
-     * @param string      $hash
-     * @param string|null $context
-     *
-     * @return bool
-     */
-    public function finalizeUpload(string $hash, ?string $context = null): bool
+    public function finalizeUpload(string $hash): bool
     {
-        $source = $this->getPath($hash, $context, false);
-        $destination  = $this->getPath($hash, $context);
+        $source = $this->getPath($hash, false);
+        $destination  = $this->getPath($hash);
         try {
             return \rename($source, $destination);
         } catch (\Throwable $e) {
