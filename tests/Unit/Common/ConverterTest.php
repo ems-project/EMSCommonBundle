@@ -11,14 +11,15 @@ class ConverterTest extends TestCase
     /** @var Converter */
     private $converter;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->converter = new Converter();
         parent::setUp();
     }
 
     /**
-     *  format: [text,text]
+     * format: [text,text]
+     * @return array<array<string>>
      */
     public function strProvider(): array
     {
@@ -34,13 +35,14 @@ class ConverterTest extends TestCase
     /**
      * @dataProvider strProvider
      */
-    public function testToAscii(string $str, string $expected)
+    public function testToAscii(string $str, string $expected): void
     {
         self::assertSame($expected, $this->converter->toAscii($str));
     }
 
     /**
-     *  format: [int,text]
+     * format: [int,text]
+     * @return array<array<int|string>>
      */
     public function byteProvider(): array
     {
@@ -57,7 +59,7 @@ class ConverterTest extends TestCase
     /**
      * @dataProvider byteProvider
      */
-    public function testBytes(int $byte, string $expected, string $expected2, string $expected3)
+    public function testBytes(int $byte, string $expected, string $expected2, string $expected3): void
     {
         self::assertSame($expected, $this->converter->formatBytes($byte));
         self::assertSame($expected2, $this->converter->formatBytes($byte, 0));

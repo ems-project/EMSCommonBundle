@@ -33,7 +33,7 @@ class Converter
         return $clean;
     }
 
-    public static function formatBytes(int $bytes, $precision = 2): string
+    public static function formatBytes(int $bytes, int $precision = 2): string
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $bytes = max($bytes, 0);
