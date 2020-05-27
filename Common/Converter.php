@@ -33,11 +33,16 @@ class Converter
         return $clean;
     }
 
-    public static function formatBytes($size, $precision = 2)
+    public static function formatBytes(int $bytes, $precision = 2): string
     {
-        $base = log($size, 1024);
-        $suffixes = array('B', 'KB', 'MB', 'GB', 'TB');
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
 
-        return round(pow(1024, $base - floor($base)), $precision) . ' ' . $suffixes[floor($base)];
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+
+        $bytes /= pow(1024, $pow);
+
+        return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }
