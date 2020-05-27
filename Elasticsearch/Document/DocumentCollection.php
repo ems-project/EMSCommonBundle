@@ -15,7 +15,10 @@ final class DocumentCollection implements DocumentCollectionInterface
     {
     }
 
-    public static function fromResponse(ResponseInterface $response): self
+    /**
+     * @return DocumentCollection<DocumentInterface>
+     */
+    public static function fromResponse(ResponseInterface $response): DocumentCollection
     {
         $collection = new static();
 
@@ -31,6 +34,9 @@ final class DocumentCollection implements DocumentCollectionInterface
         return count($this->documents);
     }
 
+    /**
+     * @return \Traversable<DocumentInterface>
+     */
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->documents);
