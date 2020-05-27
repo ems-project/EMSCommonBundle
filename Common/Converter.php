@@ -4,10 +4,6 @@ namespace EMS\CommonBundle\Common;
 
 class Converter
 {
-    /**
-     * Convert a string into an url friendly string
-     * http://cubiq.org/the-perfect-php-clean-url-generator
-     */
     public static function toAscii(string $str): string
     {
         $clean = Converter::convertSpecialChars($str);
