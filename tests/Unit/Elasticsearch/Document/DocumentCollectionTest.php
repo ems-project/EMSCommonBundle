@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class DocumentCollectionTest extends TestCase
 {
-    /** @var ResponseInterface|PHPUnit\Framework\MockObject\MockObject $mockResponse */
+    /** @var ResponseInterface */
     private $mockResponse;
 
     protected function setUp(): void
@@ -32,6 +32,12 @@ class DocumentCollectionTest extends TestCase
     public function testGetIterator(): void
     {
         $collection = DocumentCollection::fromResponse($this->mockResponse);
-        $this->assertEquals(2, \iterator_count($collection->getIterator()));
+
+        if ($collection->getIterator() instanceof \Traversable) {
+            $this->assertEquals(2, \iterator_count($collection->getIterator()));
+            return;
+        }
+
+        $this->assertEquals(2, \count($collection->getIterator()));
     }
 }

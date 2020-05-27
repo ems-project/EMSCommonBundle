@@ -856,11 +856,6 @@ parameters:
 			path: tests/Unit/Common/EMSLinkTest.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\EncoderTest\\:\\:setUp\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: tests/Unit/Helper/Text/EncoderTest.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\EncoderTest\\:\\:htmlProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: tests/Unit/Helper/Text/EncoderTest.php
