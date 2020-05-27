@@ -59,8 +59,6 @@ class ConverterTest extends TestCase
      */
     public function testBytes(int $byte, string $expected, string $expected2, string $expected3)
     {
-        //$valueMB = 24962496;
-
         self::assertSame($expected, $this->converter->formatBytes($byte));
         self::assertSame($expected2, $this->converter->formatBytes($byte, 0));
         self::assertSame($expected3, $this->converter->formatBytes($byte, 4));
