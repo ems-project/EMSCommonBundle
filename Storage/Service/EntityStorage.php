@@ -8,6 +8,8 @@ use EMS\CommonBundle\Entity\AssetStorage;
 use EMS\CommonBundle\Repository\AssetStorageRepository;
 use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\StreamInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class EntityStorage implements StorageInterface
 {
@@ -40,7 +42,11 @@ class EntityStorage implements StorageInterface
 
     public function getSize(string $hash): int
     {
-        return $this->repository->getSize($hash);
+        $size = $this->repository->getSize($hash);
+        if ($size === null) {
+            throw new NotFoundHttpException($hash);
+        }
+        return $size;
     }
 
 
@@ -48,14 +54,22 @@ class EntityStorage implements StorageInterface
     {
         $entity = $this->createEntity($hash);
 
-        $entity->setSize(\filesize($filename));
-        $entity->setContents(\file_get_contents($filename));
+        $content = \file_get_contents($filename);
+        $size = \filesize($filename);
+
+        if ($content === false || $size === false) {
+            throw new FileNotFoundException($hash);
+        }
+
+        $entity->setSize($size);
+        $entity->setContents($content);
         $entity->setConfirmed(true);
         $this->manager->persist($entity);
         $this->manager->flush();
+        return true;
     }
 
-    private function createEntity(string $hash)
+    private function createEntity(string $hash): AssetStorage
     {
         /**@var AssetStorage $entity */
         $entity = $this->repository->findByHash($hash);
@@ -70,21 +84,22 @@ class EntityStorage implements StorageInterface
     {
         /**@var AssetStorage $entity */
         $entity = $this->repository->findByHash($hash, $confirmed);
-        if ($entity) {
-            $contents = $entity->getContents();
-
-            if (is_resource($contents)) {
-                return new Stream($contents);
-            }
-            $resource = fopen('php://memory', 'w+');
-            if ($resource === false) {
-                return null;
-            }
-            fwrite($resource, $contents);
-
-            rewind($resource);
-            return new Stream($resource);
+        if ($entity === null) {
+            throw new NotFoundHttpException($hash);
         }
+        $contents = $entity->getContents();
+
+        if (is_resource($contents)) {
+            return new Stream($contents);
+        }
+        $resource = fopen('php://memory', 'w+');
+        if ($resource === false) {
+            throw new NotFoundHttpException($hash);
+        }
+        fwrite($resource, $contents);
+
+        rewind($resource);
+        return new Stream($resource);
     }
 
     public function health(): bool

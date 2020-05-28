@@ -38,8 +38,12 @@ abstract class AbstractUrlStorage implements StorageInterface
         if (!file_exists($out)) {
             throw new NotFoundHttpException($hash);
         }
+        $resource = fopen($out, 'rb');
+        if (!is_resource($resource)) {
+            throw new NotFoundHttpException($hash);
+        }
 
-        return new Stream(fopen($out, 'rb'));
+        return new Stream($resource);
     }
 
 
@@ -48,9 +52,9 @@ abstract class AbstractUrlStorage implements StorageInterface
         return is_dir($this->getBaseUrl());
     }
 
-    public function getSize(string $hash, ?string $cacheContext = null): int
+    public function getSize(string $hash): int
     {
-        $path = $this->getPath($hash, $cacheContext);
+        $path = $this->getPath($hash);
 
         if (!\file_exists($path)) {
             throw new NotFoundHttpException($hash);

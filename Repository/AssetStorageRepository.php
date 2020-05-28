@@ -57,10 +57,10 @@ class AssetStorageRepository extends EntityRepository
         }
     }
 
-    public function getSize(string $hash, ?string $context, bool $confirmed = true): ?int
+    public function getSize(string $hash, bool $confirmed = true): ?int
     {
         try {
-            $qb = $this->getQuery($hash, $context, $confirmed)->select('a.size');
+            $qb = $this->getQuery($hash, $confirmed)->select('a.size');
             return $qb->getQuery()->getSingleScalarResult();
         } catch (NonUniqueResultException $e) {
             return null;
