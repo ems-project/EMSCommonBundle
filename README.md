@@ -15,9 +15,14 @@ If your code is not compliant, you could try fixing it automatically:
 composer phpcbf
 ````
 
-PHPStan is run at level 4, you can check for errors locally using:
+PHPStan is run at level 8, you can check for errors locally using:
 `````bash
 composer phpstan
+`````
+
+PHPUnit is available
+`````bash
+composer phpunit
 `````
 
 Documentation
