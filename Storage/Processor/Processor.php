@@ -47,7 +47,7 @@ class Processor
             return $cacheResponse;
         }
 
-        $handler = $this->getResource($config, $filename, $request->headers->getCacheControlDirective('no-cache') === true);
+        $handler = $this->getResource($config, $filename);
 
         if (! $handler instanceof StreamInterface) {
             $handler = new Stream($handler);
