@@ -10,7 +10,6 @@
         <service id="ems_common.storage.manager" class="EMS\CommonBundle\Storage\StorageManager">
             <argument type="service" id="file_locator" />
             <argument type="tagged" tag="ems_common.storage.adapter"/>
-            <argument type="tagged" tag="ems_common.storage.cache_adapter"/>
             <argument type="string">%ems_common.hash_algo%</argument>
             <argument type="string">%ems_common.storage_path%</argument>
             <argument type="string">%ems_common.backend_url%</argument>
