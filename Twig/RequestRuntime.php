@@ -147,8 +147,8 @@ class RequestRuntime implements RuntimeExtensionInterface
             }
 
             if (! $filesystem->exists($cacheFilename)) {
-                $fp = $this->processor->getResource($configObj, $filename);
-                file_put_contents($cacheFilename, $fp);
+                $stream = $this->processor->getStream($configObj, $filename);
+                \file_put_contents($cacheFilename, $stream->getContents());
             }
 
             return $cacheFilename;

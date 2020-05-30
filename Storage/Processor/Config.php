@@ -205,10 +205,10 @@ final class Config
 
     private function setCacheableResult()
     {
-        $this->cacheableResult = $this->getStorageContext() !== null && $this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg();
+        $this->cacheableResult = $this->getCacheContext() !== null && $this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg();
     }
 
-    public function getStorageContext(): ?string
+    public function getCacheContext(): ?string
     {
         if ($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE) {
             if ($this->isSvg()) {
