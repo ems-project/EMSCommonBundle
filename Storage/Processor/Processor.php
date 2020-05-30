@@ -24,11 +24,15 @@ class Processor
     /**  @var Cache */
     private $cacheHelper;
 
-    public function __construct(StorageManager $storageManager, LoggerInterface $logger, Cache $cacheHelper)
+    /** @var string */
+    private $projectDir;
+
+    public function __construct(StorageManager $storageManager, LoggerInterface $logger, Cache $cacheHelper, string $projectDir)
     {
         $this->storageManager = $storageManager;
         $this->logger = $logger;
         $this->cacheHelper = $cacheHelper;
+        $this->projectDir = $projectDir;
     }
 
 
@@ -60,7 +64,7 @@ class Processor
     /**
      * @return resource
      */
-    private function generateResource(Config $config)
+    private function generateResource(Config $config, string $cacheFilename)
     {
         $file = null;
         if (!$config->isCacheableResult()) {
@@ -69,7 +73,7 @@ class Processor
             $file = $config->getFilename();
         }
         if ($config->getConfigType() === 'image') {
-            $resource = \fopen($this->generateImage($config, $file), 'r');
+            $resource = \fopen($this->generateImage($config, $file, $cacheFilename), 'r');
             if ($resource === false) {
                 throw new \Exception('It was not able to open the generated image');
             }
@@ -82,12 +86,12 @@ class Processor
     private function hashToFilename(string $hash): string
     {
         $filename = (string) tempnam(sys_get_temp_dir(), 'EMS');
-        file_put_contents($filename, $this->storageManager->getContents($hash));
+        \file_put_contents($filename, $this->storageManager->getContents($hash));
         return $filename;
     }
 
 
-    private function generateImage(Config $config, string $filename = null): string
+    private function generateImage(Config $config, string $filename = null, string $cacheFilename = null): string
     {
         $image = new Image($config);
 
@@ -102,7 +106,7 @@ class Processor
             } else {
                 $file = $this->hashToFilename($config->getAssetHash());
             }
-            $generatedImage = $config->isSvg() ? $file : $image->generate($file);
+            $generatedImage = $config->isSvg() ? $file : $image->generate($file, $cacheFilename);
         } catch (\InvalidArgumentException $e) {
             $generatedImage = $image->generate($this->storageManager->getPublicImage('big-logo.png'));
         }
@@ -128,50 +132,34 @@ class Processor
         return $this->storageManager->getStream($config->getAssetHash());
     }
 
-//    private function getGeneratedResourceFromCache(Config $config)
-//    {
-//        if (!$config->isCacheableResult()) {
-//            return null;
-//        }
-//
-//        try {
-//            return $this->storageManager->getResource($config->getAssetHash(), $config->getConfigHash());
-//        } catch (NotFoundException $e) {
-//        } catch (\Exception $e) {
-//            $this->logger->warning('log.unexpected_exception', ['error_message' => $e->getMessage()]);
-//        }
-//
-//        return null;
-//    }
-//
-//    private function saveGeneratedResourceToCache($generatedResource, Config $config, string $filename)
-//    {
-//        if (!$config->isCacheableResult()) {
-//            return;
-//        }
-//
-//        try {
-//            $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), $filename, $config->getMimeType(), 1);
-//        } catch (\Exception $e) {
-//            $this->logger->warning('log.unexpected_exception', ['error_message' => $e->getMessage()]);
-//        }
-//    }
-//
+    private function getCacheFilename(Config $config, string $filename): string
+    {
+        return join(DIRECTORY_SEPARATOR, [
+            $this->projectDir,
+            'public',
+            'bundles',
+            'emscache',
+            $config->getCacheKey(),
+            $filename,
+        ]);
+    }
+
     public function getStream(Config $config, string $filename, bool $noCache = false): StreamInterface
     {
         if ($config->getCacheContext() === null) {
             return $this->getStreamFromAsset($config);
         }
 
-        //TODO: try to get
-//        if (!$noCache && ($cachedResource = $this->getGeneratedResourceFromCache($config)) !== null) {
-//            return $cachedResource;
-//        }
-        $this->logger->warning('log.unexpected_exception', ['error_message' => 'Generate cache asset']);
+        $cacheFilename = $this->getCacheFilename($config, $filename);
+        if (!$noCache && \file_exists($cacheFilename)) {
+            $fp = \fopen($cacheFilename, 'r');
+            if ($fp !== false) {
+                return new Stream($fp);
+            }
+        }
 
-        $generatedResource = $this->generateResource($config);
-        //TODO: try to save file
-//        $this->saveGeneratedResourceToCache($generatedResource, $config, $filename);
+        $generatedResource = $this->generateResource($config, $cacheFilename);
+
         return new Stream($generatedResource);
     }
 
