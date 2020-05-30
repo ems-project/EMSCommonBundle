@@ -71,7 +71,7 @@ class EntityStorage implements StorageInterface
 
     private function createEntity(string $hash): AssetStorage
     {
-        /**@var AssetStorage $entity */
+        /** @var AssetStorage $entity */
         $entity = $this->repository->findByHash($hash);
         if (!$entity) {
             $entity = new AssetStorage();
@@ -82,7 +82,7 @@ class EntityStorage implements StorageInterface
 
     public function read(string $hash, bool $confirmed = true): StreamInterface
     {
-        /**@var AssetStorage $entity */
+        /** @var AssetStorage $entity */
         $entity = $this->repository->findByHash($hash, $confirmed);
         if ($entity === null) {
             throw new NotFoundHttpException($hash);

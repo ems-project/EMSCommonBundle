@@ -108,7 +108,7 @@ class StorageManager
         $hash = hash($this->hashAlgo, $contents);
         $out = 0;
 
-        /**@var StorageInterface $service */
+        /** @var StorageInterface $service */
         foreach ($this->getAdapters() as $service) {
             if ($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
                 break;

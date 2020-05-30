@@ -4,11 +4,11 @@ namespace EMS\CommonBundle\Common;
 
 class Document
 {
-    /**@var string */
+    /** @var string */
     private $contentType;
-    /**@var string */
+    /** @var string */
     private $ouuid;
-    /**@var array */
+    /** @var array */
     private $source;
 
     public function __construct(string $contentType, string $ouuid, array $source)
