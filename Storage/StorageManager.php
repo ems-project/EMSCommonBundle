@@ -61,14 +61,23 @@ class StorageManager
         return $this;
     }
 
+    public function head(string $hash): bool
+    {
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->head($hash)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function getStream(string $hash): StreamInterface
     {
         foreach ($this->adapters as $adapter) {
             if ($adapter->head($hash)) {
                 try {
                     return $adapter->read($hash);
-                }
-                catch (NotFoundException $e) {
+                } catch (NotFoundException $e) {
                 }
             }
         }
