@@ -11,9 +11,20 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     abstract protected function getBaseUrl(): string;
 
-    protected function getPath(string $hash, bool $confirmed = true, string $ds = '/'): string
+    protected function getUploadPath(string $hash, string $ds = '/'): string
     {
-        $folderName = $this->getBaseUrl() . $ds . $confirmed ? substr($hash, 0, 3) : 'uploads';
+        $folderName = $this->getBaseUrl() . $ds . 'uploads';
+
+        if (!file_exists($folderName)) {
+            mkdir($folderName, 0777, true);
+        }
+
+        return $folderName . $ds . $hash;
+    }
+
+    protected function getPath(string $hash, string $ds = '/'): string
+    {
+        $folderName = $this->getBaseUrl() . $ds . substr($hash, 0, 3);
 
         if (!file_exists($folderName)) {
             mkdir($folderName, 0777, true);
@@ -34,7 +45,11 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function read(string $hash, bool $confirmed = true): StreamInterface
     {
-        $out = $this->getPath($hash, $confirmed);
+        if ($confirmed) {
+            $out = $this->getPath($hash);
+        } else {
+            $out = $this->getUploadPath($hash);
+        }
         if (!file_exists($out)) {
             throw new NotFoundHttpException($hash);
         }
@@ -82,13 +97,13 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
-        $path = $this->getPath($hash, false);
+        $path = $this->getUploadPath($hash);
         return file_put_contents($path, "") !== false;
     }
 
     public function addChunk(string $hash, string $chunk): bool
     {
-        $path = $this->getPath($hash, false);
+        $path = $this->getUploadPath($hash);
         if (!file_exists($path)) {
             throw new NotFoundHttpException('temporary file not found');
         }
@@ -111,7 +126,7 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function finalizeUpload(string $hash): bool
     {
-        $source = $this->getPath($hash, false);
+        $source = $this->getUploadPath($hash);
         $destination  = $this->getPath($hash);
         try {
             return \rename($source, $destination);

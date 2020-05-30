@@ -40,7 +40,7 @@ class HttpStorage extends AbstractUrlStorage
         return $this->baseUrl . $this->getUrl;
     }
 
-    protected function getPath(string $hash, bool $confirmed = true, string $ds = '/'): string
+    protected function getPath(string $hash, string $ds = '/'): string
     {
         return $this->baseUrl . $this->getUrl . $hash;
     }
