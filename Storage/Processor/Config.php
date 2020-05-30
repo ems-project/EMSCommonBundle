@@ -55,7 +55,7 @@ final class Config
 
     private function setCacheKeyAndFilename()
     {
-        $this->cacheKey = $this->assetHash . '_' . $this->configHash;
+        $this->cacheKey = $this->assetHash . '/' . $this->configHash;
         $this->filename = null;
 
         if ($this->getFileNames() === null) {
@@ -65,7 +65,7 @@ final class Config
         foreach ($this->getFileNames() as $filename) {
             if (is_file($filename)) {
                 $this->filename = $filename;
-                $this->cacheKey .= '_' . $this->storageManager->computeFileHash($filename);
+                $this->cacheKey .= '/' . $this->storageManager->computeFileHash($filename);
                 break;
             }
         }
