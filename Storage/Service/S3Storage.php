@@ -14,9 +14,12 @@ class S3Storage extends AbstractUrlStorage
     /** @var string */
     private $bucket;
 
-    /** @var array */
+    /** @var array{version?:string,credentials?:array{key:string,secret:string},region?:string} */
     private $credentials;
 
+    /**
+     * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
+     */
     public function __construct(array $s3Credentials, string $s3Bucket)
     {
         $this->bucket = $s3Bucket;

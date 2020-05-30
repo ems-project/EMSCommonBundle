@@ -21,6 +21,7 @@ class StorageManager
     private $hashAlgo;
 
     /**
+     * @param iterable<StorageInterface> $adapters
      * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
      */
     public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, string $hashAlgo, ?string $storagePath, ?string $backendUrl, array $s3Credentials = [], ?string $s3Bucket = null)
@@ -125,14 +126,18 @@ class StorageManager
         return $hash;
     }
 
-    public function computeStringHash($string): string
+    public function computeStringHash(string $string): string
     {
-        return hash($this->hashAlgo, $string);
+        return \hash($this->hashAlgo, $string);
     }
 
-    public function computeFileHash($filename): string
+    public function computeFileHash(string $filename): string
     {
-        return hash_file($this->hashAlgo, $filename);
+        $hashFile = \hash_file($this->hashAlgo, $filename);
+        if ($hashFile === false) {
+            throw new NotFoundException($filename);
+        }
+        return $hashFile;
     }
 
     public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, int $uploadMinimumNumberOfReplications): int
