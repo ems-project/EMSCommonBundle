@@ -18,7 +18,7 @@ final class Config
     private $processor;
     /** @var string */
     private $assetHash;
-    /** @var array */
+    /** @var array<string, null|int|string|array|bool|\DateTime> */
     private $options;
     /** @var string */
     private $configHash;
@@ -32,12 +32,7 @@ final class Config
     private $cacheableResult;
 
     /**
-     * Config constructor.
-     * @param StorageManager $storageManager
-     * @param string $processor, this parameter should be removed in a near futur
-     * @param string $assetHash
-     * @param string $configHash
-     * @param array $options
+     * @param array<string, null|int|string|array|bool|\DateTime>  $options
      */
     public function __construct(StorageManager $storageManager, string $processor, string $assetHash, string $configHash, array $options = [])
     {
@@ -52,15 +47,19 @@ final class Config
         unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); //the published date can't invalidate the cache as it'sbased on the config hash now.
     }
 
-
-    private function setCacheKeyAndFilename()
+    private function makeCacheKey(string $configHash, string $assetHash): string
     {
-        $this->cacheKey = join(DIRECTORY_SEPARATOR, [
-            \substr($this->configHash, 0, 3),
-            \substr($this->configHash, 3),
-            \substr($this->assetHash, 0, 3),
-            \substr($this->assetHash, 3),
+        return join(DIRECTORY_SEPARATOR, [
+            \substr($configHash, 0, 3),
+            \substr($configHash, 3),
+            \substr($assetHash, 0, 3),
+            \substr($assetHash, 3),
         ]);
+    }
+
+    private function setCacheKeyAndFilename(): void
+    {
+        $this->cacheKey = $this->makeCacheKey($this->configHash, $this->assetHash);
         $this->filename = null;
 
         if ($this->getFileNames() === null) {
@@ -70,7 +69,7 @@ final class Config
         foreach ($this->getFileNames() as $filename) {
             if (is_file($filename)) {
                 $this->filename = $filename;
-                $this->cacheKey .= DIRECTORY_SEPARATOR . $this->storageManager->computeFileHash($filename);
+                $this->cacheKey = $this->makeCacheKey($this->configHash, $this->storageManager->computeFileHash($filename));
                 break;
             }
         }
@@ -84,7 +83,7 @@ final class Config
         }
     }
 
-    public function hasDefaultMimeType()
+    public function hasDefaultMimeType(): bool
     {
         return \in_array($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] ?? '', ['application/octet-stream', 'application/bin', '']);
     }
@@ -125,7 +124,8 @@ final class Config
 
     public function getLastUpdateDate(): ?\DateTime
     {
-        return $this->options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD];
+        $lastUpdateDate = $this->options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD] ?? null;
+        return $lastUpdateDate instanceof \DateTime ? $lastUpdateDate : null;
     }
 
     public function getCacheKey(): string
@@ -135,41 +135,60 @@ final class Config
 
     public function getConfigType(): ?string
     {
-        return $this->options[EmsFields::ASSET_CONFIG_TYPE];
+        $configType = $this->options[EmsFields::ASSET_CONFIG_TYPE] ?? null;
+        return \is_string($configType) ? $configType : null;
     }
 
     public function getQuality(): int
     {
-        return $this->options[EmsFields::ASSET_CONFIG_QUALITY] ?? 0;
+        $quality = $this->options[EmsFields::ASSET_CONFIG_QUALITY] ?? 0;
+        return is_int($quality) ? $quality : 0;
     }
 
+    /**
+     * @return array<string>|null
+     */
     public function getFileNames(): ?array
     {
-        return $this->options[EmsFields::ASSET_CONFIG_FILE_NAMES];
+        $fileNames = $this->options[EmsFields::ASSET_CONFIG_FILE_NAMES] ?? null;
+        return \is_array($fileNames) ? $fileNames : null;
     }
 
     public function getBackground(): string
     {
+        if (!\is_string($this->options[EmsFields::ASSET_CONFIG_BACKGROUND])) {
+            throw new \RuntimeException('Background is expecting a string');
+        }
         return $this->options[EmsFields::ASSET_CONFIG_BACKGROUND];
     }
 
     public function getResize(): ?string
     {
-        return $this->options[EmsFields::ASSET_CONFIG_RESIZE];
+        $resize = $this->options[EmsFields::ASSET_CONFIG_RESIZE] ?? null;
+        return \is_string($resize) ? $resize : null;
     }
 
-    public function getWidth(): string
+    public function getWidth(): int
     {
+        if (!\is_int($this->options[EmsFields::ASSET_CONFIG_WIDTH])) {
+            throw new \RuntimeException('Width is expecting an int');
+        }
         return $this->options[EmsFields::ASSET_CONFIG_WIDTH];
     }
 
-    public function getHeight(): string
+    public function getHeight(): int
     {
+        if (!\is_int($this->options[EmsFields::ASSET_CONFIG_HEIGHT])) {
+            throw new \RuntimeException('Height is expecting an int');
+        }
         return $this->options[EmsFields::ASSET_CONFIG_HEIGHT];
     }
 
     public function getGravity(): string
     {
+        if (!\is_string($this->options[EmsFields::ASSET_CONFIG_GRAVITY])) {
+            throw new \RuntimeException('Gravity is expecting a string');
+        }
         return $this->options[EmsFields::ASSET_CONFIG_GRAVITY];
     }
 
@@ -178,39 +197,50 @@ final class Config
         return \intval($this->options[EmsFields::ASSET_CONFIG_RADIUS]);
     }
 
+    /**
+     * @return array<string>
+     */
     public function getRadiusGeometry(): array
     {
-        return $this->options[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY];
+        return \is_array($this->options[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY]) ? $this->options[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY] : [];
     }
 
     public function getBorderColor(): ?string
     {
-        return $this->options[EmsFields::ASSET_CONFIG_BORDER_COLOR];
+        $borderColor = $this->options[EmsFields::ASSET_CONFIG_BORDER_COLOR] ?? null;
+        return \is_string($borderColor) ? $borderColor : null;
     }
 
     public function getDisposition(): string
     {
+        if (!\is_string($this->options[EmsFields::ASSET_CONFIG_DISPOSITION])) {
+            throw new \RuntimeException('Disposition is expecting a string');
+        }
         return $this->options[EmsFields::ASSET_CONFIG_DISPOSITION];
     }
 
     public function getWatermark(): ?string
     {
-        return isset($this->options[EmsFields::ASSET_CONFIG_WATERMARK_HASH]) ? $this->options[EmsFields::ASSET_CONFIG_WATERMARK_HASH] : null;
+        $watermark = $this->options[EmsFields::ASSET_CONFIG_WATERMARK_HASH] ?? null;
+        return \is_string($watermark) ? $watermark : null;
     }
 
     public function getMimeType(): string
     {
+        if (!\is_string($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE])) {
+            throw new \RuntimeException('Mime type is expecting a string');
+        }
         return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
     }
 
-    public function isCacheableResult()
+    public function isCacheableResult(): bool
     {
         return $this->cacheableResult;
     }
 
-    private function setCacheableResult()
+    private function setCacheableResult(): void
     {
-        $this->cacheableResult = $this->getCacheContext() !== null && $this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg();
+        $this->cacheableResult = $this->getCacheContext() !== null && $this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && \is_string($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg();
     }
 
     public function getCacheContext(): ?string
@@ -228,9 +258,13 @@ final class Config
 
     public function isSvg(): bool
     {
-        return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] ? (bool) preg_match('/image\/svg.*/', $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) : false;
+        return \is_string($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) ? (bool) \preg_match('/image\/svg.*/', $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) : false;
     }
 
+    /**
+     * @param array<string, null|int|string|array|bool|\DateTime> $options
+     * @return array<string, null|int|string|array|bool|\DateTime>
+     */
     private function resolve(array $options): array
     {
         $defaults = self::getDefaults();
@@ -241,13 +275,13 @@ final class Config
             ->setAllowedValues(EmsFields::ASSET_CONFIG_TYPE, [null, EmsFields::ASSET_CONFIG_TYPE_IMAGE])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_DISPOSITION, [ResponseHeaderBag::DISPOSITION_INLINE, ResponseHeaderBag::DISPOSITION_ATTACHMENT])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY, function ($values) use ($defaults) {
-                if (!is_array($values)) {
+                if (!\is_array($values)) {
                     return false;
                 }
 
                 foreach ($values as $value) {
-                    if (!in_array($value, $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])) {
-                        throw new UndefinedOptionsException(sprintf('_radius_geometry %s is invalid (%s)', $value, implode(',', $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])));
+                    if (\is_array($defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY]) && !\in_array($value, $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])) {
+                        throw new UndefinedOptionsException(sprintf('_radius_geometry %s is invalid (%s)', $value, \implode(',', $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])));
                     }
                 }
 
@@ -261,6 +295,9 @@ final class Config
         return $resolver->resolve($options);
     }
 
+    /**
+     * @return array<string, null|int|string|array|bool|\DateTime>
+     */
     public static function getDefaults(): array
     {
         return [
