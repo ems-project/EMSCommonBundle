@@ -44,6 +44,7 @@ class S3Storage extends AbstractUrlStorage
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
         $path = $this->getUploadPath($hash);
+        $this->initDirectory($path);
         $result = $this->s3Client->putObject([
             'Bucket'     => $this->bucket,
             'Key'        => substr($path, 1 + strlen($this->getBaseUrl())),

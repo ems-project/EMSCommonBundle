@@ -11,26 +11,29 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     abstract protected function getBaseUrl(): string;
 
+    protected function initDirectory($filename)
+    {
+        if (!\file_exists(\dirname($filename))) {
+            \mkdir(\dirname($filename), 0777, true);
+        }
+    }
+
     protected function getUploadPath(string $hash, string $ds = '/'): string
     {
-        $folderName = $this->getBaseUrl() . $ds . 'uploads';
-
-        if (!file_exists($folderName)) {
-            mkdir($folderName, 0777, true);
-        }
-
-        return $folderName . $ds . $hash;
+        return \join($ds, [
+            $this->getBaseUrl(),
+            'uploads',
+            $hash,
+        ]);
     }
 
     protected function getPath(string $hash, string $ds = '/'): string
     {
-        $folderName = $this->getBaseUrl() . $ds . substr($hash, 0, 3);
-
-        if (!file_exists($folderName)) {
-            mkdir($folderName, 0777, true);
-        }
-
-        return $folderName . $ds . $hash;
+        return \join($ds, [
+            $this->getBaseUrl(),
+            substr($hash, 0, 3),
+            $hash,
+        ]);
     }
 
     public function head(string $hash): bool
@@ -40,7 +43,9 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function create(string $hash, string $filename): bool
     {
-        return copy($filename, $this->getPath($hash));
+        $path = $this->getPath($hash);
+        $this->initDirectory($path);
+        return copy($filename, $path);
     }
 
     public function read(string $hash, bool $confirmed = true): StreamInterface
@@ -98,6 +103,7 @@ abstract class AbstractUrlStorage implements StorageInterface
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
         $path = $this->getUploadPath($hash);
+        $this->initDirectory($path);
         return file_put_contents($path, "") !== false;
     }
 
@@ -128,6 +134,7 @@ abstract class AbstractUrlStorage implements StorageInterface
     {
         $source = $this->getUploadPath($hash);
         $destination  = $this->getPath($hash);
+        $this->initDirectory($destination);
         try {
             return \rename($source, $destination);
         } catch (\Throwable $e) {
