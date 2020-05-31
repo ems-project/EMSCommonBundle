@@ -55,7 +55,12 @@ final class Config
 
     private function setCacheKeyAndFilename()
     {
-        $this->cacheKey = $this->assetHash . DIRECTORY_SEPARATOR . $this->configHash;
+        $this->cacheKey = join(DIRECTORY_SEPARATOR, [
+            \substr($this->configHash, 0, 3),
+            \substr($this->configHash, 3),
+            \substr($this->assetHash, 0, 3),
+            \substr($this->assetHash, 3),
+        ]);
         $this->filename = null;
 
         if ($this->getFileNames() === null) {
