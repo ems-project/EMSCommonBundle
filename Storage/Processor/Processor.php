@@ -139,8 +139,7 @@ class Processor
             'public',
             'bundles',
             'emscache',
-            $config->getCacheKey(),
-            $filename,
+            $config->getCacheKey()
         ]);
     }
 
