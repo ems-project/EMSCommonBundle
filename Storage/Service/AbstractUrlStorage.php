@@ -11,7 +11,7 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     abstract protected function getBaseUrl(): string;
 
-    protected function initDirectory($filename)
+    protected function initDirectory(string $filename): void
     {
         if (!\file_exists(\dirname($filename))) {
             \mkdir(\dirname($filename), 0777, true);
