@@ -136,6 +136,11 @@ parameters:
 			path: Elasticsearch/Document.php
 
 		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Elasticsearch/DocumentInterface.php
+
+		-
 			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\Document\\:\\:\\$source type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: Elasticsearch/Document/Document.php
@@ -204,11 +209,6 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\EMSSourceInterface\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: Elasticsearch/Document/EMSSourceInterface.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Elasticsearch/DocumentInterface.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Factory\\:\\:fromConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
@@ -304,16 +304,6 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\EventListener\\\\CommandListener\\:\\:getSubscribedEvents\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: EventListener/CommandListener.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Exception\\\\DateTimeCreationException\\:\\:__construct\\(\\) has parameter \\$code with no typehint specified\\.$#"
-			count: 1
-			path: Exception/DateTimeCreationException.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Exception\\\\DateTimeCreationException\\:\\:__construct\\(\\) has parameter \\$message with no typehint specified\\.$#"
-			count: 1
-			path: Exception/DateTimeCreationException.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Exception\\\\DateTimeCreationException\\:\\:fromArray\\(\\) has no return typehint specified\\.$#"
