@@ -48,7 +48,7 @@ class SftpStorage extends AbstractUrlStorage
         return 'ssh2.sftp://' . intval($this->sftp) . $this->path;
     }
 
-    private function connect()
+    private function connect(): void
     {
         if (!function_exists('ssh2_connect')) {
             throw new \Exception("PHP functions Secure Shell are required by $this. (ssh2)");
@@ -65,7 +65,12 @@ class SftpStorage extends AbstractUrlStorage
             ssh2_auth_pubkey_file($connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
         }
 
-        $this->sftp = @ssh2_sftp($connection);
+        $sftp = @ssh2_sftp($connection);
+        if ($sftp === false) {
+            throw new \Exception("Could not initialize SFTP subsystem to $this->host");
+        }
+
+        $this->sftp = $sftp;
     }
 
     public function __toString(): string

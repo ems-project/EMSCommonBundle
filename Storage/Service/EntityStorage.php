@@ -6,6 +6,10 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Common\Persistence\ObjectManager;
 use EMS\CommonBundle\Entity\AssetStorage;
 use EMS\CommonBundle\Repository\AssetStorageRepository;
+use GuzzleHttp\Psr7\Stream;
+use Psr\Http\Message\StreamInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class EntityStorage implements StorageInterface
 {
@@ -13,20 +17,12 @@ class EntityStorage implements StorageInterface
     private $manager;
     /** @var AssetStorageRepository */
     private $repository;
-    /** @var bool */
-    private $contextSupport;
 
-    /**
-     * EntityStorage constructor.
-     * @param Registry $doctrine
-     * @param bool $contextSupport
-     */
-    public function __construct(Registry $doctrine, bool $contextSupport)
+    public function __construct(Registry $doctrine)
     {
-        $this->contextSupport = $contextSupport;
         $this->manager = $doctrine->getManager();
 
-        //Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
+        //TODO: Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
         $repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
         if (!$repository instanceof  AssetStorageRepository) {
             throw new \RuntimeException(sprintf(
@@ -39,131 +35,71 @@ class EntityStorage implements StorageInterface
         $this->repository = $repository;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function supportCacheStore(): bool
+    public function head(string $hash): bool
     {
-        return $this->contextSupport;
+        return $this->repository->head($hash);
     }
 
-    /**
-     * @param string $hash
-     * @param string $cacheContext
-     * @return bool
-     */
-    public function head(string $hash, ?string $cacheContext = null): bool
+    public function getSize(string $hash): int
     {
-        if (!$cacheContext || $this->contextSupport) {
-            return $this->repository->head($hash, $cacheContext);
+        $size = $this->repository->getSize($hash);
+        if ($size === null) {
+            throw new NotFoundHttpException($hash);
         }
-        return false;
+        return $size;
     }
 
-    public function getSize(string $hash, ?string $cacheContext = null): ?int
+
+    public function create(string $hash, string $filename): bool
     {
-        if (!$cacheContext || $this->contextSupport) {
-            return $this->repository->getSize($hash, $cacheContext);
+        $entity = $this->createEntity($hash);
+
+        $content = \file_get_contents($filename);
+        $size = \filesize($filename);
+
+        if ($content === false || $size === false) {
+            throw new FileNotFoundException($hash);
         }
-        return null;
+
+        $entity->setSize($size);
+        $entity->setContents($content);
+        $entity->setConfirmed(true);
+        $this->manager->persist($entity);
+        $this->manager->flush();
+        return true;
     }
 
-
-    /**
-     * @param string $hash
-     * @param string $filename
-     * @param string|null $cacheContext
-     * @return bool
-     */
-    public function create(string $hash, string $filename, ?string $cacheContext = null): bool
+    private function createEntity(string $hash): AssetStorage
     {
-        if (!$cacheContext || $this->contextSupport) {
-            $entity = $this->createEntity($hash, $cacheContext);
-
-            $entity->setSize(filesize($filename));
-            $entity->setContents(file_get_contents($filename));
-            $entity->setLastUpdateDate(filemtime($filename));
-            $entity->setConfirmed(true);
-
-            $this->manager->persist($entity);
-            $this->manager->flush();
-
-            return true;
-        }
-        return false;
-    }
-
-    private function createEntity($hash, $cacheContext = false)
-    {
-        /**@var AssetStorage $entity */
-        $entity = $this->repository->findByHash($hash, $cacheContext);
-        if (!$entity) {
+        $entity = $this->repository->findByHash($hash);
+        if ($entity === null) {
             $entity = new AssetStorage();
             $entity->setHash($hash);
-            $entity->setContext($cacheContext ? $cacheContext : null);
         }
         return $entity;
     }
 
-    /**
-     * @param string $hash
-     * @param string|null $cacheContext
-     * @param bool $confirmed
-     * @return resource|null
-     */
-    public function read(string $hash, ?string $cacheContext = null, bool $confirmed = true)
+    public function read(string $hash, bool $confirmed = true): StreamInterface
     {
-        if (!$cacheContext || $this->contextSupport) {
-            /**@var AssetStorage $entity */
-            $entity = $this->repository->findByHash($hash, $cacheContext, $confirmed);
-            if ($entity) {
-                $contents = $entity->getContents();
-
-                if (is_resource($contents)) {
-                    return $contents;
-                }
-                $resource = fopen('php://memory', 'w+');
-                if ($resource === false) {
-                    return null;
-                }
-                fwrite($resource, $contents);
-
-                rewind($resource);
-                return $resource;
-            }
+        $entity = $this->repository->findByHash($hash, $confirmed);
+        if ($entity === null) {
+            throw new NotFoundHttpException($hash);
         }
-        return null;
+        $contents = $entity->getContents();
+
+        if (is_resource($contents)) {
+            return new Stream($contents);
+        }
+        $resource = fopen('php://memory', 'w+');
+        if ($resource === false) {
+            throw new NotFoundHttpException($hash);
+        }
+        fwrite($resource, $contents);
+
+        rewind($resource);
+        return new Stream($resource);
     }
 
-    /**
-     * @deprecated
-     * @param string $hash
-     * @param null|string $context
-     * @return \DateTime|null
-     */
-    public function getLastUpdateDate(string $hash, ?string $context = null): ?\DateTime
-    {
-        @trigger_error("getLastUpdateDate is deprecated.", E_USER_DEPRECATED);
-        if (!$context || $this->contextSupport) {
-            try {
-                $time = $this->repository->getLastUpdateDate($hash, $context);
-                if (!$time) {
-                    return null;
-                }
-                $dateTime = \DateTime::createFromFormat('U', (string) $time);
-                if (!$dateTime) {
-                    return null;
-                }
-                return $dateTime;
-            } catch (\Exception $e) {
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function health(): bool
     {
         try {
@@ -173,74 +109,37 @@ class EntityStorage implements StorageInterface
         return false;
     }
 
-
-    /**
-     * Use to display the service in the console
-     * @return string
-     */
     public function __toString(): string
     {
         return EntityStorage::class;
     }
 
-    /**
-     * @return bool
-     */
-    public function clearCache(): bool
+    public function remove(string $hash): bool
     {
-        return $this->repository->clearCache();
+        return $this->repository->removeByHash($hash);
     }
 
-    /**
-     * @param string $hash
-     * @return bool
-     */
-    public function remove(string $hash, ?string $context = null): bool
+    public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
-        return $this->repository->removeByHash($hash, $context);
-    }
-
-    /**
-     * @param string      $hash
-     * @param integer     $size
-     * @param string      $name
-     * @param string      $type
-     * @param string|null $context
-     *
-     * @return bool
-     */
-    public function initUpload(string $hash, int $size, string $name, string $type, ?string $context = null): bool
-    {
-
-        if (!$context || $this->contextSupport) {
-            $entity = $this->repository->findByHash($hash, $context, false);
-            if (!$entity) {
-                $entity = $this->createEntity($hash, $context);
-            }
-
-            $entity->setSize(0);
-            $entity->setContents('');
-            $entity->setLastUpdateDate(time());
-            $entity->setConfirmed(false);
-
-            $this->manager->persist($entity);
-            $this->manager->flush();
-
-            return true;
+        $entity = $this->repository->findByHash($hash, false);
+        if ($entity === null) {
+            $entity = $this->createEntity($hash);
         }
-        return false;
+
+        $entity->setSize(0);
+        $entity->setContents('');
+        $entity->setConfirmed(false);
+
+        $this->manager->persist($entity);
+        $this->manager->flush();
+
+        return true;
     }
 
-    /**
-     * @param string      $hash
-     * @param string|null $context
-     *
-     * @return bool
-     */
-    public function finalizeUpload(string $hash, ?string $context = null): bool
+    public function finalizeUpload(string $hash): bool
     {
-        $entity = $this->repository->findByHash($hash, $context, false);
-        if ($entity) {
+        $entity = $this->repository->findByHash($hash, false);
+        if ($entity !== null) {
             $entity->setConfirmed(true);
             $entity->setSize(strlen((string) $entity->getContents()));
             $this->manager->persist($entity);
@@ -250,19 +149,10 @@ class EntityStorage implements StorageInterface
         return false;
     }
 
-
-
-    /**
-     * @param string      $hash
-     * @param string      $chunk
-     * @param string|null $context
-     *
-     * @return bool
-     */
     public function addChunk(string $hash, string $chunk, ?string $context = null): bool
     {
-        $entity = $this->repository->findByHash($hash, $context, false);
-        if ($entity) {
+        $entity = $this->repository->findByHash($hash, false);
+        if ($entity !== null) {
             $contents = $entity->getContents();
             if (is_resource($contents)) {
                 $contents = stream_get_contents($contents);

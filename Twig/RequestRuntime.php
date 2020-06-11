@@ -132,7 +132,7 @@ class RequestRuntime implements RuntimeExtensionInterface
         if ($normalizedArray === false) {
             throw new \RuntimeException('Could not normalize config.');
         }
-        $hashConfig = $this->storageManager->saveContents($normalizedArray, 'assetConfig.json', 'application/json', null, 1);
+        $hashConfig = $this->storageManager->saveContents($normalizedArray, 'assetConfig.json', 'application/json', 1);
 
         if (isset($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) && $config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) {
             $configObj = new Config($this->storageManager, $hashConfig, $hash, $hashConfig, $config);
@@ -147,8 +147,8 @@ class RequestRuntime implements RuntimeExtensionInterface
             }
 
             if (! $filesystem->exists($cacheFilename)) {
-                $fp = $this->processor->getResource($configObj, $filename);
-                file_put_contents($cacheFilename, $fp);
+                $stream = $this->processor->getStream($configObj, $filename);
+                \file_put_contents($cacheFilename, $stream->getContents());
             }
 
             return $cacheFilename;
