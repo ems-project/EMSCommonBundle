@@ -136,6 +136,11 @@ parameters:
 			path: Elasticsearch/Document.php
 
 		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: Elasticsearch/DocumentInterface.php
+
+		-
 			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\Document\\:\\:\\$source type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: Elasticsearch/Document/Document.php
@@ -206,11 +211,6 @@ parameters:
 			path: Elasticsearch/Document/EMSSourceInterface.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Elasticsearch/DocumentInterface.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Factory\\:\\:fromConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: Elasticsearch/Factory.php
@@ -244,11 +244,6 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Response\\\\Response\\:\\:__construct\\(\\) has parameter \\$response with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: Elasticsearch/Response/Response.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Entity\\\\AssetStorage\\:\\:updateModified\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Entity/AssetStorage.php
 
 		-
 			message: "#^Property EMS\\\\CommonBundle\\\\Entity\\\\JsonMenu\\:\\:\\$structure type has no value type specified in iterable type array\\.$#"
@@ -309,16 +304,6 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\EventListener\\\\CommandListener\\:\\:getSubscribedEvents\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: EventListener/CommandListener.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Exception\\\\DateTimeCreationException\\:\\:__construct\\(\\) has parameter \\$code with no typehint specified\\.$#"
-			count: 1
-			path: Exception/DateTimeCreationException.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Exception\\\\DateTimeCreationException\\:\\:__construct\\(\\) has parameter \\$message with no typehint specified\\.$#"
-			count: 1
-			path: Exception/DateTimeCreationException.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Exception\\\\DateTimeCreationException\\:\\:fromArray\\(\\) has no return typehint specified\\.$#"
@@ -424,61 +409,6 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Service\\\\Pdf\\\\PdfPrintOptions\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: Service/Pdf/PdfPrintOptions.php
-
-		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Config\\:\\:\\$options type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Processor/Config.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Config\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Processor/Config.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Config\\:\\:setCacheKeyAndFilename\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Config.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Config\\:\\:hasDefaultMimeType\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Config.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Config\\:\\:getFileNames\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Processor/Config.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Config\\:\\:getRadiusGeometry\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Processor/Config.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Config\\:\\:isCacheableResult\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Config.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Config\\:\\:setCacheableResult\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Config.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Config\\:\\:resolve\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Processor/Config.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Config\\:\\:resolve\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Processor/Config.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Config\\:\\:getDefaults\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Processor/Config.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:generate\\(\\) has no return typehint specified\\.$#"
@@ -591,76 +521,6 @@ parameters:
 			path: Storage/Processor/Image.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:getResponse\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:createResponse\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:process\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:buildResponse\\(\\) has parameter \\$cacheKey with no typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:buildResponse\\(\\) has parameter \\$file with no typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:buildResponse\\(\\) has parameter \\$processor with no typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:buildResponse\\(\\) has parameter \\$type with no typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:getConfig\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:generateResource\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:getResourceFromAsset\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:getGeneratedResourceFromCache\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:saveGeneratedResourceToCache\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:saveGeneratedResourceToCache\\(\\) has parameter \\$generatedResource with no typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Processor\\:\\:getResource\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Processor/Processor.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:__construct\\(\\) has parameter \\$headerBag with no value type specified in iterable type Symfony\\\\Component\\\\HttpFoundation\\\\HeaderBag\\.$#"
 			count: 1
 			path: Storage/Processor/StreamRange.php
@@ -694,91 +554,6 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:getContentLengthHeader\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: Storage/Processor/StreamRange.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\EntityStorage\\:\\:createEntity\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Service/EntityStorage.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\EntityStorage\\:\\:createEntity\\(\\) has parameter \\$cacheContext with no typehint specified\\.$#"
-			count: 1
-			path: Storage/Service/EntityStorage.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\EntityStorage\\:\\:createEntity\\(\\) has parameter \\$hash with no typehint specified\\.$#"
-			count: 1
-			path: Storage/Service/EntityStorage.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\HttpStorage\\:\\:getSize\\(\\) should return int\\|null but return statement is missing\\.$#"
-			count: 1
-			path: Storage/Service/HttpStorage.php
-
-		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\S3Storage\\:\\:\\$credentials type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Service/S3Storage.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\S3Storage\\:\\:__construct\\(\\) has parameter \\$s3Credentials with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Storage/Service/S3Storage.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage\\:\\:connect\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/Service/SftpStorage.php
-
-		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage\\:\\:\\$sftp \\(resource\\|null\\) does not accept resource\\|false\\.$#"
-			count: 1
-			path: Storage/Service/SftpStorage.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\StorageManager\\:\\:__construct\\(\\) has parameter \\$adapters with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: Storage/StorageManager.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\StorageManager\\:\\:__construct\\(\\) has parameter \\$cacheAdapters with no value type specified in iterable type iterable\\.$#"
-			count: 1
-			path: Storage/StorageManager.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\StorageManager\\:\\:saveContents\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/StorageManager.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\StorageManager\\:\\:computeResourceHash\\(\\) has parameter \\$handler with no typehint specified\\.$#"
-			count: 1
-			path: Storage/StorageManager.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\StorageManager\\:\\:computeStringHash\\(\\) has parameter \\$string with no typehint specified\\.$#"
-			count: 1
-			path: Storage/StorageManager.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\StorageManager\\:\\:computeFileHash\\(\\) has parameter \\$filename with no typehint specified\\.$#"
-			count: 1
-			path: Storage/StorageManager.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\StorageManager\\:\\:computeFileHash\\(\\) should return string but returns string\\|false\\.$#"
-			count: 1
-			path: Storage/StorageManager.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\StorageManager\\:\\:cacheResource\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: Storage/StorageManager.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\StorageManager\\:\\:cacheResource\\(\\) has parameter \\$resource with no typehint specified\\.$#"
-			count: 1
-			path: Storage/StorageManager.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\CommonExtension\\:\\:arrayKey\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"

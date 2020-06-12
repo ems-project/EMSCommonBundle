@@ -2,80 +2,53 @@
 
 namespace EMS\CommonBundle\Repository;
 
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\QueryBuilder;
 use EMS\CommonBundle\Entity\AssetStorage;
-use Throwable;
 
-class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
+class AssetStorageRepository extends EntityRepository
 {
 
-    private function getQuery(string $hash, ?string $context, bool $confirmed): QueryBuilder
+    private function getQuery(string $hash, bool $confirmed): QueryBuilder
     {
         $qb = $this->createQueryBuilder('a');
         $qb->where($qb->expr()->eq('a.hash', ':hash'));
         $qb->andWhere($qb->expr()->eq('a.confirmed', ':confirmed'));
-
-        if ($context !== null) {
-            $qb->andWhere($qb->expr()->eq('a.context', ':context'));
-            $qb->setParameters([
-                ':hash' => $hash,
-                ':context' => $context,
-                ':confirmed' => $confirmed,
-            ]);
-        } else {
-            $qb->andWhere('a.context is null');
-            $qb->setParameters([
-                ':hash' => $hash,
-                ':confirmed' => $confirmed,
-            ]);
-        }
+        $qb->setParameters([
+            ':hash' => $hash,
+            ':confirmed' => $confirmed,
+        ]);
         return $qb;
     }
 
-    public function head(string $hash, ?string $context, bool $confirmed = true): bool
+    public function head(string $hash, bool $confirmed = true): bool
     {
         try {
-            $qb = $this->getQuery($hash, $context, $confirmed)->select('count(a.hash)');
+            $qb = $this->getQuery($hash, $confirmed)->select('count(a.hash)');
             return $qb->getQuery()->getSingleScalarResult() !== 0;
         } catch (NonUniqueResultException $e) {
             return false;
         }
     }
 
-    public function clearCache(): bool
-    {
-        try {
-            $qb = $this->createQueryBuilder('asset')->delete()
-                ->where('asset.context is not null');
-            return $qb->getQuery()->execute() !== false;
-        } catch (Throwable $e) {
-            return false;
-        }
-    }
-
-    public function removeByHash(string $hash, ?string $context = null): bool
+    public function removeByHash(string $hash): bool
     {
         try {
             $qb = $this->createQueryBuilder('asset')->delete();
             $qb->where($qb->expr()->eq('asset.hash', ':hash'));
-            $qb->setParameter(':hash', $hash, Type::STRING);
-
-            if ($context !== null) {
-                $qb->andWhere($qb->expr()->eq('asset.context', ':context'));
-                $qb->setParameter(':context', $context, Type::STRING);
-            }
+            $qb->setParameter(':hash', $hash, Types::STRING);
 
             return $qb->getQuery()->execute() !== false;
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }
 
-    public function findByHash(string $hash, ?string $context, bool $confirmed = true): ?AssetStorage
+    public function findByHash(string $hash, bool $confirmed = true): ?AssetStorage
     {
-        $qb = $this->getQuery($hash, $context, $confirmed)->select('a');
+        $qb = $this->getQuery($hash, $confirmed)->select('a');
 
         try {
             return $qb->getQuery()->getOneOrNullResult();
@@ -84,37 +57,10 @@ class AssetStorageRepository extends \Doctrine\ORM\EntityRepository
         }
     }
 
-
-    /**
-     * @deprecated see getLastUpdateDate()
-     *
-     * @return mixed
-     *
-     * @throws NonUniqueResultException
-     * @throws \Doctrine\ORM\NoResultException
-     */
-    public function lastUpdateDate(string $hash, ?string $context, bool $confirmed = true)
-    {
-        $qb = $this->getQuery($hash, $context, $confirmed)->select('a.modified');
-
-        $date = $qb->getQuery()->getSingleResult()['modified'];
-        return $date;
-    }
-
-    public function getSize(string $hash, ?string $context, bool $confirmed = true): ?int
+    public function getSize(string $hash, bool $confirmed = true): ?int
     {
         try {
-            $qb = $this->getQuery($hash, $context, $confirmed)->select('a.size');
-            return $qb->getQuery()->getSingleScalarResult();
-        } catch (NonUniqueResultException $e) {
-            return null;
-        }
-    }
-
-    public function getLastUpdateDate(string $hash, ?string $context, bool $confirmed = true): ?int
-    {
-        try {
-            $qb = $this->getQuery($hash, $context, $confirmed)->select('a.lastUpdateDate');
+            $qb = $this->getQuery($hash, $confirmed)->select('a.size');
             return $qb->getQuery()->getSingleScalarResult();
         } catch (NonUniqueResultException $e) {
             return null;

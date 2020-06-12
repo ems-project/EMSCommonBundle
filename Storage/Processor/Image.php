@@ -19,7 +19,7 @@ class Image
         $this->watermark = $watermark;
     }
 
-    public function generate(string $filename)
+    public function generate(string $filename, string $cacheFilename = null)
     {
         $length = filesize($filename);
         if ($length === false) {
@@ -58,9 +58,16 @@ class Image
 
         $image = $this->applyWatermark($image, $width, $height);
 
-        $path = tempnam(sys_get_temp_dir(), 'ems_image');
-        if ($path === false) {
-            throw new \RuntimeException('Could not create file with unique name.');
+        if ($cacheFilename !== null) {
+            if (!\file_exists(\dirname($cacheFilename))) {
+                \mkdir(\dirname($cacheFilename), 0777, true);
+            }
+            $path = $cacheFilename;
+        } else {
+            $path = tempnam(sys_get_temp_dir(), 'ems_image');
+            if ($path === false) {
+                throw new \RuntimeException('Could not create file with unique name.');
+            }
         }
         if ($this->config->getQuality()  > 0) {
             imagejpeg($image, $path, $this->config->getQuality());

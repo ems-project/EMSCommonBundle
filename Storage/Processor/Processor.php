@@ -2,19 +2,16 @@
 
 namespace EMS\CommonBundle\Storage\Processor;
 
-use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Helper\Cache;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
 use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Processor
 {
@@ -27,15 +24,19 @@ class Processor
     /**  @var Cache */
     private $cacheHelper;
 
-    public function __construct(StorageManager $storageManager, LoggerInterface $logger, Cache $cacheHelper)
+    /** @var string */
+    private $projectDir;
+
+    public function __construct(StorageManager $storageManager, LoggerInterface $logger, Cache $cacheHelper, string $projectDir)
     {
         $this->storageManager = $storageManager;
         $this->logger = $logger;
         $this->cacheHelper = $cacheHelper;
+        $this->projectDir = $projectDir;
     }
 
 
-    public function getResponse(Request $request, string $hash, string $configHash, string $filename, bool $immutableRoute = false)
+    public function getResponse(Request $request, string $hash, string $configHash, string $filename, bool $immutableRoute = false): Response
     {
         $configJson = json_decode($this->storageManager->getContents($configHash), true);
         $config = new Config($this->storageManager, $configHash, $hash, $configHash, $configJson);
@@ -47,13 +48,9 @@ class Processor
             return $cacheResponse;
         }
 
-        $handler = $this->getResource($config, $filename);
+        $stream = $this->getStream($config, $filename);
 
-        if (! $handler instanceof StreamInterface) {
-            $handler = new Stream($handler);
-        }
-
-        $response = $this->getResponseFromStreamInterface($handler, $request);
+        $response = $this->getResponseFromStreamInterface($stream, $request);
 
         $response->headers->add([
             'Content-Disposition' => $config->getDisposition() . '; ' . HeaderUtils::toString(array('filename' => $filename), ';'),
@@ -64,107 +61,10 @@ class Processor
         return $response;
     }
 
-    public function createResponse(Request $request, string $processor, string $assetHash, array $options = []): Response
-    {
-        @trigger_error(sprintf('The "%s::createResponse" method is deprecated. Use %s::getResponse instead.', Processor::class, Processor::class), E_USER_DEPRECATED);
-
-        $options['_config_type'] = $request->query->get('type', null);
-        $config = $this->getConfig($processor, $assetHash, $options);
-
-        $cacheKey = $config->getCacheKey();
-        $lastCacheDate = $this->storageManager->getLastCacheDate($cacheKey, $processor);
-
-        $lastModified = $config->isValid($lastCacheDate) ? $lastCacheDate : new \DateTime();
-
-        $cacheResponse = new Response();
-        $cacheResponse->setPublic()->setLastModified($lastModified)->setEtag($cacheKey);
-        if ($cacheResponse->isNotModified($request)) {
-            return $cacheResponse;
-        }
-
-        $asset = $this->generate($config);
-
-        return $this->buildResponse($asset, $config->getMimeType(), $processor, $cacheKey);
-    }
-
     /**
-     * The assest was already rendered and cached (see process function).
-     * We can not build the config because it can be changed at runtime.
+     * @return resource
      */
-    public function fromCache(Request $request, string $processor, string $assetHash, string $configHash): Response
-    {
-        $context = $processor;
-        $cacheKey = $assetHash . '_' . $configHash;
-
-        $lastModified = $this->storageManager->getLastCacheDate($cacheKey, $context);
-
-        $cacheResponse = new Response();
-        $cacheResponse->setPublic()->setLastModified($lastModified)->setEtag($cacheKey);
-        if ($cacheResponse->isNotModified($request)) {
-            return $cacheResponse;
-        }
-
-        if (!$lastModified) {
-            throw new NotFoundHttpException();
-        }
-
-        $asset = $this->storageManager->getCacheFile($cacheKey, $context);
-
-        return $this->buildResponse($asset, $request->get('type'), $processor, $cacheKey);
-    }
-
-    /**
-     * Called from twig function, the config is used for generating the url
-     */
-    public function process(string $processor, string $assetHash, array $options = []): Config
-    {
-        $config = $this->getConfig($processor, $assetHash, $options);
-
-        $lastCacheDate = $this->storageManager->getLastCacheDate($config->getCacheKey(), $processor);
-
-        if (!$config->isValid($lastCacheDate)) {
-            $this->generate($config);
-        }
-
-        return $config;
-    }
-
-    private function buildResponse($file, $type, $processor, $cacheKey): BinaryFileResponse
-    {
-        $lastModified = $this->storageManager->getLastCacheDate($cacheKey, $processor);
-
-        $response = new BinaryFileResponse($file);
-        $response->headers->set('Content-Type', $type);
-        $response->headers->set('X-Ems-Cached-Files', '1');
-        $response->setPublic()->setLastModified($lastModified)->setEtag($cacheKey);
-
-        return $response;
-    }
-
-    private function getConfig(string $processor, string $hash, array $options): Config
-    {
-        $jsonOptions = ArrayTool::normalizeAndSerializeArray($options);
-        $configHash = $this->storageManager->computeStringHash($jsonOptions);
-        try {
-            return new Config($this->storageManager, $processor, $hash, $configHash, $options);
-        } catch (\Throwable $e) {
-            $this->logger->error($e->getMessage());
-            return new Config($this->storageManager, $processor, $hash, $configHash);
-        }
-    }
-
-    private function generate(Config $config): string
-    {
-        @trigger_error(sprintf('The "%s::generate" method is deprecated s. Use "%s::generateResource" instead.', Processor::class, Processor::class), E_USER_DEPRECATED);
-
-        $generated = $this->generateImage($config);
-        $this->storageManager->createCacheFile($config->getCacheKey(), $generated, $config->getProcessor());
-
-        return $generated;
-    }
-
-
-    private function generateResource(Config $config)
+    private function generateResource(Config $config, string $cacheFilename)
     {
         $file = null;
         if (!$config->isCacheableResult()) {
@@ -173,27 +73,40 @@ class Processor
             $file = $config->getFilename();
         }
         if ($config->getConfigType() === 'image') {
-            return fopen($this->generateImage($config, $file), 'r');
+            $resource = \fopen($this->generateImage($config, $file, $cacheFilename), 'r');
+            if ($resource === false) {
+                throw new \Exception('It was not able to open the generated image');
+            }
+            return $resource;
         }
 
-        throw new \Exception('not able to generate processor resource');
+        throw new \Exception(sprintf('not able to generate file for the config %s', $config->getConfigHash()));
     }
 
-    private function generateImage(Config $config, string $filename = null): string
+    private function hashToFilename(string $hash): string
+    {
+        $filename = (string) tempnam(sys_get_temp_dir(), 'EMS');
+        \file_put_contents($filename, $this->storageManager->getContents($hash));
+        return $filename;
+    }
+
+
+    private function generateImage(Config $config, string $filename = null, string $cacheFilename = null): string
     {
         $image = new Image($config);
 
-        if ($watermark = $config->getWatermark()) {
-            $image->setWatermark($this->storageManager->getFile($watermark));
+        $watermark = $config->getWatermark();
+        if ($watermark !== null && $this->storageManager->head($watermark)) {
+            $image->setWatermark($this->hashToFilename($watermark));
         }
 
         try {
             if ($filename) {
                 $file = $filename;
             } else {
-                $file = $this->storageManager->getFile($config->getAssetHash());
+                $file = $this->hashToFilename($config->getAssetHash());
             }
-            $generatedImage = $config->isSvg() ? $file : $image->generate($file);
+            $generatedImage = $config->isSvg() ? $file : $image->generate($file, $cacheFilename);
         } catch (\InvalidArgumentException $e) {
             $generatedImage = $image->generate($this->storageManager->getPublicImage('big-logo.png'));
         }
@@ -201,57 +114,52 @@ class Processor
         return $generatedImage;
     }
 
-    private function getResourceFromAsset(Config $config)
+    private function getStreamFomFilename(string $filename): StreamInterface
+    {
+        $resource = \fopen($filename, 'r');
+        if ($resource === false) {
+            throw new NotFoundException($filename);
+        }
+        return new Stream($resource);
+    }
+
+    private function getStreamFromAsset(Config $config): StreamInterface
     {
         if ($config->getFilename() !== null) {
-            return fopen($config->getFilename(), 'r');
+            return $this->getStreamFomFilename($config->getFilename());
         }
 
-        return $this->storageManager->getResource($config->getAssetHash());
+        return $this->storageManager->getStream($config->getAssetHash());
     }
 
-    private function getGeneratedResourceFromCache(Config $config)
+    private function getCacheFilename(Config $config, string $filename): string
     {
-        if (!$config->isCacheableResult()) {
-            return null;
-        }
-
-        try {
-            return $this->storageManager->getResource($config->getAssetHash(), $config->getConfigHash());
-        } catch (NotFoundException $e) {
-        } catch (\Exception $e) {
-            $this->logger->warning('log.unexpected_exception', ['error_message' => $e->getMessage()]);
-        }
-
-        return null;
+        return join(DIRECTORY_SEPARATOR, [
+            $this->projectDir,
+            'public',
+            'bundles',
+            'emscache',
+            $config->getCacheKey()
+        ]);
     }
 
-    private function saveGeneratedResourceToCache($generatedResource, Config $config, string $filename)
+    public function getStream(Config $config, string $filename, bool $noCache = false): StreamInterface
     {
-        if (!$config->isCacheableResult()) {
-            return;
+        if ($config->getCacheContext() === null) {
+            return $this->getStreamFromAsset($config);
         }
 
-        try {
-            $this->storageManager->cacheResource($generatedResource, $config->getAssetHash(), $config->getConfigHash(), $filename, $config->getMimeType(), 1);
-        } catch (\Exception $e) {
-            $this->logger->warning('log.unexpected_exception', ['error_message' => $e->getMessage()]);
-        }
-    }
-
-    public function getResource(Config $config, string $filename, bool $noCache = false)
-    {
-        if ($config->getStorageContext() === null) {
-            return $this->getResourceFromAsset($config);
+        $cacheFilename = $this->getCacheFilename($config, $filename);
+        if (!$noCache && \file_exists($cacheFilename)) {
+            $fp = \fopen($cacheFilename, 'r');
+            if ($fp !== false) {
+                return new Stream($fp);
+            }
         }
 
-        if (!$noCache && ($cachedResource = $this->getGeneratedResourceFromCache($config)) !== null) {
-            return $cachedResource;
-        }
+        $generatedResource = $this->generateResource($config, $cacheFilename);
 
-        $generatedResource = $this->generateResource($config);
-        $this->saveGeneratedResourceToCache($generatedResource, $config, $filename);
-        return $generatedResource;
+        return new Stream($generatedResource);
     }
 
     private function getResponseFromStreamInterface(StreamInterface $stream, Request $request): StreamedResponse
