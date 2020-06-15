@@ -18,7 +18,7 @@ final class Config
     private $processor;
     /** @var string */
     private $assetHash;
-    /** @var array<string, null|int|string|array|bool|\DateTime> */
+    /** @var array<string, mixed> */
     private $options;
     /** @var string */
     private $configHash;
@@ -32,7 +32,7 @@ final class Config
     private $cacheableResult;
 
     /**
-     * @param array<string, null|int|string|array|bool|\DateTime>  $options
+     * @param array<string, mixed>  $options
      */
     public function __construct(StorageManager $storageManager, string $processor, string $assetHash, string $configHash, array $options = [])
     {
@@ -136,13 +136,12 @@ final class Config
     public function getConfigType(): ?string
     {
         $configType = $this->options[EmsFields::ASSET_CONFIG_TYPE] ?? null;
-        return \is_string($configType) ? $configType : null;
+        return null !== $configType ? (string) $configType : null;
     }
 
     public function getQuality(): int
     {
-        $quality = $this->options[EmsFields::ASSET_CONFIG_QUALITY] ?? 0;
-        return is_int($quality) ? $quality : 0;
+        return (int) $this->options[EmsFields::ASSET_CONFIG_QUALITY] ?? 0;
     }
 
     /**
@@ -156,45 +155,33 @@ final class Config
 
     public function getBackground(): string
     {
-        if (!\is_string($this->options[EmsFields::ASSET_CONFIG_BACKGROUND])) {
-            throw new \RuntimeException('Background is expecting a string');
-        }
-        return $this->options[EmsFields::ASSET_CONFIG_BACKGROUND];
+        return (string) $this->options[EmsFields::ASSET_CONFIG_BACKGROUND];
     }
 
     public function getResize(): ?string
     {
         $resize = $this->options[EmsFields::ASSET_CONFIG_RESIZE] ?? null;
-        return \is_string($resize) ? $resize : null;
+        return null !== $resize ? (string) $resize : null;
     }
 
     public function getWidth(): int
     {
-        if (!\is_int($this->options[EmsFields::ASSET_CONFIG_WIDTH])) {
-            throw new \RuntimeException('Width is expecting an int');
-        }
-        return $this->options[EmsFields::ASSET_CONFIG_WIDTH];
+        return (int) $this->options[EmsFields::ASSET_CONFIG_WIDTH];
     }
 
     public function getHeight(): int
     {
-        if (!\is_int($this->options[EmsFields::ASSET_CONFIG_HEIGHT])) {
-            throw new \RuntimeException('Height is expecting an int');
-        }
-        return $this->options[EmsFields::ASSET_CONFIG_HEIGHT];
+        return (int) $this->options[EmsFields::ASSET_CONFIG_HEIGHT];
     }
 
     public function getGravity(): string
     {
-        if (!\is_string($this->options[EmsFields::ASSET_CONFIG_GRAVITY])) {
-            throw new \RuntimeException('Gravity is expecting a string');
-        }
-        return $this->options[EmsFields::ASSET_CONFIG_GRAVITY];
+        return (string) $this->options[EmsFields::ASSET_CONFIG_GRAVITY];
     }
 
     public function getRadius(): int
     {
-        return \intval($this->options[EmsFields::ASSET_CONFIG_RADIUS]);
+        return (int) $this->options[EmsFields::ASSET_CONFIG_RADIUS];
     }
 
     /**
@@ -208,29 +195,25 @@ final class Config
     public function getBorderColor(): ?string
     {
         $borderColor = $this->options[EmsFields::ASSET_CONFIG_BORDER_COLOR] ?? null;
-        return \is_string($borderColor) ? $borderColor : null;
+
+        return null !== $borderColor ? (string) $borderColor : null;
     }
 
     public function getDisposition(): string
     {
-        if (!\is_string($this->options[EmsFields::ASSET_CONFIG_DISPOSITION])) {
-            throw new \RuntimeException('Disposition is expecting a string');
-        }
-        return $this->options[EmsFields::ASSET_CONFIG_DISPOSITION];
+        return (string) $this->options[EmsFields::ASSET_CONFIG_DISPOSITION];
     }
 
     public function getWatermark(): ?string
     {
         $watermark = $this->options[EmsFields::ASSET_CONFIG_WATERMARK_HASH] ?? null;
-        return \is_string($watermark) ? $watermark : null;
+
+        return null !== $watermark ? (string) $watermark : null;
     }
 
     public function getMimeType(): string
     {
-        if (!\is_string($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE])) {
-            throw new \RuntimeException('Mime type is expecting a string');
-        }
-        return $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
+        return (string) $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
     }
 
     public function isCacheableResult(): bool
