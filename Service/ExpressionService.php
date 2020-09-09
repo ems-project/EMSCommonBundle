@@ -10,11 +10,14 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 final class ExpressionService implements ExpressionServiceInterface
 {
+    /** @var null|ExpressionLanguage */
+    private $expressionLanguage;
     /** @var LoggerInterface */
     private $logger;
 
     public function __construct(LoggerInterface $logger)
     {
+        $this->expressionLanguage = null;
         $this->logger = $logger;
     }
 
@@ -42,6 +45,15 @@ final class ExpressionService implements ExpressionServiceInterface
     }
 
     private function getExpressionLanguage(): ExpressionLanguage
+    {
+        if (null === $this->expressionLanguage) {
+            $this->expressionLanguage = $this->createExpressionLanguage();
+        }
+
+        return $this->expressionLanguage;
+    }
+
+    private function createExpressionLanguage(): ExpressionLanguage
     {
         $expressionLanguage = new ExpressionLanguage();
         $expressionLanguage->register(
