@@ -57,12 +57,15 @@ class S3Storage extends AbstractUrlStorage
 
     public function finalizeUpload(string $hash): bool
     {
-        $out = parent::finalizeUpload($hash);
-        $path = $this->getUploadPath($hash);
+        $source = $this->getUploadPath($hash);
+        $destination  = $this->getPath($hash);
+        \copy($source, $destination);
+
         $this->s3Client->deleteObject([
             'Bucket'     => $this->bucket,
-            'Key'        => substr($path, 1 + strlen($this->getBaseUrl()))
+            'Key'        => substr($source, 1 + strlen($this->getBaseUrl()))
         ]);
-        return $out;
+
+        return true;
     }
 }
