@@ -19,15 +19,15 @@
         </service>
 
         <service id="ems_common.text.encoder" class="EMS\CommonBundle\Helper\Text\Encoder"/>
-        <service id="ems_common.text.decoder" class="EMS\CommonBundle\Helper\Text\Decoder"/>
         <service id="ems_common.helper.cache" class="EMS\CommonBundle\Helper\Cache">
             <argument type="string">%ems_common.hash_algo%</argument>
         </service>
+        <service id="ems_common.json.decoder" class="EMS\CommonBundle\Json\Decoder"/>
 
         <!-- twig -->
         <service id="ems_common.twig.runtime.text" class="EMS\CommonBundle\Twig\TextRuntime">
             <argument type="service" id="ems_common.text.encoder" />
-            <argument type="service" id="ems_common.text.decoder" />
+            <argument type="service" id="ems_common.json.decoder" />
             <tag name="twig.runtime" />
         </service>
 
