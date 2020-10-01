@@ -7,6 +7,9 @@
     <services>
         <defaults public="false" />
 
+        <!-- Contracts -->
+        <service id="EMS\CommonBundle\Contracts\ExpressionServiceInterface" alias="ems_common.service.expression_service" />
+
         <!-- use this factory services, it will set the tracer to common.ems.logger -->
         <service id="ems_common.elasticsearch.factory" class="EMS\CommonBundle\Elasticsearch\Factory">
             <argument type="service" id="logger" />
@@ -23,6 +26,9 @@
             <argument type="string">%ems_common.hash_algo%</argument>
         </service>
         <service id="ems_common.json.decoder" class="EMS\CommonBundle\Json\Decoder"/>
+        <service id="ems_common.service.expression_service" class="EMS\CommonBundle\Service\ExpressionService">
+            <argument type="service" id="logger" />
+        </service>
 
         <!-- twig -->
         <service id="ems_common.twig.runtime.text" class="EMS\CommonBundle\Twig\TextRuntime">
@@ -37,6 +43,5 @@
         <service id="emsch.common.pdf_generator" class="EMS\CommonBundle\Service\Pdf\PdfGenerator">
             <argument type="service" id="EMS\CommonBundle\Service\Pdf\PdfPrinterInterface"/>
         </service>
-
     </services>
 </container>
