@@ -20,7 +20,7 @@ class TextRuntime implements RuntimeExtensionInterface
         $this->decoder = $decoder;
     }
 
-    public function webalize(string $text) : ?string
+    public function webalize(string $text): ?string
     {
         return $this->encoder->webalize($text);
     }

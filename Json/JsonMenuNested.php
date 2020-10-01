@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Json;
 
 /**
- * @implements \IteratorAggregate<JsonNestedMenu>
+ * @implements \IteratorAggregate<JsonMenuNested>
  */
 final class JsonMenuNested implements \IteratorAggregate
 {
