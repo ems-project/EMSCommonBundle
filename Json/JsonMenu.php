@@ -1,6 +1,6 @@
 <?php
 
-namespace EMS\CommonBundle\Entity;
+namespace EMS\CommonBundle\Json;
 
 class JsonMenu
 {
@@ -8,15 +8,14 @@ class JsonMenu
     private $json;
     /** @var string */
     private $glue;
-    /** @var array */
+    /** @var array<mixed> */
     private $structure;
-    /** @var array */
+    /** @var array<string, string> */
     private $slugs;
-    /** @var array */
+    /** @var array<string, mixed> */
     private $bySlugs;
-    /** @var array */
+    /** @var array<mixed> */
     private $items;
-
 
     public function __construct(string $source, string $glue)
     {
@@ -29,7 +28,10 @@ class JsonMenu
         $this->recursiveWalk($this->structure);
     }
 
-    private function recursiveWalk(array $menu, string $basePath = '')
+    /**
+     * @param array<mixed> $menu
+     */
+    private function recursiveWalk(array $menu, string $basePath = ''): void
     {
         foreach ($menu as $item) {
             $slug = $basePath . $item['label'];
@@ -42,6 +44,9 @@ class JsonMenu
         }
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getBySlug(string $slug): array
     {
         return $this->bySlugs[$slug] ?? [];
@@ -52,16 +57,25 @@ class JsonMenu
         return $this->slugs[$id] ?? null;
     }
 
+    /**
+     * @return null|array<mixed>
+     */
     public function getItem(string $id): ?array
     {
         return $this->items[$id] ?? null;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getUids(): array
     {
         return array_keys($this->slugs);
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getSlugs(): array
     {
         return array_values($this->slugs);
@@ -72,6 +86,9 @@ class JsonMenu
         return $this->json;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getStructure(): array
     {
         return $this->structure;

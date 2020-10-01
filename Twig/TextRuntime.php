@@ -2,8 +2,9 @@
 
 namespace EMS\CommonBundle\Twig;
 
-use EMS\CommonBundle\Helper\Text\Decoder;
+use EMS\CommonBundle\Json\Decoder;
 use EMS\CommonBundle\Helper\Text\Encoder;
+use EMS\CommonBundle\Json\JsonMenuNested;
 use Twig\Extension\RuntimeExtensionInterface;
 
 class TextRuntime implements RuntimeExtensionInterface
@@ -32,6 +33,11 @@ class TextRuntime implements RuntimeExtensionInterface
     public function jsonMenuDecode(string $json, string $glue = '/')
     {
         return $this->decoder->jsonMenuDecode($json, $glue);
+    }
+
+    public function jsonMenuNestedDecode(string $json): JsonMenuNested
+    {
+        return $this->decoder->jsonMenuNestedDecode($json);
     }
 
     public function jsonDecode(string $json, bool $assoc = true, int $depth = 512, int $options = 0)
