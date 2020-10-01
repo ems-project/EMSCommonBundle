@@ -20,11 +20,6 @@ class TextRuntime implements RuntimeExtensionInterface
         $this->decoder = $decoder;
     }
 
-    public function webalize(string $text): ?string
-    {
-        return $this->encoder->webalize($text);
-    }
-
     public function htmlEncode(string $text)
     {
         return $this->encoder->htmlEncode($text);
