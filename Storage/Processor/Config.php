@@ -15,8 +15,6 @@ use function GuzzleHttp\Psr7\mimetype_from_filename;
 final class Config
 {
     /** @var string */
-    private $processor;
-    /** @var string */
     private $assetHash;
     /** @var array<string, mixed> */
     private $options;
@@ -34,10 +32,9 @@ final class Config
     /**
      * @param array<string, mixed>  $options
      */
-    public function __construct(StorageManager $storageManager, string $processor, string $assetHash, string $configHash, array $options = [])
+    public function __construct(StorageManager $storageManager, string $assetHash, string $configHash, array $options = [])
     {
         $this->storageManager = $storageManager;
-        $this->processor = $processor;
         $this->assetHash = $assetHash;
         $this->options = $this->resolve($options);
         $this->configHash = $configHash;
@@ -86,11 +83,6 @@ final class Config
     public function hasDefaultMimeType(): bool
     {
         return \in_array($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] ?? '', ['application/octet-stream', 'application/bin', '']);
-    }
-
-    public function getProcessor(): string
-    {
-        return $this->processor;
     }
 
     public function getAssetHash(): string

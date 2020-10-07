@@ -2,6 +2,7 @@
 
 namespace EMS\CommonBundle\Storage\Processor;
 
+use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Helper\Cache;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Processor
 {
@@ -39,7 +41,12 @@ class Processor
     public function getResponse(Request $request, string $hash, string $configHash, string $filename, bool $immutableRoute = false): Response
     {
         $configJson = json_decode($this->storageManager->getContents($configHash), true);
-        $config = new Config($this->storageManager, $configHash, $hash, $configHash, $configJson);
+        $config = new Config($this->storageManager, $hash, $configHash, $configJson);
+        return $this->getStreamedResponse($request, $config, $filename, $immutableRoute);
+    }
+
+    public function getStreamedResponse(Request $request, Config $config, string $filename, bool $immutableRoute): Response
+    {
         $cacheKey = $config->getCacheKey();
 
         $cacheResponse = new Response();
@@ -59,6 +66,19 @@ class Processor
 
         $this->cacheHelper->makeResponseCacheable($response, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
         return $response;
+    }
+
+    /**
+     * @param array<string, mixed>  $configArray
+     */
+    public function configFactory(string $hash, array $configArray): Config
+    {
+        $normalizedArray = ArrayTool::normalizeAndSerializeArray($configArray);
+        if ($normalizedArray === false) {
+            throw new \RuntimeException('Could not normalize asset\'s processor config in JSON format.');
+        }
+        $configHash = $this->storageManager->computeStringHash($normalizedArray);
+        return new Config($this->storageManager, $hash, $configHash, $configArray);
     }
 
     /**
@@ -129,7 +149,11 @@ class Processor
             return $this->getStreamFomFilename($config->getFilename());
         }
 
-        return $this->storageManager->getStream($config->getAssetHash());
+        try {
+            return $this->storageManager->getStream($config->getAssetHash());
+        } catch (NotFoundException $e) {
+            throw new NotFoundHttpException(sprintf('File %s not found', $config->getAssetHash()));
+        }
     }
 
     private function getCacheFilename(Config $config, string $filename): string
