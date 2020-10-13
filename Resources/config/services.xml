@@ -17,6 +17,12 @@
             <tag name="monolog.logger" channel="elasticsearch"/>
         </service>
 
+        <service id="ems_common.elastica.factory" class="EMS\CommonBundle\Elasticsearch\ElasticaFactory">
+            <argument type="service" id="logger" />
+            <argument>%kernel.environment%</argument>
+            <tag name="monolog.logger" channel="elasticsearch"/>
+        </service>
+
         <service id="ems_common.event_listener.command" class="EMS\CommonBundle\EventListener\CommandListener">
             <tag name="kernel.event_subscriber" />
         </service>
