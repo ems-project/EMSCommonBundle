@@ -7,11 +7,8 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
-    /**
-     * Generates the configuration tree builder.
-     *
-     * @return TreeBuilder The tree builder
-     */
+    private const ELASTICSEARCH_DEFAULT_HOSTS = ['http://localhost:9200'];
+
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
@@ -25,6 +22,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('backend_url')->defaultValue(null)->end()
                 ->scalarNode('s3_bucket')->defaultValue(null)->end()
                 ->variableNode('s3_credentials')->defaultValue([])->end()
+                ->variableNode('elasticsearch_hosts')->defaultValue(self::ELASTICSEARCH_DEFAULT_HOSTS)->end()
             ->end()
         ;
 
