@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Tests\Unit\Elasticsearch\Document;
 
 use EMS\CommonBundle\Elasticsearch\Document\DocumentCollection;
-use EMS\CommonBundle\Elasticsearch\Response\ResponseInterface;
 use EMS\CommonBundle\Elasticsearch\Document\DocumentInterface;
+use EMS\CommonBundle\Elasticsearch\Response\ResponseInterface;
 use PHPUnit\Framework\TestCase;
 
-class DocumentCollectionTest extends TestCase
+final class DocumentCollectionTest extends TestCase
 {
     /** @var ResponseInterface */
     private $mockResponse;
@@ -18,7 +20,7 @@ class DocumentCollectionTest extends TestCase
         $mockResponse->method('getDocuments')
             ->willReturn([
                 $this->createMock(DocumentInterface::class),
-                $this->createMock(DocumentInterface::class)
+                $this->createMock(DocumentInterface::class),
             ]);
         $this->mockResponse = $mockResponse;
     }
@@ -36,7 +38,7 @@ class DocumentCollectionTest extends TestCase
         $count = 0;
         foreach ($collection->getIterator() as $document) {
             self::assertInstanceOf(DocumentInterface::class, $document);
-            $count++;
+            ++$count;
         }
 
         $this->assertEquals(2, $count);

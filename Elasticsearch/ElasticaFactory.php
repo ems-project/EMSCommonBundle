@@ -8,7 +8,7 @@ use Elastica\Client;
 use Elasticsearch\ConnectionPool\SniffingConnectionPool;
 use Psr\Log\LoggerInterface;
 
-class ElasticaFactory
+final class ElasticaFactory
 {
     /** @var LoggerInterface */
     private $logger;
@@ -36,9 +36,10 @@ class ElasticaFactory
             'connectionPool' => $connectionPool,
         ];
 
-        if ($this->env === 'dev' && php_sapi_name() !== 'cli') {
+        if ('dev' === $this->env && 'cli' !== \php_sapi_name()) {
             return new Client($config, null, $this->logger);
         }
+
         return new Client($config);
     }
 }

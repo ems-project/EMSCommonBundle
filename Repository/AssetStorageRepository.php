@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Repository;
 
 use Doctrine\DBAL\Types\Types;
@@ -8,9 +10,8 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\QueryBuilder;
 use EMS\CommonBundle\Entity\AssetStorage;
 
-class AssetStorageRepository extends EntityRepository
+final class AssetStorageRepository extends EntityRepository
 {
-
     private function getQuery(string $hash, bool $confirmed): QueryBuilder
     {
         $qb = $this->createQueryBuilder('a');
@@ -20,6 +21,7 @@ class AssetStorageRepository extends EntityRepository
             ':hash' => $hash,
             ':confirmed' => $confirmed,
         ]);
+
         return $qb;
     }
 
@@ -27,7 +29,8 @@ class AssetStorageRepository extends EntityRepository
     {
         try {
             $qb = $this->getQuery($hash, $confirmed)->select('count(a.hash)');
-            return $qb->getQuery()->getSingleScalarResult() !== 0;
+
+            return 0 !== $qb->getQuery()->getSingleScalarResult();
         } catch (NonUniqueResultException $e) {
             return false;
         }
@@ -40,7 +43,7 @@ class AssetStorageRepository extends EntityRepository
             $qb->where($qb->expr()->eq('asset.hash', ':hash'));
             $qb->setParameter(':hash', $hash, Types::STRING);
 
-            return $qb->getQuery()->execute() !== false;
+            return false !== $qb->getQuery()->execute();
         } catch (\Throwable $e) {
             return false;
         }
@@ -61,6 +64,7 @@ class AssetStorageRepository extends EntityRepository
     {
         try {
             $qb = $this->getQuery($hash, $confirmed)->select('a.size');
+
             return $qb->getQuery()->getSingleScalarResult();
         } catch (NonUniqueResultException $e) {
             return null;

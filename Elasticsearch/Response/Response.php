@@ -15,7 +15,7 @@ final class Response implements ResponseInterface
     /** @var array */
     private $hits;
 
-    /** @var null|string */
+    /** @var string|null */
     private $scrollId;
 
     public function __construct(array $response)
@@ -27,7 +27,7 @@ final class Response implements ResponseInterface
 
     public function hasDocuments(): bool
     {
-        return count($this->hits) > 0;
+        return \count($this->hits) > 0;
     }
 
     public function getDocuments(): iterable
@@ -54,6 +54,6 @@ final class Response implements ResponseInterface
 
     public function getTotalDocuments(): int
     {
-        return count($this->hits);
+        return \count($this->hits);
     }
 }

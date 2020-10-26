@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Twig;
 
-use EMS\CommonBundle\Json\Decoder;
 use EMS\CommonBundle\Helper\Text\Encoder;
+use EMS\CommonBundle\Json\Decoder;
 use EMS\CommonBundle\Json\JsonMenuNested;
 use Twig\Extension\RuntimeExtensionInterface;
 
-class TextRuntime implements RuntimeExtensionInterface
+final class TextRuntime implements RuntimeExtensionInterface
 {
     /** @var Encoder */
     private $encoder;

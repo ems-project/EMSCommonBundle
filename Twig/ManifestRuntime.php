@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Twig;
 
 use Twig\Extension\RuntimeExtensionInterface;
 
-class ManifestRuntime implements RuntimeExtensionInterface
+final class ManifestRuntime implements RuntimeExtensionInterface
 {
     public function manifest(string $manifestUrl, string $resource): string
     {
-        $contents = file_get_contents($manifestUrl);
+        $contents = \file_get_contents($manifestUrl);
 
-        if ($contents === false) {
+        if (false === $contents) {
             return $manifestUrl;
         }
 
@@ -20,8 +22,8 @@ class ManifestRuntime implements RuntimeExtensionInterface
             return $manifestUrl;
         }
 
-        $base = preg_replace('/\/bundles\/.*\/manifest.json$/', '', $manifestUrl);
+        $base = \preg_replace('/\/bundles\/.*\/manifest.json$/', '', $manifestUrl);
 
-        return $base . '/' . $manifest[$resource] ;
+        return $base.'/'.$manifest[$resource];
     }
 }

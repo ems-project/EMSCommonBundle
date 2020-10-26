@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Json;
 
-class Decoder
+final class Decoder
 {
     public function jsonMenuDecode(string $text, string $glue): JsonMenu
     {

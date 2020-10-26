@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Tests\Unit\Common;
 
 use EMS\CommonBundle\Common\EMSLink;
 use PHPUnit\Framework\TestCase;
 
-class EMSLinkTest extends TestCase
+final class EMSLinkTest extends TestCase
 {
     public function testFromTextWithEmsObjectTypeAndOuuid()
     {

@@ -7,7 +7,7 @@ namespace EMS\CommonBundle\Service\Pdf;
 use EMS\CommonBundle\Service\Dom\HtmlCrawler;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class PdfGenerator
+final class PdfGenerator
 {
     /** @var PdfPrinterInterface */
     private $pdfPrinter;
@@ -32,7 +32,7 @@ class PdfGenerator
         $crawler = new HtmlCrawler($html);
 
         foreach ($crawler->getMetaTagsByXpath('//meta[contains(@name, "pdf:")]') as $node) {
-            $name = substr($node->getAttribute('name'), 4);
+            $name = \substr($node->getAttribute('name'), 4);
             $metaTags[$name] = $node->getAttribute('content');
         }
 
@@ -41,7 +41,7 @@ class PdfGenerator
 
     private function sanitizeMetaTags(array $metaData): array
     {
-        return filter_var_array($metaData, [
+        return \filter_var_array($metaData, [
             PdfPrintOptions::ATTACHMENT => FILTER_VALIDATE_BOOLEAN,
             PdfPrintOptions::COMPRESS => FILTER_VALIDATE_BOOLEAN,
             PdfPrintOptions::HTML5_PARSING => FILTER_VALIDATE_BOOLEAN,

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch\Document;
 
-class Document implements DocumentInterface
+final class Document implements DocumentInterface
 {
     /** @var string */
     private $id;
@@ -32,7 +32,7 @@ class Document implements DocumentInterface
 
     public function getEmsId(): string
     {
-        return sprintf('%s:%s', $this->contentType, $this->id);
+        return \sprintf('%s:%s', $this->contentType, $this->id);
     }
 
     public function getSource(): array

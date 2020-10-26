@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage;
 
 use EMS\CommonBundle\Storage\Service\FileSystemStorage;
@@ -9,7 +11,7 @@ use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Config\FileLocatorInterface;
 
-class StorageManager
+final class StorageManager
 {
     /** @var StorageInterface[] */
     private $adapters = [];
@@ -21,7 +23,7 @@ class StorageManager
     private $hashAlgo;
 
     /**
-     * @param iterable<StorageInterface> $adapters
+     * @param iterable<StorageInterface>                                                         $adapters
      * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
      */
     public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, string $hashAlgo, ?string $storagePath, ?string $backendUrl, array $s3Credentials = [], ?string $s3Bucket = null)
@@ -37,7 +39,7 @@ class StorageManager
             $this->addAdapter(new FileSystemStorage($storagePath));
         }
 
-        if ($s3Credentials !== null && $s3Bucket !== null) {
+        if (null !== $s3Credentials && null !== $s3Bucket) {
             $this->addAdapter(new S3Storage($s3Credentials, $s3Bucket));
         }
 
@@ -54,10 +56,10 @@ class StorageManager
         return $this->adapters;
     }
 
-
     public function addAdapter(StorageInterface $storageAdapter): StorageManager
     {
         $this->adapters[] = $storageAdapter;
+
         return $this;
     }
 
@@ -68,6 +70,7 @@ class StorageManager
                 return true;
             }
         }
+
         return false;
     }
 
@@ -91,10 +94,11 @@ class StorageManager
 
     public function getPublicImage(string $name): string
     {
-        $file = $this->fileLocator->locate('@EMSCommonBundle/Resources/public/images/' . $name);
-        if (is_array($file)) {
+        $file = $this->fileLocator->locate('@EMSCommonBundle/Resources/public/images/'.$name);
+        if (\is_array($file)) {
             return $file[0] ?? '';
         }
+
         return $file;
     }
 
@@ -105,12 +109,12 @@ class StorageManager
 
     public function saveContents(string $contents, string $filename, string $mimetype, int $shouldBeSavedOnXServices = 1): string
     {
-        $hash = hash($this->hashAlgo, $contents);
+        $hash = \hash($this->hashAlgo, $contents);
         $out = 0;
 
         /** @var StorageInterface $service */
         foreach ($this->getAdapters() as $service) {
-            if ($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
+            if (0 != $shouldBeSavedOnXServices && $out >= $shouldBeSavedOnXServices) {
                 break;
             }
 
@@ -119,7 +123,7 @@ class StorageManager
                 continue;
             }
 
-            if (!$service->initUpload($hash, strlen($contents), $filename, $mimetype)) {
+            if (!$service->initUpload($hash, \strlen($contents), $filename, $mimetype)) {
                 continue;
             }
 
@@ -143,9 +147,10 @@ class StorageManager
     public function computeFileHash(string $filename): string
     {
         $hashFile = \hash_file($this->hashAlgo, $filename);
-        if ($hashFile === false) {
+        if (false === $hashFile) {
             throw new NotFoundException($filename);
         }
+
         return $hashFile;
     }
 
@@ -157,6 +162,7 @@ class StorageManager
                 break;
             }
         }
+
         return $loopCounter;
     }
 }

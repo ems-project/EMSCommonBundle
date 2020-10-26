@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch\Request;
 
-class Request implements RequestInterface
+final class Request implements RequestInterface
 {
     /** @var array */
     private $body;

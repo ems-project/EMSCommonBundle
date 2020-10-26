@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Service;
 
-class SftpStorage extends AbstractUrlStorage
+final class SftpStorage extends AbstractUrlStorage
 {
     /** @var string */
     private $host;
@@ -42,31 +44,32 @@ class SftpStorage extends AbstractUrlStorage
 
     protected function getBaseUrl(): string
     {
-        if ($this->sftp === null) {
+        if (null === $this->sftp) {
             $this->connect();
         }
-        return 'ssh2.sftp://' . intval($this->sftp) . $this->path;
+
+        return 'ssh2.sftp://'.\intval($this->sftp).$this->path;
     }
 
     private function connect(): void
     {
-        if (!function_exists('ssh2_connect')) {
+        if (!\function_exists('ssh2_connect')) {
             throw new \Exception("PHP functions Secure Shell are required by $this. (ssh2)");
         }
 
         $connection = @ssh2_connect($this->host, $this->port);
-        if ($connection === false) {
+        if (false === $connection) {
             throw new \Exception("Could not connect to $this->host on port $this->port.");
         }
 
-        if ($this->passwordPhrase === null) {
+        if (null === $this->passwordPhrase) {
             ssh2_auth_pubkey_file($connection, $this->username, $this->publicKeyFile, $this->privateKeyFile);
         } else {
             ssh2_auth_pubkey_file($connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
         }
 
         $sftp = @ssh2_sftp($connection);
-        if ($sftp === false) {
+        if (false === $sftp) {
             throw new \Exception("Could not initialize SFTP subsystem to $this->host");
         }
 
@@ -75,6 +78,6 @@ class SftpStorage extends AbstractUrlStorage
 
     public function __toString(): string
     {
-        return SftpStorage::class . " ($this->host)";
+        return SftpStorage::class." ($this->host)";
     }
 }

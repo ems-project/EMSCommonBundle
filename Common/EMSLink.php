@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Common;
 
-class EMSLink
+final class EMSLink
 {
     /**
-     * object|asset
+     * object|asset.
      *
      * @var string
      */
@@ -28,7 +30,7 @@ class EMSLink
 
     /**
      * Regex for searching ems links in content
-     * content_type and query can be empty/optional
+     * content_type and query can be empty/optional.
      *
      * Example: <a href="ems://object:page:AV44kX4b1tfmVMOaE61u">example</a>
      * link_type => object, content_type => page, ouuid => AV44kX4b1tfmVMOaE61u
@@ -42,23 +44,18 @@ class EMSLink
 
     public static function fromText(string $text): EMSLink
     {
-        $pattern = substr($text, 0, 6) === 'ems://' ? self::PATTERN : self::SIMPLE_PATTERN;
-        preg_match($pattern, $text, $match);
+        $pattern = 'ems://' === \substr($text, 0, 6) ? self::PATTERN : self::SIMPLE_PATTERN;
+        \preg_match($pattern, $text, $match);
 
         return self::fromMatch($match);
     }
 
-    /**
-     * @param array $match
-     *
-     * @return EMSLink
-     */
     public static function fromMatch(array $match): EMSLink
     {
         $link = new self();
 
         if (!isset($match['ouuid'])) {
-            throw new \InvalidArgumentException(sprintf('ouuid is required! (%s)', implode(',', $match)));
+            throw new \InvalidArgumentException(\sprintf('ouuid is required! (%s)', \implode(',', $match)));
         }
 
         $link->ouuid = $match['ouuid'];
@@ -66,12 +63,12 @@ class EMSLink
 
         if (!empty($match['content_type'])) {
             $link->contentType = $match['content_type'];
-        } else if (!empty($match['link_type'])) {
+        } elseif (!empty($match['link_type'])) {
             $link->contentType = $match['link_type'];
         }
 
         if (!empty($match['query'])) {
-            $link->query = html_entity_decode($match['query']);
+            $link->query = \html_entity_decode($match['query']);
         }
 
         return $link;
@@ -83,22 +80,19 @@ class EMSLink
 
         $link = new self();
 
-        $link->contentType = isset($source['_contenttype']) ? $source['_contenttype'] : $document['_type'] ;
+        $link->contentType = isset($source['_contenttype']) ? $source['_contenttype'] : $document['_type'];
         $link->ouuid = $document['_id'];
 
         return $link;
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
-        return vsprintf('ems://%s:%s%s%s', [
+        return \vsprintf('ems://%s:%s%s%s', [
             $this->linkType,
-            ($this->contentType ? $this->contentType . ':' : ''),
+            ($this->contentType ? $this->contentType.':' : ''),
             $this->ouuid,
-            ($this->query ? '?' . $this->query : '')
+            ($this->query ? '?'.$this->query : ''),
         ]);
     }
 
@@ -118,9 +112,6 @@ class EMSLink
         return $this->contentType;
     }
 
-    /**
-     * @return string
-     */
     public function getOuuid(): string
     {
         return $this->ouuid;
@@ -131,14 +122,11 @@ class EMSLink
      */
     public function getQuery()
     {
-        parse_str($this->query, $output);
+        \parse_str($this->query, $output);
 
         return $output;
     }
 
-    /**
-     * @return bool
-     */
     public function hasContentType(): bool
     {
         return null !== $this->contentType;

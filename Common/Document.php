@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Common;
 
-class Document
+final class Document
 {
     /** @var string */
     private $contentType;
