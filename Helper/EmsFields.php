@@ -2,6 +2,8 @@
 
 namespace EMS\CommonBundle\Helper;
 
+use EMS\CoreBundle\Entity\Revision;
+
 final class EmsFields
 {
     const CONTENT_MIME_TYPE_FIELD = 'mimetype';
@@ -71,4 +73,30 @@ final class EmsFields
     const LOG_OPERATION_UPDATE = 'UPDATE';
     const LOG_OPERATION_READ = 'READ';
     const LOG_OPERATION_DELETE = 'DELETE';
+
+    public static function contextReadRevision(Revision $revision): array
+    {
+        $context = self::contextRevision($revision);
+        $context[EmsFields::LOG_OPERATION_FIELD] = EmsFields::LOG_OPERATION_READ;
+
+        return $context;
+    }
+
+    public static function contextUpdateRevision(Revision $revision): array
+    {
+        $context = self::contextRevision($revision);
+        $context[EmsFields::LOG_OPERATION_FIELD] = EmsFields::LOG_OPERATION_UPDATE;
+
+        return $context;
+    }
+
+    private static function contextRevision(Revision $revision): array
+    {
+        return [
+            EmsFields::LOG_CONTENTTYPE_FIELD => $revision->getContentType()->getName(),
+            EmsFields::LOG_OUUID_FIELD => $revision->getOuuid(),
+            EmsFields::LOG_REVISION_ID_FIELD => $revision->getId(),
+            EmsFields::LOG_ENVIRONMENT_FIELD => $revision->getContentType()->getEnvironment()->getName(),
+        ];
+    }
 }
