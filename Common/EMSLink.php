@@ -2,6 +2,8 @@
 
 namespace EMS\CommonBundle\Common;
 
+use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
+
 class EMSLink
 {
     /**
@@ -83,7 +85,7 @@ class EMSLink
 
         $link = new self();
 
-        $link->contentType = isset($source['_contenttype']) ? $source['_contenttype'] : $document['_type'] ;
+        $link->contentType = isset($source[EMSSource::FIELD_CONTENT_TYPE]) ? $source[EMSSource::FIELD_CONTENT_TYPE] : $document['_type'] ;
         $link->ouuid = $document['_id'];
 
         return $link;
@@ -142,5 +144,10 @@ class EMSLink
     public function hasContentType(): bool
     {
         return null !== $this->contentType;
+    }
+
+    public function getEmsId(): string
+    {
+        return sprintf('%s:%s', $this->contentType, $this->ouuid);
     }
 }
