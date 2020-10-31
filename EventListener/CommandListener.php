@@ -17,12 +17,12 @@ class CommandListener implements EventSubscriberInterface
      * @var Stopwatch
      */
     private $stopwatch;
-    
+
     public function __construct()
     {
         $this->stopwatch = new Stopwatch();
     }
-    
+
     /**
      * @return array
      */
@@ -46,10 +46,10 @@ class CommandListener implements EventSubscriberInterface
         if (!$command instanceof CommandInterface) {
             return;
         }
-        
+
         $this->stopwatch->start((string) $command->getName());
     }
-    
+
     /**
      * @param ConsoleTerminateEvent $event
      *
@@ -62,9 +62,9 @@ class CommandListener implements EventSubscriberInterface
         if (!$command instanceof CommandInterface) {
             return;
         }
-        
+
         $stopwatch = $this->stopwatch->stop((string) $command->getName());
-        
+
         $io = new SymfonyStyle($event->getInput(), $event->getOutput());
         $io->listing([
             sprintf('Duration: %d s', $stopwatch->getDuration() / 1000),
