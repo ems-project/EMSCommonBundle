@@ -141,21 +141,6 @@ parameters:
 			path: Elasticsearch/DocumentInterface.php
 
 		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\Document\\:\\:\\$source type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Elasticsearch/Document/Document.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\Document\\:\\:__construct\\(\\) has parameter \\$document with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Elasticsearch/Document/Document.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\Document\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Elasticsearch/Document/Document.php
-
-		-
 			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\DocumentCollection\\:\\:\\$documents type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: Elasticsearch/Document/DocumentCollection.php
