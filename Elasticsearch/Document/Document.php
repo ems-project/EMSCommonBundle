@@ -16,7 +16,7 @@ class Document implements DocumentInterface
     public function __construct(array $document)
     {
         $this->id = $document['_id'];
-        $this->contentType = $document['source']['_contenttype'] ?? $document['_type'];
+        $this->contentType = $document['_source'][EMSSource::FIELD_CONTENT_TYPE] ?? $document['_type'];
         $this->source = $document['_source'] ?? [];
     }
 
