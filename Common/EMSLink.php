@@ -13,19 +13,13 @@ class EMSLink
      */
     private $linkType = 'object';
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $contentType;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $ouuid;
 
-    /**
-     * @var string
-     */
+    /** @var string|null  */
     private $query = null;
 
     /**
@@ -51,9 +45,7 @@ class EMSLink
     }
 
     /**
-     * @param array $match
-     *
-     * @return EMSLink
+     * @param array{ouuid?: string, link_type?: string, content_type?: string, query?: string} $match
      */
     public static function fromMatch(array $match): EMSLink
     {
@@ -66,34 +58,40 @@ class EMSLink
         $link->ouuid = $match['ouuid'];
         $link->linkType = $match['link_type'] ?? 'object';
 
-        if (!empty($match['content_type'])) {
+        if (isset($match['content_type']) && !empty($match['content_type'])) {
             $link->contentType = $match['content_type'];
-        } else if (!empty($match['link_type'])) {
+        } else if (isset($match['link_type']) && !empty($match['link_type'])) {
             $link->contentType = $match['link_type'];
         }
 
-        if (!empty($match['query'])) {
-            $link->query = html_entity_decode($match['query']);
+        if (isset($match['query']) && !empty($match['query'])) {
+            $link->query = \html_entity_decode($match['query']);
         }
-
-        return $link;
-    }
-
-    public static function fromDocument(array $document): EMSLink
-    {
-        $source = $document['_source'];
-
-        $link = new self();
-
-        $link->contentType = isset($source[EMSSource::FIELD_CONTENT_TYPE]) ? $source[EMSSource::FIELD_CONTENT_TYPE] : $document['_type'] ;
-        $link->ouuid = $document['_id'];
 
         return $link;
     }
 
     /**
-     * @return string
+     * @param array{_id: string, _type?: string, _source: array}  $document
      */
+    public static function fromDocument(array $document): EMSLink
+    {
+        $link = new self();
+        $link->ouuid = $document['_id'];
+
+        $contentType = $document['_source'][EMSSource::FIELD_CONTENT_TYPE] ?? null;
+        if ($contentType == null) {
+            $contentType = $document['_type'] ?? null;
+            @trigger_error(sprintf('The field %s is missing in the document %s', EMSSource::FIELD_CONTENT_TYPE, $link->getEmsId()), E_USER_DEPRECATED);
+        }
+        if ($contentType == null) {
+            throw new \RuntimeException(sprintf('Unable to determine the content type for document %s', $link->ouuid));
+        }
+        $link->contentType = $contentType;
+
+        return $link;
+    }
+
     public function __toString(): string
     {
         return vsprintf('ems://%s:%s%s%s', [
@@ -104,43 +102,34 @@ class EMSLink
         ]);
     }
 
-    /**
-     * @return string
-     */
-    public function getLinkType()
+    public function getLinkType(): string
     {
         return $this->linkType;
     }
 
-    /**
-     * @return string
-     */
-    public function getContentType()
+    public function getContentType(): string
     {
         return $this->contentType;
     }
 
-    /**
-     * @return string
-     */
     public function getOuuid(): string
     {
         return $this->ouuid;
     }
 
     /**
-     * @return mixed
+     * @return array<string|array>
      */
-    public function getQuery()
+    public function getQuery(): array
     {
-        parse_str($this->query, $output);
+        if ($this->query == null) {
+            return [];
+        }
+        \parse_str($this->query, $output);
 
         return $output;
     }
 
-    /**
-     * @return bool
-     */
     public function hasContentType(): bool
     {
         return null !== $this->contentType;

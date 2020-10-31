@@ -14,20 +14,21 @@ class Document implements DocumentInterface
     private $source;
 
     /**
-     * @param array{_id: string, _type?: string, _source: array} $document
+     * @param array{_id: string, _type: ?string, _source: array} $document
      */
     public function __construct(array $document)
     {
         $this->id = $document['_id'];
-        $this->contentType = $document['_source'][EMSSource::FIELD_CONTENT_TYPE] ?? null;
         $this->source = $document['_source'] ?? [];
-        if ($this->contentType == null) {
-            $this->contentType = $document['_type'] ?? null;
+        $contentType = $document['_source'][EMSSource::FIELD_CONTENT_TYPE] ?? null;
+        if ($contentType == null) {
+            $contentType = $document['_type'] ?? null;
             @trigger_error(sprintf('The field %s is missing in the document %s', EMSSource::FIELD_CONTENT_TYPE, $this->getEmsId()), E_USER_DEPRECATED);
         }
-        if ($this->contentType == null) {
+        if ($contentType == null) {
             throw new \RuntimeException(sprintf('Unable to determine the content type for document %s', $this->id));
         }
+        $this->contentType = $contentType;
     }
 
     public function getId(): string

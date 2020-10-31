@@ -16,16 +16,6 @@ parameters:
 			path: Common/Document.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Common\\\\EMSLink\\:\\:fromMatch\\(\\) has parameter \\$match with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Common/EMSLink.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Common\\\\EMSLink\\:\\:fromDocument\\(\\) has parameter \\$document with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: Common/EMSLink.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Common\\\\HttpClientFactory\\:\\:create\\(\\) has parameter \\$headers with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: Common/HttpClientFactory.php
