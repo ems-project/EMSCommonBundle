@@ -1,8 +1,6 @@
 <?php
 
-
 namespace EMS\CommonBundle\Search;
-
 
 use Elastica\Query\AbstractQuery;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
@@ -95,6 +93,4 @@ class Search
     {
         $this->from = $from;
     }
-
-
 }
