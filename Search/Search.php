@@ -88,11 +88,19 @@ class Search
     /**
      * @return array{size: int, from: int}
      */
-    public function getOptions(): array
+    public function getSearchOptions(): array
     {
         return [
             ElasticaSearch::OPTION_SIZE => $this->size,
             ElasticaSearch::OPTION_FROM => $this->from,
         ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getScrollOptions(): array
+    {
+        return [];
     }
 }

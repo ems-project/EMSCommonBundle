@@ -30,12 +30,12 @@ class ElasticaService
 
     public function search(Search $search): ResultSet
     {
-        return $this->createElasticaSearch($search)->search();
+        return $this->createElasticaSearch($search, $search->getSearchOptions())->search();
     }
 
     public function scroll(Search $search, string $expiryTime = '1m'): Scroll
     {
-        return $this->createElasticaSearch($search)->scroll($expiryTime);
+        return $this->createElasticaSearch($search, $search->getScrollOptions())->scroll($expiryTime);
     }
 
     /**
@@ -58,7 +58,10 @@ class ElasticaService
         return $boolQuery;
     }
 
-    private function createElasticaSearch(Search $search): ElasticaSearch
+    /**
+     * @param array<mixed> $options
+     */
+    private function createElasticaSearch(Search $search, array $options): ElasticaSearch
     {
         $boolQuery = $this->filterByContentTypes($search->getQuery(), $search->getContentTypes());
         $query = new Query($boolQuery);
@@ -69,7 +72,7 @@ class ElasticaService
 
         $esSearch->setQuery($query);
         $esSearch->addIndices($search->getIndices());
-        $esSearch->setOptions($search->getOptions());
+        $esSearch->setOptions($options);
         return $esSearch;
     }
 }
