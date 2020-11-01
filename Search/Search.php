@@ -12,7 +12,7 @@ class Search
     private $sources = [];
     /** @var string[] */
     private $contentTypes = [];
-    /** @var AbstractQuery */
+    /** @var AbstractQuery|null */
     private $query;
     /** @var string[] */
     private $indices;
@@ -20,11 +20,13 @@ class Search
     private $size = 10;
     /** @var int */
     private $from = 0;
+    /** @var null|array<mixed>  */
+    private $sort = null;
 
     /**
      * @param string[] $indices
      */
-    public function __construct(array $indices, AbstractQuery $query)
+    public function __construct(array $indices, AbstractQuery $query = null)
     {
         $this->indices = $indices;
         $this->query = $query;
@@ -46,7 +48,7 @@ class Search
         return $this->contentTypes;
     }
 
-    public function getQuery(): AbstractQuery
+    public function getQuery(): ?AbstractQuery
     {
         return $this->query;
     }
@@ -94,6 +96,22 @@ class Search
             ElasticaSearch::OPTION_SIZE => $this->size,
             ElasticaSearch::OPTION_FROM => $this->from,
         ];
+    }
+
+    /**
+     * @return array<mixed>|null
+     */
+    public function getSort(): ?array
+    {
+        return $this->sort;
+    }
+
+    /**
+     * @param array<mixed> $sort
+     */
+    public function setSort(array $sort): void
+    {
+        $this->sort = $sort;
     }
 
     /**

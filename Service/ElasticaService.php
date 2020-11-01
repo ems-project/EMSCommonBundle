@@ -41,14 +41,16 @@ class ElasticaService
     /**
      * @param string[] $contentTypes
      */
-    public function filterByContentTypes(AbstractQuery $query, array $contentTypes): AbstractQuery
+    public function filterByContentTypes(?AbstractQuery $query, array $contentTypes): ?AbstractQuery
     {
         if (\count($contentTypes) === 0) {
             return $query;
         }
 
         $boolQuery = new BoolQuery();
-        $boolQuery->addMust($query);
+        if ($query !== null) {
+            $boolQuery->addMust($query);
+        }
         $boolQuery->setMinimumShouldMatch(1);
         $type = new Terms('_type', $contentTypes);
         $contentType = new Terms(EMSSource::FIELD_CONTENT_TYPE, $contentTypes);
@@ -67,6 +69,9 @@ class ElasticaService
         $query = new Query($boolQuery);
         if (\count($search->getSources())) {
             $query->setSource($search->getSources());
+        }
+        if ($search->getSort() !== null) {
+            $query->setSort($search->getSort());
         }
         $esSearch = new ElasticaSearch($this->client);
 
