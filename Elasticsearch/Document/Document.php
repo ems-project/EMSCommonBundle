@@ -21,11 +21,11 @@ class Document implements DocumentInterface
         $this->id = $document['_id'];
         $this->source = $document['_source'] ?? [];
         $contentType = $document['_source'][EMSSource::FIELD_CONTENT_TYPE] ?? null;
-        if ($contentType == null) {
+        if ($contentType === null) {
             $contentType = $document['_type'] ?? null;
             @trigger_error(sprintf('The field %s is missing in the document %s', EMSSource::FIELD_CONTENT_TYPE, $this->getEmsId()), E_USER_DEPRECATED);
         }
-        if ($contentType == null) {
+        if ($contentType === null) {
             throw new \RuntimeException(sprintf('Unable to determine the content type for document %s', $this->id));
         }
         $this->contentType = $contentType;
