@@ -41,6 +41,11 @@
         <service id="ems_common.service.expression_service" class="EMS\CommonBundle\Service\ExpressionService">
             <argument type="service" id="logger" />
         </service>
+        <service id="EMS\CommonBundle\Service\ElasticaService" alias="ems_common.service.elastica"/>
+        <service id="ems_common.service.elastica" class="EMS\CommonBundle\Service\ElasticaService">
+            <argument type="service" id="logger" />
+            <argument type="service" id="ems_common.elastica.client" />
+        </service>
 
         <!-- twig -->
         <service id="ems_common.twig.runtime.text" class="EMS\CommonBundle\Twig\TextRuntime">
