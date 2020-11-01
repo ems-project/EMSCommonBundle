@@ -3,6 +3,7 @@
 namespace EMS\CommonBundle\Search;
 
 use Elastica\Query\AbstractQuery;
+use Elastica\Search as ElasticaSearch;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 
 class Search
@@ -74,23 +75,24 @@ class Search
         return $this->indices;
     }
 
-    public function getSize(): int
-    {
-        return $this->size;
-    }
-
     public function setSize(int $size): void
     {
         $this->size = $size;
     }
 
-    public function getFrom(): int
-    {
-        return $this->from;
-    }
-
     public function setFrom(int $from): void
     {
         $this->from = $from;
+    }
+
+    /**
+     * @return array{size: int, from: int}
+     */
+    public function getOptions(): array
+    {
+        return [
+            ElasticaSearch::OPTION_SIZE => $this->size,
+            ElasticaSearch::OPTION_FROM => $this->from,
+        ];
     }
 }

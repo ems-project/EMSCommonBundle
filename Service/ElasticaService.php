@@ -8,6 +8,7 @@ use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Terms;
 use Elastica\ResultSet;
+use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 use EMS\CommonBundle\Search\Search;
@@ -29,20 +30,12 @@ class ElasticaService
 
     public function search(Search $search): ResultSet
     {
-        $boolQuery = $this->filterByContentTypes($search->getQuery(), $search->getContentTypes());
-        $query = new Query($boolQuery);
-        if (\count($search->getSources())) {
-            $query->setSource($search->getSources());
-        }
+        return $this->createElasticaSearch($search)->search();
+    }
 
-        $esSearch = new ElasticaSearch($this->client);
-        $esSearch->addIndices($search->getIndices());
-        $options = [
-            ElasticaSearch::OPTION_SIZE => $search->getSize(),
-            ElasticaSearch::OPTION_FROM => $search->getFrom(),
-        ];
-
-        return $esSearch->search($boolQuery, $options);
+    public function scroll(Search $search, string $expiryTime = '1m'): Scroll
+    {
+        return $this->createElasticaSearch($search)->scroll($expiryTime);
     }
 
     /**
@@ -63,5 +56,20 @@ class ElasticaService
         $boolQuery->addShould($contentType);
 
         return $boolQuery;
+    }
+
+    private function createElasticaSearch(Search $search): ElasticaSearch
+    {
+        $boolQuery = $this->filterByContentTypes($search->getQuery(), $search->getContentTypes());
+        $query = new Query($boolQuery);
+        if (\count($search->getSources())) {
+            $query->setSource($search->getSources());
+        }
+        $esSearch = new ElasticaSearch($this->client);
+
+        $esSearch->setQuery($query);
+        $esSearch->addIndices($search->getIndices());
+        $esSearch->setOptions($search->getOptions());
+        return $esSearch;
     }
 }
