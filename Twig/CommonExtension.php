@@ -43,7 +43,7 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('ems_webalize', [Encoder::class, 'webalize']),
         ];
     }
-    
+
     public function fileExists(string $filename): bool
     {
         return file_exists($filename);

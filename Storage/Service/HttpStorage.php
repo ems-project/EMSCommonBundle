@@ -145,7 +145,7 @@ class HttpStorage extends AbstractUrlStorage
             if ($fd === false) {
                 throw new NotFoundHttpException($hash);
             }
-            
+
             $metas = stream_get_meta_data($fd);
             foreach ($metas['wrapper_data'] ?? [] as $meta) {
                 if (preg_match('/^content\-length: (.*)$/i', $meta, $matches, PREG_OFFSET_CAPTURE)) {
