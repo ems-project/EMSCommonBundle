@@ -28,6 +28,18 @@ class ElasticaService
         $this->logger = $logger;
     }
 
+    public function getHealthStatus(): string
+    {
+        try {
+            $clusterHealthResponse = $this->client->request('_cluster/health');
+
+            return $clusterHealthResponse->getData()['status'] ?? 'red';
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return 'red';
+        }
+    }
+
     public function search(Search $search): ResultSet
     {
         return $this->createElasticaSearch($search, $search->getSearchOptions())->search();
