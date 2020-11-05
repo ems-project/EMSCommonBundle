@@ -12,13 +12,21 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class StatusCommand extends Command
 {
+    /** @var string  */
+    const ARGUMENT_TIMEOUT = 'timeout';
 
     /** @var string  */
     const ARGUMENT_SILENT = 'silent';
+
+    /** @var string  */
+    const ARGUMENT_WAIT_FOR_STATUS = 'wait-for-status';
+
     /** @var ElasticaService */
     private $elasticaService;
+
     /** @var SymfonyStyle */
     private $io;
+
     /** @var StorageManager */
     private $storageManager;
 
@@ -35,10 +43,24 @@ class StatusCommand extends Command
             ->setName('ems:status')
             ->setDescription('Returns the health status of the elasticsearch cluster and of the different storage services.')
             ->addOption(
-                'silent',
+                self::ARGUMENT_SILENT,
                 null,
                 InputOption::VALUE_NONE,
                 'Shows only warning and error messages'
+            )
+            ->addOption(
+                self::ARGUMENT_WAIT_FOR_STATUS,
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'One of green, yellow or red. Will wait (until the timeout provided) until the status of the cluster changes to the one provided or better, i.e. green > yellow > red.',
+                null
+            )
+            ->addOption(
+                self::ARGUMENT_TIMEOUT,
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Time units. Specifies the period of time to wait for a response. If no response is received before the timeout expires, the request will returns the status red.',
+                '10s'
             );
     }
 
@@ -54,7 +76,16 @@ class StatusCommand extends Command
             $this->io->section('Start health check');
         }
 
-        $status = $this->elasticaService->getHealthStatus();
+        $timeout = $input->getOption(self::ARGUMENT_TIMEOUT);
+        if (!\is_string($timeout)) {
+            throw new \RuntimeException('Unexpected timeout argument');
+        }
+        $waitForStatus = $input->getOption(self::ARGUMENT_WAIT_FOR_STATUS);
+        if ($waitForStatus !== null && !\is_string($waitForStatus)) {
+            throw new \RuntimeException('Unexpected wait-for-status argument');
+        }
+
+        $status = $this->elasticaService->getHealthStatus($waitForStatus, $timeout);
         $returnCode = 0;
         switch ($status) {
             case 'green':
