@@ -30,5 +30,6 @@ class EMSCommonExtension extends Extension
         $container->setParameter('ems_common.s3_credentials', $config['s3_credentials']);
         $container->setParameter('ems_common.s3_bucket', $config['s3_bucket']);
         $container->setParameter('ems_common.elasticsearch_hosts', $config['elasticsearch_hosts']);
+        $container->setParameter('ems_common.storages', $config['storages']);
     }
 }

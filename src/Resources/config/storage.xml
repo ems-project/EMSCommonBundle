@@ -15,6 +15,7 @@
             <argument type="string">%ems_common.backend_url%</argument>
             <argument type="string">%ems_common.s3_credentials%</argument>
             <argument type="string">%ems_common.s3_bucket%</argument>
+            <argument type="string">%ems_common.storages%</argument>
         </service>
         <service id="ems_common.controller.file" class="EMS\CommonBundle\Controller\FileController">
             <argument type="service" id="ems_common.storage.manager"/>
@@ -29,6 +30,11 @@
             <argument type="service" id="ems_common.helper.cache" />
             <argument type="string">%kernel.project_dir%</argument>
             <tag name="monolog.logger" channel="ems_common"/>
+        </service>
+
+        <service id="ems_common.storage.factory.fs" class="EMS\CommonBundle\Storage\Factory\FileSystemFactory">
+            <argument type="service" id="logger" />
+            <tag name="ems.storage.factory" alias="fs"/>
         </service>
 
         <service id="EMS\CommonBundle\Storage\StorageManager" alias="ems_common.storage.manager" />

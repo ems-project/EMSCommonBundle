@@ -2,6 +2,7 @@
 
 namespace EMS\CommonBundle\Storage;
 
+use EMS\CommonBundle\Storage\Factory\StorageFactoryInterface;
 use EMS\CommonBundle\Storage\Service\FileSystemStorage;
 use EMS\CommonBundle\Storage\Service\HttpStorage;
 use EMS\CommonBundle\Storage\Service\S3Storage;
@@ -19,15 +20,19 @@ class StorageManager
 
     /** @var string */
     private $hashAlgo;
+    /** @var array<array{type: string, url?: string, required?: bool, read-only?: bool}> */
+    private $storageConfigs;
 
     /**
      * @param iterable<StorageInterface> $adapters
      * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
+     * @param array<array{type: string, url?: string, required?: bool, read-only?: bool}> $storageConfigs
      */
-    public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, string $hashAlgo, ?string $storagePath, ?string $backendUrl, array $s3Credentials = [], ?string $s3Bucket = null)
+    public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, string $hashAlgo, ?string $storagePath, ?string $backendUrl, array $s3Credentials = [], ?string $s3Bucket = null, array $storageConfigs = [])
     {
         $this->fileLocator = $fileLocator;
         $this->hashAlgo = $hashAlgo;
+        $this->storageConfigs = $storageConfigs;
 
         foreach ($adapters as $adapter) {
             $this->adapters[] = $adapter;
@@ -52,6 +57,15 @@ class StorageManager
     public function getAdapters(): iterable
     {
         return $this->adapters;
+    }
+
+    public function addStorageFactory(StorageFactoryInterface $factory, string $type): void
+    {
+        foreach ($this->storageConfigs as $storageConfig) {
+            if ($type === $storageConfig['type'] ?? null) {
+                $this->addAdapter($factory->createService($storageConfig));
+            }
+        }
     }
 
 

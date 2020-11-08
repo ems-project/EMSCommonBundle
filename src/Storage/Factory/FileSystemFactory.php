@@ -1,0 +1,44 @@
+<?php
+
+namespace EMS\CommonBundle\Storage\Factory;
+
+use EMS\CommonBundle\Storage\Service\FileSystemStorage;
+use EMS\CommonBundle\Storage\Service\StorageInterface;
+use Psr\Log\LoggerInterface;
+
+class FileSystemFactory implements StorageFactoryInterface
+{
+
+    /** @var LoggerInterface */
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /** @var string[]  */
+    private $usedFolder = [];
+
+    /**
+     * @param array<mixed> $parameters
+     * @return StorageInterface
+     */
+    public function createService(array $parameters): StorageInterface
+    {
+        $path = $parameters['path'] ?? null;
+        if (!\is_string($path)) {
+            throw new \RuntimeException('An url parameter is mandatory to instantiate a FileSystemStorage');
+        }
+        $realPath = \realpath($path);
+        if ($realPath === false) {
+            throw new \RuntimeException('The url parameter can\'t be converted into a real path');
+        }
+        if (\in_array($realPath, $this->usedFolder)) {
+            $this->logger->warning(sprintf('The folder %s is already used by another storage service', $realPath));
+        } else {
+            $this->usedFolder[] = $realPath;
+        }
+        return new FileSystemStorage($realPath);
+    }
+}
