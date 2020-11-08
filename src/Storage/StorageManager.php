@@ -14,19 +14,21 @@ class StorageManager
 {
     /** @var StorageInterface[] */
     private $adapters = [];
+    /** @var StorageFactoryInterface[] */
+    private $factories = [];
 
     /** @var FileLocatorInterface */
     private $fileLocator;
 
     /** @var string */
     private $hashAlgo;
-    /** @var array<array{type: string, url?: string, required?: bool, read-only?: bool}> */
+    /** @var array<array{type?: string, url?: string, required?: bool, read-only?: bool}> */
     private $storageConfigs;
 
     /**
      * @param iterable<StorageInterface> $adapters
      * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
-     * @param array<array{type: string, url?: string, required?: bool, read-only?: bool}> $storageConfigs
+     * @param array<array{type?: string, url?: string, required?: bool, read-only?: bool}> $storageConfigs
      */
     public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, string $hashAlgo, ?string $storagePath, ?string $backendUrl, array $s3Credentials = [], ?string $s3Bucket = null, array $storageConfigs = [])
     {
@@ -61,12 +63,24 @@ class StorageManager
 
     public function addStorageFactory(StorageFactoryInterface $factory, string $type): void
     {
+        $this->factories[$type] = $factory;
+    }
+
+
+    public function registerServicesFromConfigs(): void
+    {
         foreach ($this->storageConfigs as $storageConfig) {
-            if ($type === $storageConfig['type'] ?? null) {
-                $storage = $factory->createService($storageConfig);
-                if ($storage !== null) {
-                    $this->addAdapter($storage);
-                }
+            $type = $storageConfig['type'] ?? null;
+            if ($type === null) {
+                continue;
+            }
+            $factory = $this->factories[$type] ?? null;
+            if ($factory === null) {
+                continue;
+            }
+            $storage = $factory->createService($storageConfig);
+            if ($storage !== null) {
+                $this->addAdapter($storage);
             }
         }
     }

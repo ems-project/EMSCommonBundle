@@ -37,6 +37,11 @@
             <tag name="ems.storage.factory" alias="fs"/>
         </service>
 
+        <service id="ems_common.storage.factory.http" class="EMS\CommonBundle\Storage\Factory\HttpFactory">
+            <argument type="service" id="logger" />
+            <tag name="ems.storage.factory" alias="http"/>
+        </service>
+
         <service id="ems_common.storage.factory.db" class="EMS\CommonBundle\Storage\Factory\EntityFactory">
             <argument type="service" id="logger" />
             <argument type="service" id="doctrine" />

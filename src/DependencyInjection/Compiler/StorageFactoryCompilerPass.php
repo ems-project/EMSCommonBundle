@@ -33,5 +33,9 @@ class StorageFactoryCompilerPass implements CompilerPassInterface
                 );
             }
         }
+        $storageManagerDefinition->addMethodCall(
+            'registerServicesFromConfigs',
+            []
+        );
     }
 }

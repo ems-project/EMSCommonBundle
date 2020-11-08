@@ -34,7 +34,7 @@ class EntityFactory implements StorageFactoryInterface
         }
 
         if (isset($parameters['activate'])) {
-            @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGE variable', \E_USER_DEPRECATED);
+            @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
         }
 
         if (false === $parameters['activate'] ?? true) {
