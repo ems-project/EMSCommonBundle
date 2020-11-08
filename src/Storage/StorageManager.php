@@ -63,7 +63,10 @@ class StorageManager
     {
         foreach ($this->storageConfigs as $storageConfig) {
             if ($type === $storageConfig['type'] ?? null) {
-                $this->addAdapter($factory->createService($storageConfig));
+                $storage = $factory->createService($storageConfig);
+                if ($storage !== null) {
+                    $this->addAdapter($storage);
+                }
             }
         }
     }

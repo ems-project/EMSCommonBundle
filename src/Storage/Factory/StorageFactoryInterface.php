@@ -9,5 +9,5 @@ interface StorageFactoryInterface
     /**
      * @param array<mixed> $parameters
      */
-    public function createService(array $parameters): StorageInterface;
+    public function createService(array $parameters): ?StorageInterface;
 }
