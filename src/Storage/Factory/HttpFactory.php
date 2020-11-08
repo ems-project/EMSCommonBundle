@@ -40,6 +40,7 @@ class HttpFactory implements StorageFactoryInterface
 
         if ($baseUrl === '') {
             @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+            return null;
         }
 
         return new HttpStorage($baseUrl, $getUrl, $authKey);

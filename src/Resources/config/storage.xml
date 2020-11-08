@@ -48,6 +48,11 @@
             <tag name="ems.storage.factory" alias="db"/>
         </service>
 
+        <service id="ems_common.storage.factory.s3" class="EMS\CommonBundle\Storage\Factory\S3Factory">
+            <argument type="service" id="logger" />
+            <tag name="ems.storage.factory" alias="s3"/>
+        </service>
+
         <service id="EMS\CommonBundle\Storage\StorageManager" alias="ems_common.storage.manager" />
         <service id="EMS\CommonBundle\Storage\Processor\Processor" alias="ems_common.storage.processor" />
     </services>

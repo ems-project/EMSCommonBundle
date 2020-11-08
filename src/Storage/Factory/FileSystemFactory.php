@@ -43,12 +43,13 @@ class FileSystemFactory implements StorageFactoryInterface
         if ($realPath === false) {
             throw new \RuntimeException('The url parameter can\'t be converted into a real path');
         }
+
         if (\in_array($realPath, $this->usedFolder)) {
             $this->logger->warning(sprintf('The folder %s is already used by another storage service', $realPath));
             return null;
-        } else {
-            $this->usedFolder[] = $realPath;
         }
+
+        $this->usedFolder[] = $realPath;
         return new FileSystemStorage($realPath);
     }
 }
