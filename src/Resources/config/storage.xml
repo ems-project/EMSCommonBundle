@@ -53,6 +53,11 @@
             <tag name="ems.storage.factory" alias="s3"/>
         </service>
 
+        <service id="ems_common.storage.factory.sftp" class="EMS\CommonBundle\Storage\Factory\SftpFactory">
+            <argument type="service" id="logger" />
+            <tag name="ems.storage.factory" alias="sftp"/>
+        </service>
+
         <service id="EMS\CommonBundle\Storage\StorageManager" alias="ems_common.storage.manager" />
         <service id="EMS\CommonBundle\Storage\Processor\Processor" alias="ems_common.storage.processor" />
     </services>
