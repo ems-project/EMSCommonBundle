@@ -50,6 +50,11 @@ class ElasticaService
         return $this->createElasticaSearch($search, $search->getScrollOptions())->scroll($expiryTime);
     }
 
+    public function getVersion(): string
+    {
+        return $this->client->getVersion();
+    }
+
     /**
      * @param string[] $contentTypes
      */
