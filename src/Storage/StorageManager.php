@@ -26,19 +26,21 @@ class StorageManager
     private $storageConfigs;
 
     /**
-     * @param iterable<StorageInterface> $adapters
+     * @param iterable<StorageFactoryInterface> $factories
      * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
      * @param array<array{type?: string, url?: string, required?: bool, read-only?: bool}> $storageConfigs
      */
-    public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, string $hashAlgo, ?string $storagePath, ?string $backendUrl, array $s3Credentials = [], ?string $s3Bucket = null, array $storageConfigs = [])
+    public function __construct(FileLocatorInterface $fileLocator, iterable $factories, string $hashAlgo, ?string $storagePath, ?string $backendUrl, array $s3Credentials = [], ?string $s3Bucket = null, array $storageConfigs = [])
     {
+        foreach ($factories as $factory) {
+            if (!$factory instanceof StorageInterface) {
+                throw new \RuntimeException('Unexpected StorageInterface class');
+            }
+            $this->addStorageFactory($factory);
+        }
         $this->fileLocator = $fileLocator;
         $this->hashAlgo = $hashAlgo;
         $this->storageConfigs = $storageConfigs;
-
-        foreach ($adapters as $adapter) {
-            $this->adapters[] = $adapter;
-        }
 
         if ($storagePath) {
             $this->addAdapter(new FileSystemStorage($storagePath));
@@ -61,9 +63,9 @@ class StorageManager
         return $this->adapters;
     }
 
-    public function addStorageFactory(StorageFactoryInterface $factory, string $type): void
+    public function addStorageFactory(StorageFactoryInterface $factory): void
     {
-        $this->factories[$type] = $factory;
+        $this->factories[$factory->getStorageType()] = $factory;
     }
 
 
