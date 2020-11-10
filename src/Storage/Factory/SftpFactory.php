@@ -51,4 +51,9 @@ class SftpFactory implements StorageFactoryInterface
 
         return new SftpStorage($host, $path, $username, $publicKeyFile, $privateKeyFile, false, $passwordPhrase, $port);
     }
+
+    public function getStorageType(): string
+    {
+        return 'sftp';
+    }
 }

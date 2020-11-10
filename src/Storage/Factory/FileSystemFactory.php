@@ -52,4 +52,9 @@ class FileSystemFactory implements StorageFactoryInterface
         $this->usedFolder[] = $realPath;
         return new FileSystemStorage($realPath);
     }
+
+    public function getStorageType(): string
+    {
+        return 'fs';
+    }
 }

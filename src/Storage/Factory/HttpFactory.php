@@ -45,4 +45,9 @@ class HttpFactory implements StorageFactoryInterface
 
         return new HttpStorage($baseUrl, $getUrl, $authKey);
     }
+
+    public function getStorageType(): string
+    {
+        return 'http';
+    }
 }

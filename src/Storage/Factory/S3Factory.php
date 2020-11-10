@@ -40,4 +40,9 @@ class S3Factory implements StorageFactoryInterface
 
         return new S3Storage($credentials, $bucket);
     }
+
+    public function getStorageType(): string
+    {
+        return 's3';
+    }
 }

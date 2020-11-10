@@ -43,4 +43,9 @@ class EntityFactory implements StorageFactoryInterface
 
          return new EntityStorage($this->doctrine);
     }
+
+    public function getStorageType(): string
+    {
+        return 'db';
+    }
 }
