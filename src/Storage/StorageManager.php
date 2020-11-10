@@ -27,10 +27,9 @@ class StorageManager
 
     /**
      * @param iterable<StorageFactoryInterface> $factories
-     * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
      * @param array<array{type?: string, url?: string, required?: bool, read-only?: bool}> $storageConfigs
      */
-    public function __construct(FileLocatorInterface $fileLocator, iterable $factories, string $hashAlgo, ?string $storagePath, ?string $backendUrl, array $s3Credentials = [], ?string $s3Bucket = null, array $storageConfigs = [])
+    public function __construct(FileLocatorInterface $fileLocator, iterable $factories, string $hashAlgo, array $storageConfigs = [])
     {
         foreach ($factories as $factory) {
             if (!$factory instanceof StorageInterface) {
@@ -41,18 +40,6 @@ class StorageManager
         $this->fileLocator = $fileLocator;
         $this->hashAlgo = $hashAlgo;
         $this->storageConfigs = $storageConfigs;
-
-        if ($storagePath) {
-            $this->addAdapter(new FileSystemStorage($storagePath));
-        }
-
-        if ($s3Credentials !== null && $s3Bucket !== null) {
-            $this->addAdapter(new S3Storage($s3Credentials, $s3Bucket));
-        }
-
-        if ($backendUrl) {
-            $this->addAdapter(new HttpStorage($backendUrl, '/public/file/'));
-        }
     }
 
     /**
