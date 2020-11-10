@@ -76,7 +76,7 @@ class StorageManager
     }
 
 
-    private function addAdapter(StorageInterface $storageAdapter): StorageManager
+    public function addAdapter(StorageInterface $storageAdapter): StorageManager
     {
         $this->adapters[] = $storageAdapter;
         return $this;
