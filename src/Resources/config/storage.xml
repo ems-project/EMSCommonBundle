@@ -9,7 +9,7 @@
 
         <service id="ems_common.storage.manager" class="EMS\CommonBundle\Storage\StorageManager">
             <argument type="service" id="file_locator" />
-            <argument type="tagged" tag="ems.storage.factory"/>
+            <argument type="tagged" tag="ems_common.storage.factory"/>
             <argument type="string">%ems_common.hash_algo%</argument>
             <argument type="string">%ems_common.storages%</argument>
         </service>
@@ -30,28 +30,28 @@
 
         <service id="ems_common.storage.factory.fs" class="EMS\CommonBundle\Storage\Factory\FileSystemFactory">
             <argument type="service" id="logger" />
-            <tag name="ems.storage.factory" alias="fs"/>
+            <tag name="ems_common.storage.factory" alias="fs"/>
         </service>
 
         <service id="ems_common.storage.factory.http" class="EMS\CommonBundle\Storage\Factory\HttpFactory">
             <argument type="service" id="logger" />
-            <tag name="ems.storage.factory" alias="http"/>
+            <tag name="ems_common.storage.factory" alias="http"/>
         </service>
 
         <service id="ems_common.storage.factory.db" class="EMS\CommonBundle\Storage\Factory\EntityFactory">
             <argument type="service" id="logger" />
             <argument type="service" id="doctrine" />
-            <tag name="ems.storage.factory" alias="db"/>
+            <tag name="ems_common.storage.factory" alias="db"/>
         </service>
 
         <service id="ems_common.storage.factory.s3" class="EMS\CommonBundle\Storage\Factory\S3Factory">
             <argument type="service" id="logger" />
-            <tag name="ems.storage.factory" alias="s3"/>
+            <tag name="ems_common.storage.factory" alias="s3"/>
         </service>
 
         <service id="ems_common.storage.factory.sftp" class="EMS\CommonBundle\Storage\Factory\SftpFactory">
             <argument type="service" id="logger" />
-            <tag name="ems.storage.factory" alias="sftp"/>
+            <tag name="ems_common.storage.factory" alias="sftp"/>
         </service>
 
         <service id="EMS\CommonBundle\Storage\StorageManager" alias="ems_common.storage.manager" />
