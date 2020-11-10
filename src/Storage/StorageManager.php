@@ -32,7 +32,7 @@ class StorageManager
     public function __construct(FileLocatorInterface $fileLocator, iterable $factories, string $hashAlgo, array $storageConfigs = [])
     {
         foreach ($factories as $factory) {
-            if (!$factory instanceof StorageInterface) {
+            if (!$factory instanceof StorageFactoryInterface) {
                 throw new \RuntimeException('Unexpected StorageInterface class');
             }
             $this->addStorageFactory($factory);
@@ -51,13 +51,13 @@ class StorageManager
         return $this->adapters;
     }
 
-    public function addStorageFactory(StorageFactoryInterface $factory): void
+    private function addStorageFactory(StorageFactoryInterface $factory): void
     {
         $this->factories[$factory->getStorageType()] = $factory;
     }
 
 
-    public function registerServicesFromConfigs(): void
+    private function registerServicesFromConfigs(): void
     {
         foreach ($this->storageConfigs as $storageConfig) {
             $type = $storageConfig['type'] ?? null;
@@ -76,7 +76,7 @@ class StorageManager
     }
 
 
-    public function addAdapter(StorageInterface $storageAdapter): StorageManager
+    private function addAdapter(StorageInterface $storageAdapter): StorageManager
     {
         $this->adapters[] = $storageAdapter;
         return $this;
