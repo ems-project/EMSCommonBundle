@@ -40,6 +40,7 @@ class StorageManager
         $this->fileLocator = $fileLocator;
         $this->hashAlgo = $hashAlgo;
         $this->storageConfigs = $storageConfigs;
+        $this->registerServicesFromConfigs();
     }
 
     /**
