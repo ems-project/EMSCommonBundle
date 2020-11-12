@@ -10,6 +10,12 @@ class HttpFactory implements StorageFactoryInterface
 {
     /** @var string */
     const STORAGE_TYPE = 'http';
+    /** @var string */
+    const STORAGE_CONFIG_BASE_URL = 'base-url';
+    /** @var string */
+    const STORAGE_CONFIG_GET_URL = 'get-url';
+    /** @var string */
+    const STORAGE_CONFIG_AUTH_KEY = 'auth-key';
     /** @var LoggerInterface */
     private $logger;
 
@@ -20,13 +26,13 @@ class HttpFactory implements StorageFactoryInterface
 
     public function createService(array $parameters): ?StorageInterface
     {
-        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_TYPE_FIELD] ?? null) {
+        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_CONFIG_TYPE] ?? null) {
             throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
         }
 
-        $baseUrl = $parameters['base-url'] ?? '';
-        $getUrl = $parameters['get-url'] ?? '/public/file/';
-        $authKey = $parameters['auth-key'] ?? null;
+        $baseUrl = $parameters[self::STORAGE_CONFIG_BASE_URL] ?? '';
+        $getUrl = $parameters[self::STORAGE_CONFIG_GET_URL] ?? '/public/file/';
+        $authKey = $parameters[self::STORAGE_CONFIG_AUTH_KEY] ?? null;
 
         if (!\is_string($baseUrl)) {
             throw new \RuntimeException('Unexpected base url');
@@ -51,5 +57,18 @@ class HttpFactory implements StorageFactoryInterface
     public function getStorageType(): string
     {
         return self::STORAGE_TYPE;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public static function getDefaultParameters(): array
+    {
+        return [
+            self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
+            self::STORAGE_CONFIG_BASE_URL => null,
+            self::STORAGE_CONFIG_GET_URL => '/public/file/',
+            self::STORAGE_CONFIG_AUTH_KEY => null,
+        ];
     }
 }

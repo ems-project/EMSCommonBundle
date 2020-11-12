@@ -11,6 +11,8 @@ class EntityFactory implements StorageFactoryInterface
 {
     /** @var string */
     const STORAGE_TYPE = 'db';
+    /** @var string */
+    const STORAGE_CONFIG_ACTIVATE = 'activate';
     /** @var LoggerInterface */
     private $logger;
     /** @var bool */
@@ -26,7 +28,7 @@ class EntityFactory implements StorageFactoryInterface
 
     public function createService(array $parameters): ?StorageInterface
     {
-        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_TYPE_FIELD] ?? null) {
+        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_CONFIG_TYPE] ?? null) {
             throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
         }
 
@@ -34,11 +36,11 @@ class EntityFactory implements StorageFactoryInterface
             $this->logger->warning('The entity storage service is already registered');
         }
 
-        if (isset($parameters['activate'])) {
+        if (isset($parameters[self::STORAGE_CONFIG_ACTIVATE])) {
             @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
         }
 
-        if (false === $parameters['activate'] ?? true) {
+        if (false === $parameters[self::STORAGE_CONFIG_ACTIVATE] ?? true) {
             return null;
         }
 
@@ -48,5 +50,16 @@ class EntityFactory implements StorageFactoryInterface
     public function getStorageType(): string
     {
         return self::STORAGE_TYPE;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public static function getDefaultParameters(): array
+    {
+        return [
+            self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
+            self::STORAGE_CONFIG_ACTIVATE => true,
+        ];
     }
 }

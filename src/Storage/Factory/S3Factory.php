@@ -10,6 +10,10 @@ class S3Factory implements StorageFactoryInterface
 {
     /** @var string */
     const STORAGE_TYPE = 's3';
+    /** @var string */
+    const STORAGE_CONFIG_CREDENTIALS = 'credentials';
+    /** @var string */
+    const STORAGE_CONFIG_BUCKET = 'bucket';
     /** @var LoggerInterface */
     private $logger;
 
@@ -20,12 +24,12 @@ class S3Factory implements StorageFactoryInterface
 
     public function createService(array $parameters): ?StorageInterface
     {
-        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_TYPE_FIELD] ?? null) {
+        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_CONFIG_TYPE] ?? null) {
             throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
         }
 
-        $credentials = $parameters['credentials'] ?? null;
-        $bucket = $parameters['bucket'] ?? null;
+        $credentials = $parameters[self::STORAGE_CONFIG_CREDENTIALS] ?? null;
+        $bucket = $parameters[self::STORAGE_CONFIG_BUCKET] ?? null;
 
         if ($credentials === null || $bucket === null) {
             @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
@@ -46,5 +50,17 @@ class S3Factory implements StorageFactoryInterface
     public function getStorageType(): string
     {
         return self::STORAGE_TYPE;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public static function getDefaultParameters(): array
+    {
+        return [
+            self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
+            self::STORAGE_CONFIG_CREDENTIALS => null,
+            self::STORAGE_CONFIG_BUCKET => null,
+        ];
     }
 }

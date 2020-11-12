@@ -10,6 +10,8 @@ class FileSystemFactory implements StorageFactoryInterface
 {
     /** @var string */
     const STORAGE_TYPE = 'fs';
+    /** @var string */
+    const STORAGE_CONFIG_PATH = 'path';
     /** @var LoggerInterface */
     private $logger;
 
@@ -27,11 +29,11 @@ class FileSystemFactory implements StorageFactoryInterface
      */
     public function createService(array $parameters): ?StorageInterface
     {
-        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_TYPE_FIELD] ?? null) {
+        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_CONFIG_TYPE] ?? null) {
             throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
         }
 
-        $path = $parameters['path'] ?? null;
+        $path = $parameters[self::STORAGE_CONFIG_PATH] ?? null;
         if (!\is_string($path)) {
             throw new \RuntimeException('An url parameter is mandatory to instantiate a FileSystemStorage');
         }
@@ -57,5 +59,16 @@ class FileSystemFactory implements StorageFactoryInterface
     public function getStorageType(): string
     {
         return self::STORAGE_TYPE;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public static function getDefaultParameters(): array
+    {
+        return [
+            self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
+            self::STORAGE_CONFIG_PATH => null,
+        ];
     }
 }
