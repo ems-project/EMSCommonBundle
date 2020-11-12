@@ -5,6 +5,7 @@ namespace EMS\CommonBundle\Storage\Factory;
 use EMS\CommonBundle\Storage\Service\S3Storage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class S3Factory implements StorageFactoryInterface
 {
@@ -24,12 +25,10 @@ class S3Factory implements StorageFactoryInterface
 
     public function createService(array $parameters): ?StorageInterface
     {
-        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_CONFIG_TYPE] ?? null) {
-            throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
-        }
+        $config = $this->resolveParameters($parameters);
 
-        $credentials = $parameters[self::STORAGE_CONFIG_CREDENTIALS] ?? null;
-        $bucket = $parameters[self::STORAGE_CONFIG_BUCKET] ?? null;
+        $credentials = $config[self::STORAGE_CONFIG_CREDENTIALS] ?? null;
+        $bucket = $config[self::STORAGE_CONFIG_BUCKET] ?? null;
 
         if ($credentials === null || $bucket === null) {
             @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
@@ -37,11 +36,11 @@ class S3Factory implements StorageFactoryInterface
         }
 
         if (!\is_string($bucket)) {
-            throw new \RuntimeException('Unexpected bucket');
+            throw new \RuntimeException('Unexpected bucket type');
         }
 
         if (!\is_array($credentials)) {
-            throw new \RuntimeException('Unexpected credentials');
+            throw new \RuntimeException('Unexpected credentials type');
         }
 
         return new S3Storage($credentials, $bucket);
@@ -53,14 +52,21 @@ class S3Factory implements StorageFactoryInterface
     }
 
     /**
-     * @return array<mixed>
+     * @param array<string, mixed> $parameters
+     * @return array<string, mixed>
      */
-    public static function getDefaultParameters(): array
+    private function resolveParameters(array $parameters): array
     {
-        return [
-            self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
-            self::STORAGE_CONFIG_CREDENTIALS => null,
-            self::STORAGE_CONFIG_BUCKET => null,
-        ];
+        $resolver = new OptionsResolver();
+        $resolver
+            ->setDefaults([
+                self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
+                self::STORAGE_CONFIG_CREDENTIALS => null,
+                self::STORAGE_CONFIG_BUCKET => null,
+            ])
+            ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
+        ;
+
+        return $resolver->resolve($parameters);
     }
 }

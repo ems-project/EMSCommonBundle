@@ -6,6 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use EMS\CommonBundle\Storage\Service\EntityStorage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EntityFactory implements StorageFactoryInterface
 {
@@ -26,23 +27,22 @@ class EntityFactory implements StorageFactoryInterface
         $this->doctrine = $doctrine;
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     public function createService(array $parameters): ?StorageInterface
     {
-        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_CONFIG_TYPE] ?? null) {
-            throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
+        $config = $this->resolveParameters($parameters);
+
+        if (false === $config[self::STORAGE_CONFIG_ACTIVATE] ?? true) {
+            return null;
         }
 
         if ($this->registered) {
             $this->logger->warning('The entity storage service is already registered');
-        }
-
-        if (isset($parameters[self::STORAGE_CONFIG_ACTIVATE])) {
-            @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
-        }
-
-        if (false === $parameters[self::STORAGE_CONFIG_ACTIVATE] ?? true) {
             return null;
         }
+        $this->registered = true;
 
          return new EntityStorage($this->doctrine);
     }
@@ -52,14 +52,23 @@ class EntityFactory implements StorageFactoryInterface
         return self::STORAGE_TYPE;
     }
 
+
     /**
-     * @return array<mixed>
+     * @param array<string, mixed> $parameters
+     * @return array<string, mixed>
      */
-    public static function getDefaultParameters(): array
+    private function resolveParameters(array $parameters): array
     {
-        return [
-            self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
-            self::STORAGE_CONFIG_ACTIVATE => true,
-        ];
+        $resolver = new OptionsResolver();
+        $resolver
+            ->setDefaults([
+                self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
+                self::STORAGE_CONFIG_ACTIVATE => true,
+            ])
+            ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
+            ->setAllowedValues(self::STORAGE_CONFIG_ACTIVATE, [true, false])
+        ;
+
+        return $resolver->resolve($parameters);
     }
 }

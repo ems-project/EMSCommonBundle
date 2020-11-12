@@ -5,6 +5,7 @@ namespace EMS\CommonBundle\Storage\Factory;
 use EMS\CommonBundle\Storage\Service\FileSystemStorage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class FileSystemFactory implements StorageFactoryInterface
 {
@@ -24,18 +25,15 @@ class FileSystemFactory implements StorageFactoryInterface
     private $usedFolder = [];
 
     /**
-     * @param array<mixed> $parameters
-     * @return StorageInterface
+     * @param array<string, mixed> $parameters
      */
     public function createService(array $parameters): ?StorageInterface
     {
-        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_CONFIG_TYPE] ?? null) {
-            throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
-        }
+        $config = $this->resolveParameters($parameters);
 
-        $path = $parameters[self::STORAGE_CONFIG_PATH] ?? null;
+        $path = $config[self::STORAGE_CONFIG_PATH] ?? null;
         if (!\is_string($path)) {
-            throw new \RuntimeException('An url parameter is mandatory to instantiate a FileSystemStorage');
+            throw new \RuntimeException('Unexpected path type');
         }
 
         if ($path === '') {
@@ -61,14 +59,22 @@ class FileSystemFactory implements StorageFactoryInterface
         return self::STORAGE_TYPE;
     }
 
+
     /**
-     * @return array<mixed>
+     * @param array<string, mixed> $parameters
+     * @return array<string, mixed>
      */
-    public static function getDefaultParameters(): array
+    private function resolveParameters(array $parameters): array
     {
-        return [
-            self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
-            self::STORAGE_CONFIG_PATH => null,
-        ];
+        $resolver = new OptionsResolver();
+        $resolver
+            ->setDefaults([
+                self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
+                self::STORAGE_CONFIG_PATH => null,
+            ])
+            ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
+        ;
+
+        return $resolver->resolve($parameters);
     }
 }

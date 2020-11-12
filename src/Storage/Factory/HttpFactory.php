@@ -5,6 +5,7 @@ namespace EMS\CommonBundle\Storage\Factory;
 use EMS\CommonBundle\Storage\Service\HttpStorage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class HttpFactory implements StorageFactoryInterface
 {
@@ -24,26 +25,27 @@ class HttpFactory implements StorageFactoryInterface
         $this->logger = $logger;
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     public function createService(array $parameters): ?StorageInterface
     {
-        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_CONFIG_TYPE] ?? null) {
-            throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
-        }
+        $config = $this->resolveParameters($parameters);
 
-        $baseUrl = $parameters[self::STORAGE_CONFIG_BASE_URL] ?? '';
-        $getUrl = $parameters[self::STORAGE_CONFIG_GET_URL] ?? '/public/file/';
-        $authKey = $parameters[self::STORAGE_CONFIG_AUTH_KEY] ?? null;
+        $baseUrl = $config[self::STORAGE_CONFIG_BASE_URL] ?? null;
+        $getUrl = $config[self::STORAGE_CONFIG_GET_URL] ?? null;
+        $authKey = $config[self::STORAGE_CONFIG_AUTH_KEY] ?? null;
 
         if (!\is_string($baseUrl)) {
-            throw new \RuntimeException('Unexpected base url');
+            throw new \RuntimeException('Unexpected base url type');
         }
 
         if (!\is_string($getUrl)) {
-            throw new \RuntimeException('Unexpected get url');
+            throw new \RuntimeException('Unexpected get url type');
         }
 
         if ($authKey !== null && !\is_string($authKey)) {
-            throw new \RuntimeException('Unexpected authentication key');
+            throw new \RuntimeException('Unexpected authentication key type');
         }
 
         if ($baseUrl === '') {
@@ -59,16 +61,24 @@ class HttpFactory implements StorageFactoryInterface
         return self::STORAGE_TYPE;
     }
 
+
     /**
-     * @return array<mixed>
+     * @param array<string, mixed> $parameters
+     * @return array<string, mixed>
      */
-    public static function getDefaultParameters(): array
+    private function resolveParameters(array $parameters): array
     {
-        return [
-            self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
-            self::STORAGE_CONFIG_BASE_URL => null,
-            self::STORAGE_CONFIG_GET_URL => '/public/file/',
-            self::STORAGE_CONFIG_AUTH_KEY => null,
-        ];
+        $resolver = new OptionsResolver();
+        $resolver
+            ->setDefaults([
+                self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
+                self::STORAGE_CONFIG_BASE_URL => null,
+                self::STORAGE_CONFIG_GET_URL => '/public/file/',
+                self::STORAGE_CONFIG_AUTH_KEY => null,
+            ])
+            ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
+        ;
+
+        return $resolver->resolve($parameters);
     }
 }
