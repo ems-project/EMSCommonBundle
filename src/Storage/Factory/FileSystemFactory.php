@@ -8,7 +8,8 @@ use Psr\Log\LoggerInterface;
 
 class FileSystemFactory implements StorageFactoryInterface
 {
-
+    /** @var string */
+    const STORAGE_TYPE = 'fs';
     /** @var LoggerInterface */
     private $logger;
 
@@ -26,8 +27,8 @@ class FileSystemFactory implements StorageFactoryInterface
      */
     public function createService(array $parameters): ?StorageInterface
     {
-        if ('fs' !== $parameters['type'] ?? null) {
-            throw new \RuntimeException('The storage service type doesn\'t match \'fs\'');
+        if (self::STORAGE_TYPE !== $parameters['type'] ?? null) {
+            throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
         }
 
         $path = $parameters['path'] ?? null;
@@ -55,6 +56,6 @@ class FileSystemFactory implements StorageFactoryInterface
 
     public function getStorageType(): string
     {
-        return 'fs';
+        return self::STORAGE_TYPE;
     }
 }

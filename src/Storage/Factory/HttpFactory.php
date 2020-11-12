@@ -8,6 +8,8 @@ use Psr\Log\LoggerInterface;
 
 class HttpFactory implements StorageFactoryInterface
 {
+    /** @var string */
+    const STORAGE_TYPE = 'http';
     /** @var LoggerInterface */
     private $logger;
 
@@ -18,8 +20,8 @@ class HttpFactory implements StorageFactoryInterface
 
     public function createService(array $parameters): ?StorageInterface
     {
-        if ('http' !== $parameters['type'] ?? null) {
-            throw new \RuntimeException('The storage service type doesn\'t match \'http\'');
+        if (self::STORAGE_TYPE !== $parameters['type'] ?? null) {
+            throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
         }
 
         $baseUrl = $parameters['base-url'] ?? '';
@@ -48,6 +50,6 @@ class HttpFactory implements StorageFactoryInterface
 
     public function getStorageType(): string
     {
-        return 'http';
+        return self::STORAGE_TYPE;
     }
 }

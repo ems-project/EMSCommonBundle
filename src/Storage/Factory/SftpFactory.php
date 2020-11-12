@@ -8,6 +8,8 @@ use Psr\Log\LoggerInterface;
 
 class SftpFactory implements StorageFactoryInterface
 {
+    /** @var string */
+    const STORAGE_TYPE = 'sftp';
     /** @var LoggerInterface */
     private $logger;
 
@@ -18,8 +20,8 @@ class SftpFactory implements StorageFactoryInterface
 
     public function createService(array $parameters): ?StorageInterface
     {
-        if ('sftp' !== $parameters['type'] ?? null) {
-            throw new \RuntimeException('The storage service type doesn\'t match \'sftp\'');
+        if (self::STORAGE_TYPE !== $parameters['type'] ?? null) {
+            throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
         }
 
         $host = $parameters['host'] ?? null;
@@ -54,6 +56,6 @@ class SftpFactory implements StorageFactoryInterface
 
     public function getStorageType(): string
     {
-        return 'sftp';
+        return self::STORAGE_TYPE;
     }
 }

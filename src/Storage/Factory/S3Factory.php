@@ -8,6 +8,8 @@ use Psr\Log\LoggerInterface;
 
 class S3Factory implements StorageFactoryInterface
 {
+    /** @var string */
+    const STORAGE_TYPE = 's3';
     /** @var LoggerInterface */
     private $logger;
 
@@ -18,8 +20,8 @@ class S3Factory implements StorageFactoryInterface
 
     public function createService(array $parameters): ?StorageInterface
     {
-        if ('s3' !== $parameters['type'] ?? null) {
-            throw new \RuntimeException('The storage service type doesn\'t match \'s3\'');
+        if (self::STORAGE_TYPE !== $parameters['type'] ?? null) {
+            throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
         }
 
         $credentials = $parameters['credentials'] ?? null;
@@ -43,6 +45,6 @@ class S3Factory implements StorageFactoryInterface
 
     public function getStorageType(): string
     {
-        return 's3';
+        return self::STORAGE_TYPE;
     }
 }

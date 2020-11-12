@@ -9,7 +9,8 @@ use Psr\Log\LoggerInterface;
 
 class EntityFactory implements StorageFactoryInterface
 {
-
+    /** @var string */
+    const STORAGE_TYPE = 'db';
     /** @var LoggerInterface */
     private $logger;
     /** @var bool */
@@ -25,8 +26,8 @@ class EntityFactory implements StorageFactoryInterface
 
     public function createService(array $parameters): ?StorageInterface
     {
-        if ('db' !== $parameters['type'] ?? null) {
-            throw new \RuntimeException('The storage service type doesn\'t match \'db\'');
+        if (self::STORAGE_TYPE !== $parameters['type'] ?? null) {
+            throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
         }
 
         if ($this->registered) {
@@ -46,6 +47,6 @@ class EntityFactory implements StorageFactoryInterface
 
     public function getStorageType(): string
     {
-        return 'db';
+        return self::STORAGE_TYPE;
     }
 }
