@@ -20,7 +20,7 @@ class HttpFactory implements StorageFactoryInterface
 
     public function createService(array $parameters): ?StorageInterface
     {
-        if (self::STORAGE_TYPE !== $parameters['type'] ?? null) {
+        if (self::STORAGE_TYPE !== $parameters[StorageFactoryInterface::STORAGE_TYPE_FIELD] ?? null) {
             throw new \RuntimeException(sprintf('The storage service type doesn\'t match \'%s\'', self::STORAGE_TYPE));
         }
 

@@ -6,6 +6,7 @@ use EMS\CommonBundle\Storage\Service\StorageInterface;
 
 interface StorageFactoryInterface
 {
+    const STORAGE_TYPE_FIELD = 'type';
     /**
      * @param array<mixed> $parameters
      */
