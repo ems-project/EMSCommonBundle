@@ -17,17 +17,23 @@ final class Response implements ResponseInterface
 
     /** @var null|string */
     private $scrollId;
+    /** @var bool */
+    private $accurate;
 
     public function __construct(array $response)
     {
-        $this->total = $response['hits']['total'] ?? 0;
+        $this->total = $response['hits']['total']['value'] ?? $response['hits']['total'] ?? 0;
+        $this->accurate = true;
+        if ('eq' !== $response['hits']['total']['relation'] ?? null) {
+            $this->accurate = false;
+        }
         $this->hits = $response['hits']['hits'] ?? [];
         $this->scrollId = $response['_scroll_id'] ?? null;
     }
 
     public function hasDocuments(): bool
     {
-        return count($this->hits) > 0;
+        return \count($this->hits) > 0;
     }
 
     public function getDocuments(): iterable
@@ -54,6 +60,11 @@ final class Response implements ResponseInterface
 
     public function getTotalDocuments(): int
     {
-        return count($this->hits);
+        return \count($this->hits);
+    }
+
+    public function isAccurate(): bool
+    {
+        return $this->accurate;
     }
 }

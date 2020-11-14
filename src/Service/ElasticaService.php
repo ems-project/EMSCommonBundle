@@ -7,6 +7,7 @@ use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Terms;
+use Elastica\Request;
 use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
@@ -28,10 +29,16 @@ class ElasticaService
         $this->logger = $logger;
     }
 
-    public function getHealthStatus(): string
+    public function getHealthStatus(string $waitForStatus = null, string $timeout = '10s'): string
     {
         try {
-            $clusterHealthResponse = $this->client->request('_cluster/health');
+            $query = [
+                'timeout' => $timeout,
+            ];
+            if ($waitForStatus !== null) {
+                $query['wait_for_status'] = $waitForStatus;
+            }
+            $clusterHealthResponse = $this->client->request('_cluster/health', Request::GET, [], $query);
 
             return $clusterHealthResponse->getData()['status'] ?? 'red';
         } catch (\Exception $e) {
@@ -48,6 +55,11 @@ class ElasticaService
     public function scroll(Search $search, string $expiryTime = '1m'): Scroll
     {
         return $this->createElasticaSearch($search, $search->getScrollOptions())->scroll($expiryTime);
+    }
+
+    public function getVersion(): string
+    {
+        return $this->client->getVersion();
     }
 
     /**
