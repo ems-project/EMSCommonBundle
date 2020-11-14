@@ -112,7 +112,7 @@ class StorageManager
 
     public function getPublicImage(string $name): string
     {
-        $file = $this->fileLocator->locate('@EMSCommonBundle/Resources/public/images/' . $name);
+        $file = $this->fileLocator->locate('@EMSCommonBundle/src/Resources/public/images/' . $name);
         if (is_array($file)) {
             return $file[0] ?? '';
         }
