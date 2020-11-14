@@ -58,6 +58,15 @@ final class Response implements ResponseInterface
         return $this->total;
     }
 
+    public function getFormattedTotal(): string
+    {
+        $format = '%s';
+        if (!$this->accurate) {
+            $format = '≥%s';
+        }
+        return \sprintf($format, $this->total);
+    }
+
     public function getTotalDocuments(): int
     {
         return \count($this->hits);
