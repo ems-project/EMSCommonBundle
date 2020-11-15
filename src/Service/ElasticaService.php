@@ -11,7 +11,9 @@ use Elastica\Request;
 use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
+use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
+use EMS\CommonBundle\Elasticsearch\Exception\SingleResultException;
 use EMS\CommonBundle\Search\Search;
 use Psr\Log\LoggerInterface;
 
@@ -45,6 +47,16 @@ class ElasticaService
             $this->logger->error($e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return 'red';
         }
+    }
+
+    public function singleSearch(Search $search): Document
+    {
+        $resultSet = $this->search($search);
+        $result = $resultSet->offsetGet(0);
+        if ($resultSet->count() !== 1 || $result === null) {
+            throw new SingleResultException($resultSet->count());
+        }
+        return new Document($result);
     }
 
     public function search(Search $search): ResultSet
