@@ -81,7 +81,6 @@ class SftpFactory implements StorageFactoryInterface
      */
     private function resolveParameters(array $parameters): array
     {
-        $parameters = $this->resolveParameters($parameters);
         $resolver = new OptionsResolver();
         $resolver
             ->setDefaults([
