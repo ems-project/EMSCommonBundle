@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch\Document;
 
+use Elastica\Result;
+
 class Document implements DocumentInterface
 {
     /** @var string */
@@ -14,16 +16,19 @@ class Document implements DocumentInterface
     private $source;
     /** @var string */
     private $index;
-    /** @var array{_id: string, _index: string, _type: ?string, _source: array} */
+    /** @var array<string, mixed> */
     private $raw;
     /** @var string|null*/
     private $highlight;
 
     /**
-     * @param array{_id: string, _index: string, _type: ?string, _source: array} $document
+     * @param Result|array{string, mixed} $document
      */
-    public function __construct(array $document)
+    public function __construct($document)
     {
+        if ($document instanceof Result) {
+            $document = $document->getHit();
+        }
         $this->id = $document['_id'];
         $this->source = $document['_source'] ?? [];
         $this->index = $document['_index'];
@@ -75,7 +80,7 @@ class Document implements DocumentInterface
 
     /**
      * @deprecated
-     * @return array{_id: string, _index: string, _type: ?string, _source: array}
+     * @return array<string, mixed>
      */
     public function getRaw(): array
     {
