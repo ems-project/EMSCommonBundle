@@ -85,6 +85,14 @@ class ElasticaService
     }
 
     /**
+     * @return string[]
+     */
+    public function getAliasesFromIndex(string $indexName): array
+    {
+        return $this->client->getIndex($indexName)->getAliases();
+    }
+
+    /**
      * @param array<mixed> $options
      */
     private function createElasticaSearch(Search $search, array $options): ElasticaSearch
