@@ -97,6 +97,11 @@ class ElasticaService
         if ($search->getSort() !== null) {
             $query->setSort($search->getSort());
         }
+
+        foreach ($search->getAggregations() as $aggregation) {
+            $query->addAggregation($aggregation);
+        }
+
         $esSearch = new ElasticaSearch($this->client);
 
         $esSearch->setQuery($query);
