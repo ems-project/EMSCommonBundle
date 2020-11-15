@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch\Response;
 
+use Elastica\ResultSet;
 use EMS\CommonBundle\Elasticsearch\Aggregation\Aggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\DocumentCollection;
@@ -13,7 +14,7 @@ final class Response implements ResponseInterface
     /** @var int */
     private $total;
 
-    /** @var array */
+    /** @var array<string, mixed> */
     private $hits;
 
     /** @var null|string */
@@ -23,8 +24,14 @@ final class Response implements ResponseInterface
     /** @var array<mixed> */
     private $aggregations;
 
-    public function __construct(array $response)
+    /**
+     * @param array<mixed>|ResultSet $response
+     */
+    public function __construct($response)
     {
+        if ($response instanceof ResultSet) {
+            $response = $response->getResponse()->getData();
+        }
         $this->total = $response['hits']['total']['value'] ?? $response['hits']['total'] ?? 0;
         $this->accurate = true;
         if ('eq' !== $response['hits']['total']['relation'] ?? null) {
