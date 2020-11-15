@@ -22,7 +22,7 @@ class Document implements DocumentInterface
     private $highlight;
 
     /**
-     * @param Result|array{string, mixed} $document
+     * @param Result|array<string, mixed> $document
      */
     public function __construct($document)
     {
