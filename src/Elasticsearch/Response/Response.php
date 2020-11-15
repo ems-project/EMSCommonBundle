@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch\Response;
 
+use EMS\CommonBundle\Elasticsearch\Aggregation\Aggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\DocumentCollection;
 
@@ -19,6 +20,8 @@ final class Response implements ResponseInterface
     private $scrollId;
     /** @var bool */
     private $accurate;
+    /** @var array<mixed> */
+    private $aggregations;
 
     public function __construct(array $response)
     {
@@ -28,6 +31,7 @@ final class Response implements ResponseInterface
             $this->accurate = false;
         }
         $this->hits = $response['hits']['hits'] ?? [];
+        $this->aggregations = $response['aggregations'] ?? [];
         $this->scrollId = $response['_scroll_id'] ?? null;
     }
 
@@ -40,6 +44,24 @@ final class Response implements ResponseInterface
     {
         foreach ($this->hits as $hit) {
             yield new Document($hit);
+        }
+    }
+
+    public function getAggregation(string $name): ?Aggregation
+    {
+        if (isset($this->aggregations[$name])) {
+            return new Aggregation($this->aggregations[$name]);
+        }
+        return null;
+    }
+
+    /**
+     * @return iterable<Aggregation>
+     */
+    public function getAggregations(): iterable
+    {
+        foreach ($this->aggregations as $aggregation) {
+            yield new Aggregation($aggregation);
         }
     }
 
@@ -56,6 +78,15 @@ final class Response implements ResponseInterface
     public function getTotal(): int
     {
         return $this->total;
+    }
+
+    public function getFormattedTotal(): string
+    {
+        $format = '%s';
+        if (!$this->accurate) {
+            $format = '≥%s';
+        }
+        return \sprintf($format, $this->total);
     }
 
     public function getTotalDocuments(): int

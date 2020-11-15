@@ -12,14 +12,22 @@ class Document implements DocumentInterface
     private $contentType;
     /** @var array<mixed> */
     private $source;
+    /** @var string */
+    private $index;
+    /** @var array{_id: string, _index: string, _type: ?string, _source: array} */
+    private $raw;
+    /** @var string|null*/
+    private $highlight;
 
     /**
-     * @param array{_id: string, _type: ?string, _source: array} $document
+     * @param array{_id: string, _index: string, _type: ?string, _source: array} $document
      */
     public function __construct(array $document)
     {
         $this->id = $document['_id'];
         $this->source = $document['_source'] ?? [];
+        $this->index = $document['_index'];
+        $this->highlight = $document['highlight'] ?? null;
         $contentType = $document['_source'][EMSSource::FIELD_CONTENT_TYPE] ?? null;
         if ($contentType === null) {
             $contentType = $document['_type'] ?? null;
@@ -29,6 +37,7 @@ class Document implements DocumentInterface
             throw new \RuntimeException(sprintf('Unable to determine the content type for document %s', $this->id));
         }
         $this->contentType = $contentType;
+        $this->raw = $document;
     }
 
     public function getId(): string
@@ -57,5 +66,25 @@ class Document implements DocumentInterface
     public function getEMSSource(): EMSSourceInterface
     {
         return new EMSSource($this->source);
+    }
+
+    public function getIndex(): string
+    {
+        return $this->index;
+    }
+
+    /**
+     * @deprecated
+     * @return array{_id: string, _index: string, _type: ?string, _source: array}
+     */
+    public function getRaw(): array
+    {
+        @trigger_error("Document::getRaw is deprecated use the others getters", E_USER_DEPRECATED);
+        return $this->raw;
+    }
+
+    public function getHighlight(): ?string
+    {
+        return $this->highlight;
     }
 }

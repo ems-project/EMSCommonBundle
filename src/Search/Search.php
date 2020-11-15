@@ -2,6 +2,7 @@
 
 namespace EMS\CommonBundle\Search;
 
+use Elastica\Aggregation\AbstractAggregation;
 use Elastica\Query\AbstractQuery;
 use Elastica\Search as ElasticaSearch;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
@@ -12,6 +13,8 @@ class Search
     private $sources = [];
     /** @var string[] */
     private $contentTypes = [];
+    /** @var AbstractAggregation[] */
+    private $aggregations = [];
     /** @var AbstractQuery|null */
     private $query;
     /** @var string[] */
@@ -120,5 +123,26 @@ class Search
     public function getScrollOptions(): array
     {
         return [];
+    }
+
+    /**
+     * @param AbstractAggregation[] $aggregations
+     */
+    public function addAggregations(array $aggregations): void
+    {
+        $this->aggregations = \array_merge($this->aggregations, $aggregations);
+    }
+
+    public function addAggregation(AbstractAggregation $aggregation): void
+    {
+        $this->aggregations[] = $aggregation;
+    }
+
+    /**
+     * @return AbstractAggregation[]
+     */
+    public function getAggregations(): array
+    {
+        return $this->aggregations;
     }
 }
