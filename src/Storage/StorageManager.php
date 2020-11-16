@@ -2,6 +2,7 @@
 
 namespace EMS\CommonBundle\Storage;
 
+use EMS\CommonBundle\Storage\Factory\StorageFactoryInterface;
 use EMS\CommonBundle\Storage\Service\FileSystemStorage;
 use EMS\CommonBundle\Storage\Service\HttpStorage;
 use EMS\CommonBundle\Storage\Service\S3Storage;
@@ -13,37 +14,33 @@ class StorageManager
 {
     /** @var StorageInterface[] */
     private $adapters = [];
+    /** @var StorageFactoryInterface[] */
+    private $factories = [];
 
     /** @var FileLocatorInterface */
     private $fileLocator;
 
     /** @var string */
     private $hashAlgo;
+    /** @var array<array{type?: string, url?: string, required?: bool, read-only?: bool}> */
+    private $storageConfigs;
 
     /**
-     * @param iterable<StorageInterface> $adapters
-     * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
+     * @param iterable<StorageFactoryInterface> $factories
+     * @param array<array{type?: string, url?: string, required?: bool, read-only?: bool}> $storageConfigs
      */
-    public function __construct(FileLocatorInterface $fileLocator, iterable $adapters, string $hashAlgo, ?string $storagePath, ?string $backendUrl, array $s3Credentials = [], ?string $s3Bucket = null)
+    public function __construct(FileLocatorInterface $fileLocator, iterable $factories, string $hashAlgo, array $storageConfigs = [])
     {
+        foreach ($factories as $factory) {
+            if (!$factory instanceof StorageFactoryInterface) {
+                throw new \RuntimeException('Unexpected StorageInterface class');
+            }
+            $this->addStorageFactory($factory);
+        }
         $this->fileLocator = $fileLocator;
         $this->hashAlgo = $hashAlgo;
-
-        foreach ($adapters as $adapter) {
-            $this->adapters[] = $adapter;
-        }
-
-        if ($storagePath) {
-            $this->addAdapter(new FileSystemStorage($storagePath));
-        }
-
-        if ($s3Credentials !== null && $s3Bucket !== null) {
-            $this->addAdapter(new S3Storage($s3Credentials, $s3Bucket));
-        }
-
-        if ($backendUrl) {
-            $this->addAdapter(new HttpStorage($backendUrl, '/public/file/'));
-        }
+        $this->storageConfigs = $storageConfigs;
+        $this->registerServicesFromConfigs();
     }
 
     /**
@@ -52,6 +49,30 @@ class StorageManager
     public function getAdapters(): iterable
     {
         return $this->adapters;
+    }
+
+    private function addStorageFactory(StorageFactoryInterface $factory): void
+    {
+        $this->factories[$factory->getStorageType()] = $factory;
+    }
+
+
+    private function registerServicesFromConfigs(): void
+    {
+        foreach ($this->storageConfigs as $storageConfig) {
+            $type = $storageConfig['type'] ?? null;
+            if ($type === null) {
+                continue;
+            }
+            $factory = $this->factories[$type] ?? null;
+            if ($factory === null) {
+                continue;
+            }
+            $storage = $factory->createService($storageConfig);
+            if ($storage !== null) {
+                $this->addAdapter($storage);
+            }
+        }
     }
 
 
@@ -91,7 +112,7 @@ class StorageManager
 
     public function getPublicImage(string $name): string
     {
-        $file = $this->fileLocator->locate('@EMSCommonBundle/Resources/public/images/' . $name);
+        $file = $this->fileLocator->locate('@EMSCommonBundle/src/Resources/public/images/' . $name);
         if (is_array($file)) {
             return $file[0] ?? '';
         }
