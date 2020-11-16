@@ -86,6 +86,13 @@ class SftpFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_PRIVATE_KEY_FILE,
                 self::STORAGE_CONFIG_PORT,
             ])
+            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_HOST, ['string', 'null'])
+            ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_USERNAME, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_PUBLIC_KEY_FILE, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_PRIVATE_KEY_FILE, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_PORT, 'int')
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
 
