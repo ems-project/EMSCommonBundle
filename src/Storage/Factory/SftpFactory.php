@@ -40,32 +40,17 @@ class SftpFactory implements StorageFactoryInterface
     {
         $config = $this->resolveParameters($parameters);
 
-        $host = $config[self::STORAGE_CONFIG_HOST] ?? null;
+        $host = $config[self::STORAGE_CONFIG_HOST];
         if ($host === null || $host === '') {
             @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+            return null;
         }
-
-        $path = $config[self::STORAGE_CONFIG_PATH] ?? null;
-        if (!\is_string($path)) {
-            throw new \RuntimeException('Unexpected path type');
-        }
-        $username = $config[self::STORAGE_CONFIG_USERNAME] ?? null;
-        if (!\is_string($username)) {
-            throw new \RuntimeException('Unexpected username type');
-        }
-        $publicKeyFile = $config[self::STORAGE_CONFIG_PUBLIC_KEY_FILE] ?? null;
-        if (!\is_string($publicKeyFile)) {
-            throw new \RuntimeException('Unexpected public key file type');
-        }
-        $privateKeyFile = $config[self::STORAGE_CONFIG_PRIVATE_KEY_FILE] ?? null;
-        if (!\is_string($privateKeyFile)) {
-            throw new \RuntimeException('Unexpected private key file type');
-        }
-        $passwordPhrase = $config[self::STORAGE_CONFIG_PASSWORD_PHRASE] ?? null;
-        if ($passwordPhrase !== null && !\is_string($passwordPhrase)) {
-            throw new \RuntimeException('Unexpected password phrase type');
-        }
-        $port = \intval($config[self::STORAGE_CONFIG_PORT] ?? 22);
+        $path = $config[self::STORAGE_CONFIG_PATH];
+        $username = $config[self::STORAGE_CONFIG_USERNAME];
+        $publicKeyFile = $config[self::STORAGE_CONFIG_PUBLIC_KEY_FILE];
+        $privateKeyFile = $config[self::STORAGE_CONFIG_PRIVATE_KEY_FILE];
+        $passwordPhrase = $config[self::STORAGE_CONFIG_PASSWORD_PHRASE];
+        $port = \intval($config[self::STORAGE_CONFIG_PORT]);
 
         return new SftpStorage($host, $path, $username, $publicKeyFile, $privateKeyFile, false, $passwordPhrase, $port);
     }
@@ -77,7 +62,7 @@ class SftpFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array<string, mixed>
+     * @return array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -93,9 +78,26 @@ class SftpFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_PASSWORD_PHRASE => null,
                 self::STORAGE_CONFIG_PORT => 22,
             ])
+            ->setRequired([
+                self::STORAGE_CONFIG_TYPE,
+                self::STORAGE_CONFIG_PATH,
+                self::STORAGE_CONFIG_USERNAME,
+                self::STORAGE_CONFIG_PUBLIC_KEY_FILE,
+                self::STORAGE_CONFIG_PRIVATE_KEY_FILE,
+                self::STORAGE_CONFIG_PORT,
+            ])
+            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_HOST, ['string', 'null'])
+            ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_USERNAME, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_PUBLIC_KEY_FILE, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_PRIVATE_KEY_FILE, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_PORT, 'int')
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
 
-        return $resolver->resolve($parameters);
+        /** @var array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int} $resolvedParameter */
+        $resolvedParameter = $resolver->resolve($parameters);
+        return $resolvedParameter;
     }
 }

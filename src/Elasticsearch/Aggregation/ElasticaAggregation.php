@@ -23,11 +23,14 @@ class ElasticaAggregation extends AbstractSimpleAggregation
         $this->setParams($param);
     }
 
-    public function _getBaseName(): string
+
+    // phpcs:disable
+    protected function _getBaseName(): string
     {
         if ($this->basename === null) {
             throw new \RuntimeException('Unexpected null aggregation');
         }
         return $this->basename;
     }
+    // phpcs:enable
 }

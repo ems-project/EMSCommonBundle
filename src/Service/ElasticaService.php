@@ -56,7 +56,7 @@ class ElasticaService
         if ($resultSet->count() !== 1 || $result === null) {
             throw new SingleResultException($resultSet->count());
         }
-        return new Document($result);
+        return Document::fromResult($result);
     }
 
     public function search(Search $search): ResultSet

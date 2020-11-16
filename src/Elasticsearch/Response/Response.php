@@ -25,13 +25,10 @@ final class Response implements ResponseInterface
     private $aggregations;
 
     /**
-     * @param array<mixed>|ResultSet $response
+     * @param array<mixed> $response
      */
-    public function __construct($response)
+    private function __construct($response)
     {
-        if ($response instanceof ResultSet) {
-            $response = $response->getResponse()->getData();
-        }
         $this->total = $response['hits']['total']['value'] ?? $response['hits']['total'] ?? 0;
         $this->accurate = true;
         if ('eq' !== $response['hits']['total']['relation'] ?? null) {
@@ -42,6 +39,19 @@ final class Response implements ResponseInterface
         $this->scrollId = $response['_scroll_id'] ?? null;
     }
 
+    /**
+     * @param array<string, mixed> $document
+     */
+    public static function fromArray(array $document): Response
+    {
+        return new self($document);
+    }
+
+    public static function fromResultSet(ResultSet $result): Response
+    {
+        return new self($result->getResponse()->getData());
+    }
+
     public function hasDocuments(): bool
     {
         return \count($this->hits) > 0;
@@ -50,7 +60,7 @@ final class Response implements ResponseInterface
     public function getDocuments(): iterable
     {
         foreach ($this->hits as $hit) {
-            yield new Document($hit);
+            yield Document::fromArray($hit);
         }
     }
 
