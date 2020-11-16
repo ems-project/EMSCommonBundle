@@ -211,16 +211,6 @@ parameters:
 			path: src/Elasticsearch/Request/RequestInterface.php
 
 		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Response\\\\Response\\:\\:\\$hits type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Response/Response.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Response\\\\Response\\:\\:__construct\\(\\) has parameter \\$response with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Response/Response.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\EventListener\\\\CommandListener\\:\\:getSubscribedEvents\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/EventListener/CommandListener.php

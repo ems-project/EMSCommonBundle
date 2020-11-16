@@ -7,10 +7,13 @@ use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Terms;
+use Elastica\Request;
 use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
+use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
+use EMS\CommonBundle\Elasticsearch\Exception\SingleResultException;
 use EMS\CommonBundle\Search\Search;
 use Psr\Log\LoggerInterface;
 
@@ -28,16 +31,32 @@ class ElasticaService
         $this->logger = $logger;
     }
 
-    public function getHealthStatus(): string
+    public function getHealthStatus(string $waitForStatus = null, string $timeout = '10s'): string
     {
         try {
-            $clusterHealthResponse = $this->client->request('_cluster/health');
+            $query = [
+                'timeout' => $timeout,
+            ];
+            if ($waitForStatus !== null) {
+                $query['wait_for_status'] = $waitForStatus;
+            }
+            $clusterHealthResponse = $this->client->request('_cluster/health', Request::GET, [], $query);
 
             return $clusterHealthResponse->getData()['status'] ?? 'red';
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return 'red';
         }
+    }
+
+    public function singleSearch(Search $search): Document
+    {
+        $resultSet = $this->search($search);
+        $result = $resultSet->offsetGet(0);
+        if ($resultSet->count() !== 1 || $result === null) {
+            throw new SingleResultException($resultSet->count());
+        }
+        return Document::fromResult($result);
     }
 
     public function search(Search $search): ResultSet
@@ -48,6 +67,11 @@ class ElasticaService
     public function scroll(Search $search, string $expiryTime = '1m'): Scroll
     {
         return $this->createElasticaSearch($search, $search->getScrollOptions())->scroll($expiryTime);
+    }
+
+    public function getVersion(): string
+    {
+        return $this->client->getVersion();
     }
 
     /**
@@ -73,6 +97,14 @@ class ElasticaService
     }
 
     /**
+     * @return string[]
+     */
+    public function getAliasesFromIndex(string $indexName): array
+    {
+        return $this->client->getIndex($indexName)->getAliases();
+    }
+
+    /**
      * @param array<mixed> $options
      */
     private function createElasticaSearch(Search $search, array $options): ElasticaSearch
@@ -85,6 +117,11 @@ class ElasticaService
         if ($search->getSort() !== null) {
             $query->setSort($search->getSort());
         }
+
+        foreach ($search->getAggregations() as $aggregation) {
+            $query->addAggregation($aggregation);
+        }
+
         $esSearch = new ElasticaSearch($this->client);
 
         $esSearch->setQuery($query);
