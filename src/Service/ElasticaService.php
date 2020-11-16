@@ -11,7 +11,9 @@ use Elastica\Request;
 use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
+use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
+use EMS\CommonBundle\Elasticsearch\Exception\SingleResultException;
 use EMS\CommonBundle\Search\Search;
 use Psr\Log\LoggerInterface;
 
@@ -45,6 +47,16 @@ class ElasticaService
             $this->logger->error($e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return 'red';
         }
+    }
+
+    public function singleSearch(Search $search): Document
+    {
+        $resultSet = $this->search($search);
+        $result = $resultSet->offsetGet(0);
+        if ($resultSet->count() !== 1 || $result === null) {
+            throw new SingleResultException($resultSet->count());
+        }
+        return Document::fromResult($result);
     }
 
     public function search(Search $search): ResultSet
@@ -85,6 +97,14 @@ class ElasticaService
     }
 
     /**
+     * @return string[]
+     */
+    public function getAliasesFromIndex(string $indexName): array
+    {
+        return $this->client->getIndex($indexName)->getAliases();
+    }
+
+    /**
      * @param array<mixed> $options
      */
     private function createElasticaSearch(Search $search, array $options): ElasticaSearch
@@ -97,6 +117,11 @@ class ElasticaService
         if ($search->getSort() !== null) {
             $query->setSort($search->getSort());
         }
+
+        foreach ($search->getAggregations() as $aggregation) {
+            $query->addAggregation($aggregation);
+        }
+
         $esSearch = new ElasticaSearch($this->client);
 
         $esSearch->setQuery($query);
