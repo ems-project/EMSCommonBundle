@@ -32,23 +32,11 @@ class HttpFactory implements StorageFactoryInterface
     {
         $config = $this->resolveParameters($parameters);
 
-        $baseUrl = $config[self::STORAGE_CONFIG_BASE_URL] ?? null;
-        $getUrl = $config[self::STORAGE_CONFIG_GET_URL] ?? null;
-        $authKey = $config[self::STORAGE_CONFIG_AUTH_KEY] ?? null;
+        $baseUrl = $config[self::STORAGE_CONFIG_BASE_URL];
+        $getUrl = $config[self::STORAGE_CONFIG_GET_URL];
+        $authKey = $config[self::STORAGE_CONFIG_AUTH_KEY];
 
-        if (!\is_string($baseUrl)) {
-            throw new \RuntimeException('Unexpected base url type');
-        }
-
-        if (!\is_string($getUrl)) {
-            throw new \RuntimeException('Unexpected get url type');
-        }
-
-        if ($authKey !== null && !\is_string($authKey)) {
-            throw new \RuntimeException('Unexpected authentication key type');
-        }
-
-        if ($baseUrl === '') {
+        if ($baseUrl === null || $baseUrl === '') {
             @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
             return null;
         }
@@ -64,7 +52,7 @@ class HttpFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array<string, mixed>
+     * @return array{type: string, base-url: null|string, get-url: string, auth-key: null|string}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -76,9 +64,17 @@ class HttpFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_GET_URL => '/public/file/',
                 self::STORAGE_CONFIG_AUTH_KEY => null,
             ])
+            ->setRequired(self::STORAGE_CONFIG_TYPE)
+            ->setRequired(self::STORAGE_CONFIG_GET_URL)
+            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_BASE_URL, ['null', 'array'])
+            ->setAllowedTypes(self::STORAGE_CONFIG_GET_URL, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_AUTH_KEY, ['null', 'array'])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
 
-        return $resolver->resolve($parameters);
+        /** @var array{type: string, base-url: null|string, get-url: string, auth-key: null|string} $resolvedParameter */
+        $resolvedParameter = $resolver->resolve($parameters);
+        return $resolvedParameter;
     }
 }
