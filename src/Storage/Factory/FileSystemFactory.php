@@ -42,7 +42,7 @@ class FileSystemFactory implements StorageFactoryInterface
         }
 
         if (\substr($path, 0, 1) === ('.')) {
-            $path = $this->projectDir . substr($path, 1);
+            $path = $this->projectDir . DIRECTORY_SEPARATOR . $path;
         }
 
         $realPath = \realpath($path);
