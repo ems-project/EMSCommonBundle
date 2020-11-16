@@ -35,14 +35,6 @@ class S3Factory implements StorageFactoryInterface
             return null;
         }
 
-        if (!\is_string($bucket)) {
-            throw new \RuntimeException('Unexpected bucket type');
-        }
-
-        if (!\is_array($credentials)) {
-            throw new \RuntimeException('Unexpected credentials type');
-        }
-
         return new S3Storage($credentials, $bucket);
     }
 
@@ -53,7 +45,7 @@ class S3Factory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array<string, mixed>
+     * @return array{type: string, credentials: null|array, bucket: null|string}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -64,9 +56,14 @@ class S3Factory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_CREDENTIALS => null,
                 self::STORAGE_CONFIG_BUCKET => null,
             ])
+            ->setRequired(self::STORAGE_CONFIG_TYPE)
+            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_CREDENTIALS, ['null', 'array'])
+            ->setAllowedTypes(self::STORAGE_CONFIG_BUCKET, ['null', 'string'])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
-
-        return $resolver->resolve($parameters);
+        /** @var array{type: string, credentials: null|array, bucket: null|string} $resolvedParameter */
+        $resolvedParameter = $resolver->resolve($parameters);
+        return $resolvedParameter;
     }
 }
