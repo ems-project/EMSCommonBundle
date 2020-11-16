@@ -45,4 +45,20 @@ class Aggregation
         @trigger_error("Aggregation::getRaw is deprecated use the others getters", E_USER_DEPRECATED);
         return $this->raw;
     }
+
+    /**
+     * @return string[]
+     */
+    public function getKeys(): array
+    {
+        $out = [];
+        foreach ($this->buckets as $bucket) {
+            $key = $bucket->getKey();
+            if ($key === null) {
+                continue;
+            }
+            $out[] = $key;
+        }
+        return $out;
+    }
 }
