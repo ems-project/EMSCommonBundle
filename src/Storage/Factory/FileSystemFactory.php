@@ -15,14 +15,14 @@ class FileSystemFactory implements StorageFactoryInterface
     const STORAGE_CONFIG_PATH = 'path';
     /** @var LoggerInterface */
     private $logger;
+    /** @var string[]  */
+    private $usedFolder = [];
 
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
 
-    /** @var string[]  */
-    private $usedFolder = [];
 
     /**
      * @param array<string, mixed> $parameters
