@@ -17,10 +17,13 @@ class FileSystemFactory implements StorageFactoryInterface
     private $logger;
     /** @var string[]  */
     private $usedFolder = [];
+    /** @var string */
+    private $projectDir;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $projectDir)
     {
         $this->logger = $logger;
+        $this->projectDir = $projectDir;
     }
 
 
@@ -36,6 +39,10 @@ class FileSystemFactory implements StorageFactoryInterface
         if ($path === '') {
             @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
             return null;
+        }
+
+        if (\substr($path, 0, 1) === ('.')) {
+            $path = $this->projectDir . DIRECTORY_SEPARATOR . $path;
         }
 
         $realPath = \realpath($path);
