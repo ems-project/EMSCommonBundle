@@ -22,13 +22,10 @@ class Document implements DocumentInterface
     private $highlight;
 
     /**
-     * @param Result|array<string, mixed> $document
+     * @param array<mixed> $document
      */
-    public function __construct($document)
+    private function __construct($document)
     {
-        if ($document instanceof Result) {
-            $document = $document->getHit();
-        }
         $this->id = $document['_id'];
         $this->source = $document['_source'] ?? [];
         $this->index = $document['_index'];
@@ -43,6 +40,20 @@ class Document implements DocumentInterface
         }
         $this->contentType = $contentType;
         $this->raw = $document;
+    }
+
+
+    /**
+     * @param array<string, mixed> $document
+     */
+    public static function fromArray(array $document): Document
+    {
+        return new self($document);
+    }
+
+    public static function fromResult(Result $result): Document
+    {
+        return new self($result->getHit());
     }
 
     public function getId(): string
