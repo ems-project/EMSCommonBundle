@@ -55,7 +55,7 @@ class EntityFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array<string, mixed>
+     * @return array{type: string, activate: bool}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -65,10 +65,15 @@ class EntityFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_ACTIVATE => true,
             ])
+            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_ACTIVATE, 'bool')
+            ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
             ->setAllowedValues(self::STORAGE_CONFIG_ACTIVATE, [true, false])
         ;
 
-        return $resolver->resolve($parameters);
+        /** @var array{type: string, activate: bool} $resolvedParameter */
+        $resolvedParameter = $resolver->resolve($parameters);
+        return $resolvedParameter;
     }
 }
