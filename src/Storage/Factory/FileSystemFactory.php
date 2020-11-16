@@ -32,11 +32,9 @@ class FileSystemFactory implements StorageFactoryInterface
         $config = $this->resolveParameters($parameters);
 
         $path = $config[self::STORAGE_CONFIG_PATH] ?? null;
-        if (!\is_string($path)) {
-            throw new \RuntimeException('Unexpected path type');
-        }
 
         if ($path === '') {
+            @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
             return null;
         }
 
@@ -62,7 +60,7 @@ class FileSystemFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array<string, mixed>
+     * @return array{type: string, path: string}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -73,8 +71,14 @@ class FileSystemFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_PATH => null,
             ])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
+            ->setRequired(self::STORAGE_CONFIG_TYPE)
+            ->setRequired(self::STORAGE_CONFIG_PATH)
+            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
+            ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
         ;
 
-        return $resolver->resolve($parameters);
+        /** @var array{type: string, path: string} $resolvedParameter */
+        $resolvedParameter = $resolver->resolve($parameters);
+        return $resolvedParameter;
     }
 }
