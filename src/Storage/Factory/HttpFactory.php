@@ -67,9 +67,9 @@ class HttpFactory implements StorageFactoryInterface
             ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setRequired(self::STORAGE_CONFIG_GET_URL)
             ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
-            ->setAllowedTypes(self::STORAGE_CONFIG_BASE_URL, ['null', 'array'])
+            ->setAllowedTypes(self::STORAGE_CONFIG_BASE_URL, ['null', 'string'])
             ->setAllowedTypes(self::STORAGE_CONFIG_GET_URL, 'string')
-            ->setAllowedTypes(self::STORAGE_CONFIG_AUTH_KEY, ['null', 'array'])
+            ->setAllowedTypes(self::STORAGE_CONFIG_AUTH_KEY, ['null', 'string'])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
 
