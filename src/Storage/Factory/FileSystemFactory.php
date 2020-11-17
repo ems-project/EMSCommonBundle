@@ -40,7 +40,12 @@ class FileSystemFactory implements StorageFactoryInterface
 
         $realPath = \realpath($path);
         if ($realPath === false) {
-            throw new \RuntimeException('The url parameter can\'t be converted into a real path');
+            \mkdir($path, 0777, true);
+        }
+
+        $realPath = \realpath($path);
+        if ($realPath === false) {
+            throw new \RuntimeException('The path parameter can\'t be converted into a real path');
         }
 
         if (\in_array($realPath, $this->usedFolder)) {
