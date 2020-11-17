@@ -10,6 +10,12 @@
         <service id="ems_common.twig.extension.common" class="EMS\CommonBundle\Twig\CommonExtension">
             <tag name="twig.extension" />
         </service>
+        <service id="EMS\CommonBundle\Twig\AssetRuntime">
+            <argument type="service" id="ems_common.storage.manager" />
+            <argument type="service" id="logger" />
+            <argument type="string">%kernel.project_dir%</argument>
+            <tag name="twig.runtime" />
+        </service>
         <service id="ems_common.twig.runtime.request" alias="EMS\CommonBundle\Twig\RequestRuntime"/>
         <service id="ems_common.twig.runtime.manifest" class="EMS\CommonBundle\Twig\ManifestRuntime">
             <tag name="twig.runtime" />
