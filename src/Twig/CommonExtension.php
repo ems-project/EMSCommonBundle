@@ -11,16 +11,15 @@ use Twig\TwigFunction;
 
 class CommonExtension extends AbstractExtension
 {
-
-
     /**
      * {@inheritdoc}
      */
     public function getFunctions()
     {
-        $out = parent::getFunctions();
-        $out[] = new TwigFunction('ems_asset_path', [RequestRuntime::class, 'assetPath'], ['is_safe' => ['html']]);
-        return $out;
+        return [
+            new TwigFunction('ems_asset_path', [RequestRuntime::class, 'assetPath'], ['is_safe' => ['html']]),
+            new TwigFunction('ems_unzip', [AssetRuntime::class, 'unzip']),
+        ];
     }
 
     /**
