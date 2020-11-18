@@ -275,4 +275,25 @@ class StorageManager
 
         return $count;
     }
+
+    public function saveFile(string $filename, bool $skipShouldSkipServices = true): int
+    {
+        $count = 0;
+        $hash = $this->computeFileHash($filename);
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
+                continue;
+            }
+
+            if ($adapter->create($hash, $filename)) {
+                ++$count;
+            }
+        }
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible to a a file (%s) identified by the hash %s into at least one storage services', $filename, $hash));
+        }
+
+        return $count;
+    }
 }
