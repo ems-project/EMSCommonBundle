@@ -2,10 +2,8 @@
 
 namespace EMS\CommonBundle\Storage;
 
+use EMS\CommonBundle\Exception\AssetNotFoundException;
 use EMS\CommonBundle\Storage\Factory\StorageFactoryInterface;
-use EMS\CommonBundle\Storage\Service\FileSystemStorage;
-use EMS\CommonBundle\Storage\Service\HttpStorage;
-use EMS\CommonBundle\Storage\Service\S3Storage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Config\FileLocatorInterface;
@@ -194,5 +192,16 @@ class StorageManager
             $statuses[$adapter->__toString()] = $adapter->health();
         }
         return $statuses;
+    }
+
+    public function getSize(string $hash): int
+    {
+        foreach ($this->adapters as $adapter) {
+            try {
+                return $adapter->getSize($hash);
+            } catch (\Throwable $e) {
+            }
+        }
+        throw new AssetNotFoundException($hash);
     }
 }
