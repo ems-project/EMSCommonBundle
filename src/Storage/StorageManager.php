@@ -2,7 +2,6 @@
 
 namespace EMS\CommonBundle\Storage;
 
-use EMS\CommonBundle\Exception\AssetNotFoundException;
 use EMS\CommonBundle\Storage\Factory\StorageFactoryInterface;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Http\Message\StreamInterface;
@@ -202,6 +201,19 @@ class StorageManager
             } catch (\Throwable $e) {
             }
         }
-        throw new AssetNotFoundException($hash);
+        throw new NotFoundException($hash);
+    }
+
+    public function getBase64(string $hash): ?string
+    {
+        foreach ($this->adapters as $adapter) {
+            try {
+                $stream = $adapter->read($hash);
+            } catch (\Throwable $e) {
+                continue;
+            }
+            return \base64_encode($stream->getContents());
+        }
+        return null;
     }
 }
