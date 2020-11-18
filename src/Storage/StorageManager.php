@@ -129,26 +129,25 @@ class StorageManager
         $hash = hash($this->hashAlgo, $contents);
         $count = 0;
 
-        /** @var StorageInterface $service */
-        foreach ($this->getAdapters() as $service) {
-            if ($service->isReadOnly() || ($skipShouldSkipServices && $service->shouldSkip())) {
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
                 break;
             }
 
-            if ($service->head($hash)) {
+            if ($adapter->head($hash)) {
                 ++$count;
                 continue;
             }
 
-            if (!$service->initUpload($hash, strlen($contents), $filename, $mimetype)) {
+            if (!$adapter->initUpload($hash, strlen($contents), $filename, $mimetype)) {
                 continue;
             }
 
-            if (!$service->addChunk($hash, $contents)) {
+            if (!$adapter->addChunk($hash, $contents)) {
                 continue;
             }
 
-            if ($service->finalizeUpload($hash)) {
+            if ($adapter->finalizeUpload($hash)) {
                 ++$count;
             }
         }
@@ -174,14 +173,22 @@ class StorageManager
         return $hashFile;
     }
 
-    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, int $uploadMinimumNumberOfReplications): int
+    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, bool $skipShouldSkipServices = true): int
     {
-        $loopCounter = 0;
-        foreach ($this->getAdapters() as $adapter) {
-            if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType) && ++$loopCounter >= $uploadMinimumNumberOfReplications) {
+        $count = 0;
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
                 break;
             }
+            if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType)) {
+                ++$count;
+            }
         }
-        return $loopCounter;
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible to initiate the upload of an asset identified by the hash %s into at least one storage services', $fileHash));
+        }
+
+        return $count;
     }
 }
