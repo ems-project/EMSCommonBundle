@@ -43,14 +43,6 @@ class StorageManager
         $this->registerServicesFromConfigs();
     }
 
-    /**
-     * @return StorageInterface[]
-     */
-    public function getAdapters(): iterable
-    {
-        return $this->adapters;
-    }
-
     private function addStorageFactory(StorageFactoryInterface $factory): void
     {
         $this->factories[$factory->getStorageType()] = $factory;
@@ -190,5 +182,17 @@ class StorageManager
         }
 
         return $count;
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    public function getHealthStatuses(): array
+    {
+        $statuses = [];
+        foreach ($this->adapters as $adapter) {
+            $statuses[$adapter->__toString()] = $adapter->health();
+        }
+        return $statuses;
     }
 }
