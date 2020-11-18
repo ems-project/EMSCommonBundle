@@ -296,4 +296,21 @@ class StorageManager
 
         return $hash;
     }
+
+    public function remove(string $hash): int
+    {
+        $count = 0;
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->isReadOnly()) {
+                continue;
+            }
+            try {
+                if ($adapter->remove($hash)) {
+                    ++$count;
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+        return $count;
+    }
 }
