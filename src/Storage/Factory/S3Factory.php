@@ -35,7 +35,7 @@ class S3Factory implements StorageFactoryInterface
             return null;
         }
 
-        return new S3Storage($credentials, $bucket);
+        return new S3Storage($this->logger, $credentials, $bucket, $config[self::STORAGE_CONFIG_READ_ONLY], $config[self::STORAGE_CONFIG_TO_SKIP]);
     }
 
     public function getStorageType(): string
@@ -45,7 +45,7 @@ class S3Factory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array{type: string, credentials: null|array, bucket: null|string}
+     * @return array{type: string, credentials: null|array, bucket: null|string, read-only: bool, to-skip: bool}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -55,14 +55,18 @@ class S3Factory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_CREDENTIALS => null,
                 self::STORAGE_CONFIG_BUCKET => null,
+                self::STORAGE_CONFIG_READ_ONLY => false,
+                self::STORAGE_CONFIG_TO_SKIP => false,
             ])
             ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_CREDENTIALS, ['null', 'array'])
             ->setAllowedTypes(self::STORAGE_CONFIG_BUCKET, ['null', 'string'])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
+            ->setAllowedValues(self::STORAGE_CONFIG_READ_ONLY, [true, false])
+            ->setAllowedValues(self::STORAGE_CONFIG_TO_SKIP, [true, false])
         ;
-        /** @var array{type: string, credentials: null|array, bucket: null|string} $resolvedParameter */
+        /** @var array{type: string, credentials: null|array, bucket: null|string, read-only: bool, to-skip: bool} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
         return $resolvedParameter;
     }
