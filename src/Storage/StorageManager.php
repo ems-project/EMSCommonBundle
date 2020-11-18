@@ -120,7 +120,7 @@ class StorageManager
 
         foreach ($this->adapters as $adapter) {
             if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
-                break;
+                continue;
             }
 
             if ($adapter->head($hash)) {
@@ -162,12 +162,12 @@ class StorageManager
         return $hashFile;
     }
 
-    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, bool $skipShouldSkipServices = true): int
+    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, bool $skipShouldSkipAdapters = true): int
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
-                break;
+            if ($adapter->isReadOnly() || ($skipShouldSkipAdapters && $adapter->shouldSkip())) {
+                continue;
             }
             if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType)) {
                 ++$count;
@@ -186,7 +186,7 @@ class StorageManager
         $count = 0;
         foreach ($this->adapters as $adapter) {
             if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
-                break;
+                continue;
             }
             if ($adapter->addChunk($hash, $chunk)) {
                 ++$count;
@@ -194,7 +194,7 @@ class StorageManager
         }
 
         if ($count === 0) {
-            throw new \RuntimeException(sprintf('Impossible to add a chink of an asset identified by the hash %s into at least one storage services', $hash));
+            throw new \RuntimeException(sprintf('Impossible to add a chunk of an asset identified by the hash %s into at least one storage services', $hash));
         }
 
         return $count;
@@ -234,5 +234,45 @@ class StorageManager
             return \base64_encode($stream->getContents());
         }
         return null;
+    }
+
+    public function finalizeUpload(string $hash, int $size, bool $skipShouldSkipAdapters = true): int
+    {
+        $count = 0;
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->isReadOnly() || ($skipShouldSkipAdapters && $adapter->shouldSkip())) {
+                continue;
+            }
+
+            try {
+                $handler = $adapter->read($hash, false);
+            } catch (\Throwable $e) {
+                continue;
+            }
+
+            $uploadedSize = $handler->getSize();
+            if ($uploadedSize === null) {
+                continue;
+            }
+            $computedHash = $this->computeStringHash($handler->getContents());
+
+            if ($computedHash !== $hash) {
+                throw new HashMismatchException($hash, $computedHash);
+            }
+
+            if ($uploadedSize !== $size) {
+                throw new SizeMismatchException($hash, $size, $uploadedSize);
+            }
+
+            if ($adapter->finalizeUpload($hash)) {
+                ++$count;
+            }
+        }
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible finalize the upload of an asset identified by the hash %s into at least one storage services', $hash));
+        }
+
+        return $count;
     }
 }
