@@ -181,6 +181,25 @@ class StorageManager
         return $count;
     }
 
+    public function addChunk(string $hash, string $chunk, bool $skipShouldSkipServices = true): int
+    {
+        $count = 0;
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
+                break;
+            }
+            if ($adapter->addChunk($hash, $chunk)) {
+                ++$count;
+            }
+        }
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible to add a chink of an asset identified by the hash %s into at least one storage services', $hash));
+        }
+
+        return $count;
+    }
+
     /**
      * @return array<string, bool>
      */
