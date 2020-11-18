@@ -28,5 +28,5 @@ interface StorageInterface
 
     public function isReadOnly(): bool;
 
-    public function isToSkip(): bool;
+    public function isSkip(): bool;
 }

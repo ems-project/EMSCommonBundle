@@ -8,7 +8,7 @@ interface StorageFactoryInterface
 {
     public const STORAGE_CONFIG_TYPE = 'type';
     public const STORAGE_CONFIG_READ_ONLY = 'read-only';
-    public const STORAGE_CONFIG_TO_SKIP = 'to-skip';
+    public const STORAGE_CONFIG_SKIP = 'skip';
 
     /**
      * @param array<string, mixed> $parameters

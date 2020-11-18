@@ -21,9 +21,9 @@ class S3Storage extends AbstractUrlStorage
     /**
      * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
      */
-    public function __construct(LoggerInterface $logger, array $s3Credentials, string $s3Bucket, bool $readOnly, bool $toSkip)
+    public function __construct(LoggerInterface $logger, array $s3Credentials, string $s3Bucket, bool $readOnly, bool $skip)
     {
-        parent::__construct($logger, $readOnly, $toSkip);
+        parent::__construct($logger, $readOnly, $skip);
         $this->bucket = $s3Bucket;
         $this->credentials = $s3Credentials;
     }

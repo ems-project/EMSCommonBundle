@@ -20,9 +20,9 @@ class HttpStorage extends AbstractUrlStorage
     /** @var null|string */
     private $authKey;
 
-    public function __construct(LoggerInterface $logger, string $baseUrl, string $getUrl, bool $readOnly, bool $toSkip, ?string $authKey = null)
+    public function __construct(LoggerInterface $logger, string $baseUrl, string $getUrl, bool $readOnly, bool $skip, ?string $authKey = null)
     {
-        parent::__construct($logger, $readOnly, $toSkip);
+        parent::__construct($logger, $readOnly, $skip);
         $this->baseUrl = $baseUrl;
         $this->getUrl = $getUrl;
         $this->authKey = $authKey;

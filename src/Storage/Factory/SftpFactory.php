@@ -52,7 +52,7 @@ class SftpFactory implements StorageFactoryInterface
         $passwordPhrase = $config[self::STORAGE_CONFIG_PASSWORD_PHRASE];
         $port = \intval($config[self::STORAGE_CONFIG_PORT]);
 
-        return new SftpStorage($this->logger, $host, $path, $username, $publicKeyFile, $privateKeyFile, $config[self::STORAGE_CONFIG_READ_ONLY], $config[self::STORAGE_CONFIG_TO_SKIP], $passwordPhrase, $port);
+        return new SftpStorage($this->logger, $host, $path, $username, $publicKeyFile, $privateKeyFile, $config[self::STORAGE_CONFIG_READ_ONLY], $config[self::STORAGE_CONFIG_SKIP], $passwordPhrase, $port);
     }
 
     public function getStorageType(): string
@@ -62,7 +62,7 @@ class SftpFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int, read-only: bool, to-skip: bool}
+     * @return array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int, read-only: bool, skip: bool}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -78,7 +78,7 @@ class SftpFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_PASSWORD_PHRASE => null,
                 self::STORAGE_CONFIG_PORT => 22,
                 self::STORAGE_CONFIG_READ_ONLY => false,
-                self::STORAGE_CONFIG_TO_SKIP => false,
+                self::STORAGE_CONFIG_SKIP => false,
             ])
             ->setRequired([
                 self::STORAGE_CONFIG_TYPE,
@@ -97,10 +97,10 @@ class SftpFactory implements StorageFactoryInterface
             ->setAllowedTypes(self::STORAGE_CONFIG_PORT, 'int')
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
             ->setAllowedValues(self::STORAGE_CONFIG_READ_ONLY, [true, false])
-            ->setAllowedValues(self::STORAGE_CONFIG_TO_SKIP, [true, false])
+            ->setAllowedValues(self::STORAGE_CONFIG_SKIP, [true, false])
         ;
 
-        /** @var array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int, read-only: bool, to-skip: bool} $resolvedParameter */
+        /** @var array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int, read-only: bool, skip: bool} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
         return $resolvedParameter;
     }

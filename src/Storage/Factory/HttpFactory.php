@@ -42,9 +42,9 @@ class HttpFactory implements StorageFactoryInterface
         }
 
         $readOnly = $config[self::STORAGE_CONFIG_READ_ONLY] && $authKey !== null;
-        $toSkip = $config[self::STORAGE_CONFIG_READ_ONLY] && $authKey !== null;
+        $skip = $config[self::STORAGE_CONFIG_READ_ONLY] && $authKey !== null;
 
-        return new HttpStorage($this->logger, $baseUrl, $getUrl, $readOnly, $toSkip, $authKey);
+        return new HttpStorage($this->logger, $baseUrl, $getUrl, $readOnly, $skip, $authKey);
     }
 
     public function getStorageType(): string
@@ -55,7 +55,7 @@ class HttpFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array{type: string, base-url: null|string, get-url: string, auth-key: null|string, read-only: bool, to-skip: bool}
+     * @return array{type: string, base-url: null|string, get-url: string, auth-key: null|string, read-only: bool, skip: bool}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -67,7 +67,7 @@ class HttpFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_GET_URL => '/public/file/',
                 self::STORAGE_CONFIG_AUTH_KEY => null,
                 self::STORAGE_CONFIG_READ_ONLY => false,
-                self::STORAGE_CONFIG_TO_SKIP => false,
+                self::STORAGE_CONFIG_SKIP => false,
             ])
             ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setRequired(self::STORAGE_CONFIG_GET_URL)
@@ -77,10 +77,10 @@ class HttpFactory implements StorageFactoryInterface
             ->setAllowedTypes(self::STORAGE_CONFIG_AUTH_KEY, ['null', 'string'])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
             ->setAllowedValues(self::STORAGE_CONFIG_READ_ONLY, [true, false])
-            ->setAllowedValues(self::STORAGE_CONFIG_TO_SKIP, [true, false])
+            ->setAllowedValues(self::STORAGE_CONFIG_SKIP, [true, false])
         ;
 
-        /** @var array{type: string, base-url: null|string, get-url: string, auth-key: null|string, read-only: bool, to-skip: bool} $resolvedParameter */
+        /** @var array{type: string, base-url: null|string, get-url: string, auth-key: null|string, read-only: bool, skip: bool} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
         return $resolvedParameter;
     }

@@ -61,7 +61,7 @@ class FileSystemFactory implements StorageFactoryInterface
         }
 
         $this->usedFolder[] = $realPath;
-        return new FileSystemStorage($this->logger, $realPath, $config[self::STORAGE_CONFIG_READ_ONLY], $config[self::STORAGE_CONFIG_TO_SKIP]);
+        return new FileSystemStorage($this->logger, $realPath, $config[self::STORAGE_CONFIG_READ_ONLY], $config[self::STORAGE_CONFIG_SKIP]);
     }
 
     public function getStorageType(): string
@@ -72,7 +72,7 @@ class FileSystemFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array{type: string, path: string, read-only: bool, to-skip: bool}
+     * @return array{type: string, path: string, read-only: bool, skip: bool}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -82,7 +82,7 @@ class FileSystemFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_PATH => null,
                 self::STORAGE_CONFIG_READ_ONLY => false,
-                self::STORAGE_CONFIG_TO_SKIP => false,
+                self::STORAGE_CONFIG_SKIP => false,
             ])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
             ->setRequired(self::STORAGE_CONFIG_TYPE)
@@ -90,10 +90,10 @@ class FileSystemFactory implements StorageFactoryInterface
             ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
             ->setAllowedValues(self::STORAGE_CONFIG_READ_ONLY, [true, false])
-            ->setAllowedValues(self::STORAGE_CONFIG_TO_SKIP, [true, false])
+            ->setAllowedValues(self::STORAGE_CONFIG_SKIP, [true, false])
         ;
 
-        /** @var array{type: string, path: string, read-only: bool, to-skip: bool} $resolvedParameter */
+        /** @var array{type: string, path: string, read-only: bool, skip: bool} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
         return $resolvedParameter;
     }

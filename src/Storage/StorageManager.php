@@ -124,19 +124,19 @@ class StorageManager
         return $this->hashAlgo;
     }
 
-    public function saveContents(string $contents, string $filename, string $mimetype, int $shouldBeSavedOnXServices = 1): string
+    public function saveContents(string $contents, string $filename, string $mimetype, bool $skipIsSkipServices = true): string
     {
         $hash = hash($this->hashAlgo, $contents);
-        $out = 0;
+        $count = 0;
 
         /** @var StorageInterface $service */
         foreach ($this->getAdapters() as $service) {
-            if ($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
+            if ($service->isReadOnly() || ($skipIsSkipServices && $service->isSkip())) {
                 break;
             }
 
             if ($service->head($hash)) {
-                ++$out;
+                ++$count;
                 continue;
             }
 
@@ -149,8 +149,12 @@ class StorageManager
             }
 
             if ($service->finalizeUpload($hash)) {
-                ++$out;
+                ++$count;
             }
+        }
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible to save the asset identified by the hash %s into at least one storage services', $hash));
         }
 
         return $hash;

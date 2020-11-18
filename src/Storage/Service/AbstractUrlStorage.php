@@ -12,15 +12,15 @@ abstract class AbstractUrlStorage implements StorageInterface
     /** @var bool */
     private $readOnly;
     /** @var bool */
-    private $toSkip;
+    private $skip;
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(LoggerInterface $logger, bool $readOnly, bool $toSkip)
+    public function __construct(LoggerInterface $logger, bool $readOnly, bool $skip)
     {
         $this->logger = $logger;
         $this->readOnly = $readOnly;
-        $this->toSkip = $toSkip || $readOnly;
+        $this->skip = $skip || $readOnly;
     }
 
     abstract protected function getBaseUrl(): string;
@@ -185,8 +185,8 @@ abstract class AbstractUrlStorage implements StorageInterface
         return $this->readOnly;
     }
 
-    public function isToSkip(): bool
+    public function isSkip(): bool
     {
-        return $this->toSkip;
+        return $this->skip;
     }
 }
