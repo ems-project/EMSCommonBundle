@@ -45,6 +45,9 @@ class S3Storage extends AbstractUrlStorage
 
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         $path = $this->getUploadPath($hash);
         $this->initDirectory($path);
         $result = $this->s3Client->putObject([
@@ -59,6 +62,9 @@ class S3Storage extends AbstractUrlStorage
 
     public function finalizeUpload(string $hash): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         $source = $this->getUploadPath($hash);
         $destination  = $this->getPath($hash);
         \copy($source, $destination);

@@ -58,6 +58,9 @@ class EntityStorage implements StorageInterface
 
     public function create(string $hash, string $filename): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         $entity = $this->createEntity($hash);
 
         $content = \file_get_contents($filename);
@@ -122,11 +125,17 @@ class EntityStorage implements StorageInterface
 
     public function remove(string $hash): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         return $this->repository->removeByHash($hash);
     }
 
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         $entity = $this->repository->findByHash($hash, false);
         if ($entity === null) {
             $entity = $this->createEntity($hash);
@@ -144,6 +153,9 @@ class EntityStorage implements StorageInterface
 
     public function finalizeUpload(string $hash): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         $entity = $this->repository->findByHash($hash, false);
         if ($entity !== null) {
             $entity->setConfirmed(true);
@@ -157,6 +169,9 @@ class EntityStorage implements StorageInterface
 
     public function addChunk(string $hash, string $chunk, ?string $context = null): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         $entity = $this->repository->findByHash($hash, false);
         if ($entity !== null) {
             $contents = $entity->getContents();
@@ -174,12 +189,12 @@ class EntityStorage implements StorageInterface
         return false;
     }
 
-    public function isReadOnly(string $hash): bool
+    public function isReadOnly(): bool
     {
         return $this->readOnly;
     }
 
-    public function isToSkip(string $hash): bool
+    public function isToSkip(): bool
     {
         return $this->toSkip;
     }

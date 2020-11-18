@@ -27,6 +27,9 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     protected function initDirectory(string $filename): void
     {
+        if ($this->isReadOnly()) {
+            return;
+        }
         if (!\file_exists(\dirname($filename))) {
             \mkdir(\dirname($filename), 0777, true);
         }
@@ -57,6 +60,9 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function create(string $hash, string $filename): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         $path = $this->getPath($hash);
         $this->initDirectory($path);
         return copy($filename, $path);
@@ -106,6 +112,9 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function remove(string $hash): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         $file = $this->getPath($hash);
         if (file_exists($file)) {
             unlink($file);
@@ -116,6 +125,9 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         $path = $this->getUploadPath($hash);
         $this->initDirectory($path);
         return file_put_contents($path, "") !== false;
@@ -123,6 +135,9 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function addChunk(string $hash, string $chunk): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         $path = $this->getUploadPath($hash);
         if (!file_exists($path)) {
             throw new NotFoundHttpException('temporary file not found');
@@ -146,6 +161,9 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function finalizeUpload(string $hash): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         $source = $this->getUploadPath($hash);
         $destination  = $this->getPath($hash);
         $this->initDirectory($destination);
@@ -162,12 +180,12 @@ abstract class AbstractUrlStorage implements StorageInterface
         return false;
     }
 
-    public function isReadOnly(string $hash): bool
+    public function isReadOnly(): bool
     {
         return $this->readOnly;
     }
 
-    public function isToSkip(string $hash): bool
+    public function isToSkip(): bool
     {
         return $this->toSkip;
     }

@@ -73,6 +73,9 @@ class HttpStorage extends AbstractUrlStorage
 
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         try {
             $result = $this->getClient()->post('/api/file/init-upload/' . urlencode($hash) . '/' . $size . '?name=' . urlencode($name) . '&type=' . urlencode($type), [
                 'headers' => [
@@ -89,6 +92,9 @@ class HttpStorage extends AbstractUrlStorage
 
     public function addChunk(string $hash, string $chunk, ?string $context = null): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         try {
             $result = $this->getClient()->post('/api/file/upload-chunk/' . urlencode($hash), [
                 'headers' => [
@@ -104,6 +110,9 @@ class HttpStorage extends AbstractUrlStorage
 
     public function finalizeUpload(string $hash): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         return $this->head($hash);
     }
 
@@ -118,6 +127,9 @@ class HttpStorage extends AbstractUrlStorage
 
     public function create(string $hash, string $filename): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         try {
             $this->getClient()->request('POST', '/api/file', [
                 'multipart' => [
