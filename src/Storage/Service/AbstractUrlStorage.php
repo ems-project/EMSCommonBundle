@@ -20,7 +20,7 @@ abstract class AbstractUrlStorage implements StorageInterface
     {
         $this->logger = $logger;
         $this->readOnly = $readOnly;
-        $this->toSkip = $toSkip;
+        $this->toSkip = $toSkip || $readOnly;
     }
 
     abstract protected function getBaseUrl(): string;

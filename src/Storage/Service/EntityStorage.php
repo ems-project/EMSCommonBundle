@@ -26,7 +26,7 @@ class EntityStorage implements StorageInterface
     {
         $this->manager = $doctrine->getManager();
         $this->readOnly = $readOnly;
-        $this->toSkip = $toSkip;
+        $this->toSkip = $toSkip || $readOnly;
 
         //TODO: Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
         $repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
