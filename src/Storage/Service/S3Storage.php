@@ -4,6 +4,7 @@ namespace EMS\CommonBundle\Storage\Service;
 
 use Aws\S3\S3Client;
 use AwsServiceBuilder;
+use Psr\Log\LoggerInterface;
 
 class S3Storage extends AbstractUrlStorage
 {
@@ -20,9 +21,9 @@ class S3Storage extends AbstractUrlStorage
     /**
      * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
      */
-    public function __construct(array $s3Credentials, string $s3Bucket, bool $readOnly, bool $toSkip)
+    public function __construct(LoggerInterface $logger, array $s3Credentials, string $s3Bucket, bool $readOnly, bool $toSkip)
     {
-        parent::__construct($readOnly, $toSkip);
+        parent::__construct($logger, $readOnly, $toSkip);
         $this->bucket = $s3Bucket;
         $this->credentials = $s3Credentials;
     }

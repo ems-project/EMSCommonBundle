@@ -4,6 +4,7 @@ namespace EMS\CommonBundle\Storage\Service;
 
 use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class AbstractUrlStorage implements StorageInterface
@@ -12,9 +13,12 @@ abstract class AbstractUrlStorage implements StorageInterface
     private $readOnly;
     /** @var bool */
     private $toSkip;
+    /** @var LoggerInterface */
+    private $logger;
 
-    public function __construct(bool $readOnly, bool $toSkip)
+    public function __construct(LoggerInterface $logger, bool $readOnly, bool $toSkip)
     {
+        $this->logger = $logger;
         $this->readOnly = $readOnly;
         $this->toSkip = $toSkip;
     }
@@ -148,12 +152,12 @@ abstract class AbstractUrlStorage implements StorageInterface
         try {
             return \rename($source, $destination);
         } catch (\Throwable $e) {
-            //TODO: add log info or notice
+            $this->logger->info(sprintf('Rename %s to %s failed: %s', $source, $destination, $e->getMessage()));
         }
         try {
             return \copy($source, $destination);
         } catch (\Throwable $e) {
-            //TODO: add log info or notice
+            $this->logger->info(sprintf('Copy %s to %s failed: %s', $source, $destination, $e->getMessage()));
         }
         return false;
     }

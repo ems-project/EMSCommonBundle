@@ -2,6 +2,8 @@
 
 namespace EMS\CommonBundle\Storage\Service;
 
+use Psr\Log\LoggerInterface;
+
 class SftpStorage extends AbstractUrlStorage
 {
     /** @var string */
@@ -24,9 +26,9 @@ class SftpStorage extends AbstractUrlStorage
     /**
      * @param null $passwordPhrase
      */
-    public function __construct(string $host, string $path, string $username, string $publicKeyFile, string $privateKeyFile, bool $readOnly, bool $toSkip, ?string $passwordPhrase = null, int $port = 22)
+    public function __construct(LoggerInterface $logger, string $host, string $path, string $username, string $publicKeyFile, string $privateKeyFile, bool $readOnly, bool $toSkip, ?string $passwordPhrase = null, int $port = 22)
     {
-        parent::__construct($readOnly, $toSkip);
+        parent::__construct($logger, $readOnly, $toSkip);
         $this->host = $host;
         $this->path = $path;
         $this->port = $port;

@@ -7,6 +7,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class HttpStorage extends AbstractUrlStorage
@@ -19,9 +20,9 @@ class HttpStorage extends AbstractUrlStorage
     /** @var null|string */
     private $authKey;
 
-    public function __construct(string $baseUrl, string $getUrl, bool $readOnly, bool $toSkip, ?string $authKey = null)
+    public function __construct(LoggerInterface $logger, string $baseUrl, string $getUrl, bool $readOnly, bool $toSkip, ?string $authKey = null)
     {
-        parent::__construct($readOnly, $toSkip);
+        parent::__construct($logger, $readOnly, $toSkip);
         $this->baseUrl = $baseUrl;
         $this->getUrl = $getUrl;
         $this->authKey = $authKey;
