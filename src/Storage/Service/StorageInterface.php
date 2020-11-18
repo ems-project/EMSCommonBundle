@@ -6,6 +6,17 @@ use Psr\Http\Message\StreamInterface;
 
 interface StorageInterface
 {
+    /** @var int  */
+    public const STORAGE_USAGE_CACHE = 0;
+    /** @var int  */
+    public const STORAGE_USAGE_CONFIG = 1;
+    /** @var int  */
+    public const STORAGE_USAGE_ASSET = 2;
+    /** @var int  */
+    public const STORAGE_USAGE_BACKUP = 3;
+    /** @var int  */
+    public const STORAGE_USAGE_EXTERNAL = 4;
+
     public function head(string $hash): bool;
 
     public function health(): bool;
