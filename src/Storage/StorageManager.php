@@ -124,14 +124,14 @@ class StorageManager
         return $this->hashAlgo;
     }
 
-    public function saveContents(string $contents, string $filename, string $mimetype, bool $skipIsSkipServices = true): string
+    public function saveContents(string $contents, string $filename, string $mimetype, bool $skipShouldSkipServices = true): string
     {
         $hash = hash($this->hashAlgo, $contents);
         $count = 0;
 
         /** @var StorageInterface $service */
         foreach ($this->getAdapters() as $service) {
-            if ($service->isReadOnly() || ($skipIsSkipServices && $service->shouldSkip())) {
+            if ($service->isReadOnly() || ($skipShouldSkipServices && $service->shouldSkip())) {
                 break;
             }
 
