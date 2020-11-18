@@ -25,4 +25,8 @@ interface StorageInterface
     public function addChunk(string $hash, string $chunk): bool;
 
     public function finalizeUpload(string $hash): bool;
+
+    public function isReadOnly(string $hash): bool;
+
+    public function isToSkip(string $hash): bool;
 }

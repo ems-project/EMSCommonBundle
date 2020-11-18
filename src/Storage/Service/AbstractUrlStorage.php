@@ -8,6 +8,16 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class AbstractUrlStorage implements StorageInterface
 {
+    /** @var bool */
+    private $readOnly;
+    /** @var bool */
+    private $toSkip;
+
+    public function __construct(bool $readOnly, bool $toSkip)
+    {
+        $this->readOnly = $readOnly;
+        $this->toSkip = $toSkip;
+    }
 
     abstract protected function getBaseUrl(): string;
 
@@ -146,5 +156,15 @@ abstract class AbstractUrlStorage implements StorageInterface
             //TODO: add log info or notice
         }
         return false;
+    }
+
+    public function isReadOnly(string $hash): bool
+    {
+        return $this->readOnly;
+    }
+
+    public function isToSkip(string $hash): bool
+    {
+        return $this->toSkip;
     }
 }

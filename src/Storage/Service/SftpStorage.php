@@ -20,14 +20,13 @@ class SftpStorage extends AbstractUrlStorage
     private $passwordPhrase;
     /** @var resource|null */
     private $sftp = null;
-    /** @var bool */
-    private $contextSupport;
 
     /**
      * @param null $passwordPhrase
      */
-    public function __construct(string $host, string $path, string $username, string $publicKeyFile, string $privateKeyFile, bool $contextSupport = false, ?string $passwordPhrase = null, int $port = 22)
+    public function __construct(string $host, string $path, string $username, string $publicKeyFile, string $privateKeyFile, bool $readOnly, bool $toSkip, ?string $passwordPhrase = null, int $port = 22)
     {
+        parent::__construct($readOnly, $toSkip);
         $this->host = $host;
         $this->path = $path;
         $this->port = $port;
@@ -36,8 +35,6 @@ class SftpStorage extends AbstractUrlStorage
         $this->publicKeyFile = $publicKeyFile;
         $this->privateKeyFile = $privateKeyFile;
         $this->passwordPhrase = $passwordPhrase;
-
-        $this->contextSupport = $contextSupport;
     }
 
     protected function getBaseUrl(): string

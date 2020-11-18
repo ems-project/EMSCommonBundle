@@ -17,10 +17,16 @@ class EntityStorage implements StorageInterface
     private $manager;
     /** @var AssetStorageRepository */
     private $repository;
+    /** @var bool */
+    private $readOnly;
+    /** @var bool */
+    private $toSkip;
 
-    public function __construct(Registry $doctrine)
+    public function __construct(Registry $doctrine, bool $readOnly, bool $toSkip)
     {
         $this->manager = $doctrine->getManager();
+        $this->readOnly = $readOnly;
+        $this->toSkip = $toSkip;
 
         //TODO: Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
         $repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
@@ -166,5 +172,15 @@ class EntityStorage implements StorageInterface
             return true;
         }
         return false;
+    }
+
+    public function isReadOnly(string $hash): bool
+    {
+        return $this->readOnly;
+    }
+
+    public function isToSkip(string $hash): bool
+    {
+        return $this->toSkip;
     }
 }
