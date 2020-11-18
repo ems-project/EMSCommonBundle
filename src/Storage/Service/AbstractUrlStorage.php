@@ -185,7 +185,7 @@ abstract class AbstractUrlStorage implements StorageInterface
         return $this->readOnly;
     }
 
-    public function isSkip(): bool
+    public function shouldSkip(): bool
     {
         return $this->skip;
     }

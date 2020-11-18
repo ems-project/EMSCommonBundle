@@ -131,7 +131,7 @@ class StorageManager
 
         /** @var StorageInterface $service */
         foreach ($this->getAdapters() as $service) {
-            if ($service->isReadOnly() || ($skipIsSkipServices && $service->isSkip())) {
+            if ($service->isReadOnly() || ($skipIsSkipServices && $service->shouldSkip())) {
                 break;
             }
 
