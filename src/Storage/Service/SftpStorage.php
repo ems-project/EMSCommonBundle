@@ -26,9 +26,9 @@ class SftpStorage extends AbstractUrlStorage
     /**
      * @param null $passwordPhrase
      */
-    public function __construct(LoggerInterface $logger, string $host, string $path, string $username, string $publicKeyFile, string $privateKeyFile, bool $readOnly, bool $skip, ?string $passwordPhrase = null, int $port = 22)
+    public function __construct(LoggerInterface $logger, string $host, string $path, string $username, string $publicKeyFile, string $privateKeyFile, int $usage, ?string $passwordPhrase = null, int $port = 22)
     {
-        parent::__construct($logger, $readOnly, $skip);
+        parent::__construct($logger, $usage);
         $this->host = $host;
         $this->path = $path;
         $this->port = $port;
@@ -50,7 +50,7 @@ class SftpStorage extends AbstractUrlStorage
     private function connect(): void
     {
         if (!function_exists('ssh2_connect')) {
-            throw new \Exception("PHP functions Secure Shell are required by $this. (ssh2)");
+            throw new \RuntimeException("PHP functions Secure Shell are required by $this. (ssh2)");
         }
 
         $connection = @ssh2_connect($this->host, $this->port);

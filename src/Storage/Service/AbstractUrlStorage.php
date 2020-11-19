@@ -9,25 +9,22 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class AbstractUrlStorage implements StorageInterface
 {
-    /** @var bool */
-    private $readOnly;
-    /** @var bool */
-    private $skip;
+    /** @var int */
+    private $usage;
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(LoggerInterface $logger, bool $readOnly, bool $skip)
+    public function __construct(LoggerInterface $logger, int $usage)
     {
         $this->logger = $logger;
-        $this->readOnly = $readOnly;
-        $this->skip = $skip || $readOnly;
+        $this->usage = $usage;
     }
 
     abstract protected function getBaseUrl(): string;
 
     protected function initDirectory(string $filename): void
     {
-        if ($this->isReadOnly()) {
+        if (!$this->isUsageSupported(self::STORAGE_USAGE_BACKUP)) {
             return;
         }
         if (!\file_exists(\dirname($filename))) {
@@ -58,9 +55,9 @@ abstract class AbstractUrlStorage implements StorageInterface
         return file_exists($this->getPath($hash));
     }
 
-    public function create(string $hash, string $filename): bool
+    public function create(string $hash, string $filename, int $usageType): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         $path = $this->getPath($hash);
@@ -112,7 +109,7 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function remove(string $hash): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->isUsageSupported(self::STORAGE_USAGE_BACKUP)) {
             return false;
         }
         $file = $this->getPath($hash);
@@ -123,9 +120,9 @@ abstract class AbstractUrlStorage implements StorageInterface
     }
 
 
-    public function initUpload(string $hash, int $size, string $name, string $type): bool
+    public function initUpload(string $hash, int $size, string $name, string $type, int $usageType): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         $path = $this->getUploadPath($hash);
@@ -135,7 +132,7 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function addChunk(string $hash, string $chunk): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->head($hash)) {
             return false;
         }
         $path = $this->getUploadPath($hash);
@@ -161,7 +158,7 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function finalizeUpload(string $hash): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->head($hash)) {
             return false;
         }
         $source = $this->getUploadPath($hash);
@@ -180,13 +177,16 @@ abstract class AbstractUrlStorage implements StorageInterface
         return false;
     }
 
-    public function isReadOnly(): bool
+    public function getUsage(): int
     {
-        return $this->readOnly;
+        return $this->usage;
     }
 
-    public function shouldSkip(): bool
+    protected function isUsageSupported(int $usageRequested): bool
     {
-        return $this->skip;
+        if ($usageRequested >= self::STORAGE_USAGE_EXTERNAL) {
+            return false;
+        }
+        return $usageRequested <= $this->usage;
     }
 }

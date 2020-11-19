@@ -17,16 +17,13 @@ class EntityStorage implements StorageInterface
     private $manager;
     /** @var AssetStorageRepository */
     private $repository;
-    /** @var bool */
-    private $readOnly;
-    /** @var bool */
-    private $skip;
+    /** @var int */
+    private $usage;
 
-    public function __construct(Registry $doctrine, bool $readOnly, bool $skip)
+    public function __construct(Registry $doctrine, int $usage)
     {
         $this->manager = $doctrine->getManager();
-        $this->readOnly = $readOnly;
-        $this->skip = $skip || $readOnly;
+        $this->usage = $usage;
 
         //TODO: Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
         $repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
@@ -56,9 +53,9 @@ class EntityStorage implements StorageInterface
     }
 
 
-    public function create(string $hash, string $filename): bool
+    public function create(string $hash, string $filename, int $usageType): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         $entity = $this->createEntity($hash);
@@ -125,15 +122,15 @@ class EntityStorage implements StorageInterface
 
     public function remove(string $hash): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->head($hash)) {
             return false;
         }
         return $this->repository->removeByHash($hash);
     }
 
-    public function initUpload(string $hash, int $size, string $name, string $type): bool
+    public function initUpload(string $hash, int $size, string $name, string $type, int $usageType): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         $entity = $this->repository->findByHash($hash, false);
@@ -153,7 +150,7 @@ class EntityStorage implements StorageInterface
 
     public function finalizeUpload(string $hash): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->head($hash)) {
             return false;
         }
         $entity = $this->repository->findByHash($hash, false);
@@ -169,7 +166,7 @@ class EntityStorage implements StorageInterface
 
     public function addChunk(string $hash, string $chunk, ?string $context = null): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->head($hash)) {
             return false;
         }
         $entity = $this->repository->findByHash($hash, false);
@@ -189,13 +186,16 @@ class EntityStorage implements StorageInterface
         return false;
     }
 
-    public function isReadOnly(): bool
+    public function getUsage(): int
     {
-        return $this->readOnly;
+        return $this->usage;
     }
 
-    public function shouldSkip(): bool
+    protected function isUsageSupported(int $usageRequested): bool
     {
-        return $this->skip;
+        if ($usageRequested >= self::STORAGE_USAGE_EXTERNAL) {
+            return false;
+        }
+        return $usageRequested <= $this->usage;
     }
 }

@@ -21,9 +21,9 @@ class S3Storage extends AbstractUrlStorage
     /**
      * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
      */
-    public function __construct(LoggerInterface $logger, array $s3Credentials, string $s3Bucket, bool $readOnly, bool $skip)
+    public function __construct(LoggerInterface $logger, array $s3Credentials, string $s3Bucket, int $usage)
     {
-        parent::__construct($logger, $readOnly, $skip);
+        parent::__construct($logger, $usage);
         $this->bucket = $s3Bucket;
         $this->credentials = $s3Credentials;
     }
@@ -43,9 +43,9 @@ class S3Storage extends AbstractUrlStorage
     }
 
 
-    public function initUpload(string $hash, int $size, string $name, string $type): bool
+    public function initUpload(string $hash, int $size, string $name, string $type, int $usageType): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         $path = $this->getUploadPath($hash);
@@ -62,7 +62,7 @@ class S3Storage extends AbstractUrlStorage
 
     public function finalizeUpload(string $hash): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->head($hash)) {
             return false;
         }
         $source = $this->getUploadPath($hash);

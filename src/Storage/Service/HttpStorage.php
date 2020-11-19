@@ -3,7 +3,6 @@
 namespace EMS\CommonBundle\Storage\Service;
 
 use EMS\CommonBundle\Common\HttpClientFactory;
-use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\StreamInterface;
@@ -20,9 +19,9 @@ class HttpStorage extends AbstractUrlStorage
     /** @var null|string */
     private $authKey;
 
-    public function __construct(LoggerInterface $logger, string $baseUrl, string $getUrl, bool $readOnly, bool $skip, ?string $authKey = null)
+    public function __construct(LoggerInterface $logger, string $baseUrl, string $getUrl, int $usage, ?string $authKey = null)
     {
-        parent::__construct($logger, $readOnly, $skip);
+        parent::__construct($logger, $usage);
         $this->baseUrl = $baseUrl;
         $this->getUrl = $getUrl;
         $this->authKey = $authKey;
@@ -57,7 +56,7 @@ class HttpStorage extends AbstractUrlStorage
                     return true;
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
         return false;
     }
@@ -66,14 +65,14 @@ class HttpStorage extends AbstractUrlStorage
     {
         try {
             return $this->getClient()->get($this->getUrl . $hash)->getBody();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new NotFoundHttpException($hash);
         }
     }
 
-    public function initUpload(string $hash, int $size, string $name, string $type): bool
+    public function initUpload(string $hash, int $size, string $name, string $type, int $usageType): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         try {
@@ -85,14 +84,14 @@ class HttpStorage extends AbstractUrlStorage
             ]);
 
             return $result->getStatusCode() === 200;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new NotFoundHttpException($hash);
         }
     }
 
     public function addChunk(string $hash, string $chunk, ?string $context = null): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->head($hash)) {
             return false;
         }
         try {
@@ -103,16 +102,13 @@ class HttpStorage extends AbstractUrlStorage
                 'body' => $chunk,
             ]);
             return $result->getStatusCode() === 200;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new NotFoundHttpException($hash);
         }
     }
 
     public function finalizeUpload(string $hash): bool
     {
-        if ($this->isReadOnly()) {
-            return false;
-        }
         return $this->head($hash);
     }
 
@@ -120,14 +116,14 @@ class HttpStorage extends AbstractUrlStorage
     {
         try {
             return $this->getClient()->head($this->getUrl . $hash)->getStatusCode() === 200;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new NotFoundHttpException($hash);
         }
     }
 
-    public function create(string $hash, string $filename): bool
+    public function create(string $hash, string $filename, int $usageType): bool
     {
-        if ($this->isReadOnly()) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         try {
@@ -166,7 +162,7 @@ class HttpStorage extends AbstractUrlStorage
                     return intval($matches[1][0]);
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
         }
         throw new NotFoundHttpException($hash);
     }
