@@ -2,6 +2,7 @@
 
 namespace EMS\CommonBundle\Storage;
 
+use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Storage\Factory\StorageFactoryInterface;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Http\Message\StreamInterface;
@@ -291,5 +292,17 @@ class StorageManager
             }
         }
         return $count;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function saveConfig(array $config): string
+    {
+        $normalizedArray = ArrayTool::normalizeAndSerializeArray($config);
+        if ($normalizedArray === false) {
+            throw new \RuntimeException('Could not normalize config.');
+        }
+        return $this->saveContents($normalizedArray, 'assetConfig.json', 'application/json', StorageInterface::STORAGE_USAGE_CONFIG);
     }
 }
