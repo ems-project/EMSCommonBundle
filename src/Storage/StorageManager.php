@@ -88,7 +88,7 @@ class StorageManager
             if ($adapter->head($hash)) {
                 try {
                     return $adapter->read($hash);
-                } catch (NotFoundException $e) {
+                } catch (\Throwable $e) {
                 }
             }
         }
@@ -328,9 +328,9 @@ class StorageManager
 
     private function isUsageSupported(StorageInterface $adapter, int $usageRequested): bool
     {
-        if ($usageRequested >= StorageInterface::STORAGE_USAGE_EXTERNAL) {
+        if ($adapter->getUsage() >= StorageInterface::STORAGE_USAGE_EXTERNAL) {
             return false;
         }
-        return $usageRequested <= $adapter->getUsage();
+        return $usageRequested >= $adapter->getUsage();
     }
 }
