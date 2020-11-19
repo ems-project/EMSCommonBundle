@@ -37,7 +37,5 @@ interface StorageInterface
 
     public function finalizeUpload(string $hash): bool;
 
-    public function isReadOnly(): bool;
-
-    public function shouldSkip(): bool;
+    public function getUsage(): int;
 }
