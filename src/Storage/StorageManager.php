@@ -120,20 +120,24 @@ class StorageManager
         $count = 0;
 
         foreach ($this->adapters as $adapter) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
+                continue;
+            }
+
             if ($adapter->head($hash)) {
                 ++$count;
                 continue;
             }
 
-            if (!$adapter->initUpload($hash, strlen($contents), $filename, $mimetype, $usageType)) {
+            if (!$adapter->initUpload($hash, strlen($contents), $filename, $mimetype)) {
                 continue;
             }
 
-            if (!$adapter->addChunk($hash, $contents, $usageType)) {
+            if (!$adapter->addChunk($hash, $contents)) {
                 continue;
             }
 
-            if ($adapter->finalizeUpload($hash, $usageType)) {
+            if ($adapter->finalizeUpload($hash)) {
                 ++$count;
             }
         }
@@ -163,7 +167,10 @@ class StorageManager
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType, $usageType)) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
+                continue;
+            }
+            if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType)) {
                 ++$count;
             }
         }
@@ -179,7 +186,10 @@ class StorageManager
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->addChunk($hash, $chunk, $usageType)) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
+                continue;
+            }
+            if ($adapter->addChunk($hash, $chunk)) {
                 ++$count;
             }
         }
@@ -231,6 +241,10 @@ class StorageManager
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
+                continue;
+            }
+
             try {
                 $handler = $adapter->read($hash, false);
             } catch (\Throwable $e) {
@@ -251,7 +265,7 @@ class StorageManager
                 throw new SizeMismatchException($hash, $size, $uploadedSize);
             }
 
-            if ($adapter->finalizeUpload($hash, $usageType)) {
+            if ($adapter->finalizeUpload($hash)) {
                 ++$count;
             }
         }
@@ -268,7 +282,10 @@ class StorageManager
         $count = 0;
         $hash = $this->computeFileHash($filename);
         foreach ($this->adapters as $adapter) {
-            if ($adapter->create($hash, $filename, $usageType)) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
+                continue;
+            }
+            if ($adapter->create($hash, $filename)) {
                 ++$count;
             }
         }
@@ -284,6 +301,9 @@ class StorageManager
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
+            if (!$this->isUsageSupported($adapter, StorageInterface::STORAGE_USAGE_BACKUP)) {
+                continue;
+            }
             try {
                 if ($adapter->remove($hash)) {
                     ++$count;
@@ -304,5 +324,13 @@ class StorageManager
             throw new \RuntimeException('Could not normalize config.');
         }
         return $this->saveContents($normalizedArray, 'assetConfig.json', 'application/json', StorageInterface::STORAGE_USAGE_CONFIG);
+    }
+
+    private function isUsageSupported(StorageInterface $adapter, int $usageRequested): bool
+    {
+        if ($usageRequested >= StorageInterface::STORAGE_USAGE_EXTERNAL) {
+            return false;
+        }
+        return $usageRequested <= $adapter->getUsage();
     }
 }
