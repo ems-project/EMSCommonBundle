@@ -63,6 +63,7 @@ class S3Factory implements StorageFactoryInterface
             ->setAllowedTypes(self::STORAGE_CONFIG_BUCKET, ['null', 'string'])
             ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'int')
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
+            ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
         ;
         /** @var array{type: string, credentials: null|array, bucket: null|string, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);

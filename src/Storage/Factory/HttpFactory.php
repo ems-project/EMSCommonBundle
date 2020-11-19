@@ -75,6 +75,7 @@ class HttpFactory implements StorageFactoryInterface
             ->setAllowedTypes(self::STORAGE_CONFIG_AUTH_KEY, ['null', 'string'])
             ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'int')
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
+            ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
         ;
 
         /** @var array{type: string, base-url: null|string, get-url: string, auth-key: null|string, usage: int} $resolvedParameter */

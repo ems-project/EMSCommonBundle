@@ -96,6 +96,7 @@ class SftpFactory implements StorageFactoryInterface
             ->setAllowedTypes(self::STORAGE_CONFIG_PORT, 'int')
             ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'int')
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
+            ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
         ;
 
         /** @var array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int, usage: int} $resolvedParameter */

@@ -17,6 +17,15 @@ interface StorageInterface
     /** @var int  */
     public const STORAGE_USAGE_EXTERNAL = 4;
 
+    /** @var array<string, int> */
+    public const STORAGE_USAGES = [
+        'usage' => self::STORAGE_USAGE_CACHE,
+        'config' => self::STORAGE_USAGE_CONFIG,
+        'asset' => self::STORAGE_USAGE_ASSET,
+        'backup' => self::STORAGE_USAGE_BACKUP,
+        'external' => self::STORAGE_USAGE_EXTERNAL,
+    ];
+
     public function head(string $hash): bool;
 
     public function health(): bool;

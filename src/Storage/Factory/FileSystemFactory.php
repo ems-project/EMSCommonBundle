@@ -89,6 +89,7 @@ class FileSystemFactory implements StorageFactoryInterface
             ->setRequired(self::STORAGE_CONFIG_PATH)
             ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
+            ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
         ;
 
         /** @var array{type: string, path: string, usage: int} $resolvedParameter */

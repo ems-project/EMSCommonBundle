@@ -72,6 +72,7 @@ class EntityFactory implements StorageFactoryInterface
             ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
             ->setAllowedValues(self::STORAGE_CONFIG_ACTIVATE, [true, false])
+            ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
         ;
 
         /** @var array{type: string, activate: bool, usage: int} $resolvedParameter */
