@@ -84,7 +84,7 @@ class FileSystemFactory extends AbstractFactory implements StorageFactoryInterfa
                 self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CACHE,
             ])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
-            ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'int')
+            ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'string')
             ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setRequired(self::STORAGE_CONFIG_PATH)
             ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')

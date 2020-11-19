@@ -73,7 +73,7 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
             ->setAllowedTypes(self::STORAGE_CONFIG_BASE_URL, ['null', 'string'])
             ->setAllowedTypes(self::STORAGE_CONFIG_GET_URL, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_AUTH_KEY, ['null', 'string'])
-            ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'int')
+            ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'string')
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
             ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
             ->setNormalizer(self::STORAGE_CONFIG_USAGE, self::usageResolver())

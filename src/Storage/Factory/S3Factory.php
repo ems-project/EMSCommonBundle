@@ -61,7 +61,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
             ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_CREDENTIALS, ['null', 'array'])
             ->setAllowedTypes(self::STORAGE_CONFIG_BUCKET, ['null', 'string'])
-            ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'int')
+            ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'string')
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
             ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
             ->setNormalizer(self::STORAGE_CONFIG_USAGE, self::usageResolver())
