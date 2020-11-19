@@ -33,9 +33,9 @@ interface StorageInterface
 
     public function initUpload(string $hash, int $size, string $name, string $type, int $usageType): bool;
 
-    public function addChunk(string $hash, string $chunk): bool;
+    public function addChunk(string $hash, string $chunk, int $usageType): bool;
 
-    public function finalizeUpload(string $hash): bool;
+    public function finalizeUpload(string $hash, int $usageType): bool;
 
     public function getUsage(): int;
 }
