@@ -3,7 +3,6 @@
 namespace EMS\CommonBundle\Storage\Service;
 
 use Aws\S3\S3Client;
-use AwsServiceBuilder;
 use Psr\Log\LoggerInterface;
 
 class S3Storage extends AbstractUrlStorage
@@ -43,11 +42,8 @@ class S3Storage extends AbstractUrlStorage
     }
 
 
-    public function initUpload(string $hash, int $size, string $name, string $type, int $usageType): bool
+    public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         $path = $this->getUploadPath($hash);
         $this->initDirectory($path);
         $result = $this->s3Client->putObject([
@@ -60,11 +56,8 @@ class S3Storage extends AbstractUrlStorage
         return $result->hasKey('ETag');
     }
 
-    public function finalizeUpload(string $hash, int $usageType): bool
+    public function finalizeUpload(string $hash): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         $source = $this->getUploadPath($hash);
         $destination  = $this->getPath($hash);
         \copy($source, $destination);

@@ -70,11 +70,8 @@ class HttpStorage extends AbstractUrlStorage
         }
     }
 
-    public function initUpload(string $hash, int $size, string $name, string $type, int $usageType): bool
+    public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         try {
             $result = $this->getClient()->post('/api/file/init-upload/' . urlencode($hash) . '/' . $size . '?name=' . urlencode($name) . '&type=' . urlencode($type), [
                 'headers' => [
@@ -89,11 +86,8 @@ class HttpStorage extends AbstractUrlStorage
         }
     }
 
-    public function addChunk(string $hash, string $chunk, int $usageType): bool
+    public function addChunk(string $hash, string $chunk): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         try {
             $result = $this->getClient()->post('/api/file/upload-chunk/' . urlencode($hash), [
                 'headers' => [
@@ -107,11 +101,8 @@ class HttpStorage extends AbstractUrlStorage
         }
     }
 
-    public function finalizeUpload(string $hash, int $usageType): bool
+    public function finalizeUpload(string $hash): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         return $this->head($hash);
     }
 
@@ -124,11 +115,8 @@ class HttpStorage extends AbstractUrlStorage
         }
     }
 
-    public function create(string $hash, string $filename, int $usageType): bool
+    public function create(string $hash, string $filename): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         try {
             $this->getClient()->request('POST', '/api/file', [
                 'multipart' => [

@@ -24,7 +24,7 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     protected function initDirectory(string $filename): void
     {
-        if (!$this->isUsageSupported(self::STORAGE_USAGE_BACKUP)) {
+        if (!$this->usage >= self::STORAGE_USAGE_BACKUP) {
             return;
         }
         if (!\file_exists(\dirname($filename))) {
@@ -55,11 +55,8 @@ abstract class AbstractUrlStorage implements StorageInterface
         return file_exists($this->getPath($hash));
     }
 
-    public function create(string $hash, string $filename, int $usageType): bool
+    public function create(string $hash, string $filename): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         $path = $this->getPath($hash);
         $this->initDirectory($path);
         return copy($filename, $path);
@@ -109,9 +106,6 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function remove(string $hash): bool
     {
-        if (!$this->isUsageSupported(self::STORAGE_USAGE_BACKUP)) {
-            return false;
-        }
         $file = $this->getPath($hash);
         if (file_exists($file)) {
             unlink($file);
@@ -120,21 +114,15 @@ abstract class AbstractUrlStorage implements StorageInterface
     }
 
 
-    public function initUpload(string $hash, int $size, string $name, string $type, int $usageType): bool
+    public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         $path = $this->getUploadPath($hash);
         $this->initDirectory($path);
         return file_put_contents($path, "") !== false;
     }
 
-    public function addChunk(string $hash, string $chunk, int $usageType): bool
+    public function addChunk(string $hash, string $chunk): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         $path = $this->getUploadPath($hash);
         if (!file_exists($path)) {
             throw new NotFoundHttpException('temporary file not found');
@@ -156,11 +144,8 @@ abstract class AbstractUrlStorage implements StorageInterface
         return true;
     }
 
-    public function finalizeUpload(string $hash, int $usageType): bool
+    public function finalizeUpload(string $hash): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         $source = $this->getUploadPath($hash);
         $destination  = $this->getPath($hash);
         $this->initDirectory($destination);
@@ -180,13 +165,5 @@ abstract class AbstractUrlStorage implements StorageInterface
     public function getUsage(): int
     {
         return $this->usage;
-    }
-
-    protected function isUsageSupported(int $usageRequested): bool
-    {
-        if ($usageRequested >= self::STORAGE_USAGE_EXTERNAL) {
-            return false;
-        }
-        return $usageRequested <= $this->usage;
     }
 }

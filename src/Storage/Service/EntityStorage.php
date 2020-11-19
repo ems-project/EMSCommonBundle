@@ -53,11 +53,8 @@ class EntityStorage implements StorageInterface
     }
 
 
-    public function create(string $hash, string $filename, int $usageType): bool
+    public function create(string $hash, string $filename): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         $entity = $this->createEntity($hash);
 
         $content = \file_get_contents($filename);
@@ -128,11 +125,8 @@ class EntityStorage implements StorageInterface
         return $this->repository->removeByHash($hash);
     }
 
-    public function initUpload(string $hash, int $size, string $name, string $type, int $usageType): bool
+    public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         $entity = $this->repository->findByHash($hash, false);
         if ($entity === null) {
             $entity = $this->createEntity($hash);
@@ -148,11 +142,8 @@ class EntityStorage implements StorageInterface
         return true;
     }
 
-    public function finalizeUpload(string $hash, int $usageType): bool
+    public function finalizeUpload(string $hash): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         $entity = $this->repository->findByHash($hash, false);
         if ($entity !== null) {
             $entity->setConfirmed(true);
@@ -164,11 +155,8 @@ class EntityStorage implements StorageInterface
         return false;
     }
 
-    public function addChunk(string $hash, string $chunk, int $usageType): bool
+    public function addChunk(string $hash, string $chunk): bool
     {
-        if (!$this->isUsageSupported($usageType)) {
-            return false;
-        }
         $entity = $this->repository->findByHash($hash, false);
         if ($entity !== null) {
             $contents = $entity->getContents();
