@@ -113,30 +113,26 @@ class StorageManager
         return $this->hashAlgo;
     }
 
-    public function saveContents(string $contents, string $filename, string $mimetype, bool $skipShouldSkipServices = true): string
+    public function saveContents(string $contents, string $filename, string $mimetype, int $usageType): string
     {
-        $hash = hash($this->hashAlgo, $contents);
+        $hash = $this->computeStringHash($contents);
         $count = 0;
 
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
-                continue;
-            }
-
             if ($adapter->head($hash)) {
                 ++$count;
                 continue;
             }
 
-            if (!$adapter->initUpload($hash, strlen($contents), $filename, $mimetype)) {
+            if (!$adapter->initUpload($hash, strlen($contents), $filename, $mimetype, $usageType)) {
                 continue;
             }
 
-            if (!$adapter->addChunk($hash, $contents)) {
+            if (!$adapter->addChunk($hash, $contents, $usageType)) {
                 continue;
             }
 
-            if ($adapter->finalizeUpload($hash)) {
+            if ($adapter->finalizeUpload($hash, $usageType)) {
                 ++$count;
             }
         }
@@ -162,14 +158,11 @@ class StorageManager
         return $hashFile;
     }
 
-    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, bool $skipShouldSkipAdapters = true): int
+    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, int $usageType): int
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipAdapters && $adapter->shouldSkip())) {
-                continue;
-            }
-            if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType)) {
+            if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType, $usageType)) {
                 ++$count;
             }
         }
@@ -181,14 +174,11 @@ class StorageManager
         return $count;
     }
 
-    public function addChunk(string $hash, string $chunk, bool $skipShouldSkipServices = true): int
+    public function addChunk(string $hash, string $chunk, int $usageType): int
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
-                continue;
-            }
-            if ($adapter->addChunk($hash, $chunk)) {
+            if ($adapter->addChunk($hash, $chunk, $usageType)) {
                 ++$count;
             }
         }
@@ -236,14 +226,10 @@ class StorageManager
         return null;
     }
 
-    public function finalizeUpload(string $hash, int $size, bool $skipShouldSkipAdapters = true): int
+    public function finalizeUpload(string $hash, int $size, int $usageType): int
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipAdapters && $adapter->shouldSkip())) {
-                continue;
-            }
-
             try {
                 $handler = $adapter->read($hash, false);
             } catch (\Throwable $e) {
@@ -264,7 +250,7 @@ class StorageManager
                 throw new SizeMismatchException($hash, $size, $uploadedSize);
             }
 
-            if ($adapter->finalizeUpload($hash)) {
+            if ($adapter->finalizeUpload($hash, $usageType)) {
                 ++$count;
             }
         }
@@ -276,16 +262,12 @@ class StorageManager
         return $count;
     }
 
-    public function saveFile(string $filename, bool $skipShouldSkipServices = true): string
+    public function saveFile(string $filename, int $usageType): string
     {
         $count = 0;
         $hash = $this->computeFileHash($filename);
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
-                continue;
-            }
-
-            if ($adapter->create($hash, $filename)) {
+            if ($adapter->create($hash, $filename, $usageType)) {
                 ++$count;
             }
         }
@@ -301,9 +283,6 @@ class StorageManager
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly()) {
-                continue;
-            }
             try {
                 if ($adapter->remove($hash)) {
                     ++$count;
