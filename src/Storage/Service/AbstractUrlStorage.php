@@ -24,7 +24,7 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     protected function initDirectory(string $filename): void
     {
-        if (!$this->usage >= self::STORAGE_USAGE_BACKUP) {
+        if ($this->usage >= self::STORAGE_USAGE_EXTERNAL) {
             return;
         }
         if (!\file_exists(\dirname($filename))) {
@@ -157,7 +157,7 @@ abstract class AbstractUrlStorage implements StorageInterface
         try {
             return \copy($source, $destination);
         } catch (\Throwable $e) {
-            $this->logger->info(sprintf('Copy %s to %s failed: %s', $source, $destination, $e->getMessage()));
+            $this->logger->warning(sprintf('Copy %s to %s failed: %s', $source, $destination, $e->getMessage()));
         }
         return false;
     }
