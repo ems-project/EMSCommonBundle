@@ -7,7 +7,7 @@ use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class FileSystemFactory implements StorageFactoryInterface
+class FileSystemFactory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
     const STORAGE_TYPE = 'fs';
@@ -90,6 +90,7 @@ class FileSystemFactory implements StorageFactoryInterface
             ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
             ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
+            ->setNormalizer(self::STORAGE_CONFIG_USAGE, self::usageResolver())
         ;
 
         /** @var array{type: string, path: string, usage: int} $resolvedParameter */

@@ -8,7 +8,7 @@ use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class EntityFactory implements StorageFactoryInterface
+class EntityFactory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
     const STORAGE_TYPE = 'db';
@@ -73,6 +73,7 @@ class EntityFactory implements StorageFactoryInterface
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
             ->setAllowedValues(self::STORAGE_CONFIG_ACTIVATE, [true, false])
             ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
+            ->setNormalizer(self::STORAGE_CONFIG_USAGE, self::usageResolver())
         ;
 
         /** @var array{type: string, activate: bool, usage: int} $resolvedParameter */
