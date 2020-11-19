@@ -61,7 +61,7 @@ class FileSystemFactory implements StorageFactoryInterface
         }
 
         $this->usedFolder[] = $realPath;
-        return new FileSystemStorage($this->logger, $realPath, $config[self::STORAGE_CONFIG_READ_ONLY], $config[self::STORAGE_CONFIG_SKIP]);
+        return new FileSystemStorage($this->logger, $realPath, $config[self::STORAGE_CONFIG_USAGE]);
     }
 
     public function getStorageType(): string
@@ -72,7 +72,7 @@ class FileSystemFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array{type: string, path: string, read-only: bool, skip: bool}
+     * @return array{type: string, path: string, usage: int}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -81,19 +81,17 @@ class FileSystemFactory implements StorageFactoryInterface
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_PATH => null,
-                self::STORAGE_CONFIG_READ_ONLY => false,
-                self::STORAGE_CONFIG_SKIP => false,
+                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CACHE,
             ])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
+            ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'int')
             ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setRequired(self::STORAGE_CONFIG_PATH)
             ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
-            ->setAllowedValues(self::STORAGE_CONFIG_READ_ONLY, [true, false])
-            ->setAllowedValues(self::STORAGE_CONFIG_SKIP, [true, false])
         ;
 
-        /** @var array{type: string, path: string, read-only: bool, skip: bool} $resolvedParameter */
+        /** @var array{type: string, path: string, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
         return $resolvedParameter;
     }

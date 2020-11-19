@@ -7,8 +7,7 @@ use EMS\CommonBundle\Storage\Service\StorageInterface;
 interface StorageFactoryInterface
 {
     public const STORAGE_CONFIG_TYPE = 'type';
-    public const STORAGE_CONFIG_READ_ONLY = 'read-only';
-    public const STORAGE_CONFIG_SKIP = 'skip';
+    public const STORAGE_CONFIG_USAGE = 'usage';
 
     /**
      * @param array<string, mixed> $parameters
