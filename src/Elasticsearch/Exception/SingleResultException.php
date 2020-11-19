@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Elasticsearch\Exception;
 
 class SingleResultException extends \Exception

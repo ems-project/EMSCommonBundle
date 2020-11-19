@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Factory;
 
 use EMS\CommonBundle\Storage\Service\FileSystemStorage;
@@ -15,7 +17,7 @@ class FileSystemFactory implements StorageFactoryInterface
     const STORAGE_CONFIG_PATH = 'path';
     /** @var LoggerInterface */
     private $logger;
-    /** @var string[]  */
+    /** @var string[] */
     private $usedFolder = [];
     /** @var string */
     private $projectDir;
@@ -26,7 +28,6 @@ class FileSystemFactory implements StorageFactoryInterface
         $this->projectDir = $projectDir;
     }
 
-
     /**
      * @param array<string, mixed> $parameters
      */
@@ -36,31 +37,34 @@ class FileSystemFactory implements StorageFactoryInterface
 
         $path = $config[self::STORAGE_CONFIG_PATH] ?? null;
 
-        if ($path === '') {
-            @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+        if ('' === $path) {
+            @\trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+
             return null;
         }
 
-        if (\substr($path, 0, 1) === ('.')) {
-            $path = $this->projectDir . DIRECTORY_SEPARATOR . $path;
+        if (('.') === \substr($path, 0, 1)) {
+            $path = $this->projectDir.DIRECTORY_SEPARATOR.$path;
         }
 
         $realPath = \realpath($path);
-        if ($realPath === false) {
+        if (false === $realPath) {
             \mkdir($path, 0777, true);
         }
 
         $realPath = \realpath($path);
-        if ($realPath === false) {
+        if (false === $realPath) {
             throw new \RuntimeException('The path parameter can\'t be converted into a real path');
         }
 
         if (\in_array($realPath, $this->usedFolder)) {
-            $this->logger->warning(sprintf('The folder %s is already used by another storage service', $realPath));
+            $this->logger->warning(\sprintf('The folder %s is already used by another storage service', $realPath));
+
             return null;
         }
 
         $this->usedFolder[] = $realPath;
+
         return new FileSystemStorage($realPath);
     }
 
@@ -69,9 +73,9 @@ class FileSystemFactory implements StorageFactoryInterface
         return self::STORAGE_TYPE;
     }
 
-
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, path: string}
      */
     private function resolveParameters(array $parameters): array
@@ -91,6 +95,7 @@ class FileSystemFactory implements StorageFactoryInterface
 
         /** @var array{type: string, path: string} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }

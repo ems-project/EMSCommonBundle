@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Twig;
 
 use EMS\CommonBundle\Common\Converter;
@@ -45,14 +47,11 @@ class CommonExtension extends AbstractExtension
 
     public function fileExists(string $filename): bool
     {
-        return file_exists($filename);
+        return \file_exists($filename);
     }
 
     /**
-     * @param array  $array
      * @param string $key
-     *
-     * @return array
      */
     public function arrayKey(array $array, $key = 'key'): array
     {
@@ -60,20 +59,15 @@ class CommonExtension extends AbstractExtension
 
         foreach ($array as $id => $item) {
             if (isset($item[$key])) {
-                $out[$item[$key]] =  $item;
+                $out[$item[$key]] = $item;
             } else {
-                $out[$id] =  $item;
+                $out[$id] = $item;
             }
         }
 
         return $out;
     }
 
-    /**
-     * @param string $emsLink
-     *
-     * @return string
-     */
     public function getOuuid(string $emsLink): string
     {
         return EMSLink::fromText($emsLink)->getOuuid();

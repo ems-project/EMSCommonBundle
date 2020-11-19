@@ -1,11 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage;
 
 use EMS\CommonBundle\Storage\Factory\StorageFactoryInterface;
-use EMS\CommonBundle\Storage\Service\FileSystemStorage;
-use EMS\CommonBundle\Storage\Service\HttpStorage;
-use EMS\CommonBundle\Storage\Service\S3Storage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Config\FileLocatorInterface;
@@ -26,7 +25,7 @@ class StorageManager
     private $storageConfigs;
 
     /**
-     * @param iterable<StorageFactoryInterface> $factories
+     * @param iterable<StorageFactoryInterface>                                            $factories
      * @param array<array{type?: string, url?: string, required?: bool, read-only?: bool}> $storageConfigs
      */
     public function __construct(FileLocatorInterface $fileLocator, iterable $factories, string $hashAlgo, array $storageConfigs = [])
@@ -56,29 +55,28 @@ class StorageManager
         $this->factories[$factory->getStorageType()] = $factory;
     }
 
-
     private function registerServicesFromConfigs(): void
     {
         foreach ($this->storageConfigs as $storageConfig) {
             $type = $storageConfig['type'] ?? null;
-            if ($type === null) {
+            if (null === $type) {
                 continue;
             }
             $factory = $this->factories[$type] ?? null;
-            if ($factory === null) {
+            if (null === $factory) {
                 continue;
             }
             $storage = $factory->createService($storageConfig);
-            if ($storage !== null) {
+            if (null !== $storage) {
                 $this->addAdapter($storage);
             }
         }
     }
 
-
     public function addAdapter(StorageInterface $storageAdapter): StorageManager
     {
         $this->adapters[] = $storageAdapter;
+
         return $this;
     }
 
@@ -89,6 +87,7 @@ class StorageManager
                 return true;
             }
         }
+
         return false;
     }
 
@@ -112,10 +111,11 @@ class StorageManager
 
     public function getPublicImage(string $name): string
     {
-        $file = $this->fileLocator->locate('@EMSCommonBundle/src/Resources/public/images/' . $name);
-        if (is_array($file)) {
+        $file = $this->fileLocator->locate('@EMSCommonBundle/src/Resources/public/images/'.$name);
+        if (\is_array($file)) {
             return $file[0] ?? '';
         }
+
         return $file;
     }
 
@@ -126,12 +126,12 @@ class StorageManager
 
     public function saveContents(string $contents, string $filename, string $mimetype, int $shouldBeSavedOnXServices = 1): string
     {
-        $hash = hash($this->hashAlgo, $contents);
+        $hash = \hash($this->hashAlgo, $contents);
         $out = 0;
 
         /** @var StorageInterface $service */
         foreach ($this->getAdapters() as $service) {
-            if ($shouldBeSavedOnXServices != 0 && $out >= $shouldBeSavedOnXServices) {
+            if (0 != $shouldBeSavedOnXServices && $out >= $shouldBeSavedOnXServices) {
                 break;
             }
 
@@ -140,7 +140,7 @@ class StorageManager
                 continue;
             }
 
-            if (!$service->initUpload($hash, strlen($contents), $filename, $mimetype)) {
+            if (!$service->initUpload($hash, \strlen($contents), $filename, $mimetype)) {
                 continue;
             }
 
@@ -164,9 +164,10 @@ class StorageManager
     public function computeFileHash(string $filename): string
     {
         $hashFile = \hash_file($this->hashAlgo, $filename);
-        if ($hashFile === false) {
+        if (false === $hashFile) {
             throw new NotFoundException($filename);
         }
+
         return $hashFile;
     }
 
@@ -178,6 +179,7 @@ class StorageManager
                 break;
             }
         }
+
         return $loopCounter;
     }
 }

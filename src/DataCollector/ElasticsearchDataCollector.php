@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\DataCollector;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -18,9 +20,6 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
         return $this->data;
     }
 
-    /**
-     * @param array $record
-     */
     public function addData(array $record)
     {
         $this->data[] = $record;
@@ -42,13 +41,13 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
     }
 
     /**
-     * Divide by 2 because for every elasticsearch call we get 2 log lines (Request/Response)
+     * Divide by 2 because for every elasticsearch call we get 2 log lines (Request/Response).
      *
      * @return int
      */
     public function getTotal()
     {
-        return count($this->data) / 2;
+        return \count($this->data) / 2;
     }
 
     /**
@@ -76,8 +75,8 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
 
         foreach ($this->data as $log) {
             $sanitized = [
-                'level'    => $log['level_name'],
-                'message'  => $log['message'],
+                'level' => $log['level_name'],
+                'message' => $log['message'],
                 'datetime' => $log['datetime'],
             ];
 
@@ -89,10 +88,6 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
         return $result;
     }
 
-    /**
-     * @param array $log
-     * @param array $sanitize
-     */
     private function sanitizeContext(array $log, array &$sanitize)
     {
         if (null === $log['context']) {
@@ -102,7 +97,7 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
         $context = $log['context'];
 
         if ('Response:' === $log['message']) {
-            $sanitize['message'] = vsprintf('Response: %s %s %s', [
+            $sanitize['message'] = \vsprintf('Response: %s %s %s', [
                $context['HTTP code'],
                $context['method'],
                $context['uri'],

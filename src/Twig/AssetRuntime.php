@@ -27,7 +27,7 @@ class AssetRuntime
     {
         $this->storageManager = $storageManager;
         $this->logger = $logger;
-        $this->publicDir = $projectDir . '/public';
+        $this->publicDir = $projectDir.'/public';
         $this->filesystem = new Filesystem();
     }
 
@@ -37,8 +37,8 @@ class AssetRuntime
     public function unzip(string $hash, string $saveDir, bool $mergeContent = false): array
     {
         try {
-            $checkFilename = $saveDir . \DIRECTORY_SEPARATOR . $this->storageManager->computeStringHash($saveDir);
-            $checkHash = file_exists($checkFilename) ? file_get_contents($checkFilename) : false;
+            $checkFilename = $saveDir.\DIRECTORY_SEPARATOR.$this->storageManager->computeStringHash($saveDir);
+            $checkHash = \file_exists($checkFilename) ? \file_get_contents($checkFilename) : false;
 
             if ($checkHash !== $hash) {
                 if (!$mergeContent && $this->filesystem->exists($saveDir)) {
@@ -46,14 +46,14 @@ class AssetRuntime
                 }
 
                 $this::extract($this->storageManager->getStream($hash), $saveDir);
-                file_put_contents($checkFilename, $hash);
+                \file_put_contents($checkFilename, $hash);
             }
 
             $excludeCheckFile = function (SplFileInfo $f) use ($checkFilename) {
                 return $f->getPathname() !== $checkFilename;
             };
 
-            return iterator_to_array(Finder::create()->in($saveDir)->files()->filter($excludeCheckFile)->getIterator());
+            return \iterator_to_array(Finder::create()->in($saveDir)->files()->filter($excludeCheckFile)->getIterator());
         } catch (\Exception $e) {
             $this->logger->error('ems_zip failed : {error}', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
         }
@@ -63,20 +63,20 @@ class AssetRuntime
 
     public static function extract(StreamInterface $stream, string $destination): bool
     {
-        $path = tempnam(sys_get_temp_dir(), 'emsch');
+        $path = \tempnam(\sys_get_temp_dir(), 'emsch');
         if (!$path) {
-            throw new \RuntimeException(sprintf('Could not create temp file in %s', sys_get_temp_dir()));
+            throw new \RuntimeException(\sprintf('Could not create temp file in %s', \sys_get_temp_dir()));
         }
 
-        file_put_contents($path, $stream->getContents());
+        \file_put_contents($path, $stream->getContents());
 
         $zip = new ZipArchive();
         if (true !== $open = $zip->open($path)) {
-            throw new \RuntimeException(sprintf('Failed opening zip %s (ZipArchive %s)', $path, $open));
+            throw new \RuntimeException(\sprintf('Failed opening zip %s (ZipArchive %s)', $path, $open));
         }
 
         if (!$zip->extractTo($destination)) {
-            throw new \RuntimeException(sprintf('Extracting of zip file failed (%s)', $destination));
+            throw new \RuntimeException(\sprintf('Extracting of zip file failed (%s)', $destination));
         }
 
         $zip->close();

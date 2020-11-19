@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Helper;
 
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +18,7 @@ class Cache
 
     public function generateEtag(Response $response, ?\DateTime $lastUpdateDate, bool $immutableRoute): ?string
     {
-        if (!is_string($response->getContent())) {
+        if (!\is_string($response->getContent())) {
             return null;
         }
 
@@ -34,7 +36,7 @@ class Cache
             'immutable' => $immutableRoute,
         ]);
 
-        if ($lastUpdateDate !== null) {
+        if (null !== $lastUpdateDate) {
             $response->setLastModified($lastUpdateDate);
         }
     }

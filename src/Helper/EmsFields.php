@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Helper;
 
 final class EmsFields
@@ -16,7 +18,6 @@ final class EmsFields
     const CONTENT_FILE_NAMES = '_file_names';
     const CONTENT_HASH_ALGO_FIELD = '_hash_algo';
     const CONTENT_PUBLISHED_DATETIME_FIELD = '_published_datetime';
-
 
     const ASSET_CONFIG_DISPOSITION = '_disposition';
     const ASSET_CONFIG_BACKGROUND = '_background';

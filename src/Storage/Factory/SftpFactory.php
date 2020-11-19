@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Factory;
 
 use EMS\CommonBundle\Storage\Service\SftpStorage;
@@ -41,8 +43,9 @@ class SftpFactory implements StorageFactoryInterface
         $config = $this->resolveParameters($parameters);
 
         $host = $config[self::STORAGE_CONFIG_HOST];
-        if ($host === null || $host === '') {
-            @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+        if (null === $host || '' === $host) {
+            @\trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+
             return null;
         }
         $path = $config[self::STORAGE_CONFIG_PATH];
@@ -62,6 +65,7 @@ class SftpFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int}
      */
     private function resolveParameters(array $parameters): array
@@ -98,6 +102,7 @@ class SftpFactory implements StorageFactoryInterface
 
         /** @var array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }

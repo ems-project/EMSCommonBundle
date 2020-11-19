@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Factory;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
@@ -40,11 +42,12 @@ class EntityFactory implements StorageFactoryInterface
 
         if ($this->registered) {
             $this->logger->warning('The entity storage service is already registered');
+
             return null;
         }
         $this->registered = true;
 
-         return new EntityStorage($this->doctrine);
+        return new EntityStorage($this->doctrine);
     }
 
     public function getStorageType(): string
@@ -52,9 +55,9 @@ class EntityFactory implements StorageFactoryInterface
         return self::STORAGE_TYPE;
     }
 
-
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, activate: bool}
      */
     private function resolveParameters(array $parameters): array
@@ -74,6 +77,7 @@ class EntityFactory implements StorageFactoryInterface
 
         /** @var array{type: string, activate: bool} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }

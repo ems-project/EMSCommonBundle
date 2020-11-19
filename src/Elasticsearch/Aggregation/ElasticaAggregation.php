@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Elasticsearch\Aggregation;
 
 use Elastica\Aggregation\AbstractSimpleAggregation;
@@ -23,14 +25,15 @@ class ElasticaAggregation extends AbstractSimpleAggregation
         $this->setParams($param);
     }
 
-
     // phpcs:disable
     protected function _getBaseName(): string
     {
-        if ($this->basename === null) {
+        if (null === $this->basename) {
             throw new \RuntimeException('Unexpected null aggregation');
         }
+
         return $this->basename;
     }
+
     // phpcs:enable
 }

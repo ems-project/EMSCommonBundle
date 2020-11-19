@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Factory;
 
 use EMS\CommonBundle\Storage\Service\S3Storage;
@@ -30,8 +32,9 @@ class S3Factory implements StorageFactoryInterface
         $credentials = $config[self::STORAGE_CONFIG_CREDENTIALS] ?? null;
         $bucket = $config[self::STORAGE_CONFIG_BUCKET] ?? null;
 
-        if ($credentials === null || $bucket === null) {
-            @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+        if (null === $credentials || null === $bucket) {
+            @\trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+
             return null;
         }
 
@@ -45,6 +48,7 @@ class S3Factory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, credentials: null|array, bucket: null|string}
      */
     private function resolveParameters(array $parameters): array
@@ -64,6 +68,7 @@ class S3Factory implements StorageFactoryInterface
         ;
         /** @var array{type: string, credentials: null|array, bucket: null|string} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }

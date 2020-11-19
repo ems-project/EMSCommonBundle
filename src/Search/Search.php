@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Search;
 
 use Elastica\Aggregation\AbstractAggregation;
@@ -23,7 +25,7 @@ class Search
     private $size = 10;
     /** @var int */
     private $from = 0;
-    /** @var null|array<mixed>  */
+    /** @var array<mixed>|null */
     private $sort = null;
 
     /**
