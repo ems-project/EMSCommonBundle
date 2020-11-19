@@ -65,7 +65,7 @@ class HttpFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_BASE_URL => null,
                 self::STORAGE_CONFIG_GET_URL => '/public/file/',
                 self::STORAGE_CONFIG_AUTH_KEY => null,
-                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CACHE,
+                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_BACKUP,
             ])
             ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setRequired(self::STORAGE_CONFIG_GET_URL)

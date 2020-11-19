@@ -77,7 +77,7 @@ class SftpFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_PRIVATE_KEY_FILE => null,
                 self::STORAGE_CONFIG_PASSWORD_PHRASE => null,
                 self::STORAGE_CONFIG_PORT => 22,
-                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CACHE,
+                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_BACKUP,
             ])
             ->setRequired([
                 self::STORAGE_CONFIG_TYPE,
