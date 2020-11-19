@@ -130,9 +130,9 @@ abstract class AbstractUrlStorage implements StorageInterface
         return file_put_contents($path, "") !== false;
     }
 
-    public function addChunk(string $hash, string $chunk): bool
+    public function addChunk(string $hash, string $chunk, int $usageType): bool
     {
-        if (!$this->head($hash)) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         $path = $this->getUploadPath($hash);
@@ -156,9 +156,9 @@ abstract class AbstractUrlStorage implements StorageInterface
         return true;
     }
 
-    public function finalizeUpload(string $hash): bool
+    public function finalizeUpload(string $hash, int $usageType): bool
     {
-        if (!$this->head($hash)) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         $source = $this->getUploadPath($hash);

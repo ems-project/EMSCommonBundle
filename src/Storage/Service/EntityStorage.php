@@ -148,9 +148,9 @@ class EntityStorage implements StorageInterface
         return true;
     }
 
-    public function finalizeUpload(string $hash): bool
+    public function finalizeUpload(string $hash, int $usageType): bool
     {
-        if (!$this->head($hash)) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         $entity = $this->repository->findByHash($hash, false);
@@ -164,9 +164,9 @@ class EntityStorage implements StorageInterface
         return false;
     }
 
-    public function addChunk(string $hash, string $chunk, ?string $context = null): bool
+    public function addChunk(string $hash, string $chunk, int $usageType): bool
     {
-        if (!$this->head($hash)) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         $entity = $this->repository->findByHash($hash, false);

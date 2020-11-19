@@ -89,9 +89,9 @@ class HttpStorage extends AbstractUrlStorage
         }
     }
 
-    public function addChunk(string $hash, string $chunk, ?string $context = null): bool
+    public function addChunk(string $hash, string $chunk, int $usageType): bool
     {
-        if (!$this->head($hash)) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         try {
@@ -107,8 +107,11 @@ class HttpStorage extends AbstractUrlStorage
         }
     }
 
-    public function finalizeUpload(string $hash): bool
+    public function finalizeUpload(string $hash, int $usageType): bool
     {
+        if (!$this->isUsageSupported($usageType)) {
+            return false;
+        }
         return $this->head($hash);
     }
 

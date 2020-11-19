@@ -60,9 +60,9 @@ class S3Storage extends AbstractUrlStorage
         return $result->hasKey('ETag');
     }
 
-    public function finalizeUpload(string $hash): bool
+    public function finalizeUpload(string $hash, int $usageType): bool
     {
-        if (!$this->head($hash)) {
+        if (!$this->isUsageSupported($usageType)) {
             return false;
         }
         $source = $this->getUploadPath($hash);
