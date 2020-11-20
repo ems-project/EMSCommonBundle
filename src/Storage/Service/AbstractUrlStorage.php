@@ -1,18 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Service;
 
 use GuzzleHttp\Psr7\Stream;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class AbstractUrlStorage implements StorageInterface
 {
+    /** @var int */
+    private $usage;
+    /** @var LoggerInterface */
+    private $logger;
+
+    public function __construct(LoggerInterface $logger, int $usage)
+    {
+        $this->logger = $logger;
+        $this->usage = $usage;
+    }
 
     abstract protected function getBaseUrl(): string;
 
     protected function initDirectory(string $filename): void
     {
+        if ($this->usage >= self::STORAGE_USAGE_EXTERNAL) {
+            return;
+        }
         if (!\file_exists(\dirname($filename))) {
             \mkdir(\dirname($filename), 0777, true);
         }
@@ -138,13 +154,18 @@ abstract class AbstractUrlStorage implements StorageInterface
         try {
             return \rename($source, $destination);
         } catch (\Throwable $e) {
-            //TODO: add log info or notice
+            $this->logger->info('Rename {source} to {destination} failed: message', [$source, $destination, $e->getMessage()]);
         }
         try {
             return \copy($source, $destination);
         } catch (\Throwable $e) {
-            //TODO: add log info or notice
+            $this->logger->warning('Copy {source} to {destination} failed: {message}', [$source, $destination, $e->getMessage()]);
         }
         return false;
+    }
+
+    public function getUsage(): int
+    {
+        return $this->usage;
     }
 }

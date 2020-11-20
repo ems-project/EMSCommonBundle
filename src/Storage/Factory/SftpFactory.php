@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Factory;
 
 use EMS\CommonBundle\Storage\Service\SftpStorage;
@@ -7,7 +9,7 @@ use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class SftpFactory implements StorageFactoryInterface
+class SftpFactory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
     const STORAGE_TYPE = 'sftp';
@@ -52,7 +54,7 @@ class SftpFactory implements StorageFactoryInterface
         $passwordPhrase = $config[self::STORAGE_CONFIG_PASSWORD_PHRASE];
         $port = \intval($config[self::STORAGE_CONFIG_PORT]);
 
-        return new SftpStorage($host, $path, $username, $publicKeyFile, $privateKeyFile, false, $passwordPhrase, $port);
+        return new SftpStorage($this->logger, $host, $path, $username, $publicKeyFile, $privateKeyFile, $config[self::STORAGE_CONFIG_USAGE], $passwordPhrase, $port);
     }
 
     public function getStorageType(): string
@@ -62,11 +64,11 @@ class SftpFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int}
+     * @return array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int, usage: int}
      */
     private function resolveParameters(array $parameters): array
     {
-        $resolver = new OptionsResolver();
+        $resolver = $this->getDefaultOptionsResolver();
         $resolver
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
@@ -77,6 +79,7 @@ class SftpFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_PRIVATE_KEY_FILE => null,
                 self::STORAGE_CONFIG_PASSWORD_PHRASE => null,
                 self::STORAGE_CONFIG_PORT => 22,
+                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_BACKUP,
             ])
             ->setRequired([
                 self::STORAGE_CONFIG_TYPE,
@@ -86,7 +89,6 @@ class SftpFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_PRIVATE_KEY_FILE,
                 self::STORAGE_CONFIG_PORT,
             ])
-            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_HOST, ['string', 'null'])
             ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_USERNAME, 'string')
@@ -96,7 +98,7 @@ class SftpFactory implements StorageFactoryInterface
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
 
-        /** @var array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int} $resolvedParameter */
+        /** @var array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
         return $resolvedParameter;
     }

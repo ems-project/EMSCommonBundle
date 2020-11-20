@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Command;
 
 use EMS\CommonBundle\Service\ElasticaService;
@@ -105,14 +107,14 @@ class StatusCommand extends Command
 
         $healthyStorages = 0;
         $unhealthyStorages = 0;
-        foreach ($this->storageManager->getAdapters() as $storage) {
-            if ($storage->health()) {
+        foreach ($this->storageManager->getHealthStatuses() as $name => $status) {
+            if ($status) {
                 if (!$silent) {
-                    $this->io->success(\sprintf('Storage service %s is healthy', $storage->__toString()));
+                    $this->io->success(\sprintf('Storage service %s is healthy', $name));
                 }
                 ++$healthyStorages;
             } else {
-                $this->io->warning(\sprintf('Storage service %s is not healthy', $storage->__toString()));
+                $this->io->warning(\sprintf('Storage service %s is not healthy', $name));
                 ++$unhealthyStorages;
             }
         }
