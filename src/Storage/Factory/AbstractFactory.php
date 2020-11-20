@@ -15,6 +15,7 @@ abstract class AbstractFactory implements StorageFactoryInterface
         $resolver = new OptionsResolver();
         $resolver
             ->setDefaults([
+                self::STORAGE_CONFIG_TYPE => null,
                 self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CACHE,
             ])
             ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
