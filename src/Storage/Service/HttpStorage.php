@@ -58,9 +58,10 @@ class HttpStorage extends AbstractUrlStorage
                     return true;
                 }
             }
+            return false;
         } catch (\Throwable $e) {
+            return false;
         }
-        return false;
     }
 
     public function read(string $hash, bool $confirmed = true): StreamInterface

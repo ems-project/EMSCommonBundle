@@ -91,6 +91,7 @@ class StorageManager
                 try {
                     return $adapter->read($hash);
                 } catch (\Throwable $e) {
+                    continue;
                 }
             }
         }
@@ -221,6 +222,7 @@ class StorageManager
             try {
                 return $adapter->getSize($hash);
             } catch (\Throwable $e) {
+                continue;
             }
         }
         throw new NotFoundException($hash);
@@ -311,6 +313,7 @@ class StorageManager
                     ++$count;
                 }
             } catch (\Throwable $e) {
+                continue;
             }
         }
         return $count;
