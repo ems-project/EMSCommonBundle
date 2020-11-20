@@ -3,9 +3,6 @@
 namespace EMS\CommonBundle\Storage;
 
 use EMS\CommonBundle\Storage\Factory\StorageFactoryInterface;
-use EMS\CommonBundle\Storage\Service\FileSystemStorage;
-use EMS\CommonBundle\Storage\Service\HttpStorage;
-use EMS\CommonBundle\Storage\Service\S3Storage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Config\FileLocatorInterface;
@@ -41,14 +38,6 @@ class StorageManager
         $this->hashAlgo = $hashAlgo;
         $this->storageConfigs = $storageConfigs;
         $this->registerServicesFromConfigs();
-    }
-
-    /**
-     * @return StorageInterface[]
-     */
-    public function getAdapters(): iterable
-    {
-        return $this->adapters;
     }
 
     private function addStorageFactory(StorageFactoryInterface $factory): void
@@ -131,7 +120,7 @@ class StorageManager
 
         foreach ($this->adapters as $adapter) {
             if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
-                break;
+                continue;
             }
 
             if ($adapter->head($hash)) {
@@ -173,12 +162,12 @@ class StorageManager
         return $hashFile;
     }
 
-    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, bool $skipShouldSkipServices = true): int
+    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, bool $skipShouldSkipAdapters = true): int
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
-                break;
+            if ($adapter->isReadOnly() || ($skipShouldSkipAdapters && $adapter->shouldSkip())) {
+                continue;
             }
             if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType)) {
                 ++$count;
@@ -189,6 +178,139 @@ class StorageManager
             throw new \RuntimeException(sprintf('Impossible to initiate the upload of an asset identified by the hash %s into at least one storage services', $fileHash));
         }
 
+        return $count;
+    }
+
+    public function addChunk(string $hash, string $chunk, bool $skipShouldSkipServices = true): int
+    {
+        $count = 0;
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
+                continue;
+            }
+            if ($adapter->addChunk($hash, $chunk)) {
+                ++$count;
+            }
+        }
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible to add a chunk of an asset identified by the hash %s into at least one storage services', $hash));
+        }
+
+        return $count;
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    public function getHealthStatuses(): array
+    {
+        $statuses = [];
+        foreach ($this->adapters as $adapter) {
+            $statuses[$adapter->__toString()] = $adapter->health();
+        }
+        return $statuses;
+    }
+
+    public function getSize(string $hash): int
+    {
+        foreach ($this->adapters as $adapter) {
+            try {
+                return $adapter->getSize($hash);
+            } catch (\Throwable $e) {
+            }
+        }
+        throw new NotFoundException($hash);
+    }
+
+    public function getBase64(string $hash): ?string
+    {
+        foreach ($this->adapters as $adapter) {
+            try {
+                $stream = $adapter->read($hash);
+            } catch (\Throwable $e) {
+                continue;
+            }
+            return \base64_encode($stream->getContents());
+        }
+        return null;
+    }
+
+    public function finalizeUpload(string $hash, int $size, bool $skipShouldSkipAdapters = true): int
+    {
+        $count = 0;
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->isReadOnly() || ($skipShouldSkipAdapters && $adapter->shouldSkip())) {
+                continue;
+            }
+
+            try {
+                $handler = $adapter->read($hash, false);
+            } catch (\Throwable $e) {
+                continue;
+            }
+
+            $uploadedSize = $handler->getSize();
+            if ($uploadedSize === null) {
+                continue;
+            }
+            $computedHash = $this->computeStringHash($handler->getContents());
+
+            if ($computedHash !== $hash) {
+                throw new HashMismatchException($hash, $computedHash);
+            }
+
+            if ($uploadedSize !== $size) {
+                throw new SizeMismatchException($hash, $size, $uploadedSize);
+            }
+
+            if ($adapter->finalizeUpload($hash)) {
+                ++$count;
+            }
+        }
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible finalize the upload of an asset identified by the hash %s into at least one storage services', $hash));
+        }
+
+        return $count;
+    }
+
+    public function saveFile(string $filename, bool $skipShouldSkipServices = true): string
+    {
+        $count = 0;
+        $hash = $this->computeFileHash($filename);
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
+                continue;
+            }
+
+            if ($adapter->create($hash, $filename)) {
+                ++$count;
+            }
+        }
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible to a a file (%s) identified by the hash %s into at least one storage services', $filename, $hash));
+        }
+
+        return $hash;
+    }
+
+    public function remove(string $hash): int
+    {
+        $count = 0;
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->isReadOnly()) {
+                continue;
+            }
+            try {
+                if ($adapter->remove($hash)) {
+                    ++$count;
+                }
+            } catch (\Throwable $e) {
+            }
+        }
         return $count;
     }
 }
