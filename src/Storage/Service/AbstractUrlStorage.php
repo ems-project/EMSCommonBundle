@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Service;
 
 use GuzzleHttp\Psr7\Stream;
@@ -9,25 +11,22 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class AbstractUrlStorage implements StorageInterface
 {
-    /** @var bool */
-    private $readOnly;
-    /** @var bool */
-    private $skip;
+    /** @var int */
+    private $usage;
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(LoggerInterface $logger, bool $readOnly, bool $skip)
+    public function __construct(LoggerInterface $logger, int $usage)
     {
         $this->logger = $logger;
-        $this->readOnly = $readOnly;
-        $this->skip = $skip || $readOnly;
+        $this->usage = $usage;
     }
 
     abstract protected function getBaseUrl(): string;
 
     protected function initDirectory(string $filename): void
     {
-        if ($this->isReadOnly()) {
+        if ($this->usage >= self::STORAGE_USAGE_EXTERNAL) {
             return;
         }
         if (!\file_exists(\dirname($filename))) {
@@ -60,9 +59,6 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function create(string $hash, string $filename): bool
     {
-        if ($this->isReadOnly()) {
-            return false;
-        }
         $path = $this->getPath($hash);
         $this->initDirectory($path);
         return copy($filename, $path);
@@ -112,9 +108,6 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function remove(string $hash): bool
     {
-        if ($this->isReadOnly()) {
-            return false;
-        }
         $file = $this->getPath($hash);
         if (file_exists($file)) {
             unlink($file);
@@ -125,9 +118,6 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
-        if ($this->isReadOnly()) {
-            return false;
-        }
         $path = $this->getUploadPath($hash);
         $this->initDirectory($path);
         return file_put_contents($path, "") !== false;
@@ -135,9 +125,6 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function addChunk(string $hash, string $chunk): bool
     {
-        if ($this->isReadOnly()) {
-            return false;
-        }
         $path = $this->getUploadPath($hash);
         if (!file_exists($path)) {
             throw new NotFoundHttpException('temporary file not found');
@@ -161,32 +148,24 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function finalizeUpload(string $hash): bool
     {
-        if ($this->isReadOnly()) {
-            return false;
-        }
         $source = $this->getUploadPath($hash);
         $destination  = $this->getPath($hash);
         $this->initDirectory($destination);
         try {
             return \rename($source, $destination);
         } catch (\Throwable $e) {
-            $this->logger->info(sprintf('Rename %s to %s failed: %s', $source, $destination, $e->getMessage()));
+            $this->logger->info('Rename {source} to {destination} failed: message', [$source, $destination, $e->getMessage()]);
         }
         try {
             return \copy($source, $destination);
         } catch (\Throwable $e) {
-            $this->logger->info(sprintf('Copy %s to %s failed: %s', $source, $destination, $e->getMessage()));
+            $this->logger->warning('Copy {source} to {destination} failed: {message}', [$source, $destination, $e->getMessage()]);
         }
         return false;
     }
 
-    public function isReadOnly(): bool
+    public function getUsage(): int
     {
-        return $this->readOnly;
-    }
-
-    public function shouldSkip(): bool
-    {
-        return $this->skip;
+        return $this->usage;
     }
 }

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage;
 
+use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Storage\Factory\StorageFactoryInterface;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Http\Message\StreamInterface;
@@ -87,7 +90,8 @@ class StorageManager
             if ($adapter->head($hash)) {
                 try {
                     return $adapter->read($hash);
-                } catch (NotFoundException $e) {
+                } catch (\Throwable $e) {
+                    continue;
                 }
             }
         }
@@ -113,13 +117,13 @@ class StorageManager
         return $this->hashAlgo;
     }
 
-    public function saveContents(string $contents, string $filename, string $mimetype, bool $skipShouldSkipServices = true): string
+    public function saveContents(string $contents, string $filename, string $mimetype, int $usageType): string
     {
-        $hash = hash($this->hashAlgo, $contents);
+        $hash = $this->computeStringHash($contents);
         $count = 0;
 
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
                 continue;
             }
 
@@ -162,11 +166,11 @@ class StorageManager
         return $hashFile;
     }
 
-    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, bool $skipShouldSkipAdapters = true): int
+    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, int $usageType): int
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipAdapters && $adapter->shouldSkip())) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
                 continue;
             }
             if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType)) {
@@ -181,11 +185,11 @@ class StorageManager
         return $count;
     }
 
-    public function addChunk(string $hash, string $chunk, bool $skipShouldSkipServices = true): int
+    public function addChunk(string $hash, string $chunk, int $usageType): int
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
                 continue;
             }
             if ($adapter->addChunk($hash, $chunk)) {
@@ -218,6 +222,7 @@ class StorageManager
             try {
                 return $adapter->getSize($hash);
             } catch (\Throwable $e) {
+                continue;
             }
         }
         throw new NotFoundException($hash);
@@ -236,11 +241,11 @@ class StorageManager
         return null;
     }
 
-    public function finalizeUpload(string $hash, int $size, bool $skipShouldSkipAdapters = true): int
+    public function finalizeUpload(string $hash, int $size, int $usageType): int
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipAdapters && $adapter->shouldSkip())) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
                 continue;
             }
 
@@ -276,15 +281,14 @@ class StorageManager
         return $count;
     }
 
-    public function saveFile(string $filename, bool $skipShouldSkipServices = true): string
+    public function saveFile(string $filename, int $usageType): string
     {
         $count = 0;
         $hash = $this->computeFileHash($filename);
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly() || ($skipShouldSkipServices && $adapter->shouldSkip())) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
                 continue;
             }
-
             if ($adapter->create($hash, $filename)) {
                 ++$count;
             }
@@ -301,7 +305,7 @@ class StorageManager
     {
         $count = 0;
         foreach ($this->adapters as $adapter) {
-            if ($adapter->isReadOnly()) {
+            if (!$this->isUsageSupported($adapter, StorageInterface::STORAGE_USAGE_BACKUP)) {
                 continue;
             }
             try {
@@ -309,8 +313,29 @@ class StorageManager
                     ++$count;
                 }
             } catch (\Throwable $e) {
+                continue;
             }
         }
         return $count;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function saveConfig(array $config): string
+    {
+        $normalizedArray = ArrayTool::normalizeAndSerializeArray($config);
+        if ($normalizedArray === false) {
+            throw new \RuntimeException('Could not normalize config.');
+        }
+        return $this->saveContents($normalizedArray, 'assetConfig.json', 'application/json', StorageInterface::STORAGE_USAGE_CONFIG);
+    }
+
+    private function isUsageSupported(StorageInterface $adapter, int $usageRequested): bool
+    {
+        if ($adapter->getUsage() >= StorageInterface::STORAGE_USAGE_EXTERNAL) {
+            return false;
+        }
+        return $usageRequested >= $adapter->getUsage();
     }
 }

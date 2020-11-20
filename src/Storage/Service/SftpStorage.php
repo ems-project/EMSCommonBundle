@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Service;
 
 use Psr\Log\LoggerInterface;
@@ -26,9 +28,9 @@ class SftpStorage extends AbstractUrlStorage
     /**
      * @param null $passwordPhrase
      */
-    public function __construct(LoggerInterface $logger, string $host, string $path, string $username, string $publicKeyFile, string $privateKeyFile, bool $readOnly, bool $skip, ?string $passwordPhrase = null, int $port = 22)
+    public function __construct(LoggerInterface $logger, string $host, string $path, string $username, string $publicKeyFile, string $privateKeyFile, int $usage, ?string $passwordPhrase = null, int $port = 22)
     {
-        parent::__construct($logger, $readOnly, $skip);
+        parent::__construct($logger, $usage);
         $this->host = $host;
         $this->path = $path;
         $this->port = $port;
@@ -49,22 +51,22 @@ class SftpStorage extends AbstractUrlStorage
 
     private function connect(): void
     {
-        if (!function_exists('ssh2_connect')) {
-            throw new \Exception("PHP functions Secure Shell are required by $this. (ssh2)");
+        if (!\function_exists('ssh2_connect')) {
+            throw new \RuntimeException("PHP functions Secure Shell are required by $this. (ssh2)");
         }
 
-        $connection = @ssh2_connect($this->host, $this->port);
+        $connection = @\ssh2_connect($this->host, $this->port);
         if ($connection === false) {
             throw new \Exception("Could not connect to $this->host on port $this->port.");
         }
 
         if ($this->passwordPhrase === null) {
-            ssh2_auth_pubkey_file($connection, $this->username, $this->publicKeyFile, $this->privateKeyFile);
+            \ssh2_auth_pubkey_file($connection, $this->username, $this->publicKeyFile, $this->privateKeyFile);
         } else {
-            ssh2_auth_pubkey_file($connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
+            \ssh2_auth_pubkey_file($connection, $this->username, $this->publicKeyFile, $this->privateKeyFile, $this->passwordPhrase);
         }
 
-        $sftp = @ssh2_sftp($connection);
+        $sftp = @\ssh2_sftp($connection);
         if ($sftp === false) {
             throw new \Exception("Could not initialize SFTP subsystem to $this->host");
         }

@@ -1,11 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Service;
 
 use Psr\Http\Message\StreamInterface;
 
 interface StorageInterface
 {
+    /** @var int  */
+    public const STORAGE_USAGE_CACHE = 0;
+    /** @var int  */
+    public const STORAGE_USAGE_CONFIG = 1;
+    /** @var int  */
+    public const STORAGE_USAGE_ASSET = 2;
+    /** @var int  */
+    public const STORAGE_USAGE_BACKUP = 3;
+    /** @var int  */
+    public const STORAGE_USAGE_EXTERNAL = 4;
+
+    /** @var array<string, int> */
+    public const STORAGE_USAGES = [
+        'usage' => self::STORAGE_USAGE_CACHE,
+        'config' => self::STORAGE_USAGE_CONFIG,
+        'asset' => self::STORAGE_USAGE_ASSET,
+        'backup' => self::STORAGE_USAGE_BACKUP,
+        'external' => self::STORAGE_USAGE_EXTERNAL,
+    ];
+
     public function head(string $hash): bool;
 
     public function health(): bool;
@@ -26,7 +48,5 @@ interface StorageInterface
 
     public function finalizeUpload(string $hash): bool;
 
-    public function isReadOnly(): bool;
-
-    public function shouldSkip(): bool;
+    public function getUsage(): int;
 }
