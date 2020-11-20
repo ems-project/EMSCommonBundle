@@ -2,6 +2,7 @@
 
 namespace EMS\CommonBundle\Tests\Unit\Storage;
 
+use EMS\CommonBundle\Storage\Service\StorageInterface;
 use EMS\CommonBundle\Storage\StorageManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -36,10 +37,10 @@ class StorageManagerTest extends WebTestCase
         }
 
         $size = \strlen($string1 . $string2);
-        $this->assertGreaterThanOrEqual(1, $storage->initUploadFile($hash, $size, 'test.bin', 'application/bin'));
-        $this->assertGreaterThanOrEqual(1, $storage->addChunk($hash, $string1));
-        $this->assertGreaterThanOrEqual(1, $storage->addChunk($hash, $string2));
-        $this->assertGreaterThanOrEqual(1, $storage->finalizeUpload($hash, $size));
+        $this->assertGreaterThanOrEqual(1, $storage->initUploadFile($hash, $size, 'test.bin', 'application/bin', StorageInterface::STORAGE_USAGE_CACHE));
+        $this->assertGreaterThanOrEqual(1, $storage->addChunk($hash, $string1, StorageInterface::STORAGE_USAGE_CACHE));
+        $this->assertGreaterThanOrEqual(1, $storage->addChunk($hash, $string2, StorageInterface::STORAGE_USAGE_CACHE));
+        $this->assertGreaterThanOrEqual(1, $storage->finalizeUpload($hash, $size, StorageInterface::STORAGE_USAGE_CACHE));
 
 
         $this->assertTrue($storage->head($hash));
@@ -67,7 +68,7 @@ class StorageManagerTest extends WebTestCase
         $this->assertNotFalse(file_put_contents($tempFile, $string1 . $string2) !== false);
         $this->assertEquals($hash, \hash_file($storage->getHashAlgo(), $tempFile));
 
-        $hashAfterSave = $storage->saveFile($tempFile);
+        $hashAfterSave = $storage->saveFile($tempFile, StorageInterface::STORAGE_USAGE_CACHE);
         $this->assertEquals($hash, $hashAfterSave);
         $this->assertTrue($storage->head($hash));
 
