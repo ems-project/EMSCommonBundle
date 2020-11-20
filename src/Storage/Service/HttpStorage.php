@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Service;
 
 use EMS\CommonBundle\Common\HttpClientFactory;
@@ -51,7 +53,7 @@ class HttpStorage extends AbstractUrlStorage
         try {
             $result = $this->getClient()->get('/status.json');
             if ($result->getStatusCode() == 200) {
-                $status = json_decode($result->getBody(), true);
+                $status = \json_decode($result->getBody()->getContents(), true);
                 if (isset($status['status']) && in_array($status['status'], ['green', 'yellow'])) {
                     return true;
                 }

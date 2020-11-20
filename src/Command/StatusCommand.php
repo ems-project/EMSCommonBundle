@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Command;
 
 use EMS\CommonBundle\Service\ElasticaService;
