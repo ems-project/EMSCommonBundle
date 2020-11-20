@@ -7,6 +7,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class HttpStorage extends AbstractUrlStorage
@@ -19,8 +20,9 @@ class HttpStorage extends AbstractUrlStorage
     /** @var null|string */
     private $authKey;
 
-    public function __construct(string $baseUrl, string $getUrl, ?string $authKey = null)
+    public function __construct(LoggerInterface $logger, string $baseUrl, string $getUrl, bool $readOnly, bool $skip, ?string $authKey = null)
     {
+        parent::__construct($logger, $readOnly, $skip);
         $this->baseUrl = $baseUrl;
         $this->getUrl = $getUrl;
         $this->authKey = $authKey;
@@ -71,6 +73,9 @@ class HttpStorage extends AbstractUrlStorage
 
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         try {
             $result = $this->getClient()->post('/api/file/init-upload/' . urlencode($hash) . '/' . $size . '?name=' . urlencode($name) . '&type=' . urlencode($type), [
                 'headers' => [
@@ -87,6 +92,9 @@ class HttpStorage extends AbstractUrlStorage
 
     public function addChunk(string $hash, string $chunk, ?string $context = null): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         try {
             $result = $this->getClient()->post('/api/file/upload-chunk/' . urlencode($hash), [
                 'headers' => [
@@ -102,6 +110,9 @@ class HttpStorage extends AbstractUrlStorage
 
     public function finalizeUpload(string $hash): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         return $this->head($hash);
     }
 
@@ -116,6 +127,9 @@ class HttpStorage extends AbstractUrlStorage
 
     public function create(string $hash, string $filename): bool
     {
+        if ($this->isReadOnly()) {
+            return false;
+        }
         try {
             $this->getClient()->request('POST', '/api/file', [
                 'multipart' => [

@@ -61,7 +61,7 @@ class FileSystemFactory implements StorageFactoryInterface
         }
 
         $this->usedFolder[] = $realPath;
-        return new FileSystemStorage($realPath);
+        return new FileSystemStorage($this->logger, $realPath, $config[self::STORAGE_CONFIG_READ_ONLY], $config[self::STORAGE_CONFIG_SKIP]);
     }
 
     public function getStorageType(): string
@@ -72,7 +72,7 @@ class FileSystemFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
-     * @return array{type: string, path: string}
+     * @return array{type: string, path: string, read-only: bool, skip: bool}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -81,15 +81,19 @@ class FileSystemFactory implements StorageFactoryInterface
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_PATH => null,
+                self::STORAGE_CONFIG_READ_ONLY => false,
+                self::STORAGE_CONFIG_SKIP => false,
             ])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
             ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setRequired(self::STORAGE_CONFIG_PATH)
             ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
+            ->setAllowedValues(self::STORAGE_CONFIG_READ_ONLY, [true, false])
+            ->setAllowedValues(self::STORAGE_CONFIG_SKIP, [true, false])
         ;
 
-        /** @var array{type: string, path: string} $resolvedParameter */
+        /** @var array{type: string, path: string, read-only: bool, skip: bool} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
         return $resolvedParameter;
     }

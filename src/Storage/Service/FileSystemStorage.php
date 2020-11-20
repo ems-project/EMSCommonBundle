@@ -2,6 +2,8 @@
 
 namespace EMS\CommonBundle\Storage\Service;
 
+use Psr\Log\LoggerInterface;
+
 class FileSystemStorage extends AbstractUrlStorage
 {
 
@@ -11,8 +13,9 @@ class FileSystemStorage extends AbstractUrlStorage
     /** @var string */
     private $directorySeparator;
 
-    public function __construct(string $storagePath, string $directorySeparator = DIRECTORY_SEPARATOR)
+    public function __construct(LoggerInterface $logger, string $storagePath, bool $readOnly, bool $skip, string $directorySeparator = DIRECTORY_SEPARATOR)
     {
+        parent::__construct($logger, $readOnly, $skip);
         $this->storagePath = $storagePath;
         $this->directorySeparator = $directorySeparator;
     }
