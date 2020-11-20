@@ -58,7 +58,7 @@ class FileSystemFactory extends AbstractFactory implements StorageFactoryInterfa
         }
 
         if (\in_array($realPath, $this->usedFolder)) {
-            $this->logger->warning(sprintf('The folder %s is already used by another storage service', $realPath));
+            $this->logger->warning('The folder {realPath} is already used by another storage service', [$realPath]);
             return null;
         }
 
