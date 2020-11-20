@@ -78,21 +78,15 @@ class FileSystemFactory extends AbstractFactory implements StorageFactoryInterfa
      */
     private function resolveParameters(array $parameters): array
     {
-        $resolver = new OptionsResolver();
+        $resolver = $this->getDefaultOptionsResolver();
         $resolver
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_PATH => null,
-                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CACHE,
             ])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
-            ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'string')
-            ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setRequired(self::STORAGE_CONFIG_PATH)
-            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
-            ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
-            ->setNormalizer(self::STORAGE_CONFIG_USAGE, self::usageResolver())
         ;
 
         /** @var array{type: string, path: string, usage: int} $resolvedParameter */

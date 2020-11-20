@@ -60,7 +60,7 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
      */
     private function resolveParameters(array $parameters): array
     {
-        $resolver = new OptionsResolver();
+        $resolver = $this->getDefaultOptionsResolver();
         $resolver
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
@@ -69,16 +69,11 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_AUTH_KEY => null,
                 self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_BACKUP,
             ])
-            ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setRequired(self::STORAGE_CONFIG_GET_URL)
-            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_BASE_URL, ['null', 'string'])
             ->setAllowedTypes(self::STORAGE_CONFIG_GET_URL, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_AUTH_KEY, ['null', 'string'])
-            ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'string')
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
-            ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
-            ->setNormalizer(self::STORAGE_CONFIG_USAGE, self::usageResolver())
         ;
 
         /** @var array{type: string, base-url: null|string, get-url: string, auth-key: null|string, usage: int} $resolvedParameter */

@@ -51,22 +51,16 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
      */
     private function resolveParameters(array $parameters): array
     {
-        $resolver = new OptionsResolver();
+        $resolver = $this->getDefaultOptionsResolver();
         $resolver
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_CREDENTIALS => null,
                 self::STORAGE_CONFIG_BUCKET => null,
-                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CACHE,
             ])
-            ->setRequired(self::STORAGE_CONFIG_TYPE)
-            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_CREDENTIALS, ['null', 'array'])
             ->setAllowedTypes(self::STORAGE_CONFIG_BUCKET, ['null', 'string'])
-            ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'string')
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
-            ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
-            ->setNormalizer(self::STORAGE_CONFIG_USAGE, self::usageResolver())
         ;
         /** @var array{type: string, credentials: null|array, bucket: null|string, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);

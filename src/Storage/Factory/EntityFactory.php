@@ -61,21 +61,16 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
      */
     private function resolveParameters(array $parameters): array
     {
-        $resolver = new OptionsResolver();
+        $resolver = $this->getDefaultOptionsResolver();
         $resolver
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_ACTIVATE => true,
                 self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CONFIG,
             ])
-            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_ACTIVATE, 'bool')
-            ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'string')
-            ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
             ->setAllowedValues(self::STORAGE_CONFIG_ACTIVATE, [true, false])
-            ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
-            ->setNormalizer(self::STORAGE_CONFIG_USAGE, self::usageResolver())
         ;
 
         /** @var array{type: string, activate: bool, usage: int} $resolvedParameter */
