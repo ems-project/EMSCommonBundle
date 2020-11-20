@@ -41,6 +41,15 @@ For a regular website (1 elasticms and 1 skeleton) a best practice is to defined
  
  If you have a performant enough backup storage, you can just define it as `asset`. No need to schedule the `ems:asset:synchronize` commend. But a backup storage should never be configured as external (i.e. on a Skeleton).  
  
+## Cleaning useless assets
+With the time the size of your storages can increase. For security reason, it's not possible to cleaned them from the application. But, there is a procedure.
+
+With the EMSCoreBundle command `ems:asset:clean` you can remove from the database all references to files that are not used by at least one revision. Typically, it cleans files that have been uploaded in a document but the or document has never been finalized, or the file has been replaced. 
+ 
+Now if you define a new storage you'll be able to synchronize it with `ems:asset:synchronize`. This command is only synchronizing the referenced files.
+
+Finally, it's time to remove your old storage from the `EMS_STORAGES` config. And, if your are sure this storage isn't used by another elasticms, you can drop it.
+ 
 ## Existing type os storages services
 
 ### File system
