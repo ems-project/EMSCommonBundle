@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Service;
 
 use Elastica\Client;
@@ -52,6 +54,9 @@ class ElasticaService
     public function singleSearch(Search $search): Document
     {
         $resultSet = $this->search($search);
+        if ($resultSet->count() === 0) {
+            throw new SingleResultException(0);
+        }
         $result = $resultSet->offsetGet(0);
         if ($resultSet->count() !== 1 || $result === null) {
             throw new SingleResultException($resultSet->count());
