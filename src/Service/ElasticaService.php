@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Service;
 
 use Elastica\Client;
@@ -13,7 +15,7 @@ use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
-use EMS\CommonBundle\Elasticsearch\Exception\SingleResultException;
+use EMS\CommonBundle\Elasticsearch\Exception\NotSingleResultException;
 use EMS\CommonBundle\Search\Search;
 use Psr\Log\LoggerInterface;
 
@@ -52,9 +54,12 @@ class ElasticaService
     public function singleSearch(Search $search): Document
     {
         $resultSet = $this->search($search);
+        if ($resultSet->count() === 0) {
+            throw new NotSingleResultException(0);
+        }
         $result = $resultSet->offsetGet(0);
         if ($resultSet->count() !== 1 || $result === null) {
-            throw new SingleResultException($resultSet->count());
+            throw new NotSingleResultException($resultSet->count());
         }
         return Document::fromResult($result);
     }
