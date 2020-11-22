@@ -67,7 +67,7 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_BASE_URL => null,
                 self::STORAGE_CONFIG_GET_URL => '/public/file/',
                 self::STORAGE_CONFIG_AUTH_KEY => null,
-                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_BACKUP,
+                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_BACKUP_ATTRIBUTE,
             ])
             ->setRequired(self::STORAGE_CONFIG_GET_URL)
             ->setAllowedTypes(self::STORAGE_CONFIG_BASE_URL, ['null', 'string'])
