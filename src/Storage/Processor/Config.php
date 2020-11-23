@@ -6,13 +6,12 @@ namespace EMS\CommonBundle\Storage\Processor;
 
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\StorageManager;
+use function GuzzleHttp\Psr7\mimetype_from_filename;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-
-use function GuzzleHttp\Psr7\mimetype_from_filename;
 
 final class Config
 {
@@ -32,7 +31,7 @@ final class Config
     private $cacheableResult;
 
     /**
-     * @param array<string, mixed>  $options
+     * @param array<string, mixed> $options
      */
     public function __construct(StorageManager $storageManager, string $assetHash, string $configHash, array $options = [])
     {
@@ -61,7 +60,7 @@ final class Config
         $this->cacheKey = $this->makeCacheKey($this->configHash, $this->assetHash);
         $this->filename = null;
 
-        if ($this->getFileNames() === null) {
+        if (null === $this->getFileNames()) {
             return;
         }
 
@@ -73,7 +72,7 @@ final class Config
             }
         }
 
-        if ($this->filename === null) {
+        if (null === $this->filename) {
             throw new NotFoundHttpException('File not found');
         }
 
@@ -103,7 +102,7 @@ final class Config
     }
 
     /**
-     * Asset_config_type is optional, so _published_datetime can be null
+     * Asset_config_type is optional, so _published_datetime can be null.
      */
     public function isValid(\DateTime $lastCacheDate = null): bool
     {
@@ -119,6 +118,7 @@ final class Config
     public function getLastUpdateDate(): ?\DateTime
     {
         $lastUpdateDate = $this->options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD] ?? null;
+
         return $lastUpdateDate instanceof \DateTime ? $lastUpdateDate : null;
     }
 
@@ -130,6 +130,7 @@ final class Config
     public function getConfigType(): ?string
     {
         $configType = $this->options[EmsFields::ASSET_CONFIG_TYPE] ?? null;
+
         return null !== $configType ? (string) $configType : null;
     }
 
@@ -144,6 +145,7 @@ final class Config
     public function getFileNames(): ?array
     {
         $fileNames = $this->options[EmsFields::ASSET_CONFIG_FILE_NAMES] ?? null;
+
         return \is_array($fileNames) ? $fileNames : null;
     }
 
@@ -155,6 +157,7 @@ final class Config
     public function getResize(): ?string
     {
         $resize = $this->options[EmsFields::ASSET_CONFIG_RESIZE] ?? null;
+
         return null !== $resize ? (string) $resize : null;
     }
 
@@ -217,12 +220,12 @@ final class Config
 
     private function setCacheableResult(): void
     {
-        $this->cacheableResult = $this->getCacheContext() !== null && $this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE && \is_string($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) && strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') === 0 && !$this->isSvg();
+        $this->cacheableResult = null !== $this->getCacheContext() && EmsFields::ASSET_CONFIG_TYPE_IMAGE == $this->getConfigType() && \is_string($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) && 0 === strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') && !$this->isSvg();
     }
 
     public function getCacheContext(): ?string
     {
-        if ($this->getConfigType() == EmsFields::ASSET_CONFIG_TYPE_IMAGE) {
+        if (EmsFields::ASSET_CONFIG_TYPE_IMAGE == $this->getConfigType()) {
             if ($this->isSvg()) {
                 return null;
             }
@@ -239,8 +242,9 @@ final class Config
     }
 
     /**
-     * @param array<string, null|int|string|array|bool|\DateTime> $options
-     * @return array<string, null|int|string|array|bool|\DateTime>
+     * @param array<string, int|string|array|bool|\DateTime|null> $options
+     *
+     * @return array<string, int|string|array|bool|\DateTime|null>
      */
     private function resolve(array $options): array
     {
@@ -273,7 +277,7 @@ final class Config
     }
 
     /**
-     * @return array<string, null|int|string|array|bool|\DateTime>
+     * @return array<string, int|string|array|bool|\DateTime|null>
      */
     public static function getDefaults(): array
     {

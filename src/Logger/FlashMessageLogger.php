@@ -26,13 +26,12 @@ class FlashMessageLogger extends AbstractProcessingHandler
         $this->translationDomain = $translationDomain;
     }
 
-
     protected function write(array $record)
     {
         if ($record['level'] >= Logger::NOTICE) {
             $parameters = [];
             foreach ($record['context'] as $key => &$value) {
-                $parameters['%' . $key . '%'] = $value;
+                $parameters['%'.$key.'%'] = $value;
             }
             //TODO: should be removed with symfony 4.2 (whene the core will be ready)
             //https://symfony.com/blog/new-in-symfony-4-2-intlmessageformatter

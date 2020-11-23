@@ -24,7 +24,7 @@ class Search
     private $size = 10;
     /** @var int */
     private $from = 0;
-    /** @var null|array<mixed>  */
+    /** @var array<mixed>|null */
     private $sort = null;
 
     /**

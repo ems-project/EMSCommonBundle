@@ -7,7 +7,6 @@ namespace EMS\CommonBundle\Storage\Factory;
 use EMS\CommonBundle\Storage\Service\HttpStorage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class HttpFactory extends AbstractFactory implements StorageFactoryInterface
 {
@@ -38,12 +37,13 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
         $getUrl = $config[self::STORAGE_CONFIG_GET_URL];
         $authKey = $config[self::STORAGE_CONFIG_AUTH_KEY];
 
-        if ($baseUrl === null || $baseUrl === '') {
+        if (null === $baseUrl || '' === $baseUrl) {
             @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+
             return null;
         }
 
-        $usage = $authKey === null ? StorageInterface::STORAGE_USAGE_EXTERNAL : $config[self::STORAGE_CONFIG_USAGE];
+        $usage = null === $authKey ? StorageInterface::STORAGE_USAGE_EXTERNAL : $config[self::STORAGE_CONFIG_USAGE];
 
         return new HttpStorage($this->logger, $baseUrl, $getUrl, $usage, $authKey);
     }
@@ -53,9 +53,9 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
         return self::STORAGE_TYPE;
     }
 
-
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, base-url: null|string, get-url: string, auth-key: null|string, usage: int}
      */
     private function resolveParameters(array $parameters): array
@@ -78,6 +78,7 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
 
         /** @var array{type: string, base-url: null|string, get-url: string, auth-key: null|string, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }

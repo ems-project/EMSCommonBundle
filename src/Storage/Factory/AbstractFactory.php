@@ -24,6 +24,7 @@ abstract class AbstractFactory implements StorageFactoryInterface
             ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
             ->setNormalizer(self::STORAGE_CONFIG_USAGE, self::usageResolver())
         ;
+
         return $resolver;
     }
 

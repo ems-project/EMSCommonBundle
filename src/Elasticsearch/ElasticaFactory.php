@@ -36,9 +36,10 @@ class ElasticaFactory
             'connectionPool' => $connectionPool,
         ];
 
-        if ($this->env === 'dev' && php_sapi_name() !== 'cli') {
+        if ('dev' === $this->env && 'cli' !== php_sapi_name()) {
             return new Client($config, null, $this->logger);
         }
+
         return new Client($config);
     }
 }

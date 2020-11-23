@@ -7,7 +7,6 @@ namespace EMS\CommonBundle\Storage\Factory;
 use EMS\CommonBundle\Storage\Service\S3Storage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class S3Factory extends AbstractFactory implements StorageFactoryInterface
 {
@@ -32,8 +31,9 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
         $credentials = $config[self::STORAGE_CONFIG_CREDENTIALS] ?? null;
         $bucket = $config[self::STORAGE_CONFIG_BUCKET] ?? null;
 
-        if ($credentials === null || $bucket === null) {
+        if (null === $credentials || null === $bucket) {
             @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+
             return null;
         }
 
@@ -47,6 +47,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, credentials: null|array, bucket: null|string, usage: int}
      */
     private function resolveParameters(array $parameters): array
@@ -64,6 +65,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
         ;
         /** @var array{type: string, credentials: null|array, bucket: null|string, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }

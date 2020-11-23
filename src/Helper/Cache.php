@@ -34,7 +34,7 @@ class Cache
             'immutable' => $immutableRoute,
         ]);
 
-        if ($lastUpdateDate !== null) {
+        if (null !== $lastUpdateDate) {
             $response->setLastModified($lastUpdateDate);
         }
     }
