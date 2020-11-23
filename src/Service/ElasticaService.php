@@ -67,10 +67,14 @@ class ElasticaService
     /**
      * @param string[] $indexes
      * @param string[] $terms
+     * @param string[] $contentTypes
      */
-    public function generateTermsSearch(array $indexes, string $field, array $terms): Search
+    public function generateTermsSearch(array $indexes, string $field, array $terms, array $contentTypes = []): Search
     {
         $query = new Terms($field, $terms);
+        if (empty($contentTypes)) {
+            $query = $this->filterByContentTypes($query, $contentTypes);
+        }
         return new Search($indexes, $query);
     }
 
