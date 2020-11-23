@@ -47,7 +47,7 @@ final class Config
 
     private function makeCacheKey(string $configHash, string $assetHash): string
     {
-        return join(DIRECTORY_SEPARATOR, [
+        return \join(DIRECTORY_SEPARATOR, [
             \substr($configHash, 0, 3),
             \substr($configHash, 3),
             \substr($assetHash, 0, 3),
@@ -65,7 +65,7 @@ final class Config
         }
 
         foreach ($this->getFileNames() as $filename) {
-            if (is_file($filename)) {
+            if (\is_file($filename)) {
                 $this->filename = $filename;
                 $this->cacheKey = $this->makeCacheKey($this->configHash, $this->storageManager->computeFileHash($filename));
                 break;
@@ -220,7 +220,7 @@ final class Config
 
     private function setCacheableResult(): void
     {
-        $this->cacheableResult = null !== $this->getCacheContext() && EmsFields::ASSET_CONFIG_TYPE_IMAGE == $this->getConfigType() && \is_string($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) && 0 === strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') && !$this->isSvg();
+        $this->cacheableResult = null !== $this->getCacheContext() && EmsFields::ASSET_CONFIG_TYPE_IMAGE == $this->getConfigType() && \is_string($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) && 0 === \strpos($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE], 'image/') && !$this->isSvg();
     }
 
     public function getCacheContext(): ?string
@@ -262,7 +262,7 @@ final class Config
 
                 foreach ($values as $value) {
                     if (\is_array($defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY]) && !\in_array($value, $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])) {
-                        throw new UndefinedOptionsException(sprintf('_radius_geometry %s is invalid (%s)', $value, \implode(',', $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])));
+                        throw new UndefinedOptionsException(\sprintf('_radius_geometry %s is invalid (%s)', $value, \implode(',', $defaults[EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY])));
                     }
                 }
 

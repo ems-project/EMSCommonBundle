@@ -67,7 +67,7 @@ final class JsonMenuNested implements \IteratorAggregate
         $data = [$this];
 
         foreach ($this->children as $child) {
-            $data = array_merge($data, $child->toArray());
+            $data = \array_merge($data, $child->toArray());
         }
 
         return $data;
@@ -126,7 +126,7 @@ final class JsonMenuNested implements \IteratorAggregate
         $path = [$this];
 
         if (null !== $this->parent && !$this->parent->isRoot()) {
-            $path = array_merge($this->parent->getPath(), $path);
+            $path = \array_merge($this->parent->getPath(), $path);
         }
 
         return $path;

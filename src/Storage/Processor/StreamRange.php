@@ -35,7 +35,7 @@ class StreamRange
             return;
         }
 
-        list($start, $end) = explode('-', substr($range, 6), 2) + [0];
+        list($start, $end) = \explode('-', \substr($range, 6), 2) + [0];
 
         $this->end = ('' === $end) ? $this->fileSize - 1 : (int) $end;
 
@@ -60,15 +60,15 @@ class StreamRange
     public function getContentRangeHeader()
     {
         if ($this->isSatisfiable()) {
-            return sprintf('bytes %s-%s/%s', $this->start, $this->end, $this->fileSize);
+            return \sprintf('bytes %s-%s/%s', $this->start, $this->end, $this->fileSize);
         }
 
-        return sprintf('bytes */%s', $this->fileSize);
+        return \sprintf('bytes */%s', $this->fileSize);
     }
 
     public function getContentLengthHeader()
     {
-        return strval($this->end - $this->start + 1);
+        return \strval($this->end - $this->start + 1);
     }
 
     public function getStart(): int

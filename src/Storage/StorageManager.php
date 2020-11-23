@@ -106,7 +106,7 @@ class StorageManager
     public function getPublicImage(string $name): string
     {
         $file = $this->fileLocator->locate('@EMSCommonBundle/src/Resources/public/images/'.$name);
-        if (is_array($file)) {
+        if (\is_array($file)) {
             return $file[0] ?? '';
         }
 
@@ -133,7 +133,7 @@ class StorageManager
                 continue;
             }
 
-            if (!$adapter->initUpload($hash, strlen($contents), $filename, $mimetype)) {
+            if (!$adapter->initUpload($hash, \strlen($contents), $filename, $mimetype)) {
                 continue;
             }
 
@@ -147,7 +147,7 @@ class StorageManager
         }
 
         if (0 === $count) {
-            throw new \RuntimeException(sprintf('Impossible to save the asset identified by the hash %s into at least one storage services', $hash));
+            throw new \RuntimeException(\sprintf('Impossible to save the asset identified by the hash %s into at least one storage services', $hash));
         }
 
         return $hash;
@@ -181,7 +181,7 @@ class StorageManager
         }
 
         if (0 === $count) {
-            throw new \RuntimeException(sprintf('Impossible to initiate the upload of an asset identified by the hash %s into at least one storage services', $fileHash));
+            throw new \RuntimeException(\sprintf('Impossible to initiate the upload of an asset identified by the hash %s into at least one storage services', $fileHash));
         }
 
         return $count;
@@ -200,7 +200,7 @@ class StorageManager
         }
 
         if (0 === $count) {
-            throw new \RuntimeException(sprintf('Impossible to add a chunk of an asset identified by the hash %s into at least one storage services', $hash));
+            throw new \RuntimeException(\sprintf('Impossible to add a chunk of an asset identified by the hash %s into at least one storage services', $hash));
         }
 
         return $count;
@@ -280,7 +280,7 @@ class StorageManager
         }
 
         if (0 === $count) {
-            throw new \RuntimeException(sprintf('Impossible finalize the upload of an asset identified by the hash %s into at least one storage services', $hash));
+            throw new \RuntimeException(\sprintf('Impossible finalize the upload of an asset identified by the hash %s into at least one storage services', $hash));
         }
 
         return $count;
@@ -300,7 +300,7 @@ class StorageManager
         }
 
         if (0 === $count) {
-            throw new \RuntimeException(sprintf('Impossible to a a file (%s) identified by the hash %s into at least one storage services', $filename, $hash));
+            throw new \RuntimeException(\sprintf('Impossible to a a file (%s) identified by the hash %s into at least one storage services', $filename, $hash));
         }
 
         return $hash;

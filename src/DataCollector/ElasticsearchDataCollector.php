@@ -45,7 +45,7 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
      */
     public function getTotal()
     {
-        return count($this->data) / 2;
+        return \count($this->data) / 2;
     }
 
     /**
@@ -95,7 +95,7 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
         $context = $log['context'];
 
         if ('Response:' === $log['message']) {
-            $sanitize['message'] = vsprintf('Response: %s %s %s', [
+            $sanitize['message'] = \vsprintf('Response: %s %s %s', [
                $context['HTTP code'],
                $context['method'],
                $context['uri'],

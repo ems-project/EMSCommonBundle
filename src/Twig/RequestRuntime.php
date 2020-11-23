@@ -40,12 +40,12 @@ class RequestRuntime implements RuntimeExtensionInterface
 
     public static function endsWith($haystack, $needle)
     {
-        $length = strlen($needle);
+        $length = \strlen($needle);
         if (0 == $length) {
             return true;
         }
 
-        return substr($haystack, -$length) === $needle;
+        return \substr($haystack, -$length) === $needle;
     }
 
     /**
@@ -96,7 +96,7 @@ class RequestRuntime implements RuntimeExtensionInterface
         //We are generating an image
         if (isset($config[EmsFields::ASSET_CONFIG_TYPE]) && EmsFields::ASSET_CONFIG_TYPE_IMAGE === $config[EmsFields::ASSET_CONFIG_TYPE]) {
             //an SVG image wont be reworked
-            if ($mimeType && preg_match('/image\/svg.*/', $mimeType)) {
+            if ($mimeType && \preg_match('/image\/svg.*/', $mimeType)) {
                 $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
                 if (!self::endsWith($filename, '.svg')) {
                     $filename .= '.svg';
@@ -142,7 +142,7 @@ class RequestRuntime implements RuntimeExtensionInterface
 
         $parameters = [
             'hash_config' => $hashConfig,
-            'filename' => basename($filename),
+            'filename' => \basename($filename),
             'hash' => $hash ?? $hashConfig,
         ];
 

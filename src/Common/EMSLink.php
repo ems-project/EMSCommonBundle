@@ -38,8 +38,8 @@ class EMSLink
 
     public static function fromText(string $text): EMSLink
     {
-        $pattern = 'ems://' === substr($text, 0, 6) ? self::PATTERN : self::SIMPLE_PATTERN;
-        preg_match($pattern, $text, $match);
+        $pattern = 'ems://' === \substr($text, 0, 6) ? self::PATTERN : self::SIMPLE_PATTERN;
+        \preg_match($pattern, $text, $match);
 
         return self::fromMatch($match);
     }
@@ -52,7 +52,7 @@ class EMSLink
         $link = new self();
 
         if (!isset($match['ouuid'])) {
-            throw new \InvalidArgumentException(sprintf('ouuid is required! (%s)', implode(',', $match)));
+            throw new \InvalidArgumentException(\sprintf('ouuid is required! (%s)', \implode(',', $match)));
         }
 
         $link->ouuid = $match['ouuid'];
@@ -82,10 +82,10 @@ class EMSLink
         $contentType = $document['_source'][EMSSource::FIELD_CONTENT_TYPE] ?? null;
         if (null == $contentType) {
             $contentType = $document['_type'] ?? null;
-            @trigger_error(sprintf('The field %s is missing in the document %s', EMSSource::FIELD_CONTENT_TYPE, $link->getEmsId()), E_USER_DEPRECATED);
+            @\trigger_error(\sprintf('The field %s is missing in the document %s', EMSSource::FIELD_CONTENT_TYPE, $link->getEmsId()), E_USER_DEPRECATED);
         }
         if (null == $contentType) {
-            throw new \RuntimeException(sprintf('Unable to determine the content type for document %s', $link->ouuid));
+            throw new \RuntimeException(\sprintf('Unable to determine the content type for document %s', $link->ouuid));
         }
         $link->contentType = $contentType;
 
@@ -94,7 +94,7 @@ class EMSLink
 
     public function __toString(): string
     {
-        return vsprintf('ems://%s:%s%s%s', [
+        return \vsprintf('ems://%s:%s%s%s', [
             $this->linkType,
             ($this->contentType ? $this->contentType.':' : ''),
             $this->ouuid,
@@ -137,6 +137,6 @@ class EMSLink
 
     public function getEmsId(): string
     {
-        return sprintf('%s:%s', $this->contentType, $this->ouuid);
+        return \sprintf('%s:%s', $this->contentType, $this->ouuid);
     }
 }

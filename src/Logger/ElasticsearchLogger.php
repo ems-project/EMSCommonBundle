@@ -54,7 +54,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
 
     public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security, bool $byPass = false)
     {
-        $levelName = strtoupper($level);
+        $levelName = \strtoupper($level);
         if (isset(Logger::getLevels()[$levelName])) {
             $this->level = Logger::getLevels()[$levelName];
         } else {
@@ -218,9 +218,9 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
             unset($body['formatted']);
 
             foreach ($record[EmsFields::LOG_CONTEXT_FIELD] as $key => &$value) {
-                if (!is_object($value)) {
+                if (!\is_object($value)) {
                     if (
-                        in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
+                        \in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
                         EmsFields::LOG_OUUID_FIELD, EmsFields::LOG_REVISION_ID_FIELD, EmsFields::LOG_HOST_FIELD, EmsFields::LOG_URL_FIELD,
                         EmsFields::LOG_STATUS_CODE_FIELD, EmsFields::LOG_SIZE_FIELD, EmsFields::LOG_ROUTE_FIELD, EmsFields::LOG_MICROTIME_FIELD,
                         EmsFields::LOG_SESSION_ID_FIELD, ])
@@ -257,7 +257,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
             ];
             $this->bulk[] = $body;
 
-            if (count($this->bulk) > 200) {
+            if (\count($this->bulk) > 200) {
                 $this->treatBulk();
             }
         }
@@ -307,7 +307,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 $operation = null;
         }
         $route = $request->attributes->get('_route', null);
-        if ($operation && $route && !in_array($route, ['_wdt'])) {
+        if ($operation && $route && !\in_array($route, ['_wdt'])) {
             $statusCode = $event->getResponse()->getStatusCode();
             if ($statusCode < 300) {
                 $level = Logger::INFO;
@@ -335,8 +335,8 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                     EmsFields::LOG_URL_FIELD => $request->getRequestUri(),
                     EmsFields::LOG_ROUTE_FIELD => $route,
                     EmsFields::LOG_STATUS_CODE_FIELD => $statusCode,
-                    EmsFields::LOG_SIZE_FIELD => strlen((string) $event->getResponse()->getContent()),
-                    EmsFields::LOG_MICROTIME_FIELD => (microtime(true) - $this->startMicrotime),
+                    EmsFields::LOG_SIZE_FIELD => \strlen((string) $event->getResponse()->getContent()),
+                    EmsFields::LOG_MICROTIME_FIELD => (\microtime(true) - $this->startMicrotime),
                 ],
             ];
             if ($request->hasSession()) {

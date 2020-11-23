@@ -40,7 +40,7 @@ class ElasticsearchProcessor
         $failures = [];
 
         foreach ($response as $failure) {
-            $failures[] = sprintf('%s on %s', $failure['reason']['reason'], $failure['index']);
+            $failures[] = \sprintf('%s on %s', $failure['reason']['reason'], $failure['index']);
         }
 
         return $failures;

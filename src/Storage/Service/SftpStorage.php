@@ -47,7 +47,7 @@ class SftpStorage extends AbstractUrlStorage
             $this->connect();
         }
 
-        return 'ssh2.sftp://'.intval($this->sftp).$this->path;
+        return 'ssh2.sftp://'.\intval($this->sftp).$this->path;
     }
 
     private function connect(): void

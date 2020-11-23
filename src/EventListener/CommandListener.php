@@ -60,8 +60,8 @@ class CommandListener implements EventSubscriberInterface
 
         $io = new SymfonyStyle($event->getInput(), $event->getOutput());
         $io->listing([
-            sprintf('Duration: %d s', $stopwatch->getDuration() / 1000),
-            sprintf('Memory: %s', Converter::formatBytes($stopwatch->getMemory())),
+            \sprintf('Duration: %d s', $stopwatch->getDuration() / 1000),
+            \sprintf('Memory: %s', Converter::formatBytes($stopwatch->getMemory())),
         ]);
     }
 }

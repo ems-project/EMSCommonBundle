@@ -41,7 +41,7 @@ class Processor
 
     public function getResponse(Request $request, string $hash, string $configHash, string $filename, bool $immutableRoute = false): Response
     {
-        $configJson = json_decode($this->storageManager->getContents($configHash), true);
+        $configJson = \json_decode($this->storageManager->getContents($configHash), true);
         $config = new Config($this->storageManager, $hash, $configHash, $configJson);
 
         return $this->getStreamedResponse($request, $config, $filename, $immutableRoute);
@@ -105,12 +105,12 @@ class Processor
             return $resource;
         }
 
-        throw new \Exception(sprintf('not able to generate file for the config %s', $config->getConfigHash()));
+        throw new \Exception(\sprintf('not able to generate file for the config %s', $config->getConfigHash()));
     }
 
     private function hashToFilename(string $hash): string
     {
-        $filename = (string) tempnam(sys_get_temp_dir(), 'EMS');
+        $filename = (string) \tempnam(\sys_get_temp_dir(), 'EMS');
         \file_put_contents($filename, $this->storageManager->getContents($hash));
 
         return $filename;
@@ -158,13 +158,13 @@ class Processor
         try {
             return $this->storageManager->getStream($config->getAssetHash());
         } catch (NotFoundException $e) {
-            throw new NotFoundHttpException(sprintf('File %s not found', $config->getAssetHash()));
+            throw new NotFoundHttpException(\sprintf('File %s not found', $config->getAssetHash()));
         }
     }
 
     private function getCacheFilename(Config $config, string $filename): string
     {
-        return join(DIRECTORY_SEPARATOR, [
+        return \join(DIRECTORY_SEPARATOR, [
             $this->projectDir,
             'public',
             'bundles',
@@ -208,7 +208,7 @@ class Processor
         if (null === $fileSize = $stream->getSize()) {
             return $response;
         }
-        $response->headers->set('Content-Length', strval($fileSize));
+        $response->headers->set('Content-Length', \strval($fileSize));
 
         if ($stream->isSeekable()) {
             $response->headers->set('Accept-Ranges', $request->isMethodSafe() ? 'bytes' : 'none');

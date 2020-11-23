@@ -54,7 +54,7 @@ class HttpStorage extends AbstractUrlStorage
             $result = $this->getClient()->get('/status.json');
             if (200 == $result->getStatusCode()) {
                 $status = \json_decode($result->getBody()->getContents(), true);
-                if (isset($status['status']) && in_array($status['status'], ['green', 'yellow'])) {
+                if (isset($status['status']) && \in_array($status['status'], ['green', 'yellow'])) {
                     return true;
                 }
             }
@@ -77,7 +77,7 @@ class HttpStorage extends AbstractUrlStorage
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
         try {
-            $result = $this->getClient()->post('/api/file/init-upload/'.urlencode($hash).'/'.$size.'?name='.urlencode($name).'&type='.urlencode($type), [
+            $result = $this->getClient()->post('/api/file/init-upload/'.\urlencode($hash).'/'.$size.'?name='.\urlencode($name).'&type='.\urlencode($type), [
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
@@ -92,7 +92,7 @@ class HttpStorage extends AbstractUrlStorage
     public function addChunk(string $hash, string $chunk): bool
     {
         try {
-            $result = $this->getClient()->post('/api/file/upload-chunk/'.urlencode($hash), [
+            $result = $this->getClient()->post('/api/file/upload-chunk/'.\urlencode($hash), [
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
@@ -126,7 +126,7 @@ class HttpStorage extends AbstractUrlStorage
                 'multipart' => [
                     [
                         'name' => 'upload',
-                        'contents' => fopen($filename, 'r'),
+                        'contents' => \fopen($filename, 'r'),
                     ],
                 ],
                 'headers' => [
@@ -143,17 +143,17 @@ class HttpStorage extends AbstractUrlStorage
     public function getSize(string $hash): int
     {
         try {
-            $context = stream_context_create(['http' => ['method' => 'HEAD']]);
-            $fd = fopen($this->baseUrl.$this->getUrl.$hash, 'rb', false, $context);
+            $context = \stream_context_create(['http' => ['method' => 'HEAD']]);
+            $fd = \fopen($this->baseUrl.$this->getUrl.$hash, 'rb', false, $context);
 
             if (false === $fd) {
                 throw new NotFoundHttpException($hash);
             }
 
-            $metas = stream_get_meta_data($fd);
+            $metas = \stream_get_meta_data($fd);
             foreach ($metas['wrapper_data'] ?? [] as $meta) {
-                if (preg_match('/^content\-length: (.*)$/i', $meta, $matches, PREG_OFFSET_CAPTURE)) {
-                    return intval($matches[1][0]);
+                if (\preg_match('/^content\-length: (.*)$/i', $meta, $matches, PREG_OFFSET_CAPTURE)) {
+                    return \intval($matches[1][0]);
                 }
             }
         } catch (\Throwable $e) {

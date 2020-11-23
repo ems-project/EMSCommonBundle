@@ -29,7 +29,7 @@ final class ExpressionService implements ExpressionServiceInterface
         try {
             $evaluation = $this->getExpressionLanguage()->evaluate($expression, $values);
 
-            if (!is_bool($evaluation)) {
+            if (!\is_bool($evaluation)) {
                 throw new \Exception('Expression did not evaluate to bool!');
             }
 
@@ -60,7 +60,7 @@ final class ExpressionService implements ExpressionServiceInterface
         $expressionLanguage->register(
             'date',
             function ($date) {
-                return sprintf('(new \DateTime(%s))', $date);
+                return \sprintf('(new \DateTime(%s))', $date);
             },
             function (array $values, $date) {
                 return new \DateTime($date);
@@ -69,7 +69,7 @@ final class ExpressionService implements ExpressionServiceInterface
         $expressionLanguage->register(
             'date_modify',
             function ($date, $modify) {
-                return sprintf('%s->modify(%s)', $date, $modify);
+                return \sprintf('%s->modify(%s)', $date, $modify);
             },
             function (array $values, $date, $modify) {
                 if (!$date instanceof \DateTime) {
