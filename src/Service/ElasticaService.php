@@ -162,6 +162,8 @@ class ElasticaService
             $queryObject->addMust($query);
         }
         $search = new Search($indexes, $queryObject);
+        $search->setSize($options['size']);
+        $search->setFrom($options['from']);
         $aggs =  $options['aggs'];
         if ($aggs === null) {
             return $search;
@@ -179,7 +181,7 @@ class ElasticaService
         return $search;
     }
 
-        /**
+    /**
      * @param array<mixed> $param
      * @return Search
      */
@@ -299,7 +301,7 @@ class ElasticaService
 
     /**
      * @param array<mixed> $parameters
-     * @return array{aggs: ?array, query: ?array}
+     * @return array{aggs: ?array, query: ?array, size: int, from: int}
      */
     private function resolveElasticsearchBody(array $parameters): array
     {
@@ -308,9 +310,13 @@ class ElasticaService
             ->setDefaults([
                 'query' => null,
                 'aggs' => null,
+                'size' => 20,
+                'from' => 0,
             ])
             ->setAllowedTypes('query', ['array', 'string', 'null'])
             ->setAllowedTypes('aggs', ['array', 'string', 'null'])
+            ->setAllowedTypes('size', ['int'])
+            ->setAllowedTypes('from', ['int'])
             ->setNormalizer('query', function (Options $options, $value) {
                 if (\is_string($value)) {
                     $value = \json_decode($value, true);
@@ -324,7 +330,7 @@ class ElasticaService
                 return $value;
             })
         ;
-        /** @var array{aggs: ?array, query: ?array} $resolvedParameters */
+        /** @var array{aggs: ?array, query: ?array, size: int, from: int} $resolvedParameters */
         $resolvedParameters = $resolver->resolve($parameters);
         return $resolvedParameters;
     }
