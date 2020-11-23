@@ -162,8 +162,7 @@ class ElasticaService
             $queryObject->addMust($query);
         }
         $search = new Search($indexes, $queryObject);
-        $search->setSize($options['size']);
-        $search->setFrom($options['from']);
+        $this->setSearchDefaultOptions($search, $options);
         $search->addAggregations($this->parseAggregations($options['aggs'] ?? []));
         return $search;
     }
@@ -176,46 +175,27 @@ class ElasticaService
     {
         @trigger_error("This function exists to simplified the migration to elastica, but should not be used on long term", E_USER_DEPRECATED);
         $options = $this->resolveElasticsearchSearchParameters($param);
-
         $search = $this->convertElasticsearchBody($options['index'], $options['type'], $options['body']);
-
-        $search->setSize($options['size']);
-        $search->setFrom($options['from']);
-        $sort = $options['sort'];
-        if ($sort !== null) {
-            $search->setSort($sort);
-        }
-        $sources = $options['_source'];
-        if ($sources !== null) {
-            $search->setSources($sources);
-        }
+        $this->setSearchDefaultOptions($search, $options);
         return $search;
     }
 
     /**
      * @param array<mixed> $parameters
-     * @return array{type: string[], index: string[], body: array<mixed>, size: int, from: int, _source: string[], sort: array<mixed>}
+     * @return array{type: string[], index: string[], body: array<mixed>, size: int, from: int, _source: string[], sort: ?array<mixed>}
      */
     private function resolveElasticsearchSearchParameters(array $parameters): array
     {
-        $optionResolver = new OptionsResolver();
+        $optionResolver = $this->elasticsearchDefaultResolver();
         $optionResolver
             ->setDefaults([
                 'type' => null,
                 'index' => [],
                 'body' => [],
-                'size' => 20,
-                'from' => 0,
-                '_source' => [],
-                'sort' => []
             ])
             ->setAllowedTypes('type', ['string', 'array', 'null'])
             ->setAllowedTypes('index', ['string', 'array'])
             ->setAllowedTypes('body', ['null', 'array', 'string'])
-            ->setAllowedTypes('size', ['int'])
-            ->setAllowedTypes('from', ['int'])
-            ->setAllowedTypes('_source', ['array', 'string', 'bool'])
-            ->setAllowedTypes('sort', ['array'])
             ->setRequired(['index'])
             ->setNormalizer('type', function (Options $options, $value) {
                 if ($value === null) {
@@ -241,20 +221,8 @@ class ElasticaService
                 }
                 return $value;
             })
-            ->setNormalizer('_source', function (Options $options, $value) {
-                if ($value === true) {
-                    return [];
-                }
-                if ($value === false) {
-                    return [EMSSource::FIELD_CONTENT_TYPE];
-                }
-                if (!\is_array($value)) {
-                    return [$value];
-                }
-                return $value;
-            })
         ;
-        /** @var array{type: string[], index: string[], body: array{query: array, aggs: array}, size: int, from: int, _source: string[], sort: array<mixed>} $resolvedParameters */
+        /** @var array{type: string[], index: string[], body: array<mixed>, size: int, from: int, _source: string[], sort: ?array<mixed>} $resolvedParameters */
         $resolvedParameters = $optionResolver->resolve($parameters);
         return $resolvedParameters;
     }
@@ -288,22 +256,18 @@ class ElasticaService
 
     /**
      * @param array<mixed> $parameters
-     * @return array{aggs: ?array, query: ?array, size: int, from: int}
+     * @return array{aggs: ?array, query: ?array, size: int, from: int, _source: ?string[], sort: ?array}
      */
     private function resolveElasticsearchBody(array $parameters): array
     {
-        $resolver = new OptionsResolver();
+        $resolver = $this->elasticsearchDefaultResolver();
         $resolver
             ->setDefaults([
                 'query' => null,
                 'aggs' => null,
-                'size' => 20,
-                'from' => 0,
             ])
             ->setAllowedTypes('query', ['array', 'string', 'null'])
             ->setAllowedTypes('aggs', ['array', 'string', 'null'])
-            ->setAllowedTypes('size', ['int'])
-            ->setAllowedTypes('from', ['int'])
             ->setNormalizer('query', function (Options $options, $value) {
                 if (\is_string($value)) {
                     $value = \json_decode($value, true);
@@ -317,7 +281,7 @@ class ElasticaService
                 return $value;
             })
         ;
-        /** @var array{aggs: ?array, query: ?array, size: int, from: int} $resolvedParameters */
+        /** @var array{aggs: ?array, query: ?array, size: int, from: int, _source: ?string[], sort: ?array} $resolvedParameters */
         $resolvedParameters = $resolver->resolve($parameters);
         return $resolvedParameters;
     }
@@ -356,5 +320,52 @@ class ElasticaService
             $aggregations[] = $this->addAggregation($name, $agg);
         }
         return $aggregations;
+    }
+
+    private function elasticsearchDefaultResolver(): OptionsResolver
+    {
+        $resolver = new OptionsResolver();
+        $resolver
+            ->setDefaults([
+                'size' => 20,
+                'from' => 0,
+                '_source' => [],
+                'sort' => null,
+            ])
+            ->setAllowedTypes('size', ['int'])
+            ->setAllowedTypes('from', ['int'])
+            ->setAllowedTypes('_source', ['array', 'string', 'bool'])
+            ->setAllowedTypes('sort', ['array', 'null'])
+            ->setNormalizer('_source', function (Options $options, $value) {
+                if ($value === null || $value === true) {
+                    return null;
+                }
+                if ($value === false) {
+                    return [EMSSource::FIELD_CONTENT_TYPE];
+                }
+                if (!\is_array($value)) {
+                    return [$value];
+                }
+                return $value;
+            })
+        ;
+        return $resolver;
+    }
+
+    /**
+     * @param array{size: int, from: int, sort: ?array, _source: ?array} $options
+     */
+    private function setSearchDefaultOptions(Search $search, array $options): void
+    {
+        $search->setSize($options['size']);
+        $search->setFrom($options['from']);
+        $sort = $options['sort'];
+        if ($sort !== null && !empty($sort)) {
+            $search->setSort($sort);
+        }
+        $sources = $options['_source'];
+        if ($sources !== null && !empty($sources)) {
+            $search->setSources($sources);
+        }
     }
 }
