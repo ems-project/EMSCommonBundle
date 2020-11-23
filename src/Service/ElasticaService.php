@@ -83,6 +83,11 @@ class ElasticaService
         return new BoolQuery();
     }
 
+    public function getTermsQuery(string $field, array $terms): Terms
+    {
+        return new Terms($field, $terms);
+    }
+
     public function search(Search $search): ResultSet
     {
         return $this->createElasticaSearch($search, $search->getSearchOptions())->search();
