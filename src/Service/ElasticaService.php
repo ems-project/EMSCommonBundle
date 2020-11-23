@@ -17,7 +17,10 @@ use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 use EMS\CommonBundle\Elasticsearch\Exception\NotSingleResultException;
 use EMS\CommonBundle\Search\Search;
+use EMS\CommonBundle\Search\Search as CommonSearch;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\OptionsResolver\Options;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ElasticaService
 {
@@ -122,6 +125,99 @@ class ElasticaService
     public function getAliasesFromIndex(string $indexName): array
     {
         return $this->client->getIndex($indexName)->getAliases();
+    }
+
+    /**
+     * @param array<mixed> $param
+     * @return CommonSearch
+     */
+    public function convertElasticsearchSearch(array $param): Search
+    {
+        @trigger_error("This function exists to simplified the migration to elastica, but should not be used on long term", E_USER_DEPRECATED);
+        $options = $this->resolveElasticsearchSearchParameters($param);
+        $query = $this->filterByContentTypes(null, $options['type']);
+        $boolQuery = $this->getBoolQuery();
+        $body =  $options['body'];
+        if (!empty($body) && $query instanceof $boolQuery) {
+            $query->addMust($body);
+        } elseif (!empty($body)) {
+            if ($query !== null) {
+                $boolQuery->addMust($query);
+            }
+            $query = $boolQuery;
+            $query->addMust($body);
+        }
+        $indexes = $options['index'];
+        $search = new CommonSearch($indexes, $query);
+        $search->setSize($options['size']);
+        $search->setFrom($options['from']);
+        $sort = $options['sort'];
+        if ($sort !== null) {
+            $search->setSort($sort);
+        }
+        $sources = $options['_source'];
+        if ($sources !== null) {
+            $search->setSources($sources);
+        }
+        return $search;
+    }
+
+    /**
+     * @param array<mixed> $parameters
+     * @return array{type: string[], index: string[], body: array<mixed>, size: int, from: int, _source: string[], sort: array<mixed>}
+     */
+    private function resolveElasticsearchSearchParameters(array $parameters): array
+    {
+        $optionResolver = new OptionsResolver();
+        $optionResolver
+            ->setDefaults([
+                'type' => null,
+                'index' => [],
+                'body' => [],
+                'size' => 20,
+                'from' => 0,
+                '_source' => [],
+                'sort' => []
+            ])
+            ->setAllowedTypes('type', ['string', 'array', 'null'])
+            ->setAllowedTypes('index', ['string', 'array'])
+            ->setAllowedTypes('body', ['null', 'array'])
+            ->setAllowedTypes('size', ['int'])
+            ->setAllowedTypes('from', ['int'])
+            ->setAllowedTypes('_source', ['array|string|bool'])
+            ->setAllowedTypes('sort', ['array'])
+            ->setRequired(['index'])
+            ->setNormalizer('type', function (Options $options, $value) {
+                if ($value === null) {
+                    return [];
+                }
+                if (!\is_array($value)) {
+                    return [$value];
+                }
+                return $value;
+            })
+            ->setNormalizer('index', function (Options $options, $value) {
+                if (!\is_array($value)) {
+                    return [$value];
+                }
+                return $value;
+            })
+            ->setNormalizer('_source', function (Options $options, $value) {
+                if ($value === true) {
+                    return [];
+                }
+                if ($value === false) {
+                    return [EMSSource::FIELD_CONTENT_TYPE];
+                }
+                if (!\is_array($value)) {
+                    return [$value];
+                }
+                return $value;
+            })
+        ;
+        /** @var array{type: string[], index: string[], body: array<mixed>, size: int, from: int, _source: string[], sort: array<mixed>} $resolvedParameters */
+        $resolvedParameters = $optionResolver->resolve($parameters);
+        return $resolvedParameters;
     }
 
     /**
