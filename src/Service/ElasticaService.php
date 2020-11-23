@@ -83,6 +83,9 @@ class ElasticaService
         return new BoolQuery();
     }
 
+    /**
+     * @param string[] $terms
+     */
     public function getTermsQuery(string $field, array $terms): Terms
     {
         return new Terms($field, $terms);
