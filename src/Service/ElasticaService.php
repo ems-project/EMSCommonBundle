@@ -70,16 +70,28 @@ class ElasticaService
     /**
      * @param string[] $indexes
      * @param string[] $terms
+     * @param string[] $contentTypes
      */
-    public function generateTermsSearch(array $indexes, string $field, array $terms): Search
+    public function generateTermsSearch(array $indexes, string $field, array $terms, array $contentTypes = []): Search
     {
         $query = new Terms($field, $terms);
+        if (empty($contentTypes)) {
+            $query = $this->filterByContentTypes($query, $contentTypes);
+        }
         return new Search($indexes, $query);
     }
 
     public function getBoolQuery(): BoolQuery
     {
         return new BoolQuery();
+    }
+
+    /**
+     * @param string[] $terms
+     */
+    public function getTermsQuery(string $field, array $terms): Terms
+    {
+        return new Terms($field, $terms);
     }
 
     public function search(Search $search): ResultSet
