@@ -139,17 +139,19 @@ class ElasticaService
         return $this->client->getIndex($indexName)->getAliases();
     }
 
+
     /**
-     * @param array<mixed> $param
+     * @param string[] $indexes
+     * @param string[] $contentTypes
+     * @param array<mixed> $body
      * @return Search
      */
-    public function convertElasticsearchSearch(array $param): Search
+    public function convertElasticsearchBody(array $indexes, array $contentTypes, array $body): Search
     {
-        @trigger_error("This function exists to simplified the migration to elastica, but should not be used on long term", E_USER_DEPRECATED);
-        $options = $this->resolveElasticsearchSearchParameters($param);
-        $queryObject = $this->filterByContentTypes(null, $options['type']);
+        $options = $this->resolveElasticsearchBody($body);
+        $queryObject = $this->filterByContentTypes(null, $contentTypes);
         $boolQuery = $this->getBoolQuery();
-        $query =  $options['body']['query'];
+        $query =  $options['query'];
         if (!empty($query) && $queryObject instanceof $boolQuery) {
             $queryObject->addMust($query);
         } elseif (!empty($query)) {
@@ -159,9 +161,11 @@ class ElasticaService
             $queryObject = $boolQuery;
             $queryObject->addMust($query);
         }
-        $indexes = $options['index'];
         $search = new Search($indexes, $queryObject);
-        $aggs =  $options['body']['aggs'];
+        $aggs =  $options['aggs'];
+        if ($aggs === null) {
+            return $search;
+        }
         foreach ($aggs as $name => $agg) {
             if (!\is_array($agg) || \count($agg) !== 1) {
                 throw new \RuntimeException('Unexpected aggregation basename');
@@ -172,6 +176,20 @@ class ElasticaService
                 $search->addAggregation($aggregation);
             }
         }
+        return $search;
+    }
+
+        /**
+     * @param array<mixed> $param
+     * @return Search
+     */
+    public function convertElasticsearchSearch(array $param): Search
+    {
+        @trigger_error("This function exists to simplified the migration to elastica, but should not be used on long term", E_USER_DEPRECATED);
+        $options = $this->resolveElasticsearchSearchParameters($param);
+
+        $search = $this->convertElasticsearchBody($options['index'], $options['type'], $options['body']);
+
         $search->setSize($options['size']);
         $search->setFrom($options['from']);
         $sort = $options['sort'];
@@ -230,9 +248,9 @@ class ElasticaService
                     $value = \json_decode($value, true);
                 }
                 if ($value === null) {
-                    return null;
+                    return [];
                 }
-                return $this->convertElasticsearchBody($value);
+                return $value;
             })
             ->setNormalizer('_source', function (Options $options, $value) {
                 if ($value === true) {
@@ -283,7 +301,7 @@ class ElasticaService
      * @param array<mixed> $parameters
      * @return array{aggs: ?array, query: ?array}
      */
-    private function convertElasticsearchBody(array $parameters): array
+    private function resolveElasticsearchBody(array $parameters): array
     {
         $resolver = new OptionsResolver();
         $resolver
