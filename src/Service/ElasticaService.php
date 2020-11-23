@@ -64,6 +64,21 @@ class ElasticaService
         return Document::fromResult($result);
     }
 
+    /**
+     * @param string[] $indexes
+     * @param string[] $terms
+     */
+    public function generateTermsSearch(array $indexes, string $field, array $terms): Search
+    {
+        $query = new Terms($field, $terms);
+        return new Search($indexes, $query);
+    }
+
+    public function getBoolQuery(): BoolQuery
+    {
+        return new BoolQuery();
+    }
+
     public function search(Search $search): ResultSet
     {
         return $this->createElasticaSearch($search, $search->getSearchOptions())->search();
