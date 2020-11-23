@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Factory;
 
 use EMS\CommonBundle\Storage\Service\FileSystemStorage;
@@ -7,7 +9,7 @@ use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class FileSystemFactory implements StorageFactoryInterface
+class FileSystemFactory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
     const STORAGE_TYPE = 'fs';
@@ -56,14 +58,22 @@ class FileSystemFactory implements StorageFactoryInterface
         }
 
         if (\in_array($realPath, $this->usedFolder)) {
+<<<<<<< HEAD
             $this->logger->warning(sprintf('The folder %s is already used by another storage service', $realPath));
 
+=======
+            $this->logger->warning('The folder {realPath} is already used by another storage service', [$realPath]);
+>>>>>>> ems/develop
             return null;
         }
 
         $this->usedFolder[] = $realPath;
+<<<<<<< HEAD
 
         return new FileSystemStorage($realPath);
+=======
+        return new FileSystemStorage($this->logger, $realPath, $config[self::STORAGE_CONFIG_USAGE]);
+>>>>>>> ems/develop
     }
 
     public function getStorageType(): string
@@ -73,25 +83,27 @@ class FileSystemFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
+<<<<<<< HEAD
      *
      * @return array{type: string, path: string}
+=======
+     * @return array{type: string, path: string, usage: int}
+>>>>>>> ems/develop
      */
     private function resolveParameters(array $parameters): array
     {
-        $resolver = new OptionsResolver();
+        $resolver = $this->getDefaultOptionsResolver();
         $resolver
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_PATH => null,
             ])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
-            ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setRequired(self::STORAGE_CONFIG_PATH)
-            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
         ;
 
-        /** @var array{type: string, path: string} $resolvedParameter */
+        /** @var array{type: string, path: string, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
 
         return $resolvedParameter;

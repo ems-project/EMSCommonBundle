@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Service;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
@@ -17,10 +19,13 @@ class EntityStorage implements StorageInterface
     private $manager;
     /** @var AssetStorageRepository */
     private $repository;
+    /** @var int */
+    private $usage;
 
-    public function __construct(Registry $doctrine)
+    public function __construct(Registry $doctrine, int $usage)
     {
         $this->manager = $doctrine->getManager();
+        $this->usage = $usage;
 
         //TODO: Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
         $repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
@@ -115,6 +120,10 @@ class EntityStorage implements StorageInterface
 
     public function remove(string $hash): bool
     {
+        if (!$this->head($hash)) {
+            return false;
+        }
+
         return $this->repository->removeByHash($hash);
     }
 
@@ -150,7 +159,7 @@ class EntityStorage implements StorageInterface
         return false;
     }
 
-    public function addChunk(string $hash, string $chunk, ?string $context = null): bool
+    public function addChunk(string $hash, string $chunk): bool
     {
         $entity = $this->repository->findByHash($hash, false);
         if (null !== $entity) {
@@ -169,5 +178,19 @@ class EntityStorage implements StorageInterface
         }
 
         return false;
+    }
+
+    public function getUsage(): int
+    {
+        return $this->usage;
+    }
+
+    protected function isUsageSupported(int $usageRequested): bool
+    {
+        if ($usageRequested >= self::STORAGE_USAGE_EXTERNAL) {
+            return false;
+        }
+
+        return $usageRequested <= $this->usage;
     }
 }

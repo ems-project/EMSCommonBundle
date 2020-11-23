@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Factory;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
@@ -8,7 +10,7 @@ use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class EntityFactory implements StorageFactoryInterface
+class EntityFactory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
     const STORAGE_TYPE = 'db';
@@ -45,7 +47,11 @@ class EntityFactory implements StorageFactoryInterface
         }
         $this->registered = true;
 
+<<<<<<< HEAD
         return new EntityStorage($this->doctrine);
+=======
+         return new EntityStorage($this->doctrine, $config[self::STORAGE_CONFIG_USAGE]);
+>>>>>>> ems/develop
     }
 
     public function getStorageType(): string
@@ -55,25 +61,28 @@ class EntityFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
+<<<<<<< HEAD
      *
      * @return array{type: string, activate: bool}
+=======
+     * @return array{type: string, activate: bool, usage: int}
+>>>>>>> ems/develop
      */
     private function resolveParameters(array $parameters): array
     {
-        $resolver = new OptionsResolver();
+        $resolver = $this->getDefaultOptionsResolver();
         $resolver
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_ACTIVATE => true,
+                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CONFIG_ATTRIBUTE,
             ])
-            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_ACTIVATE, 'bool')
-            ->setRequired(self::STORAGE_CONFIG_TYPE)
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
             ->setAllowedValues(self::STORAGE_CONFIG_ACTIVATE, [true, false])
         ;
 
-        /** @var array{type: string, activate: bool} $resolvedParameter */
+        /** @var array{type: string, activate: bool, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
 
         return $resolvedParameter;

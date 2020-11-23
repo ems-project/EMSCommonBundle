@@ -3,6 +3,7 @@
 namespace EMS\CommonBundle\Search;
 
 use Elastica\Aggregation\AbstractAggregation;
+use Elastica\Aggregation\Terms;
 use Elastica\Query\AbstractQuery;
 use Elastica\Search as ElasticaSearch;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
@@ -144,5 +145,13 @@ class Search
     public function getAggregations(): array
     {
         return $this->aggregations;
+    }
+
+    public function addTermsAggregation(string $name, string $field, int $size = 20): void
+    {
+        $termsAggregation = new Terms($name);
+        $termsAggregation->setField($field);
+        $termsAggregation->setSize($size);
+        $this->addAggregation($termsAggregation);
     }
 }

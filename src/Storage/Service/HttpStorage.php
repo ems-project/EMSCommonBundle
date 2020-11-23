@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Service;
 
 use EMS\CommonBundle\Common\HttpClientFactory;
-use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class HttpStorage extends AbstractUrlStorage
@@ -18,8 +20,9 @@ class HttpStorage extends AbstractUrlStorage
     /** @var string|null */
     private $authKey;
 
-    public function __construct(string $baseUrl, string $getUrl, ?string $authKey = null)
+    public function __construct(LoggerInterface $logger, string $baseUrl, string $getUrl, int $usage, ?string $authKey = null)
     {
+        parent::__construct($logger, $usage);
         $this->baseUrl = $baseUrl;
         $this->getUrl = $getUrl;
         $this->authKey = $authKey;
@@ -49,23 +52,38 @@ class HttpStorage extends AbstractUrlStorage
     {
         try {
             $result = $this->getClient()->get('/status.json');
+<<<<<<< HEAD
             if (200 == $result->getStatusCode()) {
                 $status = json_decode($result->getBody(), true);
+=======
+            if ($result->getStatusCode() == 200) {
+                $status = \json_decode($result->getBody()->getContents(), true);
+>>>>>>> ems/develop
                 if (isset($status['status']) && in_array($status['status'], ['green', 'yellow'])) {
                     return true;
                 }
             }
-        } catch (\Exception $e) {
+            return false;
+        } catch (\Throwable $e) {
+            return false;
         }
+<<<<<<< HEAD
 
         return false;
+=======
+>>>>>>> ems/develop
     }
 
     public function read(string $hash, bool $confirmed = true): StreamInterface
     {
         try {
+<<<<<<< HEAD
             return $this->getClient()->get($this->getUrl.$hash)->getBody();
         } catch (\Exception $e) {
+=======
+            return $this->getClient()->get($this->getUrl . $hash)->getBody();
+        } catch (\Throwable $e) {
+>>>>>>> ems/develop
             throw new NotFoundHttpException($hash);
         }
     }
@@ -79,13 +97,18 @@ class HttpStorage extends AbstractUrlStorage
                 ],
             ]);
 
+<<<<<<< HEAD
             return 200 === $result->getStatusCode();
         } catch (\Exception $e) {
+=======
+            return $result->getStatusCode() === 200;
+        } catch (\Throwable $e) {
+>>>>>>> ems/develop
             throw new NotFoundHttpException($hash);
         }
     }
 
-    public function addChunk(string $hash, string $chunk, ?string $context = null): bool
+    public function addChunk(string $hash, string $chunk): bool
     {
         try {
             $result = $this->getClient()->post('/api/file/upload-chunk/'.urlencode($hash), [
@@ -94,9 +117,14 @@ class HttpStorage extends AbstractUrlStorage
                 ],
                 'body' => $chunk,
             ]);
+<<<<<<< HEAD
 
             return 200 === $result->getStatusCode();
         } catch (\Exception $e) {
+=======
+            return $result->getStatusCode() === 200;
+        } catch (\Throwable $e) {
+>>>>>>> ems/develop
             throw new NotFoundHttpException($hash);
         }
     }
@@ -109,8 +137,13 @@ class HttpStorage extends AbstractUrlStorage
     public function head(string $hash): bool
     {
         try {
+<<<<<<< HEAD
             return 200 === $this->getClient()->head($this->getUrl.$hash)->getStatusCode();
         } catch (Exception $e) {
+=======
+            return $this->getClient()->head($this->getUrl . $hash)->getStatusCode() === 200;
+        } catch (\Throwable $e) {
+>>>>>>> ems/develop
             throw new NotFoundHttpException($hash);
         }
     }
@@ -152,7 +185,7 @@ class HttpStorage extends AbstractUrlStorage
                     return intval($matches[1][0]);
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
         }
         throw new NotFoundHttpException($hash);
     }

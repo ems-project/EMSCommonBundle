@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage\Factory;
 
 use EMS\CommonBundle\Storage\Service\S3Storage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class S3Factory implements StorageFactoryInterface
+class S3Factory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
     const STORAGE_TYPE = 's3';
@@ -36,7 +37,7 @@ class S3Factory implements StorageFactoryInterface
             return null;
         }
 
-        return new S3Storage($credentials, $bucket);
+        return new S3Storage($this->logger, $credentials, $bucket, $config[self::STORAGE_CONFIG_USAGE]);
     }
 
     public function getStorageType(): string
@@ -48,23 +49,23 @@ class S3Factory implements StorageFactoryInterface
      * @param array<string, mixed> $parameters
      *
      * @return array{type: string, credentials: null|array, bucket: null|string}
+     * @return array{type: string, credentials: null|array, bucket: null|string, usage: int}
+>>>>>>> ems/develop
      */
     private function resolveParameters(array $parameters): array
     {
-        $resolver = new OptionsResolver();
+        $resolver = $this->getDefaultOptionsResolver();
         $resolver
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_CREDENTIALS => null,
                 self::STORAGE_CONFIG_BUCKET => null,
             ])
-            ->setRequired(self::STORAGE_CONFIG_TYPE)
-            ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_CREDENTIALS, ['null', 'array'])
             ->setAllowedTypes(self::STORAGE_CONFIG_BUCKET, ['null', 'string'])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
-        /** @var array{type: string, credentials: null|array, bucket: null|string} $resolvedParameter */
+        /** @var array{type: string, credentials: null|array, bucket: null|string, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
 
         return $resolvedParameter;

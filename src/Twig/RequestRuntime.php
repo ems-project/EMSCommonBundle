@@ -2,7 +2,6 @@
 
 namespace EMS\CommonBundle\Twig;
 
-use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\Processor\Config;
 use EMS\CommonBundle\Storage\Processor\Processor;
@@ -119,11 +118,15 @@ class RequestRuntime implements RuntimeExtensionInterface
             $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
         }
 
+<<<<<<< HEAD
         $normalizedArray = ArrayTool::normalizeAndSerializeArray($config);
         if (false === $normalizedArray) {
             throw new \RuntimeException('Could not normalize config.');
         }
         $hashConfig = $this->storageManager->saveContents($normalizedArray, 'assetConfig.json', 'application/json', 1);
+=======
+        $hashConfig = $this->storageManager->saveConfig($config);
+>>>>>>> ems/develop
 
         if (isset($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) && $config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) {
             $configObj = new Config($this->storageManager, $hash, $hashConfig, $config);

@@ -27,11 +27,11 @@ final class Response implements ResponseInterface
     /**
      * @param array<mixed> $response
      */
-    private function __construct($response)
+    private function __construct(array $response)
     {
         $this->total = $response['hits']['total']['value'] ?? $response['hits']['total'] ?? 0;
         $this->accurate = true;
-        if ('eq' !== $response['hits']['total']['relation'] ?? null) {
+        if (\is_array($response['hits']['total'] ?? null) && 'eq' !== $response['hits']['total']['relation'] ?? null) {
             $this->accurate = false;
         }
         $this->hits = $response['hits']['hits'] ?? [];

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Storage;
 
+use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Storage\Factory\StorageFactoryInterface;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Http\Message\StreamInterface;
@@ -38,14 +41,6 @@ class StorageManager
         $this->hashAlgo = $hashAlgo;
         $this->storageConfigs = $storageConfigs;
         $this->registerServicesFromConfigs();
-    }
-
-    /**
-     * @return StorageInterface[]
-     */
-    public function getAdapters(): iterable
-    {
-        return $this->adapters;
     }
 
     private function addStorageFactory(StorageFactoryInterface $factory): void
@@ -95,7 +90,8 @@ class StorageManager
             if ($adapter->head($hash)) {
                 try {
                     return $adapter->read($hash);
-                } catch (NotFoundException $e) {
+                } catch (\Throwable $e) {
+                    continue;
                 }
             }
         }
@@ -122,33 +118,43 @@ class StorageManager
         return $this->hashAlgo;
     }
 
-    public function saveContents(string $contents, string $filename, string $mimetype, int $shouldBeSavedOnXServices = 1): string
+    public function saveContents(string $contents, string $filename, string $mimetype, int $usageType): string
     {
-        $hash = hash($this->hashAlgo, $contents);
-        $out = 0;
+        $hash = $this->computeStringHash($contents);
+        $count = 0;
 
+<<<<<<< HEAD
         /** @var StorageInterface $service */
         foreach ($this->getAdapters() as $service) {
             if (0 != $shouldBeSavedOnXServices && $out >= $shouldBeSavedOnXServices) {
                 break;
+=======
+        foreach ($this->adapters as $adapter) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
+                continue;
+>>>>>>> ems/develop
             }
 
-            if ($service->head($hash)) {
-                ++$out;
+            if ($adapter->head($hash)) {
+                ++$count;
                 continue;
             }
 
-            if (!$service->initUpload($hash, strlen($contents), $filename, $mimetype)) {
+            if (!$adapter->initUpload($hash, strlen($contents), $filename, $mimetype)) {
                 continue;
             }
 
-            if (!$service->addChunk($hash, $contents)) {
+            if (!$adapter->addChunk($hash, $contents)) {
                 continue;
             }
 
-            if ($service->finalizeUpload($hash)) {
-                ++$out;
+            if ($adapter->finalizeUpload($hash)) {
+                ++$count;
             }
+        }
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible to save the asset identified by the hash %s into at least one storage services', $hash));
         }
 
         return $hash;
@@ -169,15 +175,181 @@ class StorageManager
         return $hashFile;
     }
 
-    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, int $uploadMinimumNumberOfReplications): int
+    public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, int $usageType): int
     {
-        $loopCounter = 0;
-        foreach ($this->getAdapters() as $adapter) {
-            if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType) && ++$loopCounter >= $uploadMinimumNumberOfReplications) {
-                break;
+        $count = 0;
+        foreach ($this->adapters as $adapter) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
+                continue;
+            }
+            if ($adapter->initUpload($fileHash, $fileSize, $fileName, $mimeType)) {
+                ++$count;
             }
         }
 
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible to initiate the upload of an asset identified by the hash %s into at least one storage services', $fileHash));
+        }
+
+        return $count;
+    }
+
+    public function addChunk(string $hash, string $chunk, int $usageType): int
+    {
+        $count = 0;
+        foreach ($this->adapters as $adapter) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
+                continue;
+            }
+            if ($adapter->addChunk($hash, $chunk)) {
+                ++$count;
+            }
+        }
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible to add a chunk of an asset identified by the hash %s into at least one storage services', $hash));
+        }
+
+        return $count;
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    public function getHealthStatuses(): array
+    {
+        $statuses = [];
+        foreach ($this->adapters as $adapter) {
+            $statuses[$adapter->__toString()] = $adapter->health();
+        }
+        return $statuses;
+    }
+
+    public function getSize(string $hash): int
+    {
+        foreach ($this->adapters as $adapter) {
+            try {
+                return $adapter->getSize($hash);
+            } catch (\Throwable $e) {
+                continue;
+            }
+        }
+        throw new NotFoundException($hash);
+    }
+
+    public function getBase64(string $hash): ?string
+    {
+        foreach ($this->adapters as $adapter) {
+            try {
+                $stream = $adapter->read($hash);
+            } catch (\Throwable $e) {
+                continue;
+            }
+            return \base64_encode($stream->getContents());
+        }
+        return null;
+    }
+
+    public function finalizeUpload(string $hash, int $size, int $usageType): int
+    {
+        $count = 0;
+        foreach ($this->adapters as $adapter) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
+                continue;
+            }
+
+            try {
+                $handler = $adapter->read($hash, false);
+            } catch (\Throwable $e) {
+                continue;
+            }
+
+            $uploadedSize = $handler->getSize();
+            if ($uploadedSize === null) {
+                continue;
+            }
+            $computedHash = $this->computeStringHash($handler->getContents());
+
+            if ($computedHash !== $hash) {
+                throw new HashMismatchException($hash, $computedHash);
+            }
+
+            if ($uploadedSize !== $size) {
+                throw new SizeMismatchException($hash, $size, $uploadedSize);
+            }
+
+            if ($adapter->finalizeUpload($hash)) {
+                ++$count;
+            }
+        }
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible finalize the upload of an asset identified by the hash %s into at least one storage services', $hash));
+        }
+
+        return $count;
+    }
+
+    public function saveFile(string $filename, int $usageType): string
+    {
+        $count = 0;
+        $hash = $this->computeFileHash($filename);
+        foreach ($this->adapters as $adapter) {
+            if (!$this->isUsageSupported($adapter, $usageType)) {
+                continue;
+            }
+            if ($adapter->create($hash, $filename)) {
+                ++$count;
+            }
+        }
+
+        if ($count === 0) {
+            throw new \RuntimeException(sprintf('Impossible to a a file (%s) identified by the hash %s into at least one storage services', $filename, $hash));
+        }
+
+        return $hash;
+    }
+
+    public function remove(string $hash): int
+    {
+        $count = 0;
+        foreach ($this->adapters as $adapter) {
+            if (!$this->isUsageSupported($adapter, StorageInterface::STORAGE_USAGE_BACKUP)) {
+                continue;
+            }
+            try {
+                if ($adapter->remove($hash)) {
+                    ++$count;
+                }
+            } catch (\Throwable $e) {
+                continue;
+            }
+        }
+        return $count;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function saveConfig(array $config): string
+    {
+        $normalizedArray = ArrayTool::normalizeAndSerializeArray($config);
+        if ($normalizedArray === false) {
+            throw new \RuntimeException('Could not normalize config.');
+        }
+        return $this->saveContents($normalizedArray, 'assetConfig.json', 'application/json', StorageInterface::STORAGE_USAGE_CONFIG);
+    }
+
+    private function isUsageSupported(StorageInterface $adapter, int $usageRequested): bool
+    {
+        if ($adapter->getUsage() >= StorageInterface::STORAGE_USAGE_EXTERNAL) {
+            return false;
+        }
+<<<<<<< HEAD
+
         return $loopCounter;
+=======
+        return $usageRequested >= $adapter->getUsage();
+>>>>>>> ems/develop
     }
 }

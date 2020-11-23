@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Service;
 
 use Elastica\Client;
@@ -13,7 +15,7 @@ use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
-use EMS\CommonBundle\Elasticsearch\Exception\SingleResultException;
+use EMS\CommonBundle\Elasticsearch\Exception\NotSingleResultException;
 use EMS\CommonBundle\Search\Search;
 use Psr\Log\LoggerInterface;
 
@@ -52,12 +54,47 @@ class ElasticaService
     public function singleSearch(Search $search): Document
     {
         $resultSet = $this->search($search);
+        if ($resultSet->count() === 0) {
+            throw new NotSingleResultException(0);
+        }
         $result = $resultSet->offsetGet(0);
+<<<<<<< HEAD
         if (1 !== $resultSet->count() || null === $result) {
             throw new SingleResultException($resultSet->count());
+=======
+        if ($resultSet->count() !== 1 || $result === null) {
+            throw new NotSingleResultException($resultSet->count());
+>>>>>>> ems/develop
         }
 
         return Document::fromResult($result);
+    }
+
+    /**
+     * @param string[] $indexes
+     * @param string[] $terms
+     * @param string[] $contentTypes
+     */
+    public function generateTermsSearch(array $indexes, string $field, array $terms, array $contentTypes = []): Search
+    {
+        $query = new Terms($field, $terms);
+        if (empty($contentTypes)) {
+            $query = $this->filterByContentTypes($query, $contentTypes);
+        }
+        return new Search($indexes, $query);
+    }
+
+    public function getBoolQuery(): BoolQuery
+    {
+        return new BoolQuery();
+    }
+
+    /**
+     * @param string[] $terms
+     */
+    public function getTermsQuery(string $field, array $terms): Terms
+    {
+        return new Terms($field, $terms);
     }
 
     public function search(Search $search): ResultSet
