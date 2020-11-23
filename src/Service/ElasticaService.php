@@ -13,6 +13,7 @@ use Elastica\Request;
 use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
+use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 use EMS\CommonBundle\Elasticsearch\Exception\NotSingleResultException;
@@ -135,20 +136,31 @@ class ElasticaService
     {
         @trigger_error("This function exists to simplified the migration to elastica, but should not be used on long term", E_USER_DEPRECATED);
         $options = $this->resolveElasticsearchSearchParameters($param);
-        $query = $this->filterByContentTypes(null, $options['type']);
+        $queryObject = $this->filterByContentTypes(null, $options['type']);
         $boolQuery = $this->getBoolQuery();
-        $body =  $options['body'];
-        if (!empty($body) && $query instanceof $boolQuery) {
-            $query->addMust($body);
-        } elseif (!empty($body)) {
-            if ($query !== null) {
-                $boolQuery->addMust($query);
+        $query =  $options['body']['query'];
+        if (!empty($query) && $queryObject instanceof $boolQuery) {
+            $queryObject->addMust($query);
+        } elseif (!empty($query)) {
+            if ($queryObject !== null) {
+                $boolQuery->addMust($queryObject);
             }
-            $query = $boolQuery;
-            $query->addMust($body);
+            $queryObject = $boolQuery;
+            $queryObject->addMust($query);
         }
         $indexes = $options['index'];
-        $search = new CommonSearch($indexes, $query);
+        $search = new CommonSearch($indexes, $queryObject);
+        $aggs =  $options['body']['aggs'];
+        foreach ($aggs as $name => $agg) {
+            if (!\is_array($agg) || \count($agg) !== 1) {
+                throw new \RuntimeException('Unexpected aggregation basename');
+            }
+            foreach ($agg as $basename => $rule) {
+                $aggregation = new ElasticaAggregation($name);
+                $aggregation->setConfig($basename, $rule);
+                $search->addAggregation($aggregation);
+            }
+        }
         $search->setSize($options['size']);
         $search->setFrom($options['from']);
         $sort = $options['sort'];
@@ -181,10 +193,10 @@ class ElasticaService
             ])
             ->setAllowedTypes('type', ['string', 'array', 'null'])
             ->setAllowedTypes('index', ['string', 'array'])
-            ->setAllowedTypes('body', ['null', 'array'])
+            ->setAllowedTypes('body', ['null', 'array', 'string'])
             ->setAllowedTypes('size', ['int'])
             ->setAllowedTypes('from', ['int'])
-            ->setAllowedTypes('_source', ['array|string|bool'])
+            ->setAllowedTypes('_source', ['array', 'string', 'bool'])
             ->setAllowedTypes('sort', ['array'])
             ->setRequired(['index'])
             ->setNormalizer('type', function (Options $options, $value) {
@@ -202,6 +214,15 @@ class ElasticaService
                 }
                 return $value;
             })
+            ->setNormalizer('body', function (Options $options, $value) {
+                if (\is_string($value)) {
+                    $value = \json_decode($value, true);
+                }
+                if ($value === null) {
+                    return null;
+                }
+                return $this->convertElasticsearchBody($value);
+            })
             ->setNormalizer('_source', function (Options $options, $value) {
                 if ($value === true) {
                     return [];
@@ -215,7 +236,7 @@ class ElasticaService
                 return $value;
             })
         ;
-        /** @var array{type: string[], index: string[], body: array<mixed>, size: int, from: int, _source: string[], sort: array<mixed>} $resolvedParameters */
+        /** @var array{type: string[], index: string[], body: array{query: array, aggs: array}, size: int, from: int, _source: string[], sort: array<mixed>} $resolvedParameters */
         $resolvedParameters = $optionResolver->resolve($parameters);
         return $resolvedParameters;
     }
@@ -244,5 +265,38 @@ class ElasticaService
         $esSearch->addIndices($search->getIndices());
         $esSearch->setOptions($options);
         return $esSearch;
+    }
+
+
+    /**
+     * @param array<mixed> $parameters
+     * @return array{aggs: ?array, query: ?array}
+     */
+    private function convertElasticsearchBody(array $parameters): array
+    {
+        $resolver = new OptionsResolver();
+        $resolver
+            ->setDefaults([
+                'query' => null,
+                'aggs' => null,
+            ])
+            ->setAllowedTypes('query', ['array', 'string', 'null'])
+            ->setAllowedTypes('aggs', ['array', 'string', 'null'])
+            ->setNormalizer('query', function (Options $options, $value) {
+                if (\is_string($value)) {
+                    $value = \json_decode($value, true);
+                }
+                return $value;
+            })
+            ->setNormalizer('aggs', function (Options $options, $value) {
+                if (\is_string($value)) {
+                    $value = \json_decode($value, true);
+                }
+                return $value;
+            })
+        ;
+        /** @var array{aggs: ?array, query: ?array} $resolvedParameters */
+        $resolvedParameters = $resolver->resolve($parameters);
+        return $resolvedParameters;
     }
 }
