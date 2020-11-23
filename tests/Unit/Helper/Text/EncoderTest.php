@@ -54,7 +54,7 @@ class EncoderTest extends TestCase
             ['example@example.com', $email],
             ['é', 'é'],
             ['<', '<'],
-            ['mailto:example@example.com', sprintf('mailto:%s', $email)],
+            ['mailto:example@example.com', \sprintf('mailto:%s', $email)],
             ['"tel:02/345.67.89"', '&#34;&#116;&#101;&#108;&#58;&#48;&#50;&#47;&#51;&#52;&#53;&#46;&#54;&#55;&#46;&#56;&#57;&#34;'],
             ['<span class="pii">example</span>', $example],
         ];

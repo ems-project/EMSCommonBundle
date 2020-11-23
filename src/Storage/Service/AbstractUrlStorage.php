@@ -47,14 +47,14 @@ abstract class AbstractUrlStorage implements StorageInterface
     {
         return \join($ds, [
             $this->getBaseUrl(),
-            substr($hash, 0, 3),
+            \substr($hash, 0, 3),
             $hash,
         ]);
     }
 
     public function head(string $hash): bool
     {
-        return file_exists($this->getPath($hash));
+        return \file_exists($this->getPath($hash));
     }
 
     public function create(string $hash, string $filename): bool
@@ -62,7 +62,7 @@ abstract class AbstractUrlStorage implements StorageInterface
         $path = $this->getPath($hash);
         $this->initDirectory($path);
 
-        return copy($filename, $path);
+        return \copy($filename, $path);
     }
 
     public function read(string $hash, bool $confirmed = true): StreamInterface
@@ -72,11 +72,11 @@ abstract class AbstractUrlStorage implements StorageInterface
         } else {
             $out = $this->getUploadPath($hash);
         }
-        if (!file_exists($out)) {
+        if (!\file_exists($out)) {
             throw new NotFoundHttpException($hash);
         }
-        $resource = fopen($out, 'rb');
-        if (!is_resource($resource)) {
+        $resource = \fopen($out, 'rb');
+        if (!\is_resource($resource)) {
             throw new NotFoundHttpException($hash);
         }
 
@@ -85,7 +85,7 @@ abstract class AbstractUrlStorage implements StorageInterface
 
     public function health(): bool
     {
-        return is_dir($this->getBaseUrl());
+        return \is_dir($this->getBaseUrl());
     }
 
     public function getSize(string $hash): int
@@ -96,7 +96,7 @@ abstract class AbstractUrlStorage implements StorageInterface
             throw new NotFoundHttpException($hash);
         }
 
-        $size = @filesize($path);
+        $size = @\filesize($path);
         if (false === $size) {
             throw new NotFoundHttpException($hash);
         }
@@ -109,8 +109,8 @@ abstract class AbstractUrlStorage implements StorageInterface
     public function remove(string $hash): bool
     {
         $file = $this->getPath($hash);
-        if (file_exists($file)) {
-            unlink($file);
+        if (\file_exists($file)) {
+            \unlink($file);
         }
 
         return true;
@@ -121,26 +121,26 @@ abstract class AbstractUrlStorage implements StorageInterface
         $path = $this->getUploadPath($hash);
         $this->initDirectory($path);
 
-        return false !== file_put_contents($path, '');
+        return false !== \file_put_contents($path, '');
     }
 
     public function addChunk(string $hash, string $chunk): bool
     {
         $path = $this->getUploadPath($hash);
-        if (!file_exists($path)) {
+        if (!\file_exists($path)) {
             throw new NotFoundHttpException('temporary file not found');
         }
 
-        $file = fopen($path, 'a');
+        $file = \fopen($path, 'a');
         if (false === $file) {
             return false;
         }
 
-        $result = fwrite($file, $chunk);
-        fflush($file);
-        fclose($file);
+        $result = \fwrite($file, $chunk);
+        \fflush($file);
+        \fclose($file);
 
-        if (false === $result || $result != strlen($chunk)) {
+        if (false === $result || $result != \strlen($chunk)) {
             return false;
         }
 

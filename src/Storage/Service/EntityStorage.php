@@ -30,7 +30,7 @@ class EntityStorage implements StorageInterface
         //TODO: Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
         $repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
         if (!$repository instanceof  AssetStorageRepository) {
-            throw new \RuntimeException(sprintf('%s has a repository that should be of type %s. But %s is given.', EntityStorage::class, AssetStorage::class, get_class($repository)));
+            throw new \RuntimeException(\sprintf('%s has a repository that should be of type %s. But %s is given.', EntityStorage::class, AssetStorage::class, \get_class($repository)));
         }
         $this->repository = $repository;
     }
@@ -89,16 +89,16 @@ class EntityStorage implements StorageInterface
         }
         $contents = $entity->getContents();
 
-        if (is_resource($contents)) {
+        if (\is_resource($contents)) {
             return new Stream($contents);
         }
-        $resource = fopen('php://memory', 'w+');
+        $resource = \fopen('php://memory', 'w+');
         if (false === $resource) {
             throw new NotFoundHttpException($hash);
         }
-        fwrite($resource, $contents);
+        \fwrite($resource, $contents);
 
-        rewind($resource);
+        \rewind($resource);
 
         return new Stream($resource);
     }
@@ -149,7 +149,7 @@ class EntityStorage implements StorageInterface
         $entity = $this->repository->findByHash($hash, false);
         if (null !== $entity) {
             $entity->setConfirmed(true);
-            $entity->setSize(strlen((string) $entity->getContents()));
+            $entity->setSize(\strlen((string) $entity->getContents()));
             $this->manager->persist($entity);
             $this->manager->flush();
 
@@ -164,13 +164,13 @@ class EntityStorage implements StorageInterface
         $entity = $this->repository->findByHash($hash, false);
         if (null !== $entity) {
             $contents = $entity->getContents();
-            if (is_resource($contents)) {
-                $contents = stream_get_contents($contents);
+            if (\is_resource($contents)) {
+                $contents = \stream_get_contents($contents);
             }
 
             $entity->setContents($contents.$chunk);
 
-            $entity->setSize($entity->getSize() + strlen($chunk));
+            $entity->setSize($entity->getSize() + \strlen($chunk));
             $this->manager->persist($entity);
             $this->manager->flush();
 

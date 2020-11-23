@@ -33,10 +33,10 @@ class Document implements DocumentInterface
         $contentType = $document['_source'][EMSSource::FIELD_CONTENT_TYPE] ?? null;
         if (null === $contentType) {
             $contentType = $document['_type'] ?? null;
-            @trigger_error(sprintf('The field %s is missing in the document %s', EMSSource::FIELD_CONTENT_TYPE, $this->getEmsId()), E_USER_DEPRECATED);
+            @\trigger_error(\sprintf('The field %s is missing in the document %s', EMSSource::FIELD_CONTENT_TYPE, $this->getEmsId()), E_USER_DEPRECATED);
         }
         if (null === $contentType) {
-            throw new \RuntimeException(sprintf('Unable to determine the content type for document %s', $this->id));
+            throw new \RuntimeException(\sprintf('Unable to determine the content type for document %s', $this->id));
         }
         $this->contentType = $contentType;
         $this->raw = $document;
@@ -67,7 +67,7 @@ class Document implements DocumentInterface
 
     public function getEmsId(): string
     {
-        return sprintf('%s:%s', $this->contentType, $this->id);
+        return \sprintf('%s:%s', $this->contentType, $this->id);
     }
 
     /**
@@ -95,7 +95,7 @@ class Document implements DocumentInterface
      */
     public function getRaw(): array
     {
-        @trigger_error('Document::getRaw is deprecated use the others getters', E_USER_DEPRECATED);
+        @\trigger_error('Document::getRaw is deprecated use the others getters', E_USER_DEPRECATED);
 
         return $this->raw;
     }

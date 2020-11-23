@@ -45,7 +45,7 @@ class FlashMessageLogger extends AbstractProcessingHandler
             }
 
             $this->session->getFlashBag()->add(
-                strtolower($record['level_name']),
+                \strtolower($record['level_name']),
                 $message
             );
         }

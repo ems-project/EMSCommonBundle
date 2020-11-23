@@ -51,7 +51,7 @@ class FileController extends AbstractController
      */
     public function view(Request $request, string $sha1)
     {
-        @trigger_error('FileController::view is deprecated use the ems_asset twig filter to generate the route', E_USER_DEPRECATED);
+        @\trigger_error('FileController::view is deprecated use the ems_asset twig filter to generate the route', E_USER_DEPRECATED);
 
         $this->closeSession($request);
 
@@ -63,7 +63,7 @@ class FileController extends AbstractController
      */
     public function download(Request $request, string $sha1)
     {
-        @trigger_error('FileController::download is deprecated use the ems_asset twig filter to generate the route', E_USER_DEPRECATED);
+        @\trigger_error('FileController::download is deprecated use the ems_asset twig filter to generate the route', E_USER_DEPRECATED);
 
         $this->closeSession($request);
 
@@ -72,7 +72,7 @@ class FileController extends AbstractController
 
     private function getFile(Request $request, string $hash, string $disposition): Response
     {
-        @trigger_error('FileController::download is deprecated use the ems_asset twig filter to generate the route', E_USER_DEPRECATED);
+        @\trigger_error('FileController::download is deprecated use the ems_asset twig filter to generate the route', E_USER_DEPRECATED);
 
         $name = $request->query->get('name', 'upload.bin');
         $type = $request->query->get('type', 'application/bin');

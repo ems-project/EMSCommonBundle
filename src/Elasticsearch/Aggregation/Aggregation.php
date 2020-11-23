@@ -43,7 +43,7 @@ class Aggregation
      */
     public function getRaw(): array
     {
-        @trigger_error('Aggregation::getRaw is deprecated use the others getters', E_USER_DEPRECATED);
+        @\trigger_error('Aggregation::getRaw is deprecated use the others getters', E_USER_DEPRECATED);
 
         return $this->raw;
     }

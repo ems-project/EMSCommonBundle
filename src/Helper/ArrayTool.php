@@ -13,7 +13,7 @@ class ArrayTool
     {
         ArrayTool::normalizeArray($array, $sort_flags);
 
-        return json_encode($array, $jsonEncodeOptions);
+        return \json_encode($array, $jsonEncodeOptions);
     }
 
     /**
@@ -21,14 +21,14 @@ class ArrayTool
      */
     public static function normalizeArray(array &$array, int $sort_flags = SORT_REGULAR)
     {
-        ksort($array, $sort_flags);
+        \ksort($array, $sort_flags);
 
         foreach ($array as $index => &$arr) {
-            if (is_array($arr)) {
+            if (\is_array($arr)) {
                 ArrayTool::normalizeArray($arr, $sort_flags);
             }
 
-            if (is_array($array[$index]) && empty($array[$index])) {
+            if (\is_array($array[$index]) && empty($array[$index])) {
                 unset($array[$index]);
             }
         }
