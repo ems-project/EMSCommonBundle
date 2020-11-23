@@ -2,9 +2,9 @@
 
 namespace EMS\CommonBundle\Elasticsearch\Aggregation;
 
-use Elastica\Aggregation\AbstractSimpleAggregation;
+use Elastica\Aggregation\AbstractAggregation;
 
-class ElasticaAggregation extends AbstractSimpleAggregation
+class ElasticaAggregation extends AbstractAggregation
 {
     /** @var ?string */
     private $basename;
