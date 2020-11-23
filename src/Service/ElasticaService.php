@@ -18,7 +18,6 @@ use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 use EMS\CommonBundle\Elasticsearch\Exception\NotSingleResultException;
 use EMS\CommonBundle\Search\Search;
-use EMS\CommonBundle\Search\Search as CommonSearch;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -130,7 +129,7 @@ class ElasticaService
 
     /**
      * @param array<mixed> $param
-     * @return CommonSearch
+     * @return Search
      */
     public function convertElasticsearchSearch(array $param): Search
     {
@@ -149,7 +148,7 @@ class ElasticaService
             $queryObject->addMust($query);
         }
         $indexes = $options['index'];
-        $search = new CommonSearch($indexes, $queryObject);
+        $search = new Search($indexes, $queryObject);
         $aggs =  $options['body']['aggs'];
         foreach ($aggs as $name => $agg) {
             if (!\is_array($agg) || \count($agg) !== 1) {
