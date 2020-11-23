@@ -2,6 +2,7 @@
 composer.lock
 phpunit.xml
 /vendor
+/.php_cs.cache
 
 # Backup entities generated with doctrine:generate:entities command
 **/Entity/*~
