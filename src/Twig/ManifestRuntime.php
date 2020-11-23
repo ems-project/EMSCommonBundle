@@ -10,7 +10,7 @@ class ManifestRuntime implements RuntimeExtensionInterface
     {
         $contents = file_get_contents($manifestUrl);
 
-        if ($contents === false) {
+        if (false === $contents) {
             return $manifestUrl;
         }
 
@@ -22,6 +22,6 @@ class ManifestRuntime implements RuntimeExtensionInterface
 
         $base = preg_replace('/\/bundles\/.*\/manifest.json$/', '', $manifestUrl);
 
-        return $base . '/' . $manifest[$resource] ;
+        return $base.'/'.$manifest[$resource];
     }
 }

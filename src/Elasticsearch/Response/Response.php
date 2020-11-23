@@ -17,7 +17,7 @@ final class Response implements ResponseInterface
     /** @var array<string, mixed> */
     private $hits;
 
-    /** @var null|string */
+    /** @var string|null */
     private $scrollId;
     /** @var bool */
     private $accurate;
@@ -69,6 +69,7 @@ final class Response implements ResponseInterface
         if (isset($this->aggregations[$name])) {
             return new Aggregation($this->aggregations[$name]);
         }
+
         return null;
     }
 
@@ -103,6 +104,7 @@ final class Response implements ResponseInterface
         if (!$this->accurate) {
             $format = '≥%s';
         }
+
         return \sprintf($format, $this->total);
     }
 

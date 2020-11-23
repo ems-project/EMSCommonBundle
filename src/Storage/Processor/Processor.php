@@ -23,7 +23,7 @@ class Processor
     private $logger;
 
     const BUFFER_SIZE = 8192;
-    /**  @var Cache */
+    /** @var Cache */
     private $cacheHelper;
 
     /** @var string */
@@ -37,11 +37,11 @@ class Processor
         $this->projectDir = $projectDir;
     }
 
-
     public function getResponse(Request $request, string $hash, string $configHash, string $filename, bool $immutableRoute = false): Response
     {
         $configJson = json_decode($this->storageManager->getContents($configHash), true);
         $config = new Config($this->storageManager, $hash, $configHash, $configJson);
+
         return $this->getStreamedResponse($request, $config, $filename, $immutableRoute);
     }
 
@@ -60,24 +60,26 @@ class Processor
         $response = $this->getResponseFromStreamInterface($stream, $request);
 
         $response->headers->add([
-            'Content-Disposition' => $config->getDisposition() . '; ' . HeaderUtils::toString(array('filename' => $filename), ';'),
+            'Content-Disposition' => $config->getDisposition().'; '.HeaderUtils::toString(['filename' => $filename], ';'),
             'Content-Type' => $config->getMimeType(),
         ]);
 
         $this->cacheHelper->makeResponseCacheable($response, $cacheKey, $config->getLastUpdateDate(), $immutableRoute);
+
         return $response;
     }
 
     /**
-     * @param array<string, mixed>  $configArray
+     * @param array<string, mixed> $configArray
      */
     public function configFactory(string $hash, array $configArray): Config
     {
         $normalizedArray = ArrayTool::normalizeAndSerializeArray($configArray);
-        if ($normalizedArray === false) {
+        if (false === $normalizedArray) {
             throw new \RuntimeException('Could not normalize asset\'s processor config in JSON format.');
         }
         $configHash = $this->storageManager->computeStringHash($normalizedArray);
+
         return new Config($this->storageManager, $hash, $configHash, $configArray);
     }
 
@@ -92,11 +94,12 @@ class Processor
         } elseif ($config->getFilename()) {
             $file = $config->getFilename();
         }
-        if ($config->getConfigType() === 'image') {
+        if ('image' === $config->getConfigType()) {
             $resource = \fopen($this->generateImage($config, $file, $cacheFilename), 'r');
-            if ($resource === false) {
+            if (false === $resource) {
                 throw new \Exception('It was not able to open the generated image');
             }
+
             return $resource;
         }
 
@@ -107,16 +110,16 @@ class Processor
     {
         $filename = (string) tempnam(sys_get_temp_dir(), 'EMS');
         \file_put_contents($filename, $this->storageManager->getContents($hash));
+
         return $filename;
     }
-
 
     private function generateImage(Config $config, string $filename = null, string $cacheFilename = null): string
     {
         $image = new Image($config);
 
         $watermark = $config->getWatermark();
-        if ($watermark !== null && $this->storageManager->head($watermark)) {
+        if (null !== $watermark && $this->storageManager->head($watermark)) {
             $image->setWatermark($this->hashToFilename($watermark));
         }
 
@@ -137,15 +140,16 @@ class Processor
     private function getStreamFomFilename(string $filename): StreamInterface
     {
         $resource = \fopen($filename, 'r');
-        if ($resource === false) {
+        if (false === $resource) {
             throw new NotFoundException($filename);
         }
+
         return new Stream($resource);
     }
 
     private function getStreamFromAsset(Config $config): StreamInterface
     {
-        if ($config->getFilename() !== null) {
+        if (null !== $config->getFilename()) {
             return $this->getStreamFomFilename($config->getFilename());
         }
 
@@ -163,20 +167,20 @@ class Processor
             'public',
             'bundles',
             'emscache',
-            $config->getCacheKey()
+            $config->getCacheKey(),
         ]);
     }
 
     public function getStream(Config $config, string $filename, bool $noCache = false): StreamInterface
     {
-        if ($config->getCacheContext() === null) {
+        if (null === $config->getCacheContext()) {
             return $this->getStreamFromAsset($config);
         }
 
         $cacheFilename = $this->getCacheFilename($config, $filename);
         if (!$noCache && \file_exists($cacheFilename)) {
             $fp = \fopen($cacheFilename, 'r');
-            if ($fp !== false) {
+            if (false !== $fp) {
                 return new Stream($fp);
             }
         }
@@ -217,7 +221,7 @@ class Processor
         if (!$streamRange->isSatisfiable()) {
             $response->setStatusCode(StreamedResponse::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE);
             $response->headers->set('Content-Range', $streamRange->getContentRangeHeader());
-        } else if ($streamRange->isPartial()) {
+        } elseif ($streamRange->isPartial()) {
             $response->setStatusCode(StreamedResponse::HTTP_PARTIAL_CONTENT);
             $response->headers->set('Content-Range', $streamRange->getContentRangeHeader());
             $response->headers->set('Content-Length', $streamRange->getContentLengthHeader());

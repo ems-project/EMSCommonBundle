@@ -27,7 +27,6 @@ final class EMSSource implements EMSSourceInterface
     public const FIELD_HASH = '_sha1';
     public const FIELD_PUBLICATION_DATETIME = '_published_datetime';
 
-
     public function __construct(array $source)
     {
         $this->contentType = $source[self::FIELD_CONTENT_TYPE] ?? null;
@@ -39,7 +38,7 @@ final class EMSSource implements EMSSourceInterface
             \DATE_ATOM,
             $source[self::FIELD_FINALIZATION_DATETIME]
         );
-        if ($finalizationDateTime === false) {
+        if (false === $finalizationDateTime) {
             throw DateTimeCreationException::fromArray($source, self::FIELD_FINALIZATION_DATETIME);
         }
         $this->finalizationDateTime = $finalizationDateTime;
@@ -48,7 +47,7 @@ final class EMSSource implements EMSSourceInterface
             \DATE_ATOM,
             $source[self::FIELD_PUBLICATION_DATETIME]
         );
-        if ($publicationDateTime === false) {
+        if (false === $publicationDateTime) {
             throw DateTimeCreationException::fromArray($source, self::FIELD_PUBLICATION_DATETIME);
         }
         $this->publicationDateTime = $publicationDateTime;

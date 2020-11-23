@@ -36,8 +36,9 @@ class HttpFactory implements StorageFactoryInterface
         $getUrl = $config[self::STORAGE_CONFIG_GET_URL];
         $authKey = $config[self::STORAGE_CONFIG_AUTH_KEY];
 
-        if ($baseUrl === null || $baseUrl === '') {
+        if (null === $baseUrl || '' === $baseUrl) {
             @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+
             return null;
         }
 
@@ -49,9 +50,9 @@ class HttpFactory implements StorageFactoryInterface
         return self::STORAGE_TYPE;
     }
 
-
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, base-url: null|string, get-url: string, auth-key: null|string}
      */
     private function resolveParameters(array $parameters): array
@@ -75,6 +76,7 @@ class HttpFactory implements StorageFactoryInterface
 
         /** @var array{type: string, base-url: null|string, get-url: string, auth-key: null|string} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }

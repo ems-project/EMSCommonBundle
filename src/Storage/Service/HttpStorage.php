@@ -11,12 +11,11 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class HttpStorage extends AbstractUrlStorage
 {
-
     /** @var string */
     private $baseUrl;
     /** @var string */
     private $getUrl;
-    /** @var null|string */
+    /** @var string|null */
     private $authKey;
 
     public function __construct(string $baseUrl, string $getUrl, ?string $authKey = null)
@@ -29,27 +28,28 @@ class HttpStorage extends AbstractUrlStorage
     private function getClient(): Client
     {
         static $client = null;
-        if ($client === null) {
+        if (null === $client) {
             $client = HttpClientFactory::create($this->baseUrl, [], 30, true);
         }
+
         return $client;
     }
 
     protected function getBaseUrl(): string
     {
-        return $this->baseUrl . $this->getUrl;
+        return $this->baseUrl.$this->getUrl;
     }
 
     protected function getPath(string $hash, string $ds = '/'): string
     {
-        return $this->baseUrl . $this->getUrl . $hash;
+        return $this->baseUrl.$this->getUrl.$hash;
     }
 
     public function health(): bool
     {
         try {
             $result = $this->getClient()->get('/status.json');
-            if ($result->getStatusCode() == 200) {
+            if (200 == $result->getStatusCode()) {
                 $status = json_decode($result->getBody(), true);
                 if (isset($status['status']) && in_array($status['status'], ['green', 'yellow'])) {
                     return true;
@@ -57,13 +57,14 @@ class HttpStorage extends AbstractUrlStorage
             }
         } catch (\Exception $e) {
         }
+
         return false;
     }
 
     public function read(string $hash, bool $confirmed = true): StreamInterface
     {
         try {
-            return $this->getClient()->get($this->getUrl . $hash)->getBody();
+            return $this->getClient()->get($this->getUrl.$hash)->getBody();
         } catch (\Exception $e) {
             throw new NotFoundHttpException($hash);
         }
@@ -72,14 +73,13 @@ class HttpStorage extends AbstractUrlStorage
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
         try {
-            $result = $this->getClient()->post('/api/file/init-upload/' . urlencode($hash) . '/' . $size . '?name=' . urlencode($name) . '&type=' . urlencode($type), [
+            $result = $this->getClient()->post('/api/file/init-upload/'.urlencode($hash).'/'.$size.'?name='.urlencode($name).'&type='.urlencode($type), [
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
-
             ]);
 
-            return $result->getStatusCode() === 200;
+            return 200 === $result->getStatusCode();
         } catch (\Exception $e) {
             throw new NotFoundHttpException($hash);
         }
@@ -88,13 +88,14 @@ class HttpStorage extends AbstractUrlStorage
     public function addChunk(string $hash, string $chunk, ?string $context = null): bool
     {
         try {
-            $result = $this->getClient()->post('/api/file/upload-chunk/' . urlencode($hash), [
+            $result = $this->getClient()->post('/api/file/upload-chunk/'.urlencode($hash), [
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
                 'body' => $chunk,
             ]);
-            return $result->getStatusCode() === 200;
+
+            return 200 === $result->getStatusCode();
         } catch (\Exception $e) {
             throw new NotFoundHttpException($hash);
         }
@@ -108,7 +109,7 @@ class HttpStorage extends AbstractUrlStorage
     public function head(string $hash): bool
     {
         try {
-            return $this->getClient()->head($this->getUrl . $hash)->getStatusCode() === 200;
+            return 200 === $this->getClient()->head($this->getUrl.$hash)->getStatusCode();
         } catch (Exception $e) {
             throw new NotFoundHttpException($hash);
         }
@@ -122,12 +123,11 @@ class HttpStorage extends AbstractUrlStorage
                     [
                         'name' => 'upload',
                         'contents' => fopen($filename, 'r'),
-                    ]
+                    ],
                 ],
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
-
             ]);
 
             return true;
@@ -139,10 +139,10 @@ class HttpStorage extends AbstractUrlStorage
     public function getSize(string $hash): int
     {
         try {
-            $context = stream_context_create(array('http' => array('method' => 'HEAD')));
-            $fd = fopen($this->baseUrl . $this->getUrl . $hash, 'rb', false, $context);
+            $context = stream_context_create(['http' => ['method' => 'HEAD']]);
+            $fd = fopen($this->baseUrl.$this->getUrl.$hash, 'rb', false, $context);
 
-            if ($fd === false) {
+            if (false === $fd) {
                 throw new NotFoundHttpException($hash);
             }
 
@@ -159,7 +159,7 @@ class HttpStorage extends AbstractUrlStorage
 
     public function __toString(): string
     {
-        return HttpStorage::class . " ($this->baseUrl)";
+        return HttpStorage::class." ($this->baseUrl)";
     }
 
     public function remove(string $hash): bool

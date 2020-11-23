@@ -4,7 +4,6 @@ namespace EMS\CommonBundle\Storage\Service;
 
 class FileSystemStorage extends AbstractUrlStorage
 {
-
     /** @var string */
     private $storagePath;
 
@@ -24,6 +23,6 @@ class FileSystemStorage extends AbstractUrlStorage
 
     public function __toString(): string
     {
-        return FileSystemStorage::class . " ($this->storagePath)";
+        return FileSystemStorage::class." ($this->storagePath)";
     }
 }
