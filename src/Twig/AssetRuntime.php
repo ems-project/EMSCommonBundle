@@ -27,7 +27,7 @@ class AssetRuntime
     {
         $this->storageManager = $storageManager;
         $this->logger = $logger;
-        $this->publicDir = $projectDir . '/public';
+        $this->publicDir = $projectDir.'/public';
         $this->filesystem = new Filesystem();
     }
 
@@ -37,7 +37,7 @@ class AssetRuntime
     public function unzip(string $hash, string $saveDir, bool $mergeContent = false): array
     {
         try {
-            $checkFilename = $saveDir . \DIRECTORY_SEPARATOR . $this->storageManager->computeStringHash($saveDir);
+            $checkFilename = $saveDir.\DIRECTORY_SEPARATOR.$this->storageManager->computeStringHash($saveDir);
             $checkHash = file_exists($checkFilename) ? file_get_contents($checkFilename) : false;
 
             if ($checkHash !== $hash) {

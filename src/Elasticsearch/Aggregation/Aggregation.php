@@ -38,11 +38,13 @@ class Aggregation
 
     /**
      * @deprecated
+     *
      * @return array<mixed>
      */
     public function getRaw(): array
     {
-        @trigger_error("Aggregation::getRaw is deprecated use the others getters", E_USER_DEPRECATED);
+        @trigger_error('Aggregation::getRaw is deprecated use the others getters', E_USER_DEPRECATED);
+
         return $this->raw;
     }
 
@@ -54,11 +56,12 @@ class Aggregation
         $out = [];
         foreach ($this->buckets as $bucket) {
             $key = $bucket->getKey();
-            if ($key === null) {
+            if (null === $key) {
                 continue;
             }
             $out[] = $key;
         }
+
         return $out;
     }
 }

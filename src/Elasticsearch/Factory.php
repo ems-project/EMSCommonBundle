@@ -24,7 +24,7 @@ class Factory
 
     public function fromConfig(array $config): Client
     {
-        if ($this->env === 'dev' && php_sapi_name() !== 'cli') {
+        if ('dev' === $this->env && 'cli' !== php_sapi_name()) {
             //for performance reason only in dev mode: https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/_configuration.html#enabling_logger
             $config['Tracer'] = $this->logger;
         }

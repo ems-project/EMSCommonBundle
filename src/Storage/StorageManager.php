@@ -26,7 +26,7 @@ class StorageManager
     private $storageConfigs;
 
     /**
-     * @param iterable<StorageFactoryInterface> $factories
+     * @param iterable<StorageFactoryInterface>                                            $factories
      * @param array<array{type?: string, url?: string, required?: bool, read-only?: bool}> $storageConfigs
      */
     public function __construct(FileLocatorInterface $fileLocator, iterable $factories, string $hashAlgo, array $storageConfigs = [])
@@ -48,29 +48,28 @@ class StorageManager
         $this->factories[$factory->getStorageType()] = $factory;
     }
 
-
     private function registerServicesFromConfigs(): void
     {
         foreach ($this->storageConfigs as $storageConfig) {
             $type = $storageConfig['type'] ?? null;
-            if ($type === null) {
+            if (null === $type) {
                 continue;
             }
             $factory = $this->factories[$type] ?? null;
-            if ($factory === null) {
+            if (null === $factory) {
                 continue;
             }
             $storage = $factory->createService($storageConfig);
-            if ($storage !== null) {
+            if (null !== $storage) {
                 $this->addAdapter($storage);
             }
         }
     }
 
-
     public function addAdapter(StorageInterface $storageAdapter): StorageManager
     {
         $this->adapters[] = $storageAdapter;
+
         return $this;
     }
 
@@ -81,6 +80,7 @@ class StorageManager
                 return true;
             }
         }
+
         return false;
     }
 
@@ -105,10 +105,11 @@ class StorageManager
 
     public function getPublicImage(string $name): string
     {
-        $file = $this->fileLocator->locate('@EMSCommonBundle/src/Resources/public/images/' . $name);
+        $file = $this->fileLocator->locate('@EMSCommonBundle/src/Resources/public/images/'.$name);
         if (is_array($file)) {
             return $file[0] ?? '';
         }
+
         return $file;
     }
 
@@ -145,7 +146,7 @@ class StorageManager
             }
         }
 
-        if ($count === 0) {
+        if (0 === $count) {
             throw new \RuntimeException(sprintf('Impossible to save the asset identified by the hash %s into at least one storage services', $hash));
         }
 
@@ -160,9 +161,10 @@ class StorageManager
     public function computeFileHash(string $filename): string
     {
         $hashFile = \hash_file($this->hashAlgo, $filename);
-        if ($hashFile === false) {
+        if (false === $hashFile) {
             throw new NotFoundException($filename);
         }
+
         return $hashFile;
     }
 
@@ -178,7 +180,7 @@ class StorageManager
             }
         }
 
-        if ($count === 0) {
+        if (0 === $count) {
             throw new \RuntimeException(sprintf('Impossible to initiate the upload of an asset identified by the hash %s into at least one storage services', $fileHash));
         }
 
@@ -197,7 +199,7 @@ class StorageManager
             }
         }
 
-        if ($count === 0) {
+        if (0 === $count) {
             throw new \RuntimeException(sprintf('Impossible to add a chunk of an asset identified by the hash %s into at least one storage services', $hash));
         }
 
@@ -213,6 +215,7 @@ class StorageManager
         foreach ($this->adapters as $adapter) {
             $statuses[$adapter->__toString()] = $adapter->health();
         }
+
         return $statuses;
     }
 
@@ -236,8 +239,10 @@ class StorageManager
             } catch (\Throwable $e) {
                 continue;
             }
+
             return \base64_encode($stream->getContents());
         }
+
         return null;
     }
 
@@ -256,7 +261,7 @@ class StorageManager
             }
 
             $uploadedSize = $handler->getSize();
-            if ($uploadedSize === null) {
+            if (null === $uploadedSize) {
                 continue;
             }
             $computedHash = $this->computeStringHash($handler->getContents());
@@ -274,7 +279,7 @@ class StorageManager
             }
         }
 
-        if ($count === 0) {
+        if (0 === $count) {
             throw new \RuntimeException(sprintf('Impossible finalize the upload of an asset identified by the hash %s into at least one storage services', $hash));
         }
 
@@ -294,7 +299,7 @@ class StorageManager
             }
         }
 
-        if ($count === 0) {
+        if (0 === $count) {
             throw new \RuntimeException(sprintf('Impossible to a a file (%s) identified by the hash %s into at least one storage services', $filename, $hash));
         }
 
@@ -316,6 +321,7 @@ class StorageManager
                 continue;
             }
         }
+
         return $count;
     }
 
@@ -325,9 +331,10 @@ class StorageManager
     public function saveConfig(array $config): string
     {
         $normalizedArray = ArrayTool::normalizeAndSerializeArray($config);
-        if ($normalizedArray === false) {
+        if (false === $normalizedArray) {
             throw new \RuntimeException('Could not normalize config.');
         }
+
         return $this->saveContents($normalizedArray, 'assetConfig.json', 'application/json', StorageInterface::STORAGE_USAGE_CONFIG);
     }
 
@@ -336,6 +343,7 @@ class StorageManager
         if ($adapter->getUsage() >= StorageInterface::STORAGE_USAGE_EXTERNAL) {
             return false;
         }
+
         return $usageRequested >= $adapter->getUsage();
     }
 }

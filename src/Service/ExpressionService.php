@@ -10,7 +10,7 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 final class ExpressionService implements ExpressionServiceInterface
 {
-    /** @var null|ExpressionLanguage */
+    /** @var ExpressionLanguage|null */
     private $expressionLanguage;
     /** @var LoggerInterface */
     private $logger;
@@ -22,7 +22,7 @@ final class ExpressionService implements ExpressionServiceInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function evaluateToBool(string $expression, array $values = []): bool
     {
@@ -40,6 +40,7 @@ final class ExpressionService implements ExpressionServiceInterface
                 'values' => $values,
                 'expression' => $expression,
             ]);
+
             return false;
         }
     }
@@ -74,6 +75,7 @@ final class ExpressionService implements ExpressionServiceInterface
                 if (!$date instanceof \DateTime) {
                     throw new \RuntimeException('date_modify() expects parameter 1 to be a Date');
                 }
+
                 return $date->modify($modify);
             }
         );

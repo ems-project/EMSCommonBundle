@@ -61,6 +61,7 @@ abstract class AbstractUrlStorage implements StorageInterface
     {
         $path = $this->getPath($hash);
         $this->initDirectory($path);
+
         return copy($filename, $path);
     }
 
@@ -82,7 +83,6 @@ abstract class AbstractUrlStorage implements StorageInterface
         return new Stream($resource);
     }
 
-
     public function health(): bool
     {
         return is_dir($this->getBaseUrl());
@@ -97,7 +97,7 @@ abstract class AbstractUrlStorage implements StorageInterface
         }
 
         $size = @filesize($path);
-        if ($size === false) {
+        if (false === $size) {
             throw new NotFoundHttpException($hash);
         }
 
@@ -112,15 +112,16 @@ abstract class AbstractUrlStorage implements StorageInterface
         if (file_exists($file)) {
             unlink($file);
         }
+
         return true;
     }
-
 
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
         $path = $this->getUploadPath($hash);
         $this->initDirectory($path);
-        return file_put_contents($path, "") !== false;
+
+        return false !== file_put_contents($path, '');
     }
 
     public function addChunk(string $hash, string $chunk): bool
@@ -130,8 +131,8 @@ abstract class AbstractUrlStorage implements StorageInterface
             throw new NotFoundHttpException('temporary file not found');
         }
 
-        $file = fopen($path, "a");
-        if ($file === false) {
+        $file = fopen($path, 'a');
+        if (false === $file) {
             return false;
         }
 
@@ -139,7 +140,7 @@ abstract class AbstractUrlStorage implements StorageInterface
         fflush($file);
         fclose($file);
 
-        if ($result === false || $result != strlen($chunk)) {
+        if (false === $result || $result != strlen($chunk)) {
             return false;
         }
 
@@ -149,7 +150,7 @@ abstract class AbstractUrlStorage implements StorageInterface
     public function finalizeUpload(string $hash): bool
     {
         $source = $this->getUploadPath($hash);
-        $destination  = $this->getPath($hash);
+        $destination = $this->getPath($hash);
         $this->initDirectory($destination);
         try {
             return \rename($source, $destination);
@@ -161,6 +162,7 @@ abstract class AbstractUrlStorage implements StorageInterface
         } catch (\Throwable $e) {
             $this->logger->warning('Copy {source} to {destination} failed: {message}', [$source, $destination, $e->getMessage()]);
         }
+
         return false;
     }
 

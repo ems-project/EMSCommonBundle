@@ -18,9 +18,6 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
         return $this->data;
     }
 
-    /**
-     * @param array $record
-     */
     public function addData(array $record)
     {
         $this->data[] = $record;
@@ -42,7 +39,7 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
     }
 
     /**
-     * Divide by 2 because for every elasticsearch call we get 2 log lines (Request/Response)
+     * Divide by 2 because for every elasticsearch call we get 2 log lines (Request/Response).
      *
      * @return int
      */
@@ -76,8 +73,8 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
 
         foreach ($this->data as $log) {
             $sanitized = [
-                'level'    => $log['level_name'],
-                'message'  => $log['message'],
+                'level' => $log['level_name'],
+                'message' => $log['message'],
                 'datetime' => $log['datetime'],
             ];
 
@@ -89,10 +86,6 @@ class ElasticsearchDataCollector extends DataCollector implements LateDataCollec
         return $result;
     }
 
-    /**
-     * @param array $log
-     * @param array $sanitize
-     */
     private function sanitizeContext(array $log, array &$sanitize)
     {
         if (null === $log['context']) {

@@ -24,7 +24,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ElasticaService
 {
-
     /** @var LoggerInterface */
     private $logger;
     /** @var Client */
@@ -42,7 +41,7 @@ class ElasticaService
             $query = [
                 'timeout' => $timeout,
             ];
-            if ($waitForStatus !== null) {
+            if (null !== $waitForStatus) {
                 $query['wait_for_status'] = $waitForStatus;
             }
             $clusterHealthResponse = $this->client->request('_cluster/health', Request::GET, [], $query);
@@ -50,6 +49,7 @@ class ElasticaService
             return $clusterHealthResponse->getData()['status'] ?? 'red';
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
             return 'red';
         }
     }
@@ -57,13 +57,14 @@ class ElasticaService
     public function singleSearch(Search $search): Document
     {
         $resultSet = $this->search($search);
-        if ($resultSet->count() === 0) {
+        if (0 === $resultSet->count()) {
             throw new NotSingleResultException(0);
         }
         $result = $resultSet->offsetGet(0);
-        if ($resultSet->count() !== 1 || $result === null) {
+        if (1 !== $resultSet->count() || null === $result) {
             throw new NotSingleResultException($resultSet->count());
         }
+
         return Document::fromResult($result);
     }
 
@@ -78,6 +79,7 @@ class ElasticaService
         if (empty($contentTypes)) {
             $query = $this->filterByContentTypes($query, $contentTypes);
         }
+
         return new Search($indexes, $query);
     }
 
@@ -114,12 +116,12 @@ class ElasticaService
      */
     public function filterByContentTypes(?AbstractQuery $query, array $contentTypes): ?AbstractQuery
     {
-        if (\count($contentTypes) === 0) {
+        if (0 === \count($contentTypes)) {
             return $query;
         }
 
         $boolQuery = new BoolQuery();
-        if ($query !== null) {
+        if (null !== $query) {
             $boolQuery->addMust($query);
         }
         $boolQuery->setMinimumShouldMatch(1);
@@ -280,7 +282,7 @@ class ElasticaService
         if (\count($search->getSources())) {
             $query->setSource($search->getSources());
         }
-        if ($search->getSort() !== null) {
+        if (null !== $search->getSort()) {
             $query->setSort($search->getSort());
         }
 
@@ -293,6 +295,7 @@ class ElasticaService
         $esSearch->setQuery($query);
         $esSearch->addIndices($search->getIndices());
         $esSearch->setOptions($options);
+
         return $esSearch;
     }
 

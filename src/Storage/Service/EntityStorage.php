@@ -30,12 +30,7 @@ class EntityStorage implements StorageInterface
         //TODO: Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
         $repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
         if (!$repository instanceof  AssetStorageRepository) {
-            throw new \RuntimeException(sprintf(
-                '%s has a repository that should be of type %s. But %s is given.',
-                EntityStorage::class,
-                AssetStorage::class,
-                get_class($repository)
-            ));
+            throw new \RuntimeException(sprintf('%s has a repository that should be of type %s. But %s is given.', EntityStorage::class, AssetStorage::class, get_class($repository)));
         }
         $this->repository = $repository;
     }
@@ -48,12 +43,12 @@ class EntityStorage implements StorageInterface
     public function getSize(string $hash): int
     {
         $size = $this->repository->getSize($hash);
-        if ($size === null) {
+        if (null === $size) {
             throw new NotFoundHttpException($hash);
         }
+
         return $size;
     }
-
 
     public function create(string $hash, string $filename): bool
     {
@@ -62,7 +57,7 @@ class EntityStorage implements StorageInterface
         $content = \file_get_contents($filename);
         $size = \filesize($filename);
 
-        if ($content === false || $size === false) {
+        if (false === $content || false === $size) {
             throw new FileNotFoundException($hash);
         }
 
@@ -71,23 +66,25 @@ class EntityStorage implements StorageInterface
         $entity->setConfirmed(true);
         $this->manager->persist($entity);
         $this->manager->flush();
+
         return true;
     }
 
     private function createEntity(string $hash): AssetStorage
     {
         $entity = $this->repository->findByHash($hash);
-        if ($entity === null) {
+        if (null === $entity) {
             $entity = new AssetStorage();
             $entity->setHash($hash);
         }
+
         return $entity;
     }
 
     public function read(string $hash, bool $confirmed = true): StreamInterface
     {
         $entity = $this->repository->findByHash($hash, $confirmed);
-        if ($entity === null) {
+        if (null === $entity) {
             throw new NotFoundHttpException($hash);
         }
         $contents = $entity->getContents();
@@ -96,21 +93,23 @@ class EntityStorage implements StorageInterface
             return new Stream($contents);
         }
         $resource = fopen('php://memory', 'w+');
-        if ($resource === false) {
+        if (false === $resource) {
             throw new NotFoundHttpException($hash);
         }
         fwrite($resource, $contents);
 
         rewind($resource);
+
         return new Stream($resource);
     }
 
     public function health(): bool
     {
         try {
-            return ($this->repository->count([]) >= 0);
+            return $this->repository->count([]) >= 0;
         } catch (\Exception $e) {
         }
+
         return false;
     }
 
@@ -124,13 +123,14 @@ class EntityStorage implements StorageInterface
         if (!$this->head($hash)) {
             return false;
         }
+
         return $this->repository->removeByHash($hash);
     }
 
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
         $entity = $this->repository->findByHash($hash, false);
-        if ($entity === null) {
+        if (null === $entity) {
             $entity = $this->createEntity($hash);
         }
 
@@ -147,32 +147,36 @@ class EntityStorage implements StorageInterface
     public function finalizeUpload(string $hash): bool
     {
         $entity = $this->repository->findByHash($hash, false);
-        if ($entity !== null) {
+        if (null !== $entity) {
             $entity->setConfirmed(true);
             $entity->setSize(strlen((string) $entity->getContents()));
             $this->manager->persist($entity);
             $this->manager->flush();
+
             return true;
         }
+
         return false;
     }
 
     public function addChunk(string $hash, string $chunk): bool
     {
         $entity = $this->repository->findByHash($hash, false);
-        if ($entity !== null) {
+        if (null !== $entity) {
             $contents = $entity->getContents();
             if (is_resource($contents)) {
                 $contents = stream_get_contents($contents);
             }
 
-            $entity->setContents($contents . $chunk);
+            $entity->setContents($contents.$chunk);
 
             $entity->setSize($entity->getSize() + strlen($chunk));
             $this->manager->persist($entity);
             $this->manager->flush();
+
             return true;
         }
+
         return false;
     }
 
@@ -186,6 +190,7 @@ class EntityStorage implements StorageInterface
         if ($usageRequested >= self::STORAGE_USAGE_EXTERNAL) {
             return false;
         }
+
         return $usageRequested <= $this->usage;
     }
 }

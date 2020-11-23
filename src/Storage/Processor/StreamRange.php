@@ -31,7 +31,7 @@ class StreamRange
     private function parseRangeHeader(HeaderBag $headerBag)
     {
         $range = $headerBag->get('Range');
-        if ($range === null) {
+        if (null === $range) {
             return;
         }
 
@@ -62,6 +62,7 @@ class StreamRange
         if ($this->isSatisfiable()) {
             return sprintf('bytes %s-%s/%s', $this->start, $this->end, $this->fileSize);
         }
+
         return sprintf('bytes */%s', $this->fileSize);
     }
 
