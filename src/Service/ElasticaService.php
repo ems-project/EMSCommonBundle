@@ -141,35 +141,33 @@ class ElasticaService
         return $this->client->getIndex($indexName)->getAliases();
     }
 
-
     /**
-     * @param string[] $indexes
-     * @param string[] $contentTypes
+     * @param string[]     $indexes
+     * @param string[]     $contentTypes
      * @param array<mixed> $body
-     * @return Search
      */
     public function convertElasticsearchBody(array $indexes, array $contentTypes, array $body): Search
     {
         $options = $this->resolveElasticsearchBody($body);
         $queryObject = $this->filterByContentTypes(null, $contentTypes);
         $boolQuery = $this->getBoolQuery();
-        $query =  $options['query'];
+        $query = $options['query'];
         if (!empty($query) && $queryObject instanceof $boolQuery) {
             $queryObject->addMust($query);
         } elseif (!empty($query)) {
-            if ($queryObject !== null) {
+            if (null !== $queryObject) {
                 $boolQuery->addMust($queryObject);
             }
             $queryObject = $boolQuery;
             $queryObject->addMust($query);
         }
         $search = new Search($indexes, $queryObject);
-        $aggs =  $options['aggs'];
-        if ($aggs === null) {
+        $aggs = $options['aggs'];
+        if (null === $aggs) {
             return $search;
         }
         foreach ($aggs as $name => $agg) {
-            if (!\is_array($agg) || \count($agg) !== 1) {
+            if (!\is_array($agg) || 1 !== \count($agg)) {
                 throw new \RuntimeException('Unexpected aggregation basename');
             }
             foreach ($agg as $basename => $rule) {
@@ -178,16 +176,16 @@ class ElasticaService
                 $search->addAggregation($aggregation);
             }
         }
+
         return $search;
     }
 
-        /**
+    /**
      * @param array<mixed> $param
-     * @return Search
      */
     public function convertElasticsearchSearch(array $param): Search
     {
-        @trigger_error("This function exists to simplified the migration to elastica, but should not be used on long term", E_USER_DEPRECATED);
+        @\trigger_error('This function exists to simplified the migration to elastica, but should not be used on long term', E_USER_DEPRECATED);
         $options = $this->resolveElasticsearchSearchParameters($param);
 
         $search = $this->convertElasticsearchBody($options['index'], $options['type'], $options['body']);
@@ -195,18 +193,20 @@ class ElasticaService
         $search->setSize($options['size']);
         $search->setFrom($options['from']);
         $sort = $options['sort'];
-        if ($sort !== null) {
+        if (null !== $sort) {
             $search->setSort($sort);
         }
         $sources = $options['_source'];
-        if ($sources !== null) {
+        if (null !== $sources) {
             $search->setSources($sources);
         }
+
         return $search;
     }
 
     /**
      * @param array<mixed> $parameters
+     *
      * @return array{type: string[], index: string[], body: array<mixed>, size: int, from: int, _source: string[], sort: array<mixed>}
      */
     private function resolveElasticsearchSearchParameters(array $parameters): array
@@ -220,7 +220,7 @@ class ElasticaService
                 'size' => 20,
                 'from' => 0,
                 '_source' => [],
-                'sort' => []
+                'sort' => [],
             ])
             ->setAllowedTypes('type', ['string', 'array', 'null'])
             ->setAllowedTypes('index', ['string', 'array'])
@@ -231,44 +231,49 @@ class ElasticaService
             ->setAllowedTypes('sort', ['array'])
             ->setRequired(['index'])
             ->setNormalizer('type', function (Options $options, $value) {
-                if ($value === null) {
+                if (null === $value) {
                     return [];
                 }
                 if (!\is_array($value)) {
                     return [$value];
                 }
+
                 return $value;
             })
             ->setNormalizer('index', function (Options $options, $value) {
                 if (!\is_array($value)) {
                     return [$value];
                 }
+
                 return $value;
             })
             ->setNormalizer('body', function (Options $options, $value) {
                 if (\is_string($value)) {
                     $value = \json_decode($value, true);
                 }
-                if ($value === null) {
+                if (null === $value) {
                     return [];
                 }
+
                 return $value;
             })
             ->setNormalizer('_source', function (Options $options, $value) {
-                if ($value === true) {
+                if (true === $value) {
                     return [];
                 }
-                if ($value === false) {
+                if (false === $value) {
                     return [EMSSource::FIELD_CONTENT_TYPE];
                 }
                 if (!\is_array($value)) {
                     return [$value];
                 }
+
                 return $value;
             })
         ;
         /** @var array{type: string[], index: string[], body: array{query: array, aggs: array}, size: int, from: int, _source: string[], sort: array<mixed>} $resolvedParameters */
         $resolvedParameters = $optionResolver->resolve($parameters);
+
         return $resolvedParameters;
     }
 
@@ -299,9 +304,9 @@ class ElasticaService
         return $esSearch;
     }
 
-
     /**
      * @param array<mixed> $parameters
+     *
      * @return array{aggs: ?array, query: ?array}
      */
     private function resolveElasticsearchBody(array $parameters): array
@@ -318,17 +323,20 @@ class ElasticaService
                 if (\is_string($value)) {
                     $value = \json_decode($value, true);
                 }
+
                 return $value;
             })
             ->setNormalizer('aggs', function (Options $options, $value) {
                 if (\is_string($value)) {
                     $value = \json_decode($value, true);
                 }
+
                 return $value;
             })
         ;
         /** @var array{aggs: ?array, query: ?array} $resolvedParameters */
         $resolvedParameters = $resolver->resolve($parameters);
+
         return $resolvedParameters;
     }
 }
