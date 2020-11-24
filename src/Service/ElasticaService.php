@@ -164,6 +164,7 @@ class ElasticaService
         $search = new Search($indexes, $queryObject);
         $this->setSearchDefaultOptions($search, $options);
         $search->addAggregations($this->parseAggregations($options['aggs'] ?? []));
+
         return $search;
     }
 
@@ -176,11 +177,13 @@ class ElasticaService
         $options = $this->resolveElasticsearchSearchParameters($param);
         $search = $this->convertElasticsearchBody($options['index'], $options['type'], $options['body']);
         $this->setSearchDefaultOptions($search, $options);
+
         return $search;
     }
 
     /**
      * @param array<mixed> $parameters
+     *
      * @return array{type: string[], index: string[], body: array<mixed>, size: int, from: int, _source: string[], sort: ?array<mixed>}
      */
     private function resolveElasticsearchSearchParameters(array $parameters): array
@@ -259,6 +262,7 @@ class ElasticaService
 
     /**
      * @param array<mixed> $parameters
+     *
      * @return array{aggs: ?array, query: ?array, size: int, from: int, _source: ?string[], sort: ?array}
      */
     private function resolveElasticsearchBody(array $parameters): array
@@ -302,7 +306,7 @@ class ElasticaService
             $subAggregations = $this->parseAggregations($agg['aggs']);
             unset($agg['aggs']);
         }
-        if (!\is_array($agg) || \count($agg) !== 1) {
+        if (!\is_array($agg) || 1 !== \count($agg)) {
             throw new \RuntimeException('Unexpected aggregation basename');
         }
         $aggregation = new ElasticaAggregation($name);
@@ -312,11 +316,13 @@ class ElasticaService
                 $aggregation->addAggregation($subAggregation);
             }
         }
+
         return $aggregation;
     }
 
     /**
      * @param array<mixed> $aggs
+     *
      * @return ElasticaAggregation[]
      */
     private function parseAggregations(array $aggs): array
@@ -325,6 +331,7 @@ class ElasticaService
         foreach ($aggs as $name => $agg) {
             $aggregations[] = $this->addAggregation($name, $agg);
         }
+
         return $aggregations;
     }
 
@@ -343,18 +350,20 @@ class ElasticaService
             ->setAllowedTypes('_source', ['array', 'string', 'bool'])
             ->setAllowedTypes('sort', ['array', 'null'])
             ->setNormalizer('_source', function (Options $options, $value) {
-                if ($value === null || $value === true) {
+                if (null === $value || true === $value) {
                     return null;
                 }
-                if ($value === false) {
+                if (false === $value) {
                     return [EMSSource::FIELD_CONTENT_TYPE];
                 }
                 if (!\is_array($value)) {
                     return [$value];
                 }
+
                 return $value;
             })
         ;
+
         return $resolver;
     }
 
@@ -366,11 +375,11 @@ class ElasticaService
         $search->setSize($options['size']);
         $search->setFrom($options['from']);
         $sort = $options['sort'];
-        if ($sort !== null && !empty($sort)) {
+        if (null !== $sort && !empty($sort)) {
             $search->setSort($sort);
         }
         $sources = $options['_source'];
-        if ($sources !== null && !empty($sources)) {
+        if (null !== $sources && !empty($sources)) {
             $search->setSources($sources);
         }
     }
