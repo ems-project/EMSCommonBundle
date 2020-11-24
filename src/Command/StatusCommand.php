@@ -14,13 +14,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class StatusCommand extends Command
 {
-    /** @var string  */
+    /** @var string */
     const ARGUMENT_TIMEOUT = 'timeout';
 
-    /** @var string  */
+    /** @var string */
     const ARGUMENT_SILENT = 'silent';
 
-    /** @var string  */
+    /** @var string */
     const ARGUMENT_WAIT_FOR_STATUS = 'wait-for-status';
 
     /** @var ElasticaService */
@@ -73,7 +73,7 @@ class StatusCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $silent = $input->getOption(self::ARGUMENT_SILENT) === true;
+        $silent = true === $input->getOption(self::ARGUMENT_SILENT);
         if (!$silent) {
             $this->io->section('Start health check');
         }
@@ -83,7 +83,7 @@ class StatusCommand extends Command
             throw new \RuntimeException('Unexpected timeout argument');
         }
         $waitForStatus = $input->getOption(self::ARGUMENT_WAIT_FOR_STATUS);
-        if ($waitForStatus !== null && !\is_string($waitForStatus)) {
+        if (null !== $waitForStatus && !\is_string($waitForStatus)) {
             throw new \RuntimeException('Unexpected wait-for-status argument');
         }
 
@@ -96,14 +96,13 @@ class StatusCommand extends Command
                 }
                 break;
             case 'yellow':
-                $returnCode -= 1;
+                --$returnCode;
                 $this->io->warning('Replicas shard are not allocated (yellow)');
                 break;
             default:
                 $returnCode -= 2;
                 $this->io->error('The cluster is not healthy (red)');
         }
-
 
         $healthyStorages = 0;
         $unhealthyStorages = 0;
@@ -119,9 +118,9 @@ class StatusCommand extends Command
             }
         }
 
-        if ($unhealthyStorages === 0 && $healthyStorages === 0) {
+        if (0 === $unhealthyStorages && 0 === $healthyStorages) {
             $this->io->warning('There is no storage services defined');
-        } elseif ($healthyStorages === 0) {
+        } elseif (0 === $healthyStorages) {
             $this->io->error('All storage services are failing');
             $returnCode -= 2;
         }

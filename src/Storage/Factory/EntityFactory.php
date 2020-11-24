@@ -8,7 +8,6 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use EMS\CommonBundle\Storage\Service\EntityStorage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EntityFactory extends AbstractFactory implements StorageFactoryInterface
 {
@@ -42,11 +41,12 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
 
         if ($this->registered) {
             $this->logger->warning('The entity storage service is already registered');
+
             return null;
         }
         $this->registered = true;
 
-         return new EntityStorage($this->doctrine, $config[self::STORAGE_CONFIG_USAGE]);
+        return new EntityStorage($this->doctrine, $config[self::STORAGE_CONFIG_USAGE]);
     }
 
     public function getStorageType(): string
@@ -54,9 +54,9 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
         return self::STORAGE_TYPE;
     }
 
-
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, activate: bool, usage: int}
      */
     private function resolveParameters(array $parameters): array
@@ -75,6 +75,7 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
 
         /** @var array{type: string, activate: bool, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }

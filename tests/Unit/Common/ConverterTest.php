@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 
 class ConverterTest extends TestCase
 {
-
     /** @var Converter */
     private $converter;
 
@@ -18,7 +17,8 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * format: [text,text]
+     * format: [text,text].
+     *
      * @return array<array<string>>
      */
     public function strProvider(): array
@@ -41,7 +41,8 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * format: [int,text]
+     * format: [int,text].
+     *
      * @return array<array<int|string>>
      */
     public function byteProvider(): array
@@ -52,7 +53,6 @@ class ConverterTest extends TestCase
             [24962496, '23.81 MB', '24 MB', '23.8061 MB'],
             [249624962496, '232.48 GB', '232 GB', '232.4814 GB'],
             [2496249624962496, '2270.33 TB', '2270 TB', '2270.3258 TB'],
-
         ];
     }
 

@@ -28,7 +28,7 @@ final class DomPdfPrinter implements PdfPrinterInterface
         return new StreamedResponse(function () use ($dompdf, $pdf, $options) {
             $dompdf->stream($pdf->getFileName(), [
                 'compress' => (int) $options->isCompress(),
-                'Attachment' => (int) $options->isAttachment()
+                'Attachment' => (int) $options->isAttachment(),
             ]);
         });
     }

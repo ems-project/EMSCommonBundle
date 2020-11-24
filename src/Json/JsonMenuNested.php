@@ -19,7 +19,7 @@ final class JsonMenuNested implements \IteratorAggregate
     private $object;
     /** @var JsonMenuNested[] */
     private $children = [];
-    /** @var null|JsonMenuNested */
+    /** @var JsonMenuNested|null */
     private $parent;
 
     /**
@@ -48,7 +48,7 @@ final class JsonMenuNested implements \IteratorAggregate
            'id' => 'root',
            'type' => 'root',
            'label' => 'root',
-           'children' => \json_decode($structure, true)
+           'children' => \json_decode($structure, true),
         ]);
     }
 
@@ -58,7 +58,7 @@ final class JsonMenuNested implements \IteratorAggregate
     }
 
     /**
-     * Return a flat array
+     * Return a flat array.
      *
      * @return array<JsonMenuNested>
      */
@@ -67,14 +67,14 @@ final class JsonMenuNested implements \IteratorAggregate
         $data = [$this];
 
         foreach ($this->children as $child) {
-            $data = array_merge($data, $child->toArray());
+            $data = \array_merge($data, $child->toArray());
         }
 
         return $data;
     }
 
     /**
-     * Loop through the children recursively
+     * Loop through the children recursively.
      */
     public function getIterator()
     {
@@ -125,8 +125,8 @@ final class JsonMenuNested implements \IteratorAggregate
     {
         $path = [$this];
 
-        if ($this->parent !== null && !$this->parent->isRoot()) {
-            $path = array_merge($this->parent->getPath(), $path);
+        if (null !== $this->parent && !$this->parent->isRoot()) {
+            $path = \array_merge($this->parent->getPath(), $path);
         }
 
         return $path;
@@ -144,7 +144,7 @@ final class JsonMenuNested implements \IteratorAggregate
 
     public function isRoot(): bool
     {
-        return $this->parent === null;
+        return null === $this->parent;
     }
 
     public function setParent(?JsonMenuNested $parent): void

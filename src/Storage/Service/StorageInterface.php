@@ -8,25 +8,25 @@ use Psr\Http\Message\StreamInterface;
 
 interface StorageInterface
 {
-    /** @var int  */
+    /** @var int */
     public const STORAGE_USAGE_CACHE = 0;
-    /** @var int  */
+    /** @var int */
     public const STORAGE_USAGE_CONFIG = 1;
-    /** @var int  */
+    /** @var int */
     public const STORAGE_USAGE_ASSET = 2;
-    /** @var int  */
+    /** @var int */
     public const STORAGE_USAGE_BACKUP = 3;
-    /** @var int  */
+    /** @var int */
     public const STORAGE_USAGE_EXTERNAL = 4;
-    /** @var string  */
+    /** @var string */
     public const STORAGE_USAGE_CACHE_ATTRIBUTE = 'cache';
-    /** @var string  */
+    /** @var string */
     public const STORAGE_USAGE_CONFIG_ATTRIBUTE = 'config';
-    /** @var string  */
+    /** @var string */
     public const STORAGE_USAGE_ASSET_ATTRIBUTE = 'asset';
-    /** @var string  */
+    /** @var string */
     public const STORAGE_USAGE_BACKUP_ATTRIBUTE = 'backup';
-    /** @var string  */
+    /** @var string */
     public const STORAGE_USAGE_EXTERNAL_ATTRIBUTE = 'external';
 
     /** @var array<string, int> */
