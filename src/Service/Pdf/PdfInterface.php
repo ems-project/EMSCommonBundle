@@ -9,5 +9,6 @@ interface PdfInterface
     public const FILENAME = 'filename';
 
     public function getFilename(): string;
+
     public function getHtml(): string;
 }

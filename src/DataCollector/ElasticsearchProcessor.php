@@ -18,8 +18,6 @@ class ElasticsearchProcessor
     }
 
     /**
-     * @param array $record
-     *
      * @return array
      */
     public function __invoke(array $record)
@@ -28,7 +26,7 @@ class ElasticsearchProcessor
             $this->logger->error('{total} failures', [
                 'total' => $record['context']['response']['_shards']['failed'],
                 'failures' => $this->getFailures($record['context']['response']['_shards']['failures']),
-                'record' => $record
+                'record' => $record,
             ]);
         }
 
@@ -42,7 +40,7 @@ class ElasticsearchProcessor
         $failures = [];
 
         foreach ($response as $failure) {
-            $failures[] = sprintf('%s on %s', $failure['reason']['reason'], $failure['index']);
+            $failures[] = \sprintf('%s on %s', $failure['reason']['reason'], $failure['index']);
         }
 
         return $failures;

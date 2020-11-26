@@ -17,7 +17,7 @@ class EncoderTest extends TestCase
     }
 
     /**
-     * format: [text, &#ascii;]
+     * format: [text, &#ascii;].
      */
     public function htmlProvider(): array
     {
@@ -40,7 +40,7 @@ class EncoderTest extends TestCase
     }
 
     /**
-     * format: [text, &#ascii;]
+     * format: [text, &#ascii;].
      */
     public function piiProvider(): array
     {
@@ -54,7 +54,7 @@ class EncoderTest extends TestCase
             ['example@example.com', $email],
             ['é', 'é'],
             ['<', '<'],
-            ['mailto:example@example.com', sprintf('mailto:%s', $email)],
+            ['mailto:example@example.com', \sprintf('mailto:%s', $email)],
             ['"tel:02/345.67.89"', '&#34;&#116;&#101;&#108;&#58;&#48;&#50;&#47;&#51;&#52;&#53;&#46;&#54;&#55;&#46;&#56;&#57;&#34;'],
             ['<span class="pii">example</span>', $example],
         ];
@@ -69,11 +69,10 @@ class EncoderTest extends TestCase
     }
 
     /**
-     * format: [text, text;]
+     * format: [text, text;].
      */
     public function urlProvider(): array
     {
-
         return [
             ['example', 'example'],
             ['See //host:80/demo/test.html', 'See <a href="//host:80/demo/test.html">test.html</a>'],
@@ -88,7 +87,6 @@ class EncoderTest extends TestCase
             ['errr//host/test', 'errr<a href="//host/test">test</a>'],
         ];
     }
-
 
     /**
      * @dataProvider urlProvider

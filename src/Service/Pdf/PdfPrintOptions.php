@@ -20,8 +20,8 @@ final class PdfPrintOptions
     public const ATTACHMENT = 'attachment';
     public const COMPRESS = 'compress';
     public const HTML5_PARSING = 'html5Parsing';
-    public const ORIENTATION  = 'orientation';
-    public const SIZE  = 'size';
+    public const ORIENTATION = 'orientation';
+    public const SIZE = 'size';
 
     public function __construct(array $options)
     {

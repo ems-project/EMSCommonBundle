@@ -54,7 +54,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
 
     public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security, bool $byPass = false)
     {
-        $levelName = strtoupper($level);
+        $levelName = \strtoupper($level);
         if (isset(Logger::getLevels()[$levelName])) {
             $this->level = Logger::getLevels()[$levelName];
         } else {
@@ -91,7 +91,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 'name' => $template['name'],
                 'body' => [
                     'template' => 'ems_internal_logger_index_*',
-                    'aliases' => ['ems_internal_logger_alias' => (object) array()],
+                    'aliases' => ['ems_internal_logger_alias' => (object) []],
                     'mappings' => [
                         'doc' => [
                             'properties' => [
@@ -103,7 +103,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                                     'type' => 'keyword',
                                     'ignore_above' => 256,
                                 ],
-                                EmsFields::LOG_CONTENTTYPE_FIELD  => [
+                                EmsFields::LOG_CONTENTTYPE_FIELD => [
                                     'type' => 'keyword',
                                 ],
                                 EmsFields::LOG_OUUID_FIELD => [
@@ -129,18 +129,18 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                                 ],
                                 EmsFields::LOG_URL_FIELD => [
                                     'type' => 'text',
-                                    "fields" => [
-                                        "raw" => [
-                                            "type" =>  "keyword"
-                                        ]
-                                    ]
+                                    'fields' => [
+                                        'raw' => [
+                                            'type' => 'keyword',
+                                        ],
+                                    ],
                                 ],
                                 'instance_id' => [
                                     'type' => 'keyword',
                                     'ignore_above' => 256,
                                 ],
                                 EmsFields::LOG_SESSION_ID_FIELD => [
-                                    'type' => 'keyword'
+                                    'type' => 'keyword',
                                 ],
                                 'version' => [
                                     'type' => 'keyword',
@@ -184,7 +184,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 ],
             ]);
         } catch (\Throwable $e) {
-        // the cluster might be available only in read only (dev behind a reverse proxy)
+            // the cluster might be available only in read only (dev behind a reverse proxy)
         }
     }
 
@@ -218,12 +218,12 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
             unset($body['formatted']);
 
             foreach ($record[EmsFields::LOG_CONTEXT_FIELD] as $key => &$value) {
-                if (!is_object($value)) {
+                if (!\is_object($value)) {
                     if (
-                        in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
+                        \in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
                         EmsFields::LOG_OUUID_FIELD, EmsFields::LOG_REVISION_ID_FIELD, EmsFields::LOG_HOST_FIELD, EmsFields::LOG_URL_FIELD,
                         EmsFields::LOG_STATUS_CODE_FIELD, EmsFields::LOG_SIZE_FIELD, EmsFields::LOG_ROUTE_FIELD, EmsFields::LOG_MICROTIME_FIELD,
-                        EmsFields::LOG_SESSION_ID_FIELD])
+                        EmsFields::LOG_SESSION_ID_FIELD, ])
                     ) {
                         $body[$key] = $value;
                     } else {
@@ -235,7 +235,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 }
             }
 
-            if ($this->user === null && $this->security->getToken() !== null) {
+            if (null === $this->user && null !== $this->security->getToken()) {
                 $this->user = $this->security->getToken()->getUsername();
                 if ($this->security->isGranted('ROLE_PREVIOUS_ADMIN')) {
                     foreach ($this->security->getToken()->getRoles() as $role) {
@@ -249,16 +249,15 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
             $body[EmsFields::LOG_USERNAME_FIELD] = $this->user;
             $body[EmsFields::LOG_IMPERSONATOR_FIELD] = $this->impersonator;
 
-
             $this->bulk[] = [
                 'index' => [
                     '_type' => 'doc',
-                    '_index' => 'ems_internal_logger_index_' . (new DateTime())->format('Ymd'),
+                    '_index' => 'ems_internal_logger_index_'.(new DateTime())->format('Ymd'),
                 ],
             ];
             $this->bulk[] = $body;
 
-            if (count($this->bulk) > 200) {
+            if (\count($this->bulk) > 200) {
                 $this->treatBulk();
             }
         }
@@ -282,7 +281,6 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
             $this->bulk = [];
         }
     }
-
 
     public function onKernelTerminate(PostResponseEvent $event)
     {
@@ -309,15 +307,15 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 $operation = null;
         }
         $route = $request->attributes->get('_route', null);
-        if ($operation && $route && !in_array($route, ['_wdt'])) {
+        if ($operation && $route && !\in_array($route, ['_wdt'])) {
             $statusCode = $event->getResponse()->getStatusCode();
             if ($statusCode < 300) {
                 $level = Logger::INFO;
                 $level_name = 'INFO';
-            } else if ($statusCode < 400) {
+            } elseif ($statusCode < 400) {
                 $level = Logger::NOTICE;
                 $level_name = 'NOTICE';
-            } else if ($statusCode < 500) {
+            } elseif ($statusCode < 500) {
                 $level = Logger::WARNING;
                 $level_name = 'WARNING';
             } else {
@@ -337,8 +335,8 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                     EmsFields::LOG_URL_FIELD => $request->getRequestUri(),
                     EmsFields::LOG_ROUTE_FIELD => $route,
                     EmsFields::LOG_STATUS_CODE_FIELD => $statusCode,
-                    EmsFields::LOG_SIZE_FIELD => strlen((string) $event->getResponse()->getContent()),
-                    EmsFields::LOG_MICROTIME_FIELD => (microtime(true) - $this->startMicrotime),
+                    EmsFields::LOG_SIZE_FIELD => \strlen((string) $event->getResponse()->getContent()),
+                    EmsFields::LOG_MICROTIME_FIELD => (\microtime(true) - $this->startMicrotime),
                 ],
             ];
             if ($request->hasSession()) {
@@ -351,8 +349,8 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
 
     public static function getSubscribedEvents()
     {
-        return array(
-            KernelEvents::TERMINATE => array('onKernelTerminate', -1024),
-        );
+        return [
+            KernelEvents::TERMINATE => ['onKernelTerminate', -1024],
+        ];
     }
 }
