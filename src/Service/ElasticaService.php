@@ -13,6 +13,7 @@ use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
 use Elasticsearch\Endpoints\Cluster\Health;
+use Elasticsearch\Endpoints\Info;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
@@ -84,6 +85,16 @@ class ElasticaService
         }
 
         return Document::fromResult($result);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getClusterInfo(): array
+    {
+        $endpoint = new Info();
+
+        return $this->client->requestEndpoint($endpoint)->getData();
     }
 
     /**
