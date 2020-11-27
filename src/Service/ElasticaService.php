@@ -87,11 +87,16 @@ class ElasticaService
         return Document::fromResult($result);
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getClusterInfo(): array
     {
         $endpoint = new Info();
+
         return $this->client->requestEndpoint($endpoint)->getData();
     }
+
     /**
      * @param string[] $indexes
      * @param string[] $terms
