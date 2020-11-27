@@ -9,10 +9,10 @@ use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Terms;
-use Elastica\Request;
 use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
+use Elasticsearch\Endpoints\Cluster\Health;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
@@ -35,23 +35,41 @@ class ElasticaService
         $this->logger = $logger;
     }
 
-    public function getHealthStatus(string $waitForStatus = null, string $timeout = '10s'): string
+    public function getHealthStatus(string $waitForStatus = null, string $timeout = '10s', ?string $index = null): string
     {
         try {
-            $query = [
-                'timeout' => $timeout,
-            ];
-            if (null !== $waitForStatus) {
-                $query['wait_for_status'] = $waitForStatus;
+            $health = $this->getClusterHealth($waitForStatus, $timeout, $index);
+            $status = $health['status'] ?? 'red';
+            if (!\is_string($status)) {
+                throw new \RuntimeException('Unexpected not string status');
             }
-            $clusterHealthResponse = $this->client->request('_cluster/health', Request::GET, [], $query);
 
-            return $clusterHealthResponse->getData()['status'] ?? 'red';
-        } catch (\Exception $e) {
+            return $status;
+        } catch (\Throwable $e) {
             $this->logger->error($e->getMessage(), ['trace' => $e->getTraceAsString()]);
 
             return 'red';
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getClusterHealth(string $waitForStatus = null, string $timeout = '10s', ?string $index = null): array
+    {
+        $query = [
+            'timeout' => $timeout,
+        ];
+        if (null !== $waitForStatus) {
+            $query['wait_for_status'] = $waitForStatus;
+        }
+        $endpoint = new Health();
+        if (null !== $index) {
+            $endpoint->setIndex($index);
+        }
+        $endpoint->setParams($query);
+
+        return $this->client->requestEndpoint($endpoint)->getData();
     }
 
     public function singleSearch(Search $search): Document
