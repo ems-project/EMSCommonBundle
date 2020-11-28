@@ -13,6 +13,7 @@ use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
 use Elasticsearch\Endpoints\Cluster\Health;
+use Elasticsearch\Endpoints\Count;
 use Elasticsearch\Endpoints\Info;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
@@ -133,6 +134,24 @@ class ElasticaService
     public function scroll(Search $search, string $expiryTime = '1m'): Scroll
     {
         return $this->createElasticaSearch($search, $search->getScrollOptions())->scroll($expiryTime);
+    }
+
+    public function count(Search $search): int
+    {
+        $search = clone $search;
+        $search->setSort(null);
+        $elasticSearch = $this->createElasticaSearch($search, []);
+        $query = $elasticSearch->getQuery();
+
+        $endpoint = new Count();
+        $endpoint->setIndex(\implode(',', $elasticSearch->getIndices()));
+        $endpoint->setBody($query->toArray());
+        $response = $this->client->requestEndpoint($endpoint)->getData();
+
+        if (isset($response['count'])) {
+            return \intval($response['count']);
+        }
+        throw new \RuntimeException('Unexpected count query response structure');
     }
 
     public function getVersion(): string
