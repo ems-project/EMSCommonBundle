@@ -55,6 +55,9 @@ class Aggregation
     {
         $out = [];
         foreach ($this->buckets as $bucket) {
+            if (!$bucket instanceof Bucket) {
+                $bucket = new Bucket($bucket);
+            }
             $key = $bucket->getKey();
             if (null === $key) {
                 continue;
