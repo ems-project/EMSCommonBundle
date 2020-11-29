@@ -149,6 +149,9 @@ class ElasticaService
         if (isset($body['_source'])) {
             unset($body['_source']);
         }
+        if (isset($body['sort'])) {
+            unset($body['sort']);
+        }
 
         $endpoint = new Count();
         $endpoint->setIndex(\implode(',', $elasticSearch->getIndices()));
