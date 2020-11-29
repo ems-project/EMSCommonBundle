@@ -116,9 +116,9 @@ class Search
     }
 
     /**
-     * @param array<mixed> $sort
+     * @param array<mixed>|null $sort
      */
-    public function setSort(array $sort): void
+    public function setSort(?array $sort): void
     {
         $this->sort = $sort;
     }

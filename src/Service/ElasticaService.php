@@ -134,6 +134,8 @@ class ElasticaService
 
     public function scroll(Search $search, string $expiryTime = '1m'): Scroll
     {
+        $search = clone $search;
+        $search->setSort(null);
         $elasticaSearch = $this->createElasticaSearch($search, $search->getScrollOptions());
 
         return new EmsScroll($elasticaSearch, $expiryTime);

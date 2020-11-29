@@ -3,9 +3,10 @@
 namespace EMS\CommonBundle\Elasticsearch\Elastica;
 
 use Elastica\ResultSet as ElasticaResultSet;
+use Elastica\Scroll as ElasticaScroll;
 use Elastica\Search as ElasticaSearch;
 
-class Scroll extends \Elastica\Scroll
+class Scroll extends ElasticaScroll
 {
     public function next()
     {
