@@ -17,6 +17,7 @@ use Elasticsearch\Endpoints\Info;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
+use EMS\CommonBundle\Elasticsearch\Elastica\Scroll as EmsScroll;
 use EMS\CommonBundle\Elasticsearch\Exception\NotSingleResultException;
 use EMS\CommonBundle\Search\Search;
 use Psr\Log\LoggerInterface;
@@ -132,7 +133,9 @@ class ElasticaService
 
     public function scroll(Search $search, string $expiryTime = '1m'): Scroll
     {
-        return $this->createElasticaSearch($search, $search->getScrollOptions())->scroll($expiryTime);
+        $elasticaSearch = $this->createElasticaSearch($search, $search->getScrollOptions());
+
+        return new EmsScroll($elasticaSearch, $expiryTime);
     }
 
     public function getVersion(): string
