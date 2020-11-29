@@ -141,12 +141,16 @@ class ElasticaService
 
     public function count(Search $search): int
     {
-        $elasticSearch = $this->createElasticaSearch($search, []);
+        $elasticSearch = $this->createElasticaSearch($search, $search->getCountOptions());
         $query = $elasticSearch->getQuery();
+        $body = $query->toArray();
+        if (isset($body['_source'])) {
+            unset($body['_source']);
+        }
 
         $endpoint = new Count();
         $endpoint->setIndex(\implode(',', $elasticSearch->getIndices()));
-        $endpoint->setBody($query->toArray());
+        $endpoint->setBody($body);
         $response = $this->client->requestEndpoint($endpoint)->getData();
 
         if (isset($response['count'])) {
@@ -301,7 +305,6 @@ class ElasticaService
         }
 
         $esSearch = new ElasticaSearch($this->client);
-
         $esSearch->setQuery($query);
         $esSearch->addIndices($search->getIndices());
         $esSearch->setOptions($options);

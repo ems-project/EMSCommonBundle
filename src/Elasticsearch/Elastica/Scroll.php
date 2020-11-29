@@ -2,21 +2,25 @@
 
 namespace EMS\CommonBundle\Elasticsearch\Elastica;
 
-use Elastica\Response as ElasticaResponse;
-use Elastica\ResultSet;
-use EMS\CommonBundle\Elasticsearch\Response\Response;
+use Elastica\ResultSet as ElasticaResultSet;
+use Elastica\Search as ElasticaSearch;
 
 class Scroll extends \Elastica\Scroll
 {
-    // phpcs:disable
-    protected function _setScrollId(ResultSet $resultSet): void
+    public function next()
     {
-        $response = Response::fromResultSet($resultSet);
-        $data = $resultSet->getResponse()->getData();
-        $data['hits']['total'] = $response->getTotal();
-        $elasticaResponse = new ElasticaResponse($data, $resultSet->getResponse()->getStatus());
-        $newResultSet = new ResultSet($elasticaResponse, $resultSet->getQuery(), $resultSet->getResults());
+        $options = $this->_search->getOptions();
+        if (isset($options[ElasticaSearch::OPTION_SIZE])) {
+            unset($options[ElasticaSearch::OPTION_SIZE]);
+        }
+        $this->_search->setOptions($options);
+        parent::next();
+    }
 
+    // phpcs:disable
+    protected function _setScrollId(ElasticaResultSet $resultSet): void
+    {
+        $newResultSet = new ResultSet($resultSet->getResponse(), $resultSet->getQuery(), $resultSet->getResults());
         parent::_setScrollId($newResultSet);
     }
 

@@ -62,6 +62,11 @@ class Search
      */
     public function setSources(array $sources): void
     {
+        if (0 === \count($sources)) {
+            $this->sources = [];
+
+            return;
+        }
         $this->sources = \array_merge($sources, [EMSSource::FIELD_CONTENT_TYPE]);
     }
 
@@ -122,6 +127,16 @@ class Search
      * @return array<mixed>
      */
     public function getScrollOptions(): array
+    {
+        return [
+            ElasticaSearch::OPTION_SIZE => $this->size,
+        ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getCountOptions(): array
     {
         return [];
     }
