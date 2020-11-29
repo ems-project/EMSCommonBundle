@@ -141,8 +141,6 @@ class ElasticaService
 
     public function count(Search $search): int
     {
-        $search = clone $search;
-        $search->setSort(null);
         $elasticSearch = $this->createElasticaSearch($search, []);
         $query = $elasticSearch->getQuery();
 
