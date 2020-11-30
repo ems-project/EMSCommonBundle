@@ -13,10 +13,12 @@ use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
 use Elasticsearch\Endpoints\Cluster\Health;
+use Elasticsearch\Endpoints\Count;
 use Elasticsearch\Endpoints\Info;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
+use EMS\CommonBundle\Elasticsearch\Elastica\Scroll as EmsScroll;
 use EMS\CommonBundle\Elasticsearch\Exception\NotSingleResultException;
 use EMS\CommonBundle\Search\Search;
 use Psr\Log\LoggerInterface;
@@ -132,7 +134,34 @@ class ElasticaService
 
     public function scroll(Search $search, string $expiryTime = '1m'): Scroll
     {
-        return $this->createElasticaSearch($search, $search->getScrollOptions())->scroll($expiryTime);
+        $search = clone $search;
+        $search->setSort(null);
+        $elasticaSearch = $this->createElasticaSearch($search, $search->getScrollOptions());
+
+        return new EmsScroll($elasticaSearch, $expiryTime);
+    }
+
+    public function count(Search $search): int
+    {
+        $elasticSearch = $this->createElasticaSearch($search, $search->getCountOptions());
+        $query = $elasticSearch->getQuery();
+        $body = $query->toArray();
+        if (isset($body['_source'])) {
+            unset($body['_source']);
+        }
+        if (isset($body['sort'])) {
+            unset($body['sort']);
+        }
+
+        $endpoint = new Count();
+        $endpoint->setIndex(\implode(',', $elasticSearch->getIndices()));
+        $endpoint->setBody($body);
+        $response = $this->client->requestEndpoint($endpoint)->getData();
+
+        if (isset($response['count'])) {
+            return \intval($response['count']);
+        }
+        throw new \RuntimeException('Unexpected count query response structure');
     }
 
     public function getVersion(): string
@@ -281,7 +310,6 @@ class ElasticaService
         }
 
         $esSearch = new ElasticaSearch($this->client);
-
         $esSearch->setQuery($query);
         $esSearch->addIndices($search->getIndices());
         $esSearch->setOptions($options);
