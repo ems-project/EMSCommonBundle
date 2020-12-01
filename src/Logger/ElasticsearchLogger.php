@@ -22,13 +22,13 @@ use Symfony\Component\Security\Core\Security;
 class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarmerInterface, EventSubscriberInterface
 {
     /** @var string */
-    const EMS_INTERNAL_LOGGER_INDEX_PATTERN = 'ems_internal_logger_index_*';
+    private const EMS_INTERNAL_LOGGER_INDEX_PATTERN = 'ems_internal_logger_index_*';
     /** @var string */
-    const EMS_INTERNAL_LOGGER_ALIAS = 'ems_internal_logger_alias';
+    public const EMS_INTERNAL_LOGGER_ALIAS = 'ems_internal_logger_alias';
     /** @var string */
-    const EMS_INTERNAL_LOGGER_INDEX = 'ems_internal_logger_index_';
+    private const EMS_INTERNAL_LOGGER_INDEX = 'ems_internal_logger_index_';
     /** @var string */
-    const EMS_INTERNAL_LOGGER_TEMPLATE = 'ems_internal_logger_template';
+    private const EMS_INTERNAL_LOGGER_TEMPLATE = 'ems_internal_logger_template';
 
     /** @var Client */
     private $client;
