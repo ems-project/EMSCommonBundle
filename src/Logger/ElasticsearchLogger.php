@@ -289,12 +289,12 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
 
     private function treatBulk(bool $tooLate = false): void
     {
-        if ($this->byPass) {
+        if ($this->byPass || $this->tooLate) {
             return;
         }
 
-        if (\count($this->bulk->getActions()) > 0 && !$this->tooLate) {
-            $this->tooLate = $tooLate;
+        $this->tooLate = $tooLate;
+        if (\count($this->bulk->getActions()) > 0) {
             try {
                 $this->bulk->send();
             } catch (\Throwable $e) {
