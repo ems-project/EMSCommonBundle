@@ -246,41 +246,6 @@ parameters:
 			path: src/Helper/ArrayTool.php
 
 		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Logger\\\\ElasticsearchLogger\\:\\:\\$bulk type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Logger/ElasticsearchLogger.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Logger\\\\ElasticsearchLogger\\:\\:warmUp\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Logger/ElasticsearchLogger.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Logger\\\\ElasticsearchLogger\\:\\:write\\(\\) has parameter \\$record with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Logger/ElasticsearchLogger.php
-
-		-
-			message: "#^Cannot unset offset 'formatted' on array\\('level_name' \\=\\> mixed, 'level' \\=\\> mixed, 'message' \\=\\> mixed, 'channel' \\=\\> mixed, 'datetime' \\=\\> string\\|null, 'instance_id' \\=\\> string, 'version' \\=\\> string, 'component' \\=\\> string, \\.\\.\\.\\)\\.$#"
-			count: 1
-			path: src/Logger/ElasticsearchLogger.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Logger\\\\ElasticsearchLogger\\:\\:treatBulk\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Logger/ElasticsearchLogger.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Logger\\\\ElasticsearchLogger\\:\\:onKernelTerminate\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Logger/ElasticsearchLogger.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Logger\\\\ElasticsearchLogger\\:\\:getSubscribedEvents\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Logger/ElasticsearchLogger.php
-
-		-
 			message: "#^Property EMS\\\\CommonBundle\\\\Logger\\\\FlashMessageLogger\\:\\:\\$session type has no value type specified in iterable type Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session\\.$#"
 			count: 1
 			path: src/Logger/FlashMessageLogger.php
