@@ -29,6 +29,11 @@
             <argument>%ems_common.elasticsearch_hosts%</argument>
         </service>
 
+        <service id="EMS\CommonBundle\Elasticsearch\Mapping" alias="ems_common.service.mapping"/>
+        <service id="ems_common.service.mapping" class="EMS\CommonBundle\Elasticsearch\Mapping">
+            <argument type="service" id="ems_common.elastica.client"/>
+        </service>
+
         <service id="ems_common.event_listener.command" class="EMS\CommonBundle\EventListener\CommandListener">
             <tag name="kernel.event_subscriber" />
         </service>

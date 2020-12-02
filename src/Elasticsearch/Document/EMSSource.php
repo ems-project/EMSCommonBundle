@@ -25,7 +25,10 @@ final class EMSSource implements EMSSourceInterface
     public const FIELD_FINALIZED_BY = '_finalized_by';
     public const FIELD_FINALIZATION_DATETIME = '_finalization_datetime';
     public const FIELD_HASH = '_sha1';
+    public const FIELD_SIGNATURE = '_signature';
     public const FIELD_PUBLICATION_DATETIME = '_published_datetime';
+    public const FIELD_VERSION_UUID = '_version_uuid';
+    public const FIELD_VERSION_TAG = '_version_tag';
 
     public function __construct(array $source)
     {
