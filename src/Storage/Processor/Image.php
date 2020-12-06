@@ -133,6 +133,9 @@ class Image
             (int) \hexdec(\substr($background, 5, 2)),
             \intval(\hexdec(\substr($background, 7, 2) ?? '00') / 2)
         );
+        if ($solidColour === false) {
+            throw new \RuntimeException('Unexpected false imagecolorallocatealpha');
+        }
         \imagefill($temp, 0, 0, $solidColour);
     }
 
@@ -211,7 +214,13 @@ class Image
             throw new \RuntimeException('Could not create cornerImage');
         }
         $clearColor = \imagecolorallocate($cornerImage, 0, 0, 0);
+        if ($clearColor === false) {
+            throw new \RuntimeException('Unexpected false imagecolorallocate');
+        }
         $solidColor = \imagecolorallocate($cornerImage, (int) \hexdec(\substr($color, 1, 2)), (int) \hexdec(\substr($color, 3, 2)), (int) \hexdec(\substr($color, 5, 2)));
+        if ($solidColor === false) {
+            throw new \RuntimeException('Unexpected false imagecolorallocate');
+        }
 
         \imagecolortransparent($cornerImage, $clearColor);
         \imagefill($cornerImage, 0, 0, $solidColor);
@@ -240,6 +249,9 @@ class Image
         }
 
         $transparentColor = \imagecolorallocate($image, (int) \hexdec(\substr($color, 1, 2)), (int) \hexdec(\substr($color, 3, 2)), (int) \hexdec(\substr($color, 5, 2)));
+        if ($transparentColor === false) {
+            throw new \RuntimeException('Unexpected false imagecolorallocate');
+        }
         \imagecolortransparent($image, $transparentColor);
 
         return $image;
