@@ -60,8 +60,10 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
     protected $startMicrotime;
     /** @var bool */
     protected $byPass;
+    /** @var string */
+    private $contentTypeName;
 
-    public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security, Mapping $mapping, bool $byPass = false)
+    public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security, Mapping $mapping, bool $byPass = false, string $contentTypeName = self::EMS_LOGS)
     {
         $levelName = \strtoupper($level);
         if (isset(Logger::getLevels()[$levelName])) {
@@ -83,6 +85,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         $this->bulk = new Bulk($this->client);
         $this->tooLate = false;
         $this->byPass = $byPass;
+        $this->contentTypeName = $contentTypeName;
     }
 
     public function warmUp($cacheDir): void
@@ -181,7 +184,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 $datetime = $record[EmsFields::LOG_DATETIME_FIELD]->format('c');
             }
             $body = [
-                EMSSource::FIELD_CONTENT_TYPE => self::EMS_LOGS,
+                EMSSource::FIELD_CONTENT_TYPE => $this->contentTypeName,
                 EmsFields::LOG_LEVEL_NAME_FIELD => $record[EmsFields::LOG_LEVEL_NAME_FIELD],
                 EmsFields::LOG_LEVEL_FIELD => $record[EmsFields::LOG_LEVEL_FIELD],
                 EmsFields::LOG_MESSAGE_FIELD => $record[EmsFields::LOG_MESSAGE_FIELD],
