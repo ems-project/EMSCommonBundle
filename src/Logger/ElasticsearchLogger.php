@@ -9,6 +9,8 @@ use Elastica\Client;
 use Elasticsearch\Endpoints\Indices\Template\Delete;
 use Elasticsearch\Endpoints\Indices\Template\Exists;
 use Elasticsearch\Endpoints\Indices\Template\Put;
+use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
+use EMS\CommonBundle\Elasticsearch\Mapping;
 use EMS\CommonBundle\Helper\EmsFields;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
@@ -29,11 +31,15 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
     private const EMS_INTERNAL_LOGGER_INDEX = 'ems_internal_logger_index_';
     /** @var string */
     private const EMS_INTERNAL_LOGGER_TEMPLATE = 'ems_internal_logger_template';
+    /** @var string */
+    private const EMS_LOGS = 'ems__logs';
 
     /** @var Client */
     private $client;
     /** @var Security */
     private $security;
+    /** @var Mapping */
+    private $mapping;
     /** @var int */
     protected $level;
     /** @var string */
@@ -54,8 +60,10 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
     protected $startMicrotime;
     /** @var bool */
     protected $byPass;
+    /** @var string */
+    private $contentTypeName;
 
-    public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security, bool $byPass = false)
+    public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security, Mapping $mapping, bool $byPass = false, string $contentTypeName = self::EMS_LOGS)
     {
         $levelName = \strtoupper($level);
         if (isset(Logger::getLevels()[$levelName])) {
@@ -67,6 +75,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         parent::__construct($this->level);
         $this->startMicrotime = \microtime(true);
         $this->client = $client;
+        $this->mapping = $mapping;
         $this->instanceId = $instanceId;
         $this->version = $version;
         $this->component = $component;
@@ -76,6 +85,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         $this->bulk = new Bulk($this->client);
         $this->tooLate = false;
         $this->byPass = $byPass;
+        $this->contentTypeName = $contentTypeName;
     }
 
     public function warmUp($cacheDir): void
@@ -94,90 +104,36 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 $this->client->requestEndpoint($deleteTemplate);
             }
             $mapping = [
-                'channel' => [
-                    'type' => 'keyword',
-                    'ignore_above' => 256,
-                ],
-                'component' => [
-                    'type' => 'keyword',
-                    'ignore_above' => 256,
-                ],
-                EmsFields::LOG_CONTENTTYPE_FIELD => [
-                    'type' => 'keyword',
-                ],
-                EmsFields::LOG_OUUID_FIELD => [
-                    'type' => 'keyword',
-                ],
-                EmsFields::LOG_ENVIRONMENT_FIELD => [
-                    'type' => 'keyword',
-                ],
-                EmsFields::LOG_OPERATION_FIELD => [
-                    'type' => 'keyword',
-                ],
-                EmsFields::LOG_USERNAME_FIELD => [
-                    'type' => 'keyword',
-                ],
-                EmsFields::LOG_IMPERSONATOR_FIELD => [
-                    'type' => 'keyword',
-                ],
-                EmsFields::LOG_HOST_FIELD => [
-                    'type' => 'keyword',
-                ],
-                EmsFields::LOG_ROUTE_FIELD => [
-                    'type' => 'keyword',
-                ],
-                EmsFields::LOG_URL_FIELD => [
-                    'type' => 'text',
-                    'fields' => [
-                        'raw' => [
-                            'type' => 'keyword',
-                        ],
-                    ],
-                ],
-                'instance_id' => [
-                    'type' => 'keyword',
-                    'ignore_above' => 256,
-                ],
-                EmsFields::LOG_SESSION_ID_FIELD => [
-                    'type' => 'keyword',
-                ],
-                'version' => [
-                    'type' => 'keyword',
-                    'ignore_above' => 256,
-                ],
-                'level_name' => [
-                    'type' => 'keyword',
-                    'ignore_above' => 30,
-                ],
-                'datetime' => [
-                    'type' => 'date',
-                    'format' => 'date_time_no_millis',
-                ],
-                'level' => [
-                    'type' => 'long',
-                ],
-                EmsFields::LOG_REVISION_ID_FIELD => [
-                    'type' => 'long',
-                ],
-                EmsFields::LOG_MICROTIME_FIELD => [
-                    'type' => 'float',
-                ],
-                'message' => [
-                    'type' => 'text',
-                ],
+                'channel' => $this->mapping->getLimitedKeywordMapping(),
+                'component' => $this->mapping->getLimitedKeywordMapping(),
+                EmsFields::LOG_CONTENTTYPE_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_OUUID_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_ENVIRONMENT_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_OPERATION_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_USERNAME_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_IMPERSONATOR_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_HOST_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_ROUTE_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_URL_FIELD => $this->mapping->getTextWithSubRawMapping(),
+                'instance_id' => $this->mapping->getLimitedKeywordMapping(),
+                EmsFields::LOG_SESSION_ID_FIELD => $this->mapping->getKeywordMapping(),
+                'version' => $this->mapping->getLimitedKeywordMapping(),
+                'level_name' => $this->mapping->getKeywordMapping(),
+                'datetime' => $this->mapping->getDateTimeMapping(),
+                'level' => $this->mapping->getLongMapping(),
+                EmsFields::LOG_REVISION_ID_FIELD => $this->mapping->getLongMapping(),
+                EmsFields::LOG_MICROTIME_FIELD => $this->mapping->getFloatMapping(),
+                'message' => $this->mapping->getTextMapping(),
                 'context' => [
                     'type' => 'nested',
                     'properties' => [
-                        'key' => [
-                            'type' => 'keyword',
-                            'ignore_above' => 256,
-                        ],
-                        'value' => [
-                            'type' => 'text',
-                        ],
+                        'key' => $this->mapping->getLimitedKeywordMapping(),
+                        'value' => $this->mapping->getTextMapping(),
                     ],
                 ],
             ];
+
+            $mapping = \array_merge($mapping, $this->mapping->defaultMapping());
 
             if (\version_compare($this->client->getVersion(), '7') >= 0) {
                 $body = [
@@ -228,6 +184,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 $datetime = $record[EmsFields::LOG_DATETIME_FIELD]->format('c');
             }
             $body = [
+                EMSSource::FIELD_CONTENT_TYPE => $this->contentTypeName,
                 EmsFields::LOG_LEVEL_NAME_FIELD => $record[EmsFields::LOG_LEVEL_NAME_FIELD],
                 EmsFields::LOG_LEVEL_FIELD => $record[EmsFields::LOG_LEVEL_FIELD],
                 EmsFields::LOG_MESSAGE_FIELD => $record[EmsFields::LOG_MESSAGE_FIELD],
