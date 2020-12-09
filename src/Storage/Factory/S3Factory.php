@@ -31,7 +31,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
         $credentials = $config[self::STORAGE_CONFIG_CREDENTIALS] ?? null;
         $bucket = $config[self::STORAGE_CONFIG_BUCKET] ?? null;
 
-        if (null === $credentials || null === $bucket) {
+        if (null === $credentials || \count($credentials) === 0 || null === $bucket || \strlen($bucket) === 0) {
             @\trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
 
             return null;
