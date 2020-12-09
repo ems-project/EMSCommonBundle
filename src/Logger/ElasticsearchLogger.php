@@ -172,12 +172,23 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
     /**
      * @param array<mixed> $record
      */
-    protected function write(array $record)
+    protected function write(array $record): void
     {
         if ($this->byPass) {
             return;
         }
 
+        try {
+            $this->writeRecord($record);
+        } catch (\Throwable $e) {
+        }
+    }
+
+    /**
+     * @param array<mixed> $record
+     */
+    protected function writeRecord(array $record): void
+    {
         if ($record[EmsFields::LOG_LEVEL_FIELD] >= $this->level && !$this->tooLate) {
             $datetime = null;
             if ($record[EmsFields::LOG_DATETIME_FIELD] instanceof \DateTime) {
@@ -198,8 +209,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
 
             foreach ($record[EmsFields::LOG_CONTEXT_FIELD] as $key => &$value) {
                 if (!\is_object($value)) {
-                    if (
-                        \in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
+                    if (\in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
                         EmsFields::LOG_OUUID_FIELD, EmsFields::LOG_REVISION_ID_FIELD, EmsFields::LOG_HOST_FIELD, EmsFields::LOG_URL_FIELD,
                         EmsFields::LOG_STATUS_CODE_FIELD, EmsFields::LOG_SIZE_FIELD, EmsFields::LOG_ROUTE_FIELD, EmsFields::LOG_MICROTIME_FIELD,
                         EmsFields::LOG_SESSION_ID_FIELD, ])
