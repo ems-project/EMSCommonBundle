@@ -300,7 +300,7 @@ class StorageManager
         }
 
         if (0 === $count) {
-            throw new \RuntimeException(\sprintf('Impossible to a a file (%s) identified by the hash %s into at least one storage services', $filename, $hash));
+            throw new NotSavedException($hash);
         }
 
         return $hash;
