@@ -106,9 +106,9 @@ In this example it will generate a PNG of 400 pixels of width. The height will b
     _disposition: 'attachment' 
 }, {
    _config_type: 'zip',       
-   _file_names: [
-       ems_asset_path(document.file_csv, {_get_file_path: true}),
-       ems_asset_path(document.file_pdf, {_get_file_path: true}),       
+   _files: [
+       document.file_csv,
+       document.file_pdf,       
    ]
 }) }}
 ```
