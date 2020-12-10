@@ -19,6 +19,4 @@ class NotSavedException extends \RuntimeException
     {
         return $this->hash;
     }
-
-
 }

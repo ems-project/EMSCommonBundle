@@ -163,7 +163,7 @@ abstract class AbstractUrlStorage implements StorageInterface
             $this->logger->info('Rename {source} to {destination} failed: {message}', [
                 'source' => $source,
                 'destination' => $destination,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
         try {
@@ -172,7 +172,7 @@ abstract class AbstractUrlStorage implements StorageInterface
             $this->logger->warning('Copy {source} to {destination} failed: {message}', [
                 'source' => $source,
                 'destination' => $destination,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ]);
         }
 

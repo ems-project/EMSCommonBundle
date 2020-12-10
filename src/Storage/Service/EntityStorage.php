@@ -29,7 +29,7 @@ class EntityStorage implements StorageInterface
 
         //TODO: Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
         $repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
-        if (!$repository instanceof  AssetStorageRepository) {
+        if (!$repository instanceof AssetStorageRepository) {
             throw new \RuntimeException(\sprintf('%s has a repository that should be of type %s. But %s is given.', EntityStorage::class, AssetStorage::class, \get_class($repository)));
         }
         $this->repository = $repository;
