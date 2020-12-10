@@ -38,6 +38,7 @@ Regarding the file's type, it's possible to generate response from a source file
  - `_file_names` (array of file path) if provided the first file found will be used instead of the original asset 
  - `_config_type` specify the processor that should process the asset. If not define the asset itself will be delivered
     - `image` will generate an image (PNG, SVG or JPEG) using the [image processor](#Image processor)
+ - `_get_file_path` if set to true will generate a server path to a file. Not an url path. To use in case of PDF generation or for local reports.
  
 In the following example the path generated will force to download the asset:
 ```twig
@@ -86,7 +87,6 @@ With this processor you'll be able to generate images from a source asset:
      - `'bottomright'`
      - `'bottomleft'`
  - `_watermark_hash` hash of a PNG file to watermark the image. The PNG must present in one of the storage services defined.
- - `_get_file_path` if set to true will generate a server path to a file. Not an url path. To use in case of PDF generation or for local reports.
 
 In this example it will generate a PNG of 400 pixels of width. The height will be defined by the proportion of the original image:
 ```twig
@@ -96,4 +96,19 @@ In this example it will generate a PNG of 400 pixels of width. The height will b
    _width: 400,
    _quality: 0        
 }) }}">
+```
+
+## Zip processor
+
+```twig
+{{ ems_asset_path({
+    filename: 'download.zip',
+    _disposition: 'attachment' 
+}, {
+   _config_type: 'zip',       
+   _file_names: [
+       ems_asset_path(document.file_csv, {_get_file_path: true}),
+       ems_asset_path(document.file_pdf, {_get_file_path: true}),       
+   ]
+}) }}
 ```
