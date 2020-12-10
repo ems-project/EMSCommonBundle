@@ -147,7 +147,7 @@ class StorageManager
         }
 
         if (0 === $count) {
-            throw new \RuntimeException(\sprintf('Impossible to save the asset identified by the hash %s into at least one storage services', $hash));
+            throw new NotSavedException($hash);
         }
 
         return $hash;
