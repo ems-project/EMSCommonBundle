@@ -29,8 +29,13 @@ abstract class AbstractUrlStorage implements StorageInterface
         if ($this->usage >= self::STORAGE_USAGE_EXTERNAL) {
             return;
         }
-        if (!\file_exists(\dirname($filename))) {
-            \mkdir(\dirname($filename), 0777, true);
+        $directoryName = \dirname($filename);
+        if (!\file_exists($directoryName)) {
+            try {
+                \mkdir($directoryName, 0777, true);
+            } catch (\Throwable $e) {
+                $this->logger->warning('Not able to create a {directoryName} folder', ['directoryName' => $directoryName]);
+            }
         }
     }
 
@@ -155,12 +160,20 @@ abstract class AbstractUrlStorage implements StorageInterface
         try {
             return \rename($source, $destination);
         } catch (\Throwable $e) {
-            $this->logger->info('Rename {source} to {destination} failed: message', [$source, $destination, $e->getMessage()]);
+            $this->logger->info('Rename {source} to {destination} failed: {message}', [
+                'source' => $source,
+                'destination' => $destination,
+                'message' => $e->getMessage()
+            ]);
         }
         try {
             return \copy($source, $destination);
         } catch (\Throwable $e) {
-            $this->logger->warning('Copy {source} to {destination} failed: {message}', [$source, $destination, $e->getMessage()]);
+            $this->logger->warning('Copy {source} to {destination} failed: {message}', [
+                'source' => $source,
+                'destination' => $destination,
+                'message' => $e->getMessage()
+            ]);
         }
 
         return false;
