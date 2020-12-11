@@ -29,3 +29,6 @@ Documentation
 -------------
 
 [Twig documentation](../master/Resources/doc/twig.md)
+
+## Update the PHP stan baseline
+`vendor/bin/phpstan analyse  src/ tests/ --generate-baseline`

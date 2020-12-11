@@ -126,11 +126,6 @@ parameters:
 			path: src/Elasticsearch/Document.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/DocumentInterface.php
-
-		-
 			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\DocumentCollection\\:\\:\\$documents type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Document/DocumentCollection.php
@@ -184,6 +179,11 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\EMSSourceInterface\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Document/EMSSourceInterface.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Elasticsearch/DocumentInterface.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Factory\\:\\:fromConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
@@ -277,6 +277,11 @@ parameters:
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Service\\\\Pdf\\\\PdfGenerator\\:\\:sanitizeMetaTags\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Service/Pdf/PdfGenerator.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Service\\\\Pdf\\\\PdfGenerator\\:\\:sanitizeMetaTags\\(\\) should return array but returns array\\|false\\|null\\.$#"
 			count: 1
 			path: src/Service/Pdf/PdfGenerator.php
 

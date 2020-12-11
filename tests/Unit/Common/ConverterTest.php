@@ -23,7 +23,7 @@ class ConverterTest extends TestCase
      */
     public function strProvider(): array
     {
-        return  [
+        return [
             ['test', 'test'],
             ['TEST', 'test'],
             ['À', 'a'],
@@ -47,7 +47,7 @@ class ConverterTest extends TestCase
      */
     public function byteProvider(): array
     {
-        return  [
+        return [
             [243, '243 B', '243 B', '243 B'],
             [2496, '2.44 KB', '2 KB', '2.4375 KB'],
             [24962496, '23.81 MB', '24 MB', '23.8061 MB'],
