@@ -17,8 +17,10 @@ use Elasticsearch\Endpoints\Count;
 use Elasticsearch\Endpoints\Info;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
+use EMS\CommonBundle\Elasticsearch\Document\Document as ElasticsearchDocument;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 use EMS\CommonBundle\Elasticsearch\Elastica\Scroll as EmsScroll;
+use EMS\CommonBundle\Elasticsearch\Exception\NotFoundException;
 use EMS\CommonBundle\Elasticsearch\Exception\NotSingleResultException;
 use EMS\CommonBundle\Search\Search;
 use Psr\Log\LoggerInterface;
@@ -260,6 +262,23 @@ class ElasticaService
         }
 
         return $this->getTypeName($contentTypeName);
+    }
+
+    public function getDocument(string $index, ?string $contentType, string $id): ElasticsearchDocument
+    {
+        $contentTypes = [];
+        if (null !== $contentType) {
+            $contentTypes[] = $contentType;
+        }
+        $search = $this->generateTermsSearch([$index], '_id', [$id], $contentTypes);
+        try {
+            return $this->singleSearch($search);
+        } catch (NotSingleResultException $e) {
+            if (0 === $e->getTotal()) {
+                throw new NotFoundException();
+            }
+            throw $e;
+        }
     }
 
     /**
