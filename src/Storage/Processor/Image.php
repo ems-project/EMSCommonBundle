@@ -155,7 +155,7 @@ class Image
 
         if ('fillArea' == $resize) {
             if (($size[1] / $height) < ($size[0] / $width)) {
-                $cal_width = $size[1] * $width / $height;
+                $cal_width = \intval($size[1] * $width / $height);
                 if (false !== \stripos($gravity, 'west')) {
                     \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $cal_width, $size[1]);
                 } elseif (false !== \stripos($gravity, 'east')) {
@@ -164,7 +164,7 @@ class Image
                     \call_user_func($resizeFunction, $temp, $image, 0, 0, ($size[0] - $cal_width) / 2, 0, $width, $height, $cal_width, $size[1]);
                 }
             } else {
-                $cal_height = $size[0] / $width * $height;
+                $cal_height = \intval($size[0] / $width * $height);
                 if (false !== \stripos($gravity, 'north')) {
                     \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $size[0], $cal_height);
                 } elseif (false !== \stripos($gravity, 'south')) {
@@ -175,10 +175,10 @@ class Image
             }
         } elseif ('fill' == $resize) {
             if (($size[1] / $height) < ($size[0] / $width)) {
-                $thumb_height = $width * $size[1] / $size[0];
+                $thumb_height = \intval($width * $size[1] / $size[0]);
                 \call_user_func($resizeFunction, $temp, $image, 0, ($height - $thumb_height) / 2, 0, 0, $width, $thumb_height, $size[0], $size[1]);
             } else {
-                $thumb_width = ($size[0] * $height) / $size[1];
+                $thumb_width = \intval(($size[0] * $height) / $size[1]);
                 \call_user_func($resizeFunction, $temp, $image, ($width - $thumb_width) / 2, 0, 0, 0, $thumb_width, $height, $size[0], $size[1]);
             }
         } else {
