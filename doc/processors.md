@@ -102,10 +102,10 @@ In this example it will generate a PNG of 400 pixels of width. The height will b
 
 ```twig
 {{ ems_asset_path({
-    filename: 'download.zip',
-    _disposition: 'attachment' 
+    filename: 'download.zip'
 }, {
-   _config_type: 'zip',       
+   _config_type: 'zip',
+   _disposition: 'attachment',       
    _files: [
        document.file_csv,
        document.file_pdf,       
