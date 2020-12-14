@@ -161,7 +161,7 @@ class Image
                 } elseif (false !== \stripos($gravity, 'east')) {
                     \call_user_func($resizeFunction, $temp, $image, 0, 0, $size[0] - $cal_width, 0, $width, $height, $cal_width, $size[1]);
                 } else {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, ($size[0] - $cal_width) / 2, 0, $width, $height, $cal_width, $size[1]);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, \intval(($size[0] - $cal_width) / 2), 0, $width, $height, $cal_width, $size[1]);
                 }
             } else {
                 $cal_height = \intval($size[0] / $width * $height);
@@ -170,16 +170,16 @@ class Image
                 } elseif (false !== \stripos($gravity, 'south')) {
                     \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, $size[1] - $cal_height, $width, $height, $size[0], $cal_height);
                 } else {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, ($size[1] - $cal_height) / 2, $width, $height, $size[0], $cal_height);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, \intval(($size[1] - $cal_height) / 2), $width, $height, $size[0], $cal_height);
                 }
             }
         } elseif ('fill' == $resize) {
             if (($size[1] / $height) < ($size[0] / $width)) {
                 $thumb_height = \intval($width * $size[1] / $size[0]);
-                \call_user_func($resizeFunction, $temp, $image, 0, ($height - $thumb_height) / 2, 0, 0, $width, $thumb_height, $size[0], $size[1]);
+                \call_user_func($resizeFunction, $temp, $image, 0, \intval(($height - $thumb_height) / 2), 0, 0, $width, $thumb_height, $size[0], $size[1]);
             } else {
                 $thumb_width = \intval(($size[0] * $height) / $size[1]);
-                \call_user_func($resizeFunction, $temp, $image, ($width - $thumb_width) / 2, 0, 0, 0, $thumb_width, $height, $size[0], $size[1]);
+                \call_user_func($resizeFunction, $temp, $image, \intval(($width - $thumb_width) / 2), 0, 0, 0, $thumb_width, $height, $size[0], $size[1]);
             }
         } else {
             \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $size[0], $size[1]);
