@@ -29,8 +29,6 @@ final class Config
     private $storageManager;
     /** @var bool */
     private $cacheableResult;
-    /** @var array */
-    private $files;
 
     /**
      * @param array<string, mixed> $options
@@ -243,14 +241,19 @@ final class Config
         return \is_string($this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) ? (bool) \preg_match('/image\/svg.*/', $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE]) : false;
     }
 
-    public function getFiles(): ?array
+    /**
+     * @return \ArrayObject<int, array>
+     */
+    public function getFiles(): \ArrayObject
     {
-        $files = [];
+        $fileCollection = new \ArrayObject();
+
         foreach ($this->options[EmsFields::CONTENT_FILES] as $file) {
             $file['content'] = $this->storageManager->getContents($file['sha1']);
-            $files[] = $file;
+            $fileCollection->append($file);
         }
-        return $files;
+
+        return $fileCollection;
     }
 
     /**

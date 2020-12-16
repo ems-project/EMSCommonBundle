@@ -16,7 +16,7 @@ class Zip
         $this->config = $config;
     }
 
-    public function generate()
+    public function generate(): string
     {
         $filesystem = new Filesystem();
 

@@ -153,7 +153,6 @@ class Processor
         $zip = new Zip($config);
 
         return $zip->generate();
-
     }
 
     private function getStreamFomFilename(string $filename): StreamInterface
@@ -192,7 +191,7 @@ class Processor
 
     public function getStream(Config $config, string $filename, bool $noCache = false): StreamInterface
     {
-        if (null === $config->getCacheContext() && $config->getAssetHash() !== 'processor') {
+        if (null === $config->getCacheContext() && 'processor' !== $config->getAssetHash()) {
             return $this->getStreamFromAsset($config);
         }
 
