@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Storage\Processor;
 
 use EMS\CommonBundle\Helper\EmsFields;
+use EMS\CommonBundle\Storage\FileCollection;
 use EMS\CommonBundle\Storage\StorageManager;
 use function GuzzleHttp\Psr7\mimetype_from_filename;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -242,18 +243,11 @@ final class Config
     }
 
     /**
-     * @return \ArrayObject<int, array>
+     * @return FileCollection<array>
      */
-    public function getFiles(): \ArrayObject
+    public function getFiles(): FileCollection
     {
-        $fileCollection = new \ArrayObject();
-
-        foreach ($this->options[EmsFields::CONTENT_FILES] as $file) {
-            $file['content'] = $this->storageManager->getContents($file['sha1']);
-            $fileCollection->append($file);
-        }
-
-        return $fileCollection;
+        return new FileCollection($this->options[EmsFields::CONTENT_FILES], $this->storageManager);
     }
 
     /**
