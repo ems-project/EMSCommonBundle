@@ -53,7 +53,7 @@ class Image
         } elseif (null !== $this->config->getBackground()) {
             $image = $this->applyBackground($image, $width, $height);
         }
-        if ($image === false) {
+        if (false === $image) {
             throw new \RuntimeException('Unexpected false image');
         }
 
