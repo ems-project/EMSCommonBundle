@@ -15,6 +15,7 @@ use Elastica\Search as ElasticaSearch;
 use Elasticsearch\Endpoints\Cluster\Health;
 use Elasticsearch\Endpoints\Count;
 use Elasticsearch\Endpoints\Indices\Analyze;
+use Elasticsearch\Endpoints\Indices\Mapping\GetField;
 use Elasticsearch\Endpoints\Info;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
@@ -284,6 +285,7 @@ class ElasticaService
 
     /**
      * @param string[] $words
+     *
      * @return string[]
      */
     public function filterStopWords(string $index, string $analyzer, array $words): array
@@ -301,7 +303,29 @@ class ElasticaService
                 $withoutStopWords[] = $word;
             }
         }
+
         return $withoutStopWords;
+    }
+
+    public function getFieldAnalyzer(string $index, string $field): string
+    {
+        $endpoint = new GetField();
+        $endpoint->setIndex($index);
+        $endpoint->setFields($field);
+
+        $response = $this->client->requestEndpoint($endpoint);
+        $info = $response->getData();
+
+        $analyzer = 'standard';
+        while (\is_array($info = \array_shift($info))) {
+            if (isset($info['analyzer'])) {
+                $analyzer = $info['analyzer'];
+            } elseif (isset($info['mapping'])) {
+                $info = $info['mapping'];
+            }
+        }
+
+        return $analyzer;
     }
 
     /**
