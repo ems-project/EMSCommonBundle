@@ -14,6 +14,7 @@ use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
 use Elasticsearch\Endpoints\Cluster\Health;
 use Elasticsearch\Endpoints\Count;
+use Elasticsearch\Endpoints\Indices\Aliases\Get;
 use Elasticsearch\Endpoints\Indices\Analyze;
 use Elasticsearch\Endpoints\Indices\Mapping\GetField;
 use Elasticsearch\Endpoints\Info;
@@ -201,6 +202,22 @@ class ElasticaService
     public function getAliasesFromIndex(string $indexName): array
     {
         return $this->client->getIndex($indexName)->getAliases();
+    }
+
+    public function getIndexFromAlias(string $alias): string
+    {
+        $endpoint = new Get();
+        $endpoint->setIndex($alias);
+        $data = $this->client->requestEndpoint($endpoint)->getData();
+        if (!\is_array($data) || 1 !== \count($data)) {
+            throw new \RuntimeException('Unexpected non-unique or missing index');
+        }
+        $indexName = \array_keys($this->client->requestEndpoint($endpoint)->getData())[0];
+        if (!\is_string($indexName)) {
+            throw new \RuntimeException('Unexpected type for index name');
+        }
+
+        return $indexName;
     }
 
     /**
