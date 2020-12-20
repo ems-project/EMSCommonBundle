@@ -14,6 +14,7 @@ use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
 use Elasticsearch\Endpoints\Cluster\Health;
 use Elasticsearch\Endpoints\Count;
+use Elasticsearch\Endpoints\Indices\Analyze;
 use Elasticsearch\Endpoints\Info;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
@@ -279,6 +280,28 @@ class ElasticaService
             }
             throw $e;
         }
+    }
+
+    /**
+     * @param string[] $words
+     * @return string[]
+     */
+    public function filterStopWords(string $index, string $analyzer, array $words): array
+    {
+        $withoutStopWords = [];
+        $endpoint = new Analyze();
+        $endpoint->setIndex($index);
+        foreach ($words as $word) {
+            $endpoint->setBody([
+                'analyzer' => $analyzer,
+                'text' => $word,
+            ]);
+            $response = $this->client->requestEndpoint($endpoint);
+            if (!empty($response->getData()['tokens'] ?? null)) {
+                $withoutStopWords[] = $word;
+            }
+        }
+        return $withoutStopWords;
     }
 
     /**
