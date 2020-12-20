@@ -9,6 +9,7 @@ use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Terms;
+use Elastica\Response;
 use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
@@ -18,6 +19,7 @@ use Elasticsearch\Endpoints\Indices\Aliases\Get;
 use Elasticsearch\Endpoints\Indices\Analyze;
 use Elasticsearch\Endpoints\Indices\Mapping\GetField;
 use Elasticsearch\Endpoints\Info;
+use Elasticsearch\Endpoints\Scroll as ScrollEndpoints;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\Document as ElasticsearchDocument;
@@ -144,6 +146,25 @@ class ElasticaService
         $elasticaSearch = $this->createElasticaSearch($search, $search->getScrollOptions());
 
         return new EmsScroll($elasticaSearch, $expiryTime);
+    }
+
+    public function scrollById(Search $search, string $expiryTime = '1m'): ResultSet
+    {
+        $search = clone $search;
+        $search->setSort(null);
+        $elasticaSearch = $this->createElasticaSearch($search, $search->getScrollOptions());
+        $elasticaSearch->setOption(ElasticaSearch::OPTION_SCROLL, $expiryTime);
+
+        return $elasticaSearch->search();
+    }
+
+    public function nextScroll(string $scrollId, string $expiryTime = '1m'): Response
+    {
+        $endpoint = new ScrollEndpoints();
+        $endpoint->setScroll($expiryTime);
+        $endpoint->setScrollId($scrollId);
+
+        return $this->client->requestEndpoint($endpoint);
     }
 
     public function count(Search $search): int
