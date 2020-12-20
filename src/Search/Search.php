@@ -26,6 +26,8 @@ class Search
     private $from = 0;
     /** @var array<mixed>|null */
     private $sort = null;
+    /** @var AbstractQuery|null */
+    private $postFilter = null;
 
     /**
      * @param string[] $indices
@@ -168,5 +170,15 @@ class Search
         $termsAggregation->setField($field);
         $termsAggregation->setSize($size);
         $this->addAggregation($termsAggregation);
+    }
+
+    public function setPostFilter(?AbstractQuery $postFilter): void
+    {
+        $this->postFilter = $postFilter;
+    }
+
+    public function getPostFilter(): ?AbstractQuery
+    {
+        return $this->postFilter;
     }
 }

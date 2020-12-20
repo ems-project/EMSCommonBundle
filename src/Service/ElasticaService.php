@@ -437,6 +437,9 @@ class ElasticaService
         if (null !== $search->getSort()) {
             $query->setSort($search->getSort());
         }
+        if (null !== $search->getPostFilter()) {
+            $query->setPostFilter($search->getPostFilter());
+        }
 
         foreach ($search->getAggregations() as $aggregation) {
             $query->addAggregation($aggregation);
