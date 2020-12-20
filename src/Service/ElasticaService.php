@@ -437,9 +437,6 @@ class ElasticaService
         if (null !== $search->getSort()) {
             $query->setSort($search->getSort());
         }
-        if (null !== $search->getPostFilter()) {
-            $query->setPostFilter($search->getPostFilter());
-        }
 
         foreach ($search->getAggregations() as $aggregation) {
             $query->addAggregation($aggregation);
@@ -449,6 +446,11 @@ class ElasticaService
         $esSearch->setQuery($query);
         $esSearch->addIndices($search->getIndices());
         $esSearch->setOptions($options);
+        if (null !== $search->getPostFilter()) {
+            $boolQuery = $this->getBoolQuery();
+            $boolQuery->addMust($search->getPostFilter());
+            $query->setPostFilter($boolQuery);
+        }
 
         return $esSearch;
     }
@@ -537,11 +539,13 @@ class ElasticaService
                 'from' => 0,
                 '_source' => [],
                 'sort' => null,
+                'post_filter' => null,
             ])
             ->setAllowedTypes('size', ['int'])
             ->setAllowedTypes('from', ['int'])
             ->setAllowedTypes('_source', ['array', 'string', 'bool'])
             ->setAllowedTypes('sort', ['array', 'null'])
+            ->setAllowedTypes('post_filter', ['array', 'null'])
             ->setNormalizer('_source', function (Options $options, $value) {
                 if (null === $value || true === $value) {
                     return null;
