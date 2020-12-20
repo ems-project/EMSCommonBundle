@@ -374,14 +374,14 @@ class ElasticaService
                     return [];
                 }
                 if (!\is_array($value)) {
-                    return [$value];
+                    return \explode(',', $value);
                 }
 
                 return $value;
             })
             ->setNormalizer('index', function (Options $options, $value) {
                 if (!\is_array($value)) {
-                    return [$value];
+                    return \explode(',', $value);
                 }
 
                 return $value;
