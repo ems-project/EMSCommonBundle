@@ -283,13 +283,19 @@ class ElasticaService
         return $this->getTypeName($contentTypeName);
     }
 
-    public function getDocument(string $index, ?string $contentType, string $id): ElasticsearchDocument
+    /**
+     * @param string[] $sourceFields
+     */
+    public function getDocument(string $index, ?string $contentType, string $id, array $sourceFields = []): ElasticsearchDocument
     {
         $contentTypes = [];
         if (null !== $contentType) {
             $contentTypes[] = $contentType;
         }
         $search = $this->generateTermsSearch([$index], '_id', [$id], $contentTypes);
+        if (\count($sourceFields) > 0) {
+            $search->setSources($sourceFields);
+        }
         try {
             return $this->singleSearch($search);
         } catch (NotSingleResultException $e) {
