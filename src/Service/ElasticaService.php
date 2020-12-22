@@ -447,9 +447,7 @@ class ElasticaService
         $esSearch->addIndices($search->getIndices());
         $esSearch->setOptions($options);
         if (null !== $search->getPostFilter()) {
-            $boolQuery = $this->getBoolQuery();
-            $boolQuery->addMust($search->getPostFilter());
-            $query->setPostFilter($boolQuery);
+            $query->setPostFilter($search->getPostFilter());
         }
 
         return $esSearch;
@@ -539,13 +537,11 @@ class ElasticaService
                 'from' => 0,
                 '_source' => [],
                 'sort' => null,
-                'post_filter' => null,
             ])
             ->setAllowedTypes('size', ['int'])
             ->setAllowedTypes('from', ['int'])
             ->setAllowedTypes('_source', ['array', 'string', 'bool'])
             ->setAllowedTypes('sort', ['array', 'null'])
-            ->setAllowedTypes('post_filter', ['array', 'null'])
             ->setNormalizer('_source', function (Options $options, $value) {
                 if (null === $value || true === $value) {
                     return null;
