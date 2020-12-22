@@ -14,7 +14,7 @@ class Cache
         $this->hashAlgo = $hashAlgo;
     }
 
-    public function generateEtag(Response $response, ?\DateTime $lastUpdateDate, bool $immutableRoute): ?string
+    public function generateEtag(Response $response): ?string
     {
         if (!\is_string($response->getContent())) {
             return null;
