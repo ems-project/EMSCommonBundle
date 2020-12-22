@@ -6,6 +6,7 @@ use Elastica\Aggregation\AbstractAggregation;
 use Elastica\Aggregation\Terms;
 use Elastica\Query\AbstractQuery;
 use Elastica\Search as ElasticaSearch;
+use Elastica\Suggest;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 
 class Search
@@ -28,6 +29,10 @@ class Search
     private $sort = null;
     /** @var AbstractQuery|null */
     private $postFilter = null;
+    /** @var Suggest */
+    private $suggest = null;
+    /** @var array<mixed>|null */
+    private $highlight = null;
 
     /**
      * @param string[] $indices
@@ -180,5 +185,31 @@ class Search
     public function getPostFilter(): ?AbstractQuery
     {
         return $this->postFilter;
+    }
+
+    public function getSuggest(): ?Suggest
+    {
+        return $this->suggest;
+    }
+
+    public function setSuggest(Suggest $suggest): void
+    {
+        $this->suggest = $suggest;
+    }
+
+    /**
+     * @return array<mixed>|null
+     */
+    public function getHighlight(): ?array
+    {
+        return $this->highlight;
+    }
+
+    /**
+     * @param array<mixed> $highlight
+     */
+    public function setHighlight(array $highlight): void
+    {
+        $this->highlight = $highlight;
     }
 }

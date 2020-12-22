@@ -438,6 +438,11 @@ class ElasticaService
             $query->setSort($search->getSort());
         }
 
+        $highlightArgs = $search->getHighlight();
+        if (null !== $highlightArgs) {
+            $query->setHighlight($highlightArgs);
+        }
+
         foreach ($search->getAggregations() as $aggregation) {
             $query->addAggregation($aggregation);
         }
@@ -448,6 +453,10 @@ class ElasticaService
         $esSearch->setOptions($options);
         if (null !== $search->getPostFilter()) {
             $query->setPostFilter($search->getPostFilter());
+        }
+        $suggest = $search->getSuggest();
+        if (null !== $suggest) {
+            $esSearch->setSuggest($suggest);
         }
 
         return $esSearch;
