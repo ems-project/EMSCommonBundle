@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Service;
 
+use Elastica\Aggregation\Terms as TermsAggregation;
 use Elastica\Client;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
@@ -15,7 +16,6 @@ use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
 use Elasticsearch\Endpoints\Cluster\Health;
 use Elasticsearch\Endpoints\Count;
-use Elasticsearch\Endpoints\Indices\Aliases\Get;
 use Elasticsearch\Endpoints\Indices\Analyze;
 use Elasticsearch\Endpoints\Indices\Mapping\GetField;
 use Elasticsearch\Endpoints\Info;
@@ -227,13 +227,21 @@ class ElasticaService
 
     public function getIndexFromAlias(string $alias): string
     {
-        $endpoint = new Get();
-        $endpoint->setIndex($alias);
-        $data = $this->client->requestEndpoint($endpoint)->getData();
-        if (!\is_array($data) || 1 !== \count($data)) {
+        $terms = new TermsAggregation('indexes');
+        $terms->setSize(2);
+        $terms->setField('_index');
+        $esSearch = new ElasticaSearch($this->client);
+        $esSearch->setOption(ElasticaSearch::OPTION_SIZE, 0);
+        $query = new Query();
+        $query->addAggregation($terms);
+        $esSearch->setQuery($query);
+        $esSearch->addIndex($alias);
+        $buckets = $esSearch->search()->getAggregation('indexes')['buckets'] ?? [];
+
+        if (!\is_array($buckets) || 1 !== \count($buckets)) {
             throw new \RuntimeException('Unexpected non-unique or missing index');
         }
-        $indexName = \array_keys($this->client->requestEndpoint($endpoint)->getData())[0];
+        $indexName = $buckets[0]['key'] ?? null;
         if (!\is_string($indexName)) {
             throw new \RuntimeException('Unexpected type for index name');
         }
@@ -439,7 +447,7 @@ class ElasticaService
         }
 
         $highlightArgs = $search->getHighlight();
-        if (null !== $highlightArgs) {
+        if (null !== $highlightArgs && \count($highlightArgs) > 0) {
             $query->setHighlight($highlightArgs);
         }
 
@@ -455,7 +463,7 @@ class ElasticaService
             $query->setPostFilter($search->getPostFilter());
         }
         $suggest = $search->getSuggest();
-        if (null !== $suggest) {
+        if (null !== $suggest && \count($suggest) > 0) {
             $esSearch->setSuggest($suggest);
         }
 
