@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Storage\Processor;
 
 use EMS\CommonBundle\Helper\EmsFields;
+use EMS\CommonBundle\Storage\FileCollection;
 use EMS\CommonBundle\Storage\StorageManager;
 use function GuzzleHttp\Psr7\mimetype_from_filename;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -242,6 +243,14 @@ final class Config
     }
 
     /**
+     * @return FileCollection<array>
+     */
+    public function getFiles(): FileCollection
+    {
+        return new FileCollection($this->options[EmsFields::CONTENT_FILES], $this->storageManager);
+    }
+
+    /**
      * @param array<string, int|string|array|bool|\DateTime|null> $options
      *
      * @return array<string, int|string|array|bool|\DateTime|null>
@@ -253,7 +262,7 @@ final class Config
         $resolver = new OptionsResolver();
         $resolver
             ->setDefaults($defaults)
-            ->setAllowedValues(EmsFields::ASSET_CONFIG_TYPE, [null, EmsFields::ASSET_CONFIG_TYPE_IMAGE])
+            ->setAllowedValues(EmsFields::ASSET_CONFIG_TYPE, [null, EmsFields::ASSET_CONFIG_TYPE_IMAGE, EmsFields::ASSET_CONFIG_TYPE_ZIP])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_DISPOSITION, [ResponseHeaderBag::DISPOSITION_INLINE, ResponseHeaderBag::DISPOSITION_ATTACHMENT])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY, function ($values) use ($defaults) {
                 if (!\is_array($values)) {
@@ -298,6 +307,7 @@ final class Config
             EmsFields::ASSET_CONFIG_MIME_TYPE => 'application/octet-stream',
             EmsFields::ASSET_CONFIG_DISPOSITION => ResponseHeaderBag::DISPOSITION_INLINE,
             EmsFields::ASSET_CONFIG_GET_FILE_PATH => false,
+            EmsFields::CONTENT_FILES => [],
         ];
     }
 }
