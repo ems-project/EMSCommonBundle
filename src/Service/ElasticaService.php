@@ -4,17 +4,22 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Service;
 
+use Elastica\Aggregation\Terms as TermsAggregation;
 use Elastica\Client;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Elastica\Query\Terms;
+use Elastica\Response;
 use Elastica\ResultSet;
 use Elastica\Scroll;
 use Elastica\Search as ElasticaSearch;
 use Elasticsearch\Endpoints\Cluster\Health;
 use Elasticsearch\Endpoints\Count;
+use Elasticsearch\Endpoints\Indices\Analyze;
+use Elasticsearch\Endpoints\Indices\Mapping\GetField;
 use Elasticsearch\Endpoints\Info;
+use Elasticsearch\Endpoints\Scroll as ScrollEndpoints;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\Document as ElasticsearchDocument;
@@ -143,6 +148,25 @@ class ElasticaService
         return new EmsScroll($elasticaSearch, $expiryTime);
     }
 
+    public function scrollById(Search $search, string $expiryTime = '1m'): ResultSet
+    {
+        $search = clone $search;
+        $search->setSort(null);
+        $elasticaSearch = $this->createElasticaSearch($search, $search->getScrollOptions());
+        $elasticaSearch->setOption(ElasticaSearch::OPTION_SCROLL, $expiryTime);
+
+        return $elasticaSearch->search();
+    }
+
+    public function nextScroll(string $scrollId, string $expiryTime = '1m'): Response
+    {
+        $endpoint = new ScrollEndpoints();
+        $endpoint->setScroll($expiryTime);
+        $endpoint->setScrollId($scrollId);
+
+        return $this->client->requestEndpoint($endpoint);
+    }
+
     public function count(Search $search): int
     {
         $elasticSearch = $this->createElasticaSearch($search, $search->getCountOptions());
@@ -199,6 +223,30 @@ class ElasticaService
     public function getAliasesFromIndex(string $indexName): array
     {
         return $this->client->getIndex($indexName)->getAliases();
+    }
+
+    public function getIndexFromAlias(string $alias): string
+    {
+        $terms = new TermsAggregation('indexes');
+        $terms->setSize(2);
+        $terms->setField('_index');
+        $esSearch = new ElasticaSearch($this->client);
+        $esSearch->setOption(ElasticaSearch::OPTION_SIZE, 0);
+        $query = new Query();
+        $query->addAggregation($terms);
+        $esSearch->setQuery($query);
+        $esSearch->addIndex($alias);
+        $buckets = $esSearch->search()->getAggregation('indexes')['buckets'] ?? [];
+
+        if (!\is_array($buckets) || 1 !== \count($buckets)) {
+            throw new \RuntimeException('Unexpected non-unique or missing index');
+        }
+        $indexName = $buckets[0]['key'] ?? null;
+        if (!\is_string($indexName)) {
+            throw new \RuntimeException('Unexpected type for index name');
+        }
+
+        return $indexName;
     }
 
     /**
@@ -264,13 +312,19 @@ class ElasticaService
         return $this->getTypeName($contentTypeName);
     }
 
-    public function getDocument(string $index, ?string $contentType, string $id): ElasticsearchDocument
+    /**
+     * @param string[] $sourceFields
+     */
+    public function getDocument(string $index, ?string $contentType, string $id, array $sourceFields = []): ElasticsearchDocument
     {
         $contentTypes = [];
         if (null !== $contentType) {
             $contentTypes[] = $contentType;
         }
         $search = $this->generateTermsSearch([$index], '_id', [$id], $contentTypes);
+        if (\count($sourceFields) > 0) {
+            $search->setSources($sourceFields);
+        }
         try {
             return $this->singleSearch($search);
         } catch (NotSingleResultException $e) {
@@ -279,6 +333,51 @@ class ElasticaService
             }
             throw $e;
         }
+    }
+
+    /**
+     * @param string[] $words
+     *
+     * @return string[]
+     */
+    public function filterStopWords(string $index, string $analyzer, array $words): array
+    {
+        $withoutStopWords = [];
+        $endpoint = new Analyze();
+        $endpoint->setIndex($index);
+        foreach ($words as $word) {
+            $endpoint->setBody([
+                'analyzer' => $analyzer,
+                'text' => $word,
+            ]);
+            $response = $this->client->requestEndpoint($endpoint);
+            if (!empty($response->getData()['tokens'] ?? null)) {
+                $withoutStopWords[] = $word;
+            }
+        }
+
+        return $withoutStopWords;
+    }
+
+    public function getFieldAnalyzer(string $index, string $field): string
+    {
+        $endpoint = new GetField();
+        $endpoint->setIndex($index);
+        $endpoint->setFields($field);
+
+        $response = $this->client->requestEndpoint($endpoint);
+        $info = $response->getData();
+
+        $analyzer = 'standard';
+        while (\is_array($info = \array_shift($info))) {
+            if (isset($info['analyzer'])) {
+                $analyzer = $info['analyzer'];
+            } elseif (isset($info['mapping'])) {
+                $info = $info['mapping'];
+            }
+        }
+
+        return $analyzer;
     }
 
     /**
@@ -304,14 +403,14 @@ class ElasticaService
                     return [];
                 }
                 if (!\is_array($value)) {
-                    return [$value];
+                    return \explode(',', $value);
                 }
 
                 return $value;
             })
             ->setNormalizer('index', function (Options $options, $value) {
                 if (!\is_array($value)) {
-                    return [$value];
+                    return \explode(',', $value);
                 }
 
                 return $value;
@@ -347,6 +446,11 @@ class ElasticaService
             $query->setSort($search->getSort());
         }
 
+        $highlightArgs = $search->getHighlight();
+        if (null !== $highlightArgs && \count($highlightArgs) > 0) {
+            $query->setHighlight($highlightArgs);
+        }
+
         foreach ($search->getAggregations() as $aggregation) {
             $query->addAggregation($aggregation);
         }
@@ -355,6 +459,13 @@ class ElasticaService
         $esSearch->setQuery($query);
         $esSearch->addIndices($search->getIndices());
         $esSearch->setOptions($options);
+        if (null !== $search->getPostFilter()) {
+            $query->setPostFilter($search->getPostFilter());
+        }
+        $suggest = $search->getSuggest();
+        if (null !== $suggest && \count($suggest) > 0) {
+            $esSearch->setSuggest($suggest);
+        }
 
         return $esSearch;
     }
