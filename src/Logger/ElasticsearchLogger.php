@@ -14,6 +14,7 @@ use EMS\CommonBundle\Elasticsearch\Mapping;
 use EMS\CommonBundle\Helper\EmsFields;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
+use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
@@ -252,6 +253,50 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 $this->treatBulk();
             }
         }
+    }
+
+    public function onConsoleTerminate(ConsoleTerminateEvent $event): void
+    {
+        $commandObject = $event->getCommand();
+        if (null === $commandObject) {
+            $this->treatBulk();
+
+            return;
+        }
+
+        $command = \implode(' ', $event->getInput()->getArguments());
+
+        foreach ($event->getInput()->getOptions() as $id => $value) {
+            if ($commandObject->getDefinition()->getOption($id)->getDefault() !== $value) {
+                if (\is_bool($value) || null === $value) {
+                    $command .= \sprintf(' --%s', $id);
+                } elseif (\is_string($value)) {
+                    $command .= \sprintf(' --%s=%s', $id, $value);
+                } elseif (\is_int($value)) {
+                    $command .= \sprintf(' --%s=%d', $id, $value);
+                } elseif (\is_array($value)) {
+                    $command .= \sprintf(' --%s=%s', $id, \implode('|', $value));
+                } else {
+                    $command .= \sprintf(' (Unsupported value format for option %s)', $id);
+                }
+            }
+        }
+        $record = [
+            'datetime' => new \DateTime(),
+            'level' => 0 === $event->getExitCode() ? Logger::INFO : Logger::ERROR,
+            'level_name' => 0 === $event->getExitCode() ? 'INFO' : 'ERROR',
+            'channel' => 'app',
+            'message' => 'app.command',
+            'context' => [
+                EmsFields::LOG_OPERATION_FIELD => EmsFields::LOG_OPERATION_UPDATE,
+                EmsFields::LOG_EXIT_CODE => $event->getExitCode(),
+                EmsFields::LOG_COMMAND_NAME => $commandObject->getName(),
+                EmsFields::LOG_COMMAND_LINE => $command,
+            ],
+        ];
+        $this->write($record);
+
+        $this->treatBulk();
     }
 
     private function treatBulk(bool $tooLate = false): void
