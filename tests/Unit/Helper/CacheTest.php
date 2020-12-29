@@ -8,49 +8,59 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CacheTest extends TestCase
 {
+    /** @var Cache */
+    private $cache;
+
     /** @var Response */
-    private $mockResponse;
+    private $response;
 
     protected function setUp(): void
     {
-        $mockResponse = $this->createMock(Response::class);
-        $this->mockResponse = $mockResponse;
+        $hashAlgo = "sha1"; //Mayber SHA-256 -> sha("Secret Key" + "Timestamp" + signed message)
+        $this->cache = new Cache($hashAlgo);
+        $this->response = new Response();
+        parent::setUp();
     }
 
-    public function testGenerateEtag(): void
+    public function testGenerateEtagShouldReturnNull(): void
     {
-        $cache = $this->cache->generateEtag($this->mockResponse);
-        self::assertContainsOnly('string',$cache);
+        $this->response->setContent(null);
+        self::assertNull(null, $this->cache->generateEtag($this->response));
+    }
+    
+    public function testGenerateEtagShouldReturnHash(): void
+    {
+        $this->response->setContent("test");
+        self::assertSame('a94a8fe5ccb19ba61c4c0873d391e987982fbbd3',$this->cache->generateEtag($this->response));
     }
 
-    public function testmakeResponseCacheable(): void
+    public function testMakeResponseCacheableReturnSameEtag(): void
     {
-        $cacheAble = $this->cache->makeResponseCacheable($this->mockResponse, $$this->cache->generateEtag($this->mockResponse));
-
-        self::assertFalse($cacheAble->setEtag('not'),$cacheAble->getEtag());
-        self::assertTrue($cacheAble->setEtag('etag'),$cacheAble->getEtag());
-
-        self::assertFalse($cacheAble->setMaxAge(10),$cacheAble->getMaxAge());
-        self::assertTrue($cacheAble->setMaxAge(),$cacheAble->getMaxAge());
+        $this->cache->makeResponseCacheable($this->response, 'test',null,false);
+        self::assertSame('"test"',$this->response->getEtag());
     }
 
-    /*     
-    public function makeResponseCacheable(Response $response, string $etag, ?\DateTime $lastUpdateDate, bool $immutableRoute): void
+    public function testMakeResponseCacheableReturnSameMaxAgeFalse(): void
     {
-        $response->setCache([
-            'etag' => $etag,
-            'max_age' => $immutableRoute ? 604800 : 600,
-            's_maxage' => $immutableRoute ? 2678400 : 3600,
-            'public' => true,
-            'private' => false,
-            'immutable' => $immutableRoute,
-        ]);
+        $this->cache->makeResponseCacheable($this->response, 'test',null,false);
+        self::assertSame(3600,$this->response->getMaxAge());
+    }
 
-        if (null !== $lastUpdateDate) {
-            $response->setLastModified($lastUpdateDate);
-        }
-    } 
-    */
+    public function testMakeResponseCacheableReturnSameMaxAgeTrue(): void
+    {
+        $this->cache->makeResponseCacheable($this->response, 'test',null,true);
+        self::assertSame(2678400,$this->response->getMaxAge());
+    }
 
+    public function testMakeResponseCacheableReturnSameLastUpdateDateNotNull(): void
+    {
+        $this->cache->makeResponseCacheable($this->response, 'test',null,false);
+        self::assertSame(null,$this->response->getLastModified());
+    }
 
+    public function testMakeResponseCacheableReturnSameImmutableRoute(): void
+    {
+        $this->cache->makeResponseCacheable($this->response, 'test',null,false);
+        self::assertSame(true,!($this->response->isImmutable()));
+    }
 }

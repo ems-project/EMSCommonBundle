@@ -6,7 +6,7 @@ use Elastica\JSON;
 use EMS\CommonBundle\Helper\ArrayTool;
 use PHPUnit\Framework\TestCase;
 
-class EncoderTest extends TestCase
+class ArrayToolTest extends TestCase
 {
 
     /** @var ArrayTool */
@@ -18,91 +18,39 @@ class EncoderTest extends TestCase
         parent::setUp();
     }
 
-     /**
-     * format: [text,text].
-     *
-     * @return array<array<string>>
-     */
-    public function arrayProvider(): array
+    public function dataProvider(): array
     {
         return [
-            ['1',[],'',2,"3","string",'4',],
+            'shouldReturn0' => [ 
+                ['0'], [0 => '0']
+            ],
+            'testSorting' => [
+                [3 => 'testC', 2 => 'testB', 1 => 'testA' ],
+                [1 => 'testA', 2 => 'testB', 3 => 'testC' ],
+                SORT_NUMERIC
+            ],
+            'testEmptyArrayShouldBeRemove' => [
+                [3 => 'testC', 2 => 'testB', 1 => 'testA', 4 => []],
+                [1 => 'testA', 2 => 'testB', 3 => 'testC' ],
+            ],
+            'testNestedEmptyArrays' => [
+                [3 => 'testC', 2 => 'testB', 1 => 'testA', 4 => [[]]],
+                [1 => 'testA', 2 => 'testB', 3 => 'testC' ],
+            ]
         ];
     }
 
     /**
-     * format: [].
-     *
-     * @return array[] //<array<string>>
+     * @dataProvider dataProvider
      */
-    public function normalizeArrayProvider(): array
+    public function testNormalizeArray(array $provided, array $expected,  int $sortFlags = SORT_REGULAR ): void
     {
-        return array(
-            array(
-                array(
-                    'id' => 1,
-                    'data' => '1',
-                ),
-            ),
-            array(
-                array(
-                    'id' => 2,
-                    'data' => '',
-                ),
-            ),
-            array(
-                array(
-                    'id' => 3,
-                    'data' => '2',
-                ),
-            ),
-            array(
-                array(
-                    'id' => 4,
-                    'data' => '3',
-                ),
-            ),
-            array(
-                array(
-                    'id' => 5,
-                    'data' => 'string',
-                ),
-            ),
-            array(
-                array(
-                    'id' => 6,
-                    'data' => '4',
-                ),
-            ),
-        );
+        $this->arrayTool->normalizeArray($provided,$sortFlags);
+        self::assertSame($expected, $provided);
     }
 
-/*         return [
-            'array' => [
-                [[0] => '1'], //['test1' => '1']
-                [[2] => ''],
-                [[3] => '2'],
-                [[4] => '3'],
-                [[5] => 'string' ],
-                [[6] => '4'],
-            ],
-        ];
-    }
-
-    public function dataProvider() {
-        return array(                       // data sets
-            array(                          // data set 0
-                array(                      // first argument
-                    'id' => 1,
-                    'description' => 'this',
-                ),
-                'foo',                      // second argument
-            ),
-        );
-    }  */
-
-     /**
-     * format: [text,text].
+    /**
+     * format: [text,text]. 
      *
      * @return json
      */
@@ -110,27 +58,17 @@ class EncoderTest extends TestCase
     {
         return [
             'json' => [
-                '{"0":"1","2":"","3":2,"4":"3","5":"string","6":"4"}'
+                [ 'a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5 ],
+                '{"a":1,"b":2,"c":3,"d":4,"e":5}'  
             ],
-        ]; 
-    }
-
-    /**
-     * @dataProvider arrayProvider
-     * @dataProvider normalizeArrayProvider
-     */
-    public function testNormalizeArray(string $provided, string $expected): void
-    {
-        self::assertSame($expected, $this->arrayTool->normalizeArray($provided));
+        ];
     }
 
     /**
      * @dataProvider jsonProvider
-     * @dataProvider arrayProvider
      */
-    public function testNormalizeAndSerializeArray(string $expected, string $provided): void
+    public function testNormalizeAndSerializeArray(array $provided, string $expected): void
     {
-        $testArray = $this->arrayTool->normalizeArray($provided);
-        self::assertSame($expected, $this->arrayTool->normalizeAndSerializeArray($testArray));
-    }
+        self::assertSame($expected, $this->arrayTool->normalizeAndSerializeArray($provided));
+    } 
 }
