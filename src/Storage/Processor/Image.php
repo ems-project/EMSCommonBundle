@@ -53,6 +53,9 @@ class Image
         } elseif (null !== $this->config->getBackground()) {
             $image = $this->applyBackground($image, $width, $height);
         }
+        if (false === $image) {
+            throw new \RuntimeException('Unexpected false image');
+        }
 
         if ($this->config->getRadius() > 0) {
             $image = $this->applyCorner($image, $width, $height);
@@ -233,16 +236,25 @@ class Image
             \imagecopymerge($image, $cornerImage, 0, 0, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = \imagerotate($cornerImage, 90, 0);
+        if (false === $image || false === $cornerImage) {
+            throw new \RuntimeException('Unexpected false image');
+        }
 
         if (false !== \in_array('bottomleft', $radiusGeometry)) {
             \imagecopymerge($image, $cornerImage, 0, $height - $radius, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = \imagerotate($cornerImage, 90, 0);
+        if (false === $cornerImage) {
+            throw new \RuntimeException('Unexpected false image');
+        }
 
         if (false !== \in_array('bottomright', $radiusGeometry)) {
             \imagecopymerge($image, $cornerImage, $width - $radius, $height - $radius, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = \imagerotate($cornerImage, 90, 0);
+        if (false === $cornerImage) {
+            throw new \RuntimeException('Unexpected false image');
+        }
 
         if (false !== \in_array('topright', $radiusGeometry)) {
             \imagecopymerge($image, $cornerImage, $width - $radius, 0, 0, 0, $radius, $radius, 100);
