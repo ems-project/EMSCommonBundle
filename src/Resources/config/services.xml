@@ -23,8 +23,8 @@
             <tag name="monolog.logger" channel="elasticsearch"/>
         </service>
 
-        <service id="Elastica\Client" alias="ems_common.elastica.client"/>
-        <service id="ems_common.elastica.client" class="Elastica\Client">
+        <service id="EMS\CommonBundle\Elasticsearch\Client" alias="ems_common.elastica.client"/>
+        <service id="ems_common.elastica.client" class="EMS\CommonBundle\Elasticsearch\Client">
             <factory service="ems_common.elastica.factory" method="fromConfig"/>
             <argument>%ems_common.elasticsearch_hosts%</argument>
         </service>
