@@ -26,76 +26,6 @@ parameters:
 			path: src/Controller/FileController.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\|Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:addData\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:addData\\(\\) has parameter \\$record with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:collect\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:lateCollect\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:reset\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:sanitizeData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:sanitizeContext\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:sanitizeContext\\(\\) has parameter \\$log with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:sanitizeContext\\(\\) has parameter \\$sanitize with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchProcessor\\:\\:__invoke\\(\\) has parameter \\$record with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchProcessor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchProcessor\\:\\:__invoke\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchProcessor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchProcessor\\:\\:getFailures\\(\\) has parameter \\$response with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchProcessor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchProcessor\\:\\:getFailures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchProcessor.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\DependencyInjection\\\\EMSCommonExtension\\:\\:load\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/DependencyInjection/EMSCommonExtension.php
@@ -124,6 +54,11 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Document.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Elasticsearch/DocumentInterface.php
 
 		-
 			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\DocumentCollection\\:\\:\\$documents type has no value type specified in iterable type array\\.$#"
@@ -179,11 +114,6 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\EMSSourceInterface\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Document/EMSSourceInterface.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/DocumentInterface.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Factory\\:\\:fromConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"

@@ -18,7 +18,7 @@
         </service>
 
         <service id="ems_common.elastica.factory" class="EMS\CommonBundle\Elasticsearch\ElasticaFactory">
-            <argument type="service" id="logger" />
+            <argument type="service" id="ems_common.logger.elastica" />
             <argument>%kernel.environment%</argument>
             <tag name="monolog.logger" channel="elasticsearch"/>
         </service>
