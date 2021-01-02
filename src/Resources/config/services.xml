@@ -18,13 +18,13 @@
         </service>
 
         <service id="ems_common.elastica.factory" class="EMS\CommonBundle\Elasticsearch\ElasticaFactory">
-            <argument type="service" id="logger" />
+            <argument type="service" id="ems_common.logger.elastica" />
             <argument>%kernel.environment%</argument>
             <tag name="monolog.logger" channel="elasticsearch"/>
         </service>
 
-        <service id="Elastica\Client" alias="ems_common.elastica.client"/>
-        <service id="ems_common.elastica.client" class="Elastica\Client">
+        <service id="EMS\CommonBundle\Elasticsearch\Client" alias="ems_common.elastica.client"/>
+        <service id="ems_common.elastica.client" class="EMS\CommonBundle\Elasticsearch\Client">
             <factory service="ems_common.elastica.factory" method="fromConfig"/>
             <argument>%ems_common.elasticsearch_hosts%</argument>
         </service>

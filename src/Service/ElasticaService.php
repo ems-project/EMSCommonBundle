@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Service;
 
 use Elastica\Aggregation\Terms as TermsAggregation;
-use Elastica\Client;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
@@ -20,6 +19,7 @@ use Elasticsearch\Endpoints\Indices\Analyze;
 use Elasticsearch\Endpoints\Indices\Mapping\GetField;
 use Elasticsearch\Endpoints\Info;
 use Elasticsearch\Endpoints\Scroll as ScrollEndpoints;
+use EMS\CommonBundle\Elasticsearch\Client;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Elasticsearch\Document\Document as ElasticsearchDocument;
