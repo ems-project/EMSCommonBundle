@@ -7,6 +7,12 @@
     <services>
         <defaults public="false" />
 
+        <service id="ems_common.logger.elastica" class="EMS\CommonBundle\Logger\ElasticaLogger">
+            <argument type="service" id="logger" on-invalid="null" />
+            <argument>%kernel.debug%</argument>
+            <tag name="monolog.logger" channel="elastica" />
+        </service>
+
         <!-- Contracts -->
         <service id="EMS\CommonBundle\Contracts\ExpressionServiceInterface" alias="ems_common.service.expression_service" />
 
