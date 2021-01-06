@@ -52,7 +52,7 @@ class ArrayToolTest extends TestCase
     /**
      * format: [text,text]. 
      *
-     * @return json
+     * @return Array
      */
     public function jsonProvider()
     {

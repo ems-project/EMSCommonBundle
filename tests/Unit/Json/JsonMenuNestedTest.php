@@ -36,50 +36,13 @@ class JsonMenuNestedTest extends TestCase
                 }';
         $data = \json_decode($data,true);
         $this->jsonMenuNested = new JsonMenuNested($data);
-        parent::setUp();
-    }
-
-    public function cloneNestedProvider()
-    {
-        $data ='{
-                    "id": "102a603e-b2ab-499d-b1d3-687a2e4ee168",
-                    "type": "theme",
-                    "object": 
-                    {
-                        "label_nl": "testExampleAdrienFR",
-                        "label_fr": "testExampleAdrienNL"
-                    },
-                    "label": "testadrienLabel",
-                    "children": 
-                    [
-                        {
-                            "id": "7b4f228f-3d04-4eb0-a826-aeaa1e8bc8aa",
-                            "object": {
-                            "label_nl": "testDocNL",
-                            "label_fr": "testDocFR"
-                            },
-                            "type": "theme_document",
-                            "label": "testDoc"
-                        }
-                    ]
-                }';   
-        $data = \json_decode($data,true);
-        return $this->clone = new JsonMenuNested($data);     
     }
 
     public function testGetter(): void
     {
-        self::assertSame("102a603e-b2ab-499d-b1d3-687a2e4ee168", $this->jsonMenuNested->getId());
+        self::assertSame( "102a603e-b2ab-499d-b1d3-687a2e4ee168", $this->jsonMenuNested->getId());
         self::assertSame("theme", $this->jsonMenuNested->getType());
         self::assertSame("testadrienLabel", $this->jsonMenuNested->getLabel());
-    }
-
-    /**
-     * @dataProvider cloneNestedProvider()
-     */
-    public function testSameObjectConstructor(array $clone)
-    {
-        //self::assertEquals($clone, $this->jsonMenuNested->getObject());
     }
 
     public function testGetIterator(): void
