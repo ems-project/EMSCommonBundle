@@ -21,6 +21,16 @@ class Bucket
         $this->raw = $bucket;
     }
 
+    /**
+     * @return iterable<Bucket>|Bucket[]
+     */
+    public function getSubBucket(string $name): iterable
+    {
+        foreach ($this->raw[$name]['buckets'] ?? [] as $bucket) {
+            yield new Bucket($bucket);
+        }
+    }
+
     public function getKey(): ?string
     {
         return $this->key;
