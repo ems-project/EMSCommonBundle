@@ -34,6 +34,8 @@ class Search
     /** @var array<mixed>|null */
     private $highlight = null;
 
+    private ?string $regex = null;
+
     /**
      * @param string[] $indices
      */
@@ -211,5 +213,15 @@ class Search
     public function setHighlight(array $highlight): void
     {
         $this->highlight = $highlight;
+    }
+
+    public function getRegex(): ?string
+    {
+        return $this->regex;
+    }
+
+    public function setRegex(?string $regex): void
+    {
+        $this->regex = $regex;
     }
 }
