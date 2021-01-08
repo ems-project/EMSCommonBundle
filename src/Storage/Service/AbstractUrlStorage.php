@@ -160,19 +160,21 @@ abstract class AbstractUrlStorage implements StorageInterface
         try {
             return \rename($source, $destination);
         } catch (\Throwable $e) {
-            $this->logger->info('Rename {source} to {destination} failed: {message}', [
+            $this->logger->info('Rename {source} to {destination} failed: {message} in service {serviceName}', [
                 'source' => $source,
                 'destination' => $destination,
                 'message' => $e->getMessage(),
+                'serviceName' => $this->__toString(),
             ]);
         }
         try {
             return \copy($source, $destination);
         } catch (\Throwable $e) {
-            $this->logger->warning('Copy {source} to {destination} failed: {message}', [
+            $this->logger->warning('Copy {source} to {destination} failed: {message}in service {serviceName}', [
                 'source' => $source,
                 'destination' => $destination,
                 'message' => $e->getMessage(),
+                'serviceName' => $this->__toString(),
             ]);
         }
 

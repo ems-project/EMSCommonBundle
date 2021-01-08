@@ -19,14 +19,14 @@ use Elasticsearch\Endpoints\Indices\Analyze;
 use Elasticsearch\Endpoints\Indices\Mapping\GetField;
 use Elasticsearch\Endpoints\Info;
 use Elasticsearch\Endpoints\Scroll as ScrollEndpoints;
-use EMS\CommonBundle\Elasticsearch\Client;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
+use EMS\CommonBundle\Elasticsearch\Client;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
-use EMS\CommonBundle\Elasticsearch\Document\Document as ElasticsearchDocument;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 use EMS\CommonBundle\Elasticsearch\Elastica\Scroll as EmsScroll;
 use EMS\CommonBundle\Elasticsearch\Exception\NotFoundException;
 use EMS\CommonBundle\Elasticsearch\Exception\NotSingleResultException;
+use EMS\CommonBundle\Elasticsearch\Response\Response as EmsResponse;
 use EMS\CommonBundle\Search\Search;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Options;
@@ -144,6 +144,7 @@ class ElasticaService
         $search = clone $search;
         $search->setSort(null);
         $elasticaSearch = $this->createElasticaSearch($search, $search->getScrollOptions());
+        $elasticaSearch->setIndices($this->getIndices($search));
 
         return new EmsScroll($elasticaSearch, $expiryTime);
     }
@@ -227,6 +228,19 @@ class ElasticaService
 
     public function getIndexFromAlias(string $alias): string
     {
+        $indices = $this->getIndicesFromAlias($alias);
+        if (1 !== \count($indices)) {
+            throw new \RuntimeException('Unexpected non-unique or missing index');
+        }
+
+        return \reset($indices);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getIndicesFromAlias(string $alias): array
+    {
         $terms = new TermsAggregation('indexes');
         $terms->setSize(2);
         $terms->setField('_index');
@@ -238,15 +252,16 @@ class ElasticaService
         $esSearch->addIndex($alias);
         $buckets = $esSearch->search()->getAggregation('indexes')['buckets'] ?? [];
 
-        if (!\is_array($buckets) || 1 !== \count($buckets)) {
-            throw new \RuntimeException('Unexpected non-unique or missing index');
-        }
-        $indexName = $buckets[0]['key'] ?? null;
-        if (!\is_string($indexName)) {
-            throw new \RuntimeException('Unexpected type for index name');
+        $indices = [];
+        foreach ($buckets as $bucket) {
+            $indexName = $bucket['key'] ?? null;
+            if (!\is_string($indexName)) {
+                throw new \RuntimeException('Unexpected type for index name');
+            }
+            $indices[] = $indexName;
         }
 
-        return $indexName;
+        return $indices;
     }
 
     /**
@@ -315,7 +330,7 @@ class ElasticaService
     /**
      * @param string[] $sourceFields
      */
-    public function getDocument(string $index, ?string $contentType, string $id, array $sourceFields = []): ElasticsearchDocument
+    public function getDocument(string $index, ?string $contentType, string $id, array $sourceFields = []): Document
     {
         $contentTypes = [];
         if (null !== $contentType) {
@@ -457,7 +472,7 @@ class ElasticaService
 
         $esSearch = new ElasticaSearch($this->client);
         $esSearch->setQuery($query);
-        $esSearch->addIndices($search->getIndices());
+        $esSearch->setIndices($this->getIndices($search));
         $esSearch->setOptions($options);
         if (null !== $search->getPostFilter()) {
             $query->setPostFilter($search->getPostFilter());
@@ -468,6 +483,85 @@ class ElasticaService
         }
 
         return $esSearch;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getIndices(Search $search): array
+    {
+        if (0 === \count($search->getContentTypes()) && null === $search->getRegex()) {
+            return $search->getIndices();
+        }
+
+        $filteredIndices = [];
+        foreach ($this->getIndicesForContentTypes($search->getIndices()) as $contentType => $indices) {
+            if (!\in_array($contentType, $search->getContentTypes(), true) && \count($search->getContentTypes()) > 0) {
+                continue;
+            }
+
+            if (null === $search->getRegex()) {
+                $filteredIndices = \array_merge($filteredIndices, $indices);
+                continue;
+            }
+
+            foreach ($indices as $index) {
+                if (\preg_match(\sprintf('/%s/', $search->getRegex()), $index)) {
+                    $filteredIndices[] = $index;
+                }
+            }
+        }
+
+        return \count($filteredIndices) > 0 ? \array_unique($filteredIndices) : $search->getIndices();
+    }
+
+    /**
+     * @param string[] $aliases
+     *
+     * @return array<string, array<int, string>>
+     */
+    private function getIndicesForContentTypes(array $aliases): array
+    {
+        static $indices = null;
+
+        if (null !== $indices) {
+            return $indices;
+        }
+
+        $aggIndexes = new TermsAggregation('indexes');
+        $aggIndexes->setField('_index');
+        $aggIndexes->setSize(100);
+
+        $aggContentType = new TermsAggregation('contentTypes');
+        $aggContentType->setField('_contenttype');
+        $aggContentType->setSize(500);
+        $aggContentType->addAggregation($aggIndexes);
+
+        $esQuery = new Query();
+        $esQuery->addAggregation($aggContentType);
+
+        $esSearch = new ElasticaSearch($this->client);
+        $esSearch->setQuery($esQuery);
+        $esSearch->addIndices($aliases);
+
+        $indices = [];
+        $response = EmsResponse::fromResultSet($esSearch->search());
+
+        if (null === $contentTypeAgg = $response->getAggregation('contentTypes')) {
+            return $indices;
+        }
+
+        foreach ($contentTypeAgg->getBuckets() as $bucket) {
+            foreach ($bucket->getSubBucket('indexes') as $indexBucket) {
+                if (null === $index = $indexBucket->getKey()) {
+                    continue;
+                }
+
+                $indices[(string) $bucket->getKey()][] = $index;
+            }
+        }
+
+        return $indices;
     }
 
     /**

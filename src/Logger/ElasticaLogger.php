@@ -9,7 +9,7 @@ use Psr\Log\LoggerInterface;
 
 class ElasticaLogger extends AbstractLogger
 {
-    /** @var null|LoggerInterface */
+    /** @var LoggerInterface|null */
     protected $logger;
     /** @var array<mixed> */
     protected $queries = [];
@@ -23,9 +23,9 @@ class ElasticaLogger extends AbstractLogger
     }
 
     /**
-     * @param array<mixed>|string $data Arguments
-     * @param array<mixed> $connection  Host, port, transport, and headers of the query
-     * @param array<mixed> $query       Arguments
+     * @param array<mixed>|string $data       Arguments
+     * @param array<mixed>        $connection Host, port, transport, and headers of the query
+     * @param array<mixed>        $query      Arguments
      */
     public function logQuery(string $path, string $method, $data, float $queryTime, array $connection = [], array $query = [], int $engineTime = 0, int $itemCount = 0): void
     {
