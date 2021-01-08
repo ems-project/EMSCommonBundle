@@ -22,7 +22,6 @@ use Elasticsearch\Endpoints\Scroll as ScrollEndpoints;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
 use EMS\CommonBundle\Elasticsearch\Client;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
-use EMS\CommonBundle\Elasticsearch\Document\Document as ElasticsearchDocument;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 use EMS\CommonBundle\Elasticsearch\Elastica\Scroll as EmsScroll;
 use EMS\CommonBundle\Elasticsearch\Exception\NotFoundException;
@@ -228,6 +227,19 @@ class ElasticaService
 
     public function getIndexFromAlias(string $alias): string
     {
+        $indices = $this->getIndicesFromAlias($alias);
+        if (1 !== \count($indices)) {
+            throw new \RuntimeException('Unexpected non-unique or missing index');
+        }
+
+        return \reset($indices);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getIndicesFromAlias(string $alias): array
+    {
         $terms = new TermsAggregation('indexes');
         $terms->setSize(2);
         $terms->setField('_index');
@@ -239,15 +251,16 @@ class ElasticaService
         $esSearch->addIndex($alias);
         $buckets = $esSearch->search()->getAggregation('indexes')['buckets'] ?? [];
 
-        if (!\is_array($buckets) || 1 !== \count($buckets)) {
-            throw new \RuntimeException('Unexpected non-unique or missing index');
-        }
-        $indexName = $buckets[0]['key'] ?? null;
-        if (!\is_string($indexName)) {
-            throw new \RuntimeException('Unexpected type for index name');
+        $indices = [];
+        foreach ($buckets as $bucket) {
+            $indexName = $bucket['key'] ?? null;
+            if (!\is_string($indexName)) {
+                throw new \RuntimeException('Unexpected type for index name');
+            }
+            $indices[] = $indexName;
         }
 
-        return $indexName;
+        return $indices;
     }
 
     /**
@@ -316,7 +329,7 @@ class ElasticaService
     /**
      * @param string[] $sourceFields
      */
-    public function getDocument(string $index, ?string $contentType, string $id, array $sourceFields = []): ElasticsearchDocument
+    public function getDocument(string $index, ?string $contentType, string $id, array $sourceFields = []): Document
     {
         $contentTypes = [];
         if (null !== $contentType) {
