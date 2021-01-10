@@ -144,7 +144,7 @@ class ElasticaService
         $search = clone $search;
         $search->setSort(null);
         $elasticaSearch = $this->createElasticaSearch($search, $search->getScrollOptions());
-        $elasticaSearch->setIndices($this->getIndices($search));
+        $elasticaSearch->addIndices($this->getIndices($search));
 
         return new EmsScroll($elasticaSearch, $expiryTime);
     }
@@ -472,7 +472,7 @@ class ElasticaService
 
         $esSearch = new ElasticaSearch($this->client);
         $esSearch->setQuery($query);
-        $esSearch->setIndices($this->getIndices($search));
+        $esSearch->addIndices($this->getIndices($search));
         $esSearch->setOptions($options);
         if (null !== $search->getPostFilter()) {
             $query->setPostFilter($search->getPostFilter());
