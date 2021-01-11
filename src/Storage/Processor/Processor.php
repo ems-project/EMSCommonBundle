@@ -105,6 +105,15 @@ class Processor
             return $resource;
         }
 
+        if ('zip' === $config->getConfigType()) {
+            $resource = \fopen($this->generateZip($config), 'r');
+            if (false === $resource) {
+                throw new \Exception('It was not able to open the generated zip');
+            }
+
+            return $resource;
+        }
+
         throw new \Exception(\sprintf('not able to generate file for the config %s', $config->getConfigHash()));
     }
 
@@ -137,6 +146,13 @@ class Processor
         }
 
         return $generatedImage;
+    }
+
+    private function generateZip(Config $config): string
+    {
+        $zip = new Zip($config);
+
+        return $zip->generate();
     }
 
     private function getStreamFomFilename(string $filename): StreamInterface
@@ -175,7 +191,7 @@ class Processor
 
     public function getStream(Config $config, string $filename, bool $noCache = false): StreamInterface
     {
-        if (null === $config->getCacheContext()) {
+        if (null === $config->getCacheContext() && 'processor' !== $config->getAssetHash()) {
             return $this->getStreamFromAsset($config);
         }
 

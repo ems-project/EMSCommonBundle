@@ -73,7 +73,7 @@ class RequestRuntime implements RuntimeExtensionInterface
     {
         $config = $assetConfig;
 
-        $hash = null;
+        $hash = 'processor';
         if (isset($fileField[EmsFields::CONTENT_FILE_HASH_FIELD_])) {
             $hash = $fileField[EmsFields::CONTENT_FILE_HASH_FIELD_];
         } elseif (isset($fileField[$fileHashField])) {
@@ -119,6 +119,15 @@ class RequestRuntime implements RuntimeExtensionInterface
             $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
         }
 
+        // We are generating a URL for a zip file
+        if (isset($config[EmsFields::ASSET_CONFIG_TYPE]) && EmsFields::ASSET_CONFIG_TYPE_ZIP === $config[EmsFields::ASSET_CONFIG_TYPE]) {
+            $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = 'application/zip';
+            if (isset($config[EmsFields::CONTENT_FILES]) && !empty($config[EmsFields::CONTENT_FILES])) {
+                if (!self::endsWith($filename, '.zip')) {
+                    $filename .= '.zip';
+                }
+            }
+        }
         try {
             $hashConfig = $this->storageManager->saveConfig($config);
         } catch (NotSavedException $e) {

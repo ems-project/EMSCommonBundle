@@ -16,11 +16,13 @@ final class EmsFields
     const CONTENT_FILE_NAMES = '_file_names';
     const CONTENT_HASH_ALGO_FIELD = '_hash_algo';
     const CONTENT_PUBLISHED_DATETIME_FIELD = '_published_datetime';
+    const CONTENT_FILES = '_files';
 
     const ASSET_CONFIG_DISPOSITION = '_disposition';
     const ASSET_CONFIG_BACKGROUND = '_background';
     const ASSET_CONFIG_TYPE = '_config_type';
     const ASSET_CONFIG_TYPE_IMAGE = 'image';
+    const ASSET_CONFIG_TYPE_ZIP = 'zip';
     const ASSET_CONFIG_GRAVITY = '_gravity';
     const ASSET_CONFIG_MIME_TYPE = '_mime_type';
     const ASSET_CONFIG_FILE_NAMES = '_file_names';
