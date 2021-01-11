@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch;
 
-use Elastica\Client;
 use Elasticsearch\ConnectionPool\SniffingConnectionPool;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Stopwatch\Stopwatch;
 
 class ElasticaFactory
 {
@@ -36,10 +36,13 @@ class ElasticaFactory
             'connectionPool' => $connectionPool,
         ];
 
+        $client = new Client($config);
+
         if ('dev' === $this->env && 'cli' !== \php_sapi_name()) {
-            return new Client($config, null, $this->logger);
+            $client->setStopwatch(new Stopwatch());
+            $client->setLogger($this->logger);
         }
 
-        return new Client($config);
+        return $client;
     }
 }

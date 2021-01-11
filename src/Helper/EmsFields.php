@@ -67,6 +67,9 @@ final class EmsFields
     const LOG_DATETIME_FIELD = 'datetime';
     const LOG_FIELD_IN_ERROR_FIELD = 'field';
     const LOG_PATH_IN_ERROR_FIELD = 'path';
+    const LOG_EXIT_CODE = 'exit_code';
+    const LOG_COMMAND_NAME = 'command_name';
+    const LOG_COMMAND_LINE = 'command_line';
 
     const LOG_OPERATION_CREATE = 'CREATE';
     const LOG_OPERATION_UPDATE = 'UPDATE';

@@ -53,6 +53,9 @@ class Image
         } elseif (null !== $this->config->getBackground()) {
             $image = $this->applyBackground($image, $width, $height);
         }
+        if (false === $image) {
+            throw new \RuntimeException('Unexpected false image');
+        }
 
         if ($this->config->getRadius() > 0) {
             $image = $this->applyCorner($image, $width, $height);
@@ -155,31 +158,31 @@ class Image
 
         if ('fillArea' == $resize) {
             if (($size[1] / $height) < ($size[0] / $width)) {
-                $cal_width = $size[1] * $width / $height;
+                $cal_width = \intval($size[1] * $width / $height);
                 if (false !== \stripos($gravity, 'west')) {
                     \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $cal_width, $size[1]);
                 } elseif (false !== \stripos($gravity, 'east')) {
                     \call_user_func($resizeFunction, $temp, $image, 0, 0, $size[0] - $cal_width, 0, $width, $height, $cal_width, $size[1]);
                 } else {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, ($size[0] - $cal_width) / 2, 0, $width, $height, $cal_width, $size[1]);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, \intval(($size[0] - $cal_width) / 2), 0, $width, $height, $cal_width, $size[1]);
                 }
             } else {
-                $cal_height = $size[0] / $width * $height;
+                $cal_height = \intval($size[0] / $width * $height);
                 if (false !== \stripos($gravity, 'north')) {
                     \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $size[0], $cal_height);
                 } elseif (false !== \stripos($gravity, 'south')) {
                     \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, $size[1] - $cal_height, $width, $height, $size[0], $cal_height);
                 } else {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, ($size[1] - $cal_height) / 2, $width, $height, $size[0], $cal_height);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, \intval(($size[1] - $cal_height) / 2), $width, $height, $size[0], $cal_height);
                 }
             }
         } elseif ('fill' == $resize) {
             if (($size[1] / $height) < ($size[0] / $width)) {
-                $thumb_height = $width * $size[1] / $size[0];
-                \call_user_func($resizeFunction, $temp, $image, 0, ($height - $thumb_height) / 2, 0, 0, $width, $thumb_height, $size[0], $size[1]);
+                $thumb_height = \intval($width * $size[1] / $size[0]);
+                \call_user_func($resizeFunction, $temp, $image, 0, \intval(($height - $thumb_height) / 2), 0, 0, $width, $thumb_height, $size[0], $size[1]);
             } else {
-                $thumb_width = ($size[0] * $height) / $size[1];
-                \call_user_func($resizeFunction, $temp, $image, ($width - $thumb_width) / 2, 0, 0, 0, $thumb_width, $height, $size[0], $size[1]);
+                $thumb_width = \intval(($size[0] * $height) / $size[1]);
+                \call_user_func($resizeFunction, $temp, $image, \intval(($width - $thumb_width) / 2), 0, 0, 0, $thumb_width, $height, $size[0], $size[1]);
             }
         } else {
             \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $size[0], $size[1]);
@@ -233,16 +236,25 @@ class Image
             \imagecopymerge($image, $cornerImage, 0, 0, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = \imagerotate($cornerImage, 90, 0);
+        if (false === $image || false === $cornerImage) {
+            throw new \RuntimeException('Unexpected false image');
+        }
 
         if (false !== \in_array('bottomleft', $radiusGeometry)) {
             \imagecopymerge($image, $cornerImage, 0, $height - $radius, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = \imagerotate($cornerImage, 90, 0);
+        if (false === $cornerImage) {
+            throw new \RuntimeException('Unexpected false image');
+        }
 
         if (false !== \in_array('bottomright', $radiusGeometry)) {
             \imagecopymerge($image, $cornerImage, $width - $radius, $height - $radius, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = \imagerotate($cornerImage, 90, 0);
+        if (false === $cornerImage) {
+            throw new \RuntimeException('Unexpected false image');
+        }
 
         if (false !== \in_array('topright', $radiusGeometry)) {
             \imagecopymerge($image, $cornerImage, $width - $radius, 0, 0, 0, $radius, $radius, 100);

@@ -22,7 +22,7 @@ class Aggregation
     }
 
     /**
-     * @return iterable<Bucket>
+     * @return iterable<Bucket>|Bucket[]
      */
     public function getBuckets(): iterable
     {

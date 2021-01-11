@@ -3,6 +3,7 @@
 namespace EMS\CommonBundle\Twig;
 
 use EMS\CommonBundle\Helper\EmsFields;
+use EMS\CommonBundle\Storage\NotSavedException;
 use EMS\CommonBundle\Storage\Processor\Config;
 use EMS\CommonBundle\Storage\Processor\Processor;
 use EMS\CommonBundle\Storage\StorageManager;
@@ -127,7 +128,11 @@ class RequestRuntime implements RuntimeExtensionInterface
                 }
             }
         }
-        $hashConfig = $this->storageManager->saveConfig($config);
+        try {
+            $hashConfig = $this->storageManager->saveConfig($config);
+        } catch (NotSavedException $e) {
+            $hashConfig = $e->getHash();
+        }
 
         if (isset($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) && $config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) {
             $configObj = new Config($this->storageManager, $hash, $hashConfig, $config);

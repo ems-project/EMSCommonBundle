@@ -26,76 +26,6 @@ parameters:
 			path: src/Controller/FileController.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:getData\\(\\) return type has no value type specified in iterable type array\\|Symfony\\\\Component\\\\VarDumper\\\\Cloner\\\\Data\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:addData\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:addData\\(\\) has parameter \\$record with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:collect\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:lateCollect\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:reset\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:sanitizeData\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:sanitizeContext\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:sanitizeContext\\(\\) has parameter \\$log with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchDataCollector\\:\\:sanitizeContext\\(\\) has parameter \\$sanitize with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchDataCollector.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchProcessor\\:\\:__invoke\\(\\) has parameter \\$record with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchProcessor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchProcessor\\:\\:__invoke\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchProcessor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchProcessor\\:\\:getFailures\\(\\) has parameter \\$response with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchProcessor.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\DataCollector\\\\ElasticsearchProcessor\\:\\:getFailures\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataCollector/ElasticsearchProcessor.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\DependencyInjection\\\\EMSCommonExtension\\:\\:load\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/DependencyInjection/EMSCommonExtension.php
@@ -277,6 +207,11 @@ parameters:
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Service\\\\Pdf\\\\PdfGenerator\\:\\:sanitizeMetaTags\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Service/Pdf/PdfGenerator.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Service\\\\Pdf\\\\PdfGenerator\\:\\:sanitizeMetaTags\\(\\) should return array but returns array\\|false\\|null\\.$#"
 			count: 1
 			path: src/Service/Pdf/PdfGenerator.php
 

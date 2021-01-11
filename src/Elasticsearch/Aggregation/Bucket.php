@@ -21,6 +21,16 @@ class Bucket
         $this->raw = $bucket;
     }
 
+    /**
+     * @return \Traversable<Bucket>|Bucket[]
+     */
+    public function getSubBucket(string $name): \Traversable
+    {
+        foreach ($this->raw[$name]['buckets'] ?? [] as $bucket) {
+            yield new Bucket($bucket);
+        }
+    }
+
     public function getKey(): ?string
     {
         return $this->key;

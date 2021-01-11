@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch;
 
-use Elastica\Client;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 
 final class Mapping
