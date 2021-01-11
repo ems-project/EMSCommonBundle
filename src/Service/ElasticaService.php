@@ -478,7 +478,7 @@ class ElasticaService
             $query->setPostFilter($search->getPostFilter());
         }
         $suggest = $search->getSuggest();
-        if (null !== $suggest && \count($suggest) > 0) {
+        if (null !== $suggest && \count($suggest) > 0 && \version_compare($version = $this->getVersion(), '7.0') < 0) {
             $esSearch->setSuggest($suggest);
         }
 
