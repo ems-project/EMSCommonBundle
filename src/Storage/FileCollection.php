@@ -16,8 +16,8 @@ final class FileCollection implements \IteratorAggregate
 
     /**
      * FileCollection constructor.
+     *
      * @param array<mixed, mixed> $files
-     * @param StorageManager $storageManager
      */
     public function __construct(array $files, StorageManager $storageManager)
     {

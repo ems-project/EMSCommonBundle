@@ -34,15 +34,15 @@ class JsonMenuNestedTest extends TestCase
                         }
                     ]
                 }';
-        $data = \json_decode($data,true);
+        $data = \json_decode($data, true);
         $this->jsonMenuNested = new JsonMenuNested($data);
     }
 
     public function testGetter(): void
     {
-        self::assertSame( "102a603e-b2ab-499d-b1d3-687a2e4ee168", $this->jsonMenuNested->getId());
-        self::assertSame("theme", $this->jsonMenuNested->getType());
-        self::assertSame("testadrienLabel", $this->jsonMenuNested->getLabel());
+        self::assertSame('102a603e-b2ab-499d-b1d3-687a2e4ee168', $this->jsonMenuNested->getId());
+        self::assertSame('theme', $this->jsonMenuNested->getType());
+        self::assertSame('testadrienLabel', $this->jsonMenuNested->getLabel());
     }
 
     public function testGetIterator(): void
@@ -53,15 +53,15 @@ class JsonMenuNestedTest extends TestCase
             ++$count;
         }
         $this->assertEquals(1, $count);
-    } 
+    }
 
     public function testHasChildren(): void
     {
-        self::assertTrue($this->jsonMenuNested->hasChildren(), "Has Children true");
+        self::assertTrue($this->jsonMenuNested->hasChildren(), 'Has Children true');
     }
 
     public function testIsRoot(): void
     {
-        self::assertTrue($this->jsonMenuNested->isRoot(), "is Root true");
+        self::assertTrue($this->jsonMenuNested->isRoot(), 'is Root true');
     }
 }
