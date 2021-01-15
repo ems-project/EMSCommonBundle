@@ -39,3 +39,11 @@ You can transform any text to its equivalent in html character encoding.
 ````
 
 See unit test for more examples.
+
+## ems_markdown
+
+Filter converting a markdown text into an HTML text following the github standards. 
+
+```twig
+{{ source.body|ems_markdown }}
+```

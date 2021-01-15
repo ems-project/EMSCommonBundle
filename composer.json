@@ -23,6 +23,7 @@
 		"ext-json": "*",
 		"ext-mbstring": "*",
 		"aws/aws-sdk-php": "^3.109",
+		"cebe/markdown": "^1.2",
 		"doctrine/doctrine-bundle": "^1.11",
 		"doctrine/orm": "^2.6",
 		"dompdf/dompdf": "^0.8.5",
