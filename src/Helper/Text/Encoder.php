@@ -2,6 +2,8 @@
 
 namespace EMS\CommonBundle\Helper\Text;
 
+use cebe\markdown\GithubMarkdown;
+
 class Encoder
 {
     public function htmlEncode(string $text): string
@@ -63,6 +65,16 @@ class Encoder
         $clean = \preg_replace("/[\/\_\|\ \-]+/", '-', $clean);
 
         return $clean;
+    }
+
+    public static function markdownToHtml(string $markdown): string
+    {
+        static $parser;
+        if (null === $parser) {
+            $parser = new GithubMarkdown();
+        }
+
+        return $parser->parse($markdown);
     }
 
     /**
