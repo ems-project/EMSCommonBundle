@@ -263,7 +263,15 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
             return;
         }
 
-        $command = \implode(' ', $event->getInput()->getArguments());
+        $arguments = [];
+        foreach ($event->getInput()->getArguments() as $argument) {
+            if (\is_array($argument)) {
+                $arguments[] = \implode(' ', $argument);
+            } else {
+                $arguments[] = \strval($argument);
+            }
+        }
+        $command = \implode(' ', $arguments);
 
         foreach ($event->getInput()->getOptions() as $id => $value) {
             if ($commandObject->getDefinition()->getOption($id)->getDefault() !== $value) {
