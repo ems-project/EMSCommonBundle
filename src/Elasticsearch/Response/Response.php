@@ -67,19 +67,19 @@ final class Response implements ResponseInterface
     public function getAggregation(string $name): ?Aggregation
     {
         if (isset($this->aggregations[$name])) {
-            return new Aggregation($this->aggregations[$name]);
+            return new Aggregation($name, $this->aggregations[$name]);
         }
 
         return null;
     }
 
     /**
-     * @return iterable<Aggregation>
+     * @return iterable|Aggregation[]
      */
     public function getAggregations(): iterable
     {
-        foreach ($this->aggregations as $aggregation) {
-            yield new Aggregation($aggregation);
+        foreach ($this->aggregations as $name => $aggregation) {
+            yield new Aggregation($name, $aggregation);
         }
     }
 
