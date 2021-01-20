@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Elasticsearch;
 
 use Elasticsearch\ConnectionPool\SniffingConnectionPool;
+use League\Uri\Uri;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
@@ -28,7 +29,12 @@ class ElasticaFactory
     {
         $servers = [];
         foreach ($hosts ?? [] as $host) {
-            $servers[] = \parse_url($host);
+            $url = \parse_url($host);
+            if (isset($url['path'])) {
+                $url['url'] = $host;
+            }
+
+            $servers[] = $url;
         }
 
         $config = [
