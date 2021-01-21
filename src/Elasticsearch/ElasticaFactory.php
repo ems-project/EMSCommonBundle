@@ -28,12 +28,10 @@ class ElasticaFactory
     {
         $servers = [];
         foreach ($hosts ?? [] as $host) {
-            $url = \parse_url($host);
-            if (false !== $url && 'http' === ($url['scheme'] ?? null)) {
-                $servers[] = $url;
-            } else {
-                $servers[] = ['url' => $host];
+            if ('/' !== \substr($host, -1)) {
+                $host .= '/';
             }
+            $servers[] = ['url' => $host];
         }
 
         $config = [
