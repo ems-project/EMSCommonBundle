@@ -56,11 +56,6 @@ parameters:
 			path: src/Elasticsearch/Document.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/DocumentInterface.php
-
-		-
 			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\DocumentCollection\\:\\:\\$documents type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Document/DocumentCollection.php
@@ -114,6 +109,11 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\EMSSourceInterface\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Document/EMSSourceInterface.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Elasticsearch/DocumentInterface.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Factory\\:\\:fromConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
@@ -439,6 +439,46 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Common\\\\EMSLinkTest\\:\\:testFromMatchWithoutOuuidShouldInvalidArgumentException\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: tests/Unit/Common/EMSLinkTest.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\ArrayToolTest\\:\\:dataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/Unit/Helper/ArrayToolTest.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\ArrayToolTest\\:\\:testNormalizeArray\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/Unit/Helper/ArrayToolTest.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\ArrayToolTest\\:\\:testNormalizeArray\\(\\) has parameter \\$provided with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/Unit/Helper/ArrayToolTest.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\ArrayToolTest\\:\\:jsonProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/Unit/Helper/ArrayToolTest.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\ArrayToolTest\\:\\:testNormalizeAndSerializeArray\\(\\) has parameter \\$provided with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: tests/Unit/Helper/ArrayToolTest.php
+
+		-
+			message: "#^Parameter \\#2 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNull\\(\\) expects string, string\\|null given\\.$#"
+			count: 1
+			path: tests/Unit/Helper/CacheTest.php
+
+		-
+			message: "#^You should use assertNull\\(\\) instead of assertSame\\(null, \\$actual\\)\\.$#"
+			count: 1
+			path: tests/Unit/Helper/CacheTest.php
+
+		-
+			message: "#^You should use assertTrue\\(\\) instead of assertSame\\(\\) when expecting \"true\"$#"
+			count: 1
+			path: tests/Unit/Helper/CacheTest.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\EncoderTest\\:\\:htmlProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
