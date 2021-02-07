@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Common\CoreApi;
 
-use EMS\CommonBundle\Contracts\CoreApi\CoreApiException;
+use EMS\CommonBundle\Common\CoreApi\Exception\BaseUrlNotDefinedException;
+use EMS\CommonBundle\Common\CoreApi\Exception\NotAuthenticatedException;
+use EMS\CommonBundle\Common\CoreApi\Exception\NotSuccessfulException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\CurlHttpClient;
@@ -46,6 +48,10 @@ final class Client
 
     public function getBaseUrl(): string
     {
+        if ('' === $this->baseUrl) {
+            throw new BaseUrlNotDefinedException();
+        }
+
         return $this->baseUrl;
     }
 
@@ -81,19 +87,23 @@ final class Client
      */
     private function request(string $method, string $resource, array $body = []): Result
     {
+        if ('' === $this->baseUrl) {
+            throw new BaseUrlNotDefinedException();
+        }
+
         $response = $this->client->request($method, $resource, [
             'headers' => $this->headers,
             'json' => $body,
         ]);
 
         if (Response::HTTP_UNAUTHORIZED === $response->getStatusCode()) {
-            throw CoreApiException::notAuthenticated($response);
+            throw new NotAuthenticatedException($response);
         }
 
         $result = new Result($response, $this->logger);
 
         if (!$result->isSuccess()) {
-            throw CoreApiException::notSuccessful($response);
+            throw new NotSuccessfulException($response);
         }
 
         return $result;
