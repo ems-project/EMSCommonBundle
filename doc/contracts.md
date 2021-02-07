@@ -22,8 +22,8 @@ Your service will be an instance of: [CoreApiInterface](../src/Contracts/CoreApi
 
 declare(strict_types=1);
 
-use EMS\CommonBundle\Contracts\CoreApi\CoreApiException;
 use EMS\CommonBundle\Contracts\CoreApi\CoreApiInterface;
+use EMS\CommonBundle\Contracts\CoreApi\CoreApiExceptionInterface;
 
 final class Example
 {
@@ -41,7 +41,7 @@ final class Example
         $draft = $dataEndpoint->create($data);
         try {
             $ouuid = $dataEndpoint->finalize($draft->getRevisionId());
-        } catch (CoreApiException $e) {
+        } catch (CoreApiExceptionInterface $e) {
             $dataEndpoint->discard($draft->getRevisionId());
             throw $e;
         }
@@ -49,7 +49,7 @@ final class Example
         $draftUpdate = $dataEndpoint->update($ouuid, ['test' => 'test']);
         try {
             $dataEndpoint->finalize($draftUpdate->getRevisionId());
-        } catch (CoreApiException $e) {
+        } catch (CoreApiExceptionInterface $e) {
             $dataEndpoint->discard($draftUpdate->getRevisionId());
         }
 
@@ -59,15 +59,22 @@ final class Example
 ```
 
 ## CoreApi
-### authentication
+### Exceptions
+> Each API interaction can throw the following **[CoreApiExceptionInterface](../src/Contracts/CoreApi/CoreApiExceptionInterface.php)**:
+* **[BaseUrlNotDefinedExceptionInterface](../src/Contracts/CoreApi/Exception/BaseUrlNotDefinedExceptionInterface.php)**
+* **[NotAuthenticatedExceptionInterface](../src/Contracts/CoreApi/Exception/NotAuthenticatedExceptionInterface.php)**
+* **[NotSuccessfulExceptionInterface](../src/Contracts/CoreApi/Exception/NotSuccessfulExceptionInterface.php)**
+
+### Authentication
 * **authenticate**(string $username, string $password): [CoreApiInterface](../src/Contracts/CoreApi/CoreApiInterface.php)
-    > Provide EMS login credentials, and it will return an authenticated Core API instance. 
+    > Provide EMS login credentials, and it will return an authenticated Core API instance. Throws [NotAuthenticatedExceptionInterface](../src/Contracts/CoreApi/Exception/NotAuthenticatedExceptionInterface.php)
 * **isAuthenticated**(): bool
-### endpoints
+### Endpoints
 * **data**(string $contentType): [DataInterface](../src/Contracts/CoreApi/Endpoint/Data/DataInterface.php)
-* **user**(): [UserInterface](../src/Contracts/CoreApi/Endpoint/User/UserInterface.php);
-### extra
+* **user**(): [UserInterface](../src/Contracts/CoreApi/Endpoint/User/UserInterface.php)
+### Extra
 * **getBaseUrl**(): string
+    > Throws [BaseUrlNotDefinedExceptionInterface](../src/Contracts/CoreApi/Exception/BaseUrlNotDefinedExceptionInterface.php)
 * **getToken**(): string
     > Before call isAuthenticated, otherwise you will receive an error.
 * **setLogger**(LoggerInterface $logger): void
