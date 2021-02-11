@@ -29,7 +29,7 @@ final class JsonMenuNested implements \IteratorAggregate
     {
         $this->id = $data['id'];
         $this->type = $data['type'];
-        $this->label = $data['label'];
+        $this->label = $data['label'] ?? null;
         $this->object = $data['object'] ?? [];
 
         $children = $data['children'] ?? [];
@@ -71,6 +71,27 @@ final class JsonMenuNested implements \IteratorAggregate
         }
 
         return $data;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArrayStructure(bool $includeRoot = false): array
+    {
+        $children = $this->children;
+        $structureChildren = \array_map(fn (JsonMenuNested $c) => $c->toArrayStructure(true), $children);
+
+        if (!$includeRoot) {
+            return $structureChildren;
+        }
+
+        return [
+            'id' => $this->id,
+            'label' => $this->label,
+            'type' => $this->type,
+            'object' => $this->object,
+            'children' => \array_map(fn (JsonMenuNested $c) => $c->toArrayStructure(true), $children),
+        ];
     }
 
     /**
@@ -145,6 +166,14 @@ final class JsonMenuNested implements \IteratorAggregate
     public function isRoot(): bool
     {
         return null === $this->parent;
+    }
+
+    /**
+     * @param array<string, mixed> $object
+     */
+    public function setObject(array $object): void
+    {
+        $this->object = $object;
     }
 
     public function setParent(?JsonMenuNested $parent): void
