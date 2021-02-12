@@ -29,7 +29,7 @@ final class JsonMenuNested implements \IteratorAggregate
     {
         $this->id = $data['id'];
         $this->type = $data['type'];
-        $this->label = $data['label'] ?? null;
+        $this->label = $data['label'] ?? '';
         $this->object = $data['object'] ?? [];
 
         $children = $data['children'] ?? [];
@@ -166,6 +166,11 @@ final class JsonMenuNested implements \IteratorAggregate
     public function isRoot(): bool
     {
         return null === $this->parent;
+    }
+
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
     }
 
     /**
