@@ -539,6 +539,7 @@ class ElasticaService
 
         $esQuery = new Query();
         $esQuery->addAggregation($aggContentType);
+        $esQuery->setSize(0);
 
         $esSearch = new ElasticaSearch($this->client);
         $esSearch->setQuery($esQuery);
