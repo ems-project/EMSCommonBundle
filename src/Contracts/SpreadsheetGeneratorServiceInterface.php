@@ -9,5 +9,5 @@ interface SpreadsheetGeneratorServiceInterface
     /**
      * @param array<mixed> $config
      */
-    public function generateSpreadsheet(array $config);
+    public function generateSpreadsheet(array $config): void;
 }
