@@ -36,7 +36,6 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
 
     /**
      * @param array<mixed> $config
-     * @return Spreadsheet
      */
     public function buildUpSheets(array $config): Spreadsheet
     {
