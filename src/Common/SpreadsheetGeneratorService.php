@@ -5,19 +5,10 @@ namespace EMS\CommonBundle\Common;
 use EMS\CommonBundle\Contracts\SpreadsheetGeneratorServiceInterface;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceInterface
 {
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
     /**
      * @param array<mixed> $config
      *
@@ -25,8 +16,6 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
      */
     public function generateSpreadsheet(array $config): void
     {
-        // $config = json_decode('{"filename":"export","writer":"xlsx","active_sheet":0,"sheets":[{"name":"Export form","color":"#FF0000","rows":[["a1","a2"],["b1","b3"]]},{"name":"Export form sheet 2","rows":[["a1","a2"],["b1","b3"]]}]}', true);
-
         $defaults = self::getDefaults();
 
         $resolver = new OptionsResolver();
@@ -35,6 +24,20 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
 
         $resolver->resolve($config);
 
+        $spreadsheet = $this->buildUpSheets($config);
+
+        $writer = new Xlsx($spreadsheet);
+        \header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        \header('Content-Disposition: attachment; filename="'.\urlencode($config['filename'].'.xlsx').'"');
+        $writer->save('php://output');
+    }
+
+    /**
+     * @param array<mixed> $config
+     * @return Spreadsheet
+     */
+    public function buildUpSheets(array $config): Spreadsheet
+    {
         $spreadsheet = new Spreadsheet();
 
         $i = 0;
@@ -53,10 +56,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
             ++$i;
         }
 
-        $writer = new Xlsx($spreadsheet);
-        \header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        \header('Content-Disposition: attachment; filename="'.\urlencode('filename.xlsx').'"');
-        $writer->save('php://output');
+        return $spreadsheet;
     }
 
     /**
