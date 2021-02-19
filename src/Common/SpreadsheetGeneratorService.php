@@ -20,6 +20,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
 
         $resolver = new OptionsResolver();
         $resolver->setDefaults($defaults);
+        $resolver->setRequired(['writer', 'filename', 'sheets']);
         $resolver->setAllowedValues('writer', ['xlsx']);
 
         $resolver->resolve($config);
@@ -30,6 +31,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         \header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         \header('Content-Disposition: attachment; filename="'.\urlencode($config['filename'].'.xlsx').'"');
         $writer->save('php://output');
+        exit;
     }
 
     /**
@@ -54,6 +56,10 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
                 ++$j;
             }
             ++$i;
+        }
+
+        if (isset($config['active_sheet'])) {
+            $spreadsheet->setActiveSheetIndex($config['active_sheet']);
         }
 
         return $spreadsheet;
