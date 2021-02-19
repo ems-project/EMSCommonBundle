@@ -16,7 +16,7 @@
 		}
 	],
 	"require" : {
-		"php" : "^7.2.0",
+		"php" : "^7.4",
 		"ext-dom": "*",
 		"ext-gd": "*",
 		"ext-iconv": "*",
@@ -39,7 +39,8 @@
 		"symfony/security": "^4.4",
 		"symfony/stopwatch": "^4.4",
 		"symfony/translation": "^4.4",
-		"twig/twig" : "^2.14"
+		"twig/twig" : "^2.14",
+		"phpoffice/phpspreadsheet": "^1.16"
 	},
 	"require-dev" : {
 		"friendsofphp/php-cs-fixer" : "^2.16",
