@@ -39,18 +39,18 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
 
         $i = 0;
         foreach ($config['sheets'] as $sheetConfig) {
-            $sheet = ($i === 0) ? $sheet = $spreadsheet->getActiveSheet() : $spreadsheet->createSheet($i);
+            $sheet = (0 === $i) ? $sheet = $spreadsheet->getActiveSheet() : $spreadsheet->createSheet($i);
             $sheet->setTitle($sheetConfig['name']);
             $j = 1;
             foreach ($sheetConfig['rows'] as $row) {
                 $k = 'A';
                 foreach ($row as $value) {
                     $sheet->setCellValue($k.$j, $value);
-                    $k++;
+                    ++$k;
                 }
-                $j++;
+                ++$j;
             }
-            $i++;
+            ++$i;
         }
 
         $writer = new Xlsx($spreadsheet);
@@ -60,7 +60,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     }
 
     /**
-     * @return array<string, int|string|array|bool|\DateTime|null>
+     * @return array<string, mixed>
      */
     public static function getDefaults(): array
     {
@@ -68,8 +68,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
             'filename' => 'spreadsheet.xlsx',
             'writer' => 'xlsx',
             'active_sheet' => 0,
-            "sheets" => null
+            'sheets' => null,
         ];
     }
-
 }
