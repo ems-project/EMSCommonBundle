@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Common;
 
 use EMS\CommonBundle\Contracts\SpreadsheetGeneratorServiceInterface;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceInterface
@@ -14,16 +17,9 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
      *
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function generateSpreadsheet(array $config): void
+    public function generateSpreadsheet(array $config): StreamedResponse
     {
-        $defaults = self::getDefaults();
-
-        $resolver = new OptionsResolver();
-        $resolver->setDefaults($defaults);
-        $resolver->setRequired(['writer', 'filename', 'sheets']);
-        $resolver->setAllowedValues('writer', ['xlsx']);
-
-        $resolver->resolve($config);
+        $config = $this->resolveOptions($config);
 
         $spreadsheet = $this->buildUpSheets($config);
 
@@ -39,6 +35,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
      */
     public function buildUpSheets(array $config): Spreadsheet
     {
+        // dd($config);
         $spreadsheet = new Spreadsheet();
 
         $i = 0;
@@ -70,10 +67,26 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     public static function getDefaults(): array
     {
         return [
-            'filename' => 'spreadsheet.xlsx',
+            'filename' => 'spreadsheet',
             'writer' => 'xlsx',
             'active_sheet' => 0,
-            'sheets' => null,
         ];
+    }
+
+    /**
+     * @param array<mixed> $config
+     *
+     * @return array<mixed>
+     */
+    private function resolveOptions(array $config): array
+    {
+        $defaults = self::getDefaults();
+
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults($defaults);
+        $resolver->setRequired(['writer', 'filename', 'sheets']);
+        $resolver->setAllowedValues('writer', ['xlsx']);
+
+        return $resolver->resolve($config);
     }
 }
