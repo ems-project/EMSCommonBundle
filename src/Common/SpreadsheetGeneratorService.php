@@ -24,10 +24,17 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $spreadsheet = $this->buildUpSheets($config);
 
         $writer = new Xlsx($spreadsheet);
-        \header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        \header('Content-Disposition: attachment; filename="'.\urlencode($config['filename'].'.xlsx').'"');
-        $writer->save('php://output');
-        exit;
+
+        $response = new StreamedResponse(
+            function () use ($writer) {
+                $writer->save('php://output');
+            }
+        );
+        $response->headers->set('Content-Type', 'application/vnd.ms-excel');
+        $response->headers->set('Content-Disposition', 'attachment;filename="'.$config['filename'].'.xlsx"');
+        $response->headers->set('Cache-Control', 'max-age=0');
+
+        return $response;
     }
 
     /**
@@ -35,7 +42,6 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
      */
     public function buildUpSheets(array $config): Spreadsheet
     {
-        // dd($config);
         $spreadsheet = new Spreadsheet();
 
         $i = 0;
