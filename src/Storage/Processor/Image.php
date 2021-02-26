@@ -86,6 +86,7 @@ class Image
 
     /**
      * @param array<int> $size
+     *
      * @return array<int>
      */
     private function getWidthHeight(array $size): array
