@@ -40,7 +40,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     /**
      * @param array<mixed> $config
      */
-    public function buildUpSheets(array $config): Spreadsheet
+    private function buildUpSheets(array $config): Spreadsheet
     {
         $spreadsheet = new Spreadsheet();
 
@@ -70,7 +70,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     /**
      * @return array<string, mixed>
      */
-    public static function getDefaults(): array
+    private static function getDefaults(): array
     {
         return [
             'filename' => 'spreadsheet',
