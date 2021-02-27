@@ -84,6 +84,11 @@ class Image
         return $path;
     }
 
+    /**
+     * @param array<int> $size
+     *
+     * @return array<int>
+     */
     private function getWidthHeight(array $size): array
     {
         list($originalWidth, $originalHeight) = $size;
@@ -95,14 +100,14 @@ class Image
             $width = ('*' == $width ? $originalWidth : $width);
             $height = ('*' == $height ? $originalHeight : $height);
 
-            return [$width, $height];
+            return [\intval($width), \intval($height)];
         }
 
         $ratio = $originalWidth / $originalHeight;
 
         if ('*' == $width && '*' == $height) {
             //unable to calculate ratio, silently return original size (backward compatibility)
-            return [$originalWidth, $originalHeight];
+            return [\intval($originalWidth), \intval($originalHeight)];
         }
 
         if ('*' == $width || '*' == $height) {
@@ -121,7 +126,7 @@ class Image
             }
         }
 
-        return [$width, $height];
+        return [\intval($width), \intval($height)];
     }
 
     private function fillBackgroundColor($temp)
