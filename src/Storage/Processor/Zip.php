@@ -32,7 +32,7 @@ class Zip
         $option->setOutputStream($stream);
         $zip = new ZipStream(null, $option);
         foreach ($this->config->getFiles() as $file) {
-            $zip->addFile($file['filename'], $file['content']);
+            $zip->addFileFromPsr7Stream($file['filename'], $file['stream']);
         }
 
         $zip->finish();
