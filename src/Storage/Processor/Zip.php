@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Storage\Processor;
 
-use Symfony\Component\Filesystem\Filesystem;
+use GuzzleHttp\Psr7\Stream;
+use Psr\Http\Message\StreamInterface;
+use ZipStream\Option\Archive;
+use ZipStream\ZipStream;
 
 class Zip
 {
@@ -16,20 +19,24 @@ class Zip
         $this->config = $config;
     }
 
-    public function generate(): string
+    public function generate(): StreamInterface
     {
-        $filesystem = new Filesystem();
-
-        $tempFile = $filesystem->tempnam(\sys_get_temp_dir(), 'emss');
-        $zip = new \ZipArchive();
-        $zip->open($tempFile, \ZipArchive::CREATE);
-
-        foreach ($this->config->getFiles() as $file) {
-            $zip->addFromString($file['filename'], $file['content']);
+        $stream = \fopen('php://temp', 'r+');
+        if (false === $stream) {
+            throw new \RuntimeException('Unexpected false temporary stream');
         }
 
-        $zip->close();
+        $option = new Archive();
+        $option->setZeroHeader(true);
+        $option->setEnableZip64(false);
+        $option->setOutputStream($stream);
+        $zip = new ZipStream(null, $option);
+        foreach ($this->config->getFiles() as $file) {
+            $zip->addFile($file['filename'], $file['content']);
+        }
 
-        return $tempFile;
+        $zip->finish();
+
+        return new Stream($stream);
     }
 }

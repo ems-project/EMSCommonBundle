@@ -103,12 +103,7 @@ class Processor
         }
 
         if ('zip' === $config->getConfigType()) {
-            $resource = \fopen($this->generateZip($config), 'r');
-            if (false === $resource) {
-                throw new \Exception('It was not able to open the generated zip');
-            }
-
-            return new Stream($resource);
+            return $this->generateZip($config);
         }
 
         throw new \Exception(\sprintf('not able to generate file for the config %s', $config->getConfigHash()));
@@ -145,7 +140,7 @@ class Processor
         return $generatedImage;
     }
 
-    private function generateZip(Config $config): string
+    private function generateZip(Config $config): StreamInterface
     {
         $zip = new Zip($config);
 
