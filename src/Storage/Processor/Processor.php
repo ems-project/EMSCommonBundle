@@ -85,10 +85,7 @@ class Processor
         return new Config($this->storageManager, $hash, $configHash, $configArray);
     }
 
-    /**
-     * @return resource
-     */
-    private function generateResource(Config $config, string $cacheFilename)
+    private function generateSteam(Config $config, string $cacheFilename): StreamInterface
     {
         $file = null;
         if (!$config->isCacheableResult()) {
@@ -102,7 +99,7 @@ class Processor
                 throw new \Exception('It was not able to open the generated image');
             }
 
-            return $resource;
+            return new Stream($resource);
         }
 
         if ('zip' === $config->getConfigType()) {
@@ -111,7 +108,7 @@ class Processor
                 throw new \Exception('It was not able to open the generated zip');
             }
 
-            return $resource;
+            return new Stream($resource);
         }
 
         throw new \Exception(\sprintf('not able to generate file for the config %s', $config->getConfigHash()));
@@ -203,9 +200,7 @@ class Processor
             }
         }
 
-        $generatedResource = $this->generateResource($config, $cacheFilename);
-
-        return new Stream($generatedResource);
+        return $this->generateSteam($config, $cacheFilename);
     }
 
     private function getResponseFromStreamInterface(StreamInterface $stream, Request $request): StreamedResponse
