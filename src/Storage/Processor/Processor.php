@@ -85,7 +85,7 @@ class Processor
         return new Config($this->storageManager, $hash, $configHash, $configArray);
     }
 
-    private function generateSteam(Config $config, string $cacheFilename): StreamInterface
+    private function generateStream(Config $config, string $cacheFilename): StreamInterface
     {
         $file = null;
         if (!$config->isCacheableResult()) {
@@ -200,7 +200,7 @@ class Processor
             }
         }
 
-        return $this->generateSteam($config, $cacheFilename);
+        return $this->generateStream($config, $cacheFilename);
     }
 
     private function getResponseFromStreamInterface(StreamInterface $stream, Request $request): StreamedResponse
