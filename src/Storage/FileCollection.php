@@ -28,7 +28,7 @@ final class FileCollection implements \IteratorAggregate
     public function getIterator()
     {
         foreach ($this->files as $file) {
-            $file['content'] = $this->storageManager->getContents($file['sha1']);
+            $file['stream'] = $this->storageManager->getStream($file['sha1']);
             yield $file;
         }
     }
