@@ -480,6 +480,8 @@ class ElasticaService
         $suggest = $search->getSuggest();
         if (null !== $suggest && \count($suggest) > 0 && \version_compare($version = $this->getVersion(), '7.0') < 0) {
             $esSearch->setSuggest($suggest);
+        } else {
+            $esSearch->getQuery()->setParam('track_total_hits', true);
         }
 
         return $esSearch;
