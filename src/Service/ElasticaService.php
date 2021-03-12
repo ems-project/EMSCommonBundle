@@ -170,7 +170,7 @@ class ElasticaService
 
     public function count(Search $search): int
     {
-        $elasticSearch = $this->createElasticaSearch($search, $search->getCountOptions());
+        $elasticSearch = $this->createElasticaSearch($search, $search->getCountOptions(), false);
         $query = $elasticSearch->getQuery();
         $body = $query->toArray();
         if (isset($body['_source'])) {
@@ -450,7 +450,7 @@ class ElasticaService
     /**
      * @param array<mixed> $options
      */
-    private function createElasticaSearch(Search $search, array $options): ElasticaSearch
+    private function createElasticaSearch(Search $search, array $options, bool $trackTotalHits = true): ElasticaSearch
     {
         $boolQuery = $this->filterByContentTypes($search->getQuery(), $search->getContentTypes());
         $query = new Query($boolQuery);
@@ -478,9 +478,12 @@ class ElasticaService
             $query->setPostFilter($search->getPostFilter());
         }
         $suggest = $search->getSuggest();
-        if (null !== $suggest && \count($suggest) > 0 && \version_compare($version = $this->getVersion(), '7.0') < 0) {
+
+        $version = $this->getVersion();
+        if (null !== $suggest && \count($suggest) > 0 && \version_compare($version, '7.0') < 0) {
             $esSearch->setSuggest($suggest);
-        } else {
+        }
+        if (\version_compare($version, '7.0') >= 0 && $trackTotalHits) {
             $esSearch->getQuery()->setParam('track_total_hits', true);
         }
 
