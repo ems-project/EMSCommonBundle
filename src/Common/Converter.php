@@ -40,19 +40,17 @@ class Converter
     /**
      * @param mixed $var
      */
-    public static function stringify($var): string
+    public static function stringify($var, string $defaultValue = ''): string
     {
         if (!\is_array($var) && !\is_object($var)) {
             return \strval($var);
         }
-
         if (\is_object($var) && \method_exists($var, 'toString')) {
             return $var->toString();
         }
-
         $json = \json_encode($var);
 
-        return (false !== $json) ? $json : '';
+        return (false !== $json) ? $json : $defaultValue;
     }
 
     private static function convertSpecialChars(string $str): string

@@ -47,3 +47,12 @@ Filter converting a markdown text into an HTML text following the github standar
 ```twig
 {{ source.body|ems_markdown }}
 ```
+
+## ems_stringify
+
+Filter converting any scalar value, array or object into a string.
+
+```twig
+{{ someObject|ems_stringify }}
+{{ someArray|ems_stringify }}
+```
