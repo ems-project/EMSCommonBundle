@@ -52,7 +52,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
             foreach ($sheetConfig['rows'] as $row) {
                 $k = 'A';
                 foreach ($row as $value) {
-                    $sheet->setCellValue($k.$j, $value);
+                    $sheet->setCellValue($k.$j, Converter::stringify($value));
                     ++$k;
                 }
                 ++$j;
