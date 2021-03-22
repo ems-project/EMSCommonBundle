@@ -40,6 +40,7 @@
 		"symfony/stopwatch": "^4.4",
 		"symfony/translation": "^4.4",
 		"twig/twig" : "^2.14",
+		"symfony/http-client": "^4.4",
 		"phpoffice/phpspreadsheet": "^1.16"
 	},
 	"require-dev" : {
@@ -65,6 +66,10 @@
 		"psr-4" : {
 			"EMS\\CommonBundle\\Tests\\" : "tests/"
 		}
+	},
+	"config": {
+		"lock": false,
+		"sort-packages": true
 	},
 	"extra" : {
 		"branch-alias" : {
