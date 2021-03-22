@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EMS\CommonBundle\Common;
+namespace EMS\CommonBundle\Common\Standard;
 
 final class Json
 {
