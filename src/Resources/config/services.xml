@@ -16,6 +16,7 @@
         <!-- Contracts -->
         <service id="EMS\CommonBundle\Contracts\CoreApi\CoreApiFactoryInterface" alias="ems_common.core_api.factory" />
         <service id="EMS\CommonBundle\Contracts\ExpressionServiceInterface" alias="ems_common.service.expression_service" />
+        <service id="EMS\CommonBundle\Contracts\SpreadsheetGeneratorServiceInterface" alias="ems_common.service.spreadsheet_generator_service" />
 
         <service id="ems_common.core_api.factory" class="EMS\CommonBundle\Common\CoreApi\CoreApiFactory">
             <argument type="service" id="logger" />
@@ -55,6 +56,9 @@
         </service>
         <service id="ems_common.json.decoder" class="EMS\CommonBundle\Json\Decoder"/>
         <service id="ems_common.service.expression_service" class="EMS\CommonBundle\Service\ExpressionService">
+            <argument type="service" id="logger" />
+        </service>
+        <service id="ems_common.service.spreadsheet_generator_service" class="EMS\CommonBundle\Common\SpreadsheetGeneratorService">
             <argument type="service" id="logger" />
         </service>
         <service id="EMS\CommonBundle\Service\ElasticaService" alias="ems_common.service.elastica"/>
