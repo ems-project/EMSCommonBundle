@@ -30,7 +30,7 @@ final class CoreApi implements CoreApiInterface
         $authToken = $response->getData()['authToken'] ?? null;
 
         if (null !== $authToken) {
-            $this->client->addHeader(self::HEADER_TOKEN, $authToken);
+            $this->setToken($authToken);
         }
 
         return $this;
@@ -61,9 +61,19 @@ final class CoreApi implements CoreApiInterface
         $this->client->setLogger($logger);
     }
 
+    public function setToken(string $token): void
+    {
+        $this->client->addHeader(self::HEADER_TOKEN, $token);
+    }
+
+
     public function test(): bool
     {
-        return $this->client->get('/api/test')->isSuccess();
+        try {
+            return $this->client->get('/api/test')->isSuccess();
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     public function user(): UserInterface

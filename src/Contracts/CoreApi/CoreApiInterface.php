@@ -33,6 +33,8 @@ interface CoreApiInterface
 
     public function setLogger(LoggerInterface $logger): void;
 
+    public function setToken(string $token): void;
+
     /**
      * @throws BaseUrlNotDefinedExceptionInterface
      * @throws NotAuthenticatedExceptionInterface
