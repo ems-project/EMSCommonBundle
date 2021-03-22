@@ -66,7 +66,6 @@ final class CoreApi implements CoreApiInterface
         $this->client->addHeader(self::HEADER_TOKEN, $token);
     }
 
-
     public function test(): bool
     {
         try {
