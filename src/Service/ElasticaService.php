@@ -47,7 +47,9 @@ class ElasticaService
     public function refresh(?string $index): bool
     {
         $endpoint = new Refresh();
-        $endpoint->setIndex($index);
+        if (null !== $index) {
+            $endpoint->setIndex($index);
+        }
 
         return $this->client->requestEndpoint($endpoint)->isOk();
     }
