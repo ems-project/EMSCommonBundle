@@ -17,6 +17,7 @@ use Elasticsearch\Endpoints\Cluster\Health;
 use Elasticsearch\Endpoints\Count;
 use Elasticsearch\Endpoints\Indices\Analyze;
 use Elasticsearch\Endpoints\Indices\Mapping\GetField;
+use Elasticsearch\Endpoints\Indices\Refresh;
 use Elasticsearch\Endpoints\Info;
 use Elasticsearch\Endpoints\Scroll as ScrollEndpoints;
 use EMS\CommonBundle\Elasticsearch\Aggregation\ElasticaAggregation;
@@ -34,15 +35,21 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ElasticaService
 {
-    /** @var LoggerInterface */
-    private $logger;
-    /** @var Client */
-    private $client;
+    private LoggerInterface $logger;
+    private Client $client;
 
     public function __construct(LoggerInterface $logger, Client $client)
     {
         $this->client = $client;
         $this->logger = $logger;
+    }
+
+    public function refresh(?string $index): bool
+    {
+        $endpoint = new Refresh();
+        $endpoint->setIndex($index);
+
+        return $this->client->requestEndpoint($endpoint)->isOk();
     }
 
     public function getHealthStatus(string $waitForStatus = null, string $timeout = '10s', ?string $index = null): string
