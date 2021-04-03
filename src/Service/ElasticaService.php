@@ -8,6 +8,7 @@ use Elastica\Aggregation\Terms as TermsAggregation;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
+use Elastica\Query\Simple;
 use Elastica\Query\Terms;
 use Elastica\Response;
 use Elastica\ResultSet;
@@ -296,6 +297,9 @@ class ElasticaService
         $search = new Search($indexes, $queryObject);
         $this->setSearchDefaultOptions($search, $options);
         $search->addAggregations($this->parseAggregations($options['aggs'] ?? []));
+        if (null !== $options['post_filter']) {
+            $search->setPostFilter(new Simple($options['post_filter']));
+        }
 
         return $search;
     }
@@ -582,7 +586,7 @@ class ElasticaService
     /**
      * @param array<mixed> $parameters
      *
-     * @return array{aggs: ?array, query: ?array, size: int, from: int, _source: ?string[], sort: ?array}
+     * @return array{aggs: ?array, query: ?array, post_filter: ?array, size: int, from: int, _source: ?string[], sort: ?array}
      */
     private function resolveElasticsearchBody(array $parameters): array
     {
@@ -591,25 +595,22 @@ class ElasticaService
             ->setDefaults([
                 'query' => null,
                 'aggs' => null,
+                'post_filter' => null,
             ])
             ->setAllowedTypes('query', ['array', 'string', 'null'])
             ->setAllowedTypes('aggs', ['array', 'string', 'null'])
-            ->setNormalizer('query', function (Options $options, $value) {
+            ->setAllowedTypes('post_filter', ['array', 'string', 'null']);
+
+        foreach (['query', 'aggs', 'post_filter'] as $attribute) {
+            $resolver->setNormalizer($attribute, function (Options $options, $value) {
                 if (\is_string($value)) {
                     $value = \json_decode($value, true);
                 }
 
                 return $value;
-            })
-            ->setNormalizer('aggs', function (Options $options, $value) {
-                if (\is_string($value)) {
-                    $value = \json_decode($value, true);
-                }
-
-                return $value;
-            })
-        ;
-        /** @var array{aggs: ?array, query: ?array, size: int, from: int, _source: ?string[], sort: ?array} $resolvedParameters */
+            });
+        }
+        /** @var array{aggs: ?array, query: ?array, post_filter: ?array, size: int, from: int, _source: ?string[], sort: ?array} $resolvedParameters */
         $resolvedParameters = $resolver->resolve($parameters);
 
         return $resolvedParameters;
