@@ -287,14 +287,12 @@ class ElasticaService
         $query = $options['query'];
         if (!empty($query) && $queryObject instanceof $boolQuery) {
             $queryObject->addMust($query);
+        } elseif (!empty($query) && null !== $queryObject) {
+            $boolQuery->addMust($queryObject);
+            $boolQuery->addMust($query);
+            $queryObject = $boolQuery;
         } elseif (!empty($query)) {
-            if (null !== $queryObject) {
-                $boolQuery->addMust($queryObject);
-                $queryObject = $boolQuery;
-                $queryObject->addMust($query);
-            } else {
-                $queryObject = new Simple($query);
-            }
+            $queryObject = new Simple($query);
         }
         $search = new Search($indexes, $queryObject);
         $this->setSearchDefaultOptions($search, $options);
