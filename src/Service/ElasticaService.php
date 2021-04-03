@@ -309,7 +309,6 @@ class ElasticaService
      */
     public function convertElasticsearchSearch(array $param): Search
     {
-        @\trigger_error('This function exists to simplified the migration to elastica, but should not be used on long term', E_USER_DEPRECATED);
         $options = $this->resolveElasticsearchSearchParameters($param);
         $search = $this->convertElasticsearchBody($options['index'], $options['type'], $options['body']);
         $this->setSearchDefaultOptions($search, $options);
