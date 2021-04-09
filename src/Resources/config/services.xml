@@ -87,5 +87,11 @@
             <argument type="service" id="EMS\CommonBundle\Storage\StorageManager"/>
             <tag name="console.command" />
         </service>
+        
+        <!-- envProcessor -->
+        
+        <service id="urlencode.env_var_processor" class="EMS\CommonBundle\DependencyInjection\EnvVarProcessor\UrlEncodeEnvVarProcessor" >
+              <tag name="container.env_var_processor" />
+        </service>
     </services>
 </container>
