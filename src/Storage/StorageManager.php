@@ -84,6 +84,21 @@ class StorageManager
         return false;
     }
 
+    /**
+     * @return string[]
+     */
+    public function headIn(string $hash): array
+    {
+        $storages = [];
+        foreach ($this->adapters as $adapter) {
+            if ($adapter->head($hash)) {
+                $storages[] = $adapter->__toString();
+            }
+        }
+
+        return $storages;
+    }
+
     public function getStream(string $hash): StreamInterface
     {
         foreach ($this->adapters as $adapter) {
