@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Twig;
 
+use EMS\CommonBundle\Storage\Processor\Processor;
 use EMS\CommonBundle\Storage\StorageManager;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
@@ -61,12 +62,27 @@ class AssetRuntime
         return [];
     }
 
-    public static function temporaryFile(StreamInterface $stream): ?string
+    public static function temporaryFile(StreamInterface $stream): string
     {
         $path = \tempnam(\sys_get_temp_dir(), 'emsch');
         if (!$path) {
             throw new \RuntimeException(\sprintf('Could not create temp file in %s', \sys_get_temp_dir()));
         }
+
+        if ($stream->isSeekable() && $stream->tell() > 0) {
+            $stream->rewind();
+        }
+
+        $handle = \fopen($path, 'w');
+        if (false === $handle) {
+            throw new \RuntimeException(\sprintf('Could not open temp file %s', $path));
+        }
+        while (!$stream->eof()) {
+            \fwrite($handle, $stream->read(Processor::BUFFER_SIZE));
+        }
+        \fclose($handle);
+        $stream->close();
+
         \file_put_contents($path, $stream->getContents());
 
         return $path;
