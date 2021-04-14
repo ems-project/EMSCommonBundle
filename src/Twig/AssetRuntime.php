@@ -61,14 +61,20 @@ class AssetRuntime
         return [];
     }
 
-    public static function extract(StreamInterface $stream, string $destination): bool
+    public static function temporaryFile(StreamInterface $stream): ?string
     {
         $path = \tempnam(\sys_get_temp_dir(), 'emsch');
         if (!$path) {
             throw new \RuntimeException(\sprintf('Could not create temp file in %s', \sys_get_temp_dir()));
         }
-
         \file_put_contents($path, $stream->getContents());
+
+        return $path;
+    }
+
+    public static function extract(StreamInterface $stream, string $destination): bool
+    {
+        $path = self::temporaryFile($stream);
 
         $zip = new ZipArchive();
         if (true !== $open = $zip->open($path)) {
