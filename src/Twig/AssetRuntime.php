@@ -92,8 +92,6 @@ class AssetRuntime
         \fclose($handle);
         $stream->close();
 
-        \file_put_contents($path, $stream->getContents());
-
         return $path;
     }
 
