@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Twig;
 
+use EMS\CommonBundle\Storage\Processor\Processor;
 use EMS\CommonBundle\Storage\StorageManager;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
@@ -61,14 +62,42 @@ class AssetRuntime
         return [];
     }
 
-    public static function extract(StreamInterface $stream, string $destination): bool
+    public function temporaryFile(string $hash): ?string
+    {
+        if (!$this->storageManager->head($hash)) {
+            return null;
+        }
+
+        return self::streamToTempFile($this->storageManager->getStream($hash));
+    }
+
+    private static function streamToTempFile(StreamInterface $stream): string
     {
         $path = \tempnam(\sys_get_temp_dir(), 'emsch');
         if (!$path) {
             throw new \RuntimeException(\sprintf('Could not create temp file in %s', \sys_get_temp_dir()));
         }
 
-        \file_put_contents($path, $stream->getContents());
+        if ($stream->isSeekable() && $stream->tell() > 0) {
+            $stream->rewind();
+        }
+
+        $handle = \fopen($path, 'w');
+        if (false === $handle) {
+            throw new \RuntimeException(\sprintf('Could not open temp file %s', $path));
+        }
+        while (!$stream->eof()) {
+            \fwrite($handle, $stream->read(Processor::BUFFER_SIZE));
+        }
+        \fclose($handle);
+        $stream->close();
+
+        return $path;
+    }
+
+    public static function extract(StreamInterface $stream, string $destination): bool
+    {
+        $path = self::streamToTempFile($stream);
 
         $zip = new ZipArchive();
         if (true !== $open = $zip->open($path)) {
