@@ -62,7 +62,16 @@ class AssetRuntime
         return [];
     }
 
-    public static function temporaryFile(StreamInterface $stream): string
+    public function temporaryFile(string $hash): ?string
+    {
+        if (!$this->storageManager->head($hash)) {
+            return null;
+        }
+
+        return self::streamToTempFile($this->storageManager->getStream($hash));
+    }
+
+    private static function streamToTempFile(StreamInterface $stream): string
     {
         $path = \tempnam(\sys_get_temp_dir(), 'emsch');
         if (!$path) {
@@ -90,7 +99,7 @@ class AssetRuntime
 
     public static function extract(StreamInterface $stream, string $destination): bool
     {
-        $path = self::temporaryFile($stream);
+        $path = self::streamToTempFile($stream);
 
         $zip = new ZipArchive();
         if (true !== $open = $zip->open($path)) {
