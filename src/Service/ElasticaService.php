@@ -219,9 +219,21 @@ class ElasticaService
         if (null !== $query) {
             $boolQuery->addMust($query);
         }
+
+        $contentType = new Terms(EMSSource::FIELD_CONTENT_TYPE, $contentTypes);
+
+        $version = $this->getVersion();
+        if (\version_compare($version, '6.0') >= 0) {
+            if ($query instanceof BoolQuery) {
+                $boolQuery = $query;
+            }
+            $boolQuery->addMust($contentType);
+
+            return $boolQuery;
+        }
+
         $boolQuery->setMinimumShouldMatch(1);
         $type = new Terms('_type', $contentTypes);
-        $contentType = new Terms(EMSSource::FIELD_CONTENT_TYPE, $contentTypes);
         $boolQuery->addShould($type);
         $boolQuery->addShould($contentType);
 
