@@ -44,7 +44,7 @@ class Image
 
         $image = $this->autorotate($filename, $image);
         $this->applyFlips($image);
-        $image = $this->rotate($image);
+        $image = $this->rotate($image, $this->config->getRotate());
         $rotatedWidth = \imagesx($image);
         $rotatedHeight = \imagesy($image);
 
@@ -296,13 +296,13 @@ class Image
      *
      * @return resource
      */
-    private function rotate($image)
+    private function rotate($image, float $angle)
     {
-        if (0 == $this->config->getRotate()) {
+        if (0 == $angle) {
             return $image;
         }
 
-        $rotated = \imagerotate($image, $this->config->getRotate(), $this->getBackgroundColor($image));
+        $rotated = \imagerotate($image, $angle, $this->getBackgroundColor($image));
         if (false === $rotated) {
             throw new \RuntimeException('Could not rotate the image');
         }
