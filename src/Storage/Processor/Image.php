@@ -43,15 +43,14 @@ class Image
         }
 
         $this->applyFlips($image);
+        $image = $this->rotate($image);
+        $rotatedWidth = \imagesx($image);
+        $rotatedHeight = \imagesy($image);
 
-        $size = @\getimagesizefromstring($contents);
-        if (false === $size) {
-            throw new \RuntimeException('Could not get size of image');
-        }
-        list($width, $height) = $this->getWidthHeight($size);
+        list($width, $height) = $this->getWidthHeight($rotatedWidth, $rotatedHeight);
 
         if (null !== $this->config->getResize()) {
-            $image = $this->applyResizeAndBackground($image, $width, $height, $size);
+            $image = $this->applyResizeAndBackground($image, $width, $height, $rotatedWidth, $rotatedHeight);
         } elseif (null !== $this->config->getBackground()) {
             $image = $this->applyBackground($image, $width, $height);
         }
@@ -87,14 +86,10 @@ class Image
     }
 
     /**
-     * @param array<int> $size
-     *
      * @return array<int>
      */
-    private function getWidthHeight(array $size): array
+    private function getWidthHeight(int $originalWidth, int $originalHeight): array
     {
-        list($originalWidth, $originalHeight) = $size;
-
         $width = $this->config->getWidth();
         $height = $this->config->getHeight();
 
@@ -149,7 +144,7 @@ class Image
         \imagefill($temp, 0, 0, $solidColour);
     }
 
-    private function applyResizeAndBackground($image, $width, $height, $size)
+    private function applyResizeAndBackground($image, int $width, int $height, int $originalWidth, int $originalHeight)
     {
         if (\function_exists('imagecreatetruecolor') && ($temp = \imagecreatetruecolor($width, $height))) {
             $resizeFunction = 'imagecopyresampled';
@@ -164,35 +159,35 @@ class Image
         $gravity = $this->config->getGravity();
 
         if ('fillArea' == $resize) {
-            if (($size[1] / $height) < ($size[0] / $width)) {
-                $cal_width = \intval($size[1] * $width / $height);
+            if (($originalHeight / $height) < ($originalWidth / $width)) {
+                $cal_width = \intval($originalHeight * $width / $height);
                 if (false !== \stripos($gravity, 'west')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $cal_width, $size[1]);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $cal_width, $originalHeight);
                 } elseif (false !== \stripos($gravity, 'east')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, $size[0] - $cal_width, 0, $width, $height, $cal_width, $size[1]);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, $originalWidth - $cal_width, 0, $width, $height, $cal_width, $originalHeight);
                 } else {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, \intval(($size[0] - $cal_width) / 2), 0, $width, $height, $cal_width, $size[1]);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, \intval(($originalWidth - $cal_width) / 2), 0, $width, $height, $cal_width, $originalHeight);
                 }
             } else {
-                $cal_height = \intval($size[0] / $width * $height);
+                $cal_height = \intval($originalWidth / $width * $height);
                 if (false !== \stripos($gravity, 'north')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $size[0], $cal_height);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $originalWidth, $cal_height);
                 } elseif (false !== \stripos($gravity, 'south')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, $size[1] - $cal_height, $width, $height, $size[0], $cal_height);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, $originalHeight - $cal_height, $width, $height, $originalWidth, $cal_height);
                 } else {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, \intval(($size[1] - $cal_height) / 2), $width, $height, $size[0], $cal_height);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, \intval(($originalHeight - $cal_height) / 2), $width, $height, $originalWidth, $cal_height);
                 }
             }
         } elseif ('fill' == $resize) {
-            if (($size[1] / $height) < ($size[0] / $width)) {
-                $thumb_height = \intval($width * $size[1] / $size[0]);
-                \call_user_func($resizeFunction, $temp, $image, 0, \intval(($height - $thumb_height) / 2), 0, 0, $width, $thumb_height, $size[0], $size[1]);
+            if (($originalHeight / $height) < ($originalWidth / $width)) {
+                $thumb_height = \intval($width * $originalHeight / $originalWidth);
+                \call_user_func($resizeFunction, $temp, $image, 0, \intval(($height - $thumb_height) / 2), 0, 0, $width, $thumb_height, $originalWidth, $originalHeight);
             } else {
-                $thumb_width = \intval(($size[0] * $height) / $size[1]);
-                \call_user_func($resizeFunction, $temp, $image, \intval(($width - $thumb_width) / 2), 0, 0, 0, $thumb_width, $height, $size[0], $size[1]);
+                $thumb_width = \intval(($originalWidth * $height) / $originalHeight);
+                \call_user_func($resizeFunction, $temp, $image, \intval(($width - $thumb_width) / 2), 0, 0, 0, $thumb_width, $height, $originalWidth, $originalHeight);
             }
         } else {
-            \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $size[0], $size[1]);
+            \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $originalWidth, $originalHeight);
         }
 
         return $temp;
@@ -304,5 +299,24 @@ class Image
         } elseif ($this->config->getFlipVertical()) {
             \imageflip($image, IMG_FLIP_VERTICAL);
         }
+    }
+
+    /**
+     * @param resource $image
+     *
+     * @return resource
+     */
+    private function rotate($image)
+    {
+        if (0 == $this->config->getRotate()) {
+            return $image;
+        }
+
+        $rotated = \imagerotate($image, $this->config->getRotate(), \imagecolorallocatealpha($image, 0, 0, 0, 127));
+        if (false === $rotated) {
+            throw new \RuntimeException('Could not rotate the image');
+        }
+
+        return $rotated;
     }
 }
