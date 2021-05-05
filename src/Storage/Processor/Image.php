@@ -42,6 +42,8 @@ class Image
             throw new \InvalidArgumentException('could not make image');
         }
 
+        $this->applyFlips($image);
+
         $size = @\getimagesizefromstring($contents);
         if (false === $size) {
             throw new \RuntimeException('Could not get size of image');
@@ -288,5 +290,19 @@ class Image
         \imagecopy($image, $stamp, (int) ($width - $sx) / 2, (int) ($height - $sy) / 2, 0, 0, $sx, $sy);
 
         return $image;
+    }
+
+    /**
+     * @param resource $image
+     */
+    private function applyFlips($image): void
+    {
+        if ($this->config->getFlipHorizontal() && $this->config->getFlipVertical()) {
+            \imageflip($image, IMG_FLIP_BOTH);
+        } elseif ($this->config->getFlipHorizontal()) {
+            \imageflip($image, IMG_FLIP_HORIZONTAL);
+        } elseif ($this->config->getFlipVertical()) {
+            \imageflip($image, IMG_FLIP_VERTICAL);
+        }
     }
 }
