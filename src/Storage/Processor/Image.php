@@ -128,19 +128,8 @@ class Image
 
     private function fillBackgroundColor($temp)
     {
-        $background = $this->config->getBackground();
+        $solidColour = $this->getBackgroundColor($temp);
         \imagesavealpha($temp, true);
-
-        $solidColour = \imagecolorallocatealpha(
-            $temp,
-            (int) \hexdec(\substr($background, 1, 2)),
-            (int) \hexdec(\substr($background, 3, 2)),
-            (int) \hexdec(\substr($background, 5, 2)),
-            \intval(\hexdec(\substr($background, 7, 2) ?? '00') / 2)
-        );
-        if (false === $solidColour) {
-            throw new \RuntimeException('Unexpected false imagecolorallocatealpha');
-        }
         \imagefill($temp, 0, 0, $solidColour);
     }
 
@@ -312,11 +301,31 @@ class Image
             return $image;
         }
 
-        $rotated = \imagerotate($image, $this->config->getRotate(), \imagecolorallocatealpha($image, 0, 0, 0, 127));
+        $rotated = \imagerotate($image, $this->config->getRotate(), $this->getBackgroundColor($image));
         if (false === $rotated) {
             throw new \RuntimeException('Could not rotate the image');
         }
 
         return $rotated;
+    }
+
+    /**
+     * @param resource $temp
+     */
+    private function getBackgroundColor($temp): int
+    {
+        $background = $this->config->getBackground();
+        $solidColour = \imagecolorallocatealpha(
+            $temp,
+            (int) \hexdec(\substr($background, 1, 2)),
+            (int) \hexdec(\substr($background, 3, 2)),
+            (int) \hexdec(\substr($background, 5, 2)),
+            \intval(\hexdec(\substr($background, 7, 2) ?? '00') / 2)
+        );
+        if (false === $solidColour) {
+            throw new \RuntimeException('Unexpected false imagecolorallocatealpha');
+        }
+
+        return $solidColour;
     }
 }
