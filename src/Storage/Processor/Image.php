@@ -42,6 +42,7 @@ class Image
             throw new \InvalidArgumentException('could not make image');
         }
 
+        $image = $this->autorotate($filename, $image);
         $this->applyFlips($image);
         $image = $this->rotate($image);
         $rotatedWidth = \imagesx($image);
@@ -327,5 +328,29 @@ class Image
         }
 
         return $solidColour;
+    }
+
+    /**
+     * @param resource $image
+     *
+     * @return resource
+     */
+    private function autorotate(string $filename, $image)
+    {
+        if (!$this->config->getAutoRotate()) {
+            return $image;
+        }
+
+        try {
+            $metadata = \exif_read_data($filename);
+            if (false === $metadata) {
+                return $image;
+            }
+            switch ($metadata['Orientation'] ?? null) {
+            }
+        } catch (\Throwable $e) {
+        }
+
+        return $image;
     }
 }
