@@ -182,6 +182,26 @@ final class Config
         return (int) $this->options[EmsFields::ASSET_CONFIG_RADIUS];
     }
 
+    public function getRotate(): int
+    {
+        return (int) $this->options[EmsFields::ASSET_CONFIG_ROTATE];
+    }
+
+    public function getAutoRotate(): bool
+    {
+        return (bool) $this->options[EmsFields::ASSET_CONFIG_AUTO_ROTATE];
+    }
+
+    public function getFlipHorizontal(): bool
+    {
+        return (bool) $this->options[EmsFields::ASSET_CONFIG_FLIP_HORIZONTAL];
+    }
+
+    public function getFlipVertical(): bool
+    {
+        return (bool) $this->options[EmsFields::ASSET_CONFIG_FLIP_VERTICAL];
+    }
+
     /**
      * @return array<string>
      */
