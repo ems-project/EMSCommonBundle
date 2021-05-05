@@ -332,6 +332,17 @@ class Image
     }
 
     /**
+     * The 8 EXIF orientation values are numbered 1 to 8.
+     * 1 = 0 degrees: the correct orientation, no adjustment is required.
+     * 2 = 0 degrees, mirrored: image has been flipped back-to-front.
+     * 3 = 180 degrees: image is upside down.
+     * 4 = 180 degrees, mirrored: image has been flipped back-to-front and is upside down.
+     * 5 = 270 degrees anticlockwise: image has been flipped back-to-front and is on its side.
+     * 6 = 270 degrees anticlockwise, mirrored: image is on its side.
+     * 7 = 90 degrees anticlockwise: image has been flipped back-to-front and is on its far side.
+     * 8 = 90 degrees anticlockwise, mirrored: image is on its far side.
+     * ref: https://sirv.com/help/articles/rotate-photos-to-be-upright/.
+     *
      * @param resource $image
      *
      * @return resource
@@ -347,8 +358,36 @@ class Image
             if (false === $metadata) {
                 return $image;
             }
-            switch ($metadata['Orientation'] ?? null) {
+            $angle = 0;
+            $mirrored = false;
+            switch ($metadata['Orientation'] ?? 0) {
+                case 2:
+                    $mirrored = true;
+                    break;
+                case 3:
+                    $angle = 180;
+                    break;
+                case 4:
+                    $angle = 180;
+                    $mirrored = true;
+                    break;
+                case 5:
+                    $angle = 270;
+                    break;
+                case 6:
+                    $angle = 270;
+                    $mirrored = true;
+                    break;
+                case 7:
+                    $angle = 90;
+                    break;
+                case 8:
+                    $angle = 90;
+                    $mirrored = true;
+                    break;
             }
+            $image = $this->rotate($image, $angle);
+            $this->applyFlips($image, $mirrored, false);
         } catch (\Throwable $e) {
             \trigger_error(\sprintf('Not able to autorotate a file due to: %s', $e->getMessage()), E_USER_WARNING);
         }
