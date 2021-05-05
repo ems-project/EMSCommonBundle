@@ -306,6 +306,7 @@ class Image
         if (false === $rotated) {
             throw new \RuntimeException('Could not rotate the image');
         }
+        \imagedestroy($image);
 
         return $rotated;
     }
