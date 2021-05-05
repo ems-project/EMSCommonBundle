@@ -43,7 +43,7 @@ class Image
         }
 
         $image = $this->autorotate($filename, $image);
-        $this->applyFlips($image);
+        $this->applyFlips($image, $this->config->getFlipHorizontal(), $this->config->getFlipVertical());
         $image = $this->rotate($image, $this->config->getRotate());
         $rotatedWidth = \imagesx($image);
         $rotatedHeight = \imagesy($image);
@@ -280,13 +280,13 @@ class Image
     /**
      * @param resource $image
      */
-    private function applyFlips($image): void
+    private function applyFlips($image, bool $flipHorizontal, bool $flipVertical): void
     {
-        if ($this->config->getFlipHorizontal() && $this->config->getFlipVertical()) {
+        if ($flipHorizontal && $flipVertical) {
             \imageflip($image, IMG_FLIP_BOTH);
-        } elseif ($this->config->getFlipHorizontal()) {
+        } elseif ($flipHorizontal) {
             \imageflip($image, IMG_FLIP_HORIZONTAL);
-        } elseif ($this->config->getFlipVertical()) {
+        } elseif ($flipVertical) {
             \imageflip($image, IMG_FLIP_VERTICAL);
         }
     }
