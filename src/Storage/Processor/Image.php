@@ -350,6 +350,7 @@ class Image
             switch ($metadata['Orientation'] ?? null) {
             }
         } catch (\Throwable $e) {
+            \trigger_error(\sprintf('Not able to autorotate a file due to: %s', $e->getMessage()), E_USER_WARNING);
         }
 
         return $image;
