@@ -35,6 +35,10 @@ final class EmsFields
     const ASSET_CONFIG_BORDER_COLOR = '_border_color';
     const ASSET_CONFIG_WATERMARK_HASH = '_watermark_hash';
     const ASSET_CONFIG_GET_FILE_PATH = '_get_file_path';
+    const ASSET_CONFIG_ROTATE = '_rotate';
+    const ASSET_CONFIG_AUTO_ROTATE = '_auto_rotate';
+    const ASSET_CONFIG_FLIP_HORIZONTAL = '_flip_horizontal';
+    const ASSET_CONFIG_FLIP_VERTICAL = '_flip_vertical';
 
     const LOG_ALIAS = 'ems_internal_logger_alias';
     const LOG_TYPE = 'doc';
