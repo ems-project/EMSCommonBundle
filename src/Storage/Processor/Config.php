@@ -282,7 +282,7 @@ final class Config
         $resolver = new OptionsResolver();
         $resolver
             ->setDefaults($defaults)
-            ->setAllowedTypes(EmsFields::ASSET_CONFIG_ROTATE, ['float'])
+            ->setAllowedTypes(EmsFields::ASSET_CONFIG_ROTATE, ['float', 'int'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_AUTO_ROTATE, ['bool'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_FLIP_VERTICAL, ['bool'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_FLIP_HORIZONTAL, ['bool'])
