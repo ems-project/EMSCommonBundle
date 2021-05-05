@@ -88,9 +88,9 @@ With this processor you'll be able to generate images from a source asset:
      - `'bottomleft'`
  - `_watermark_hash` hash of a PNG file to watermark the image. The PNG must present in one of the storage services defined.
  - `_rotate` The source image will be rotated (in degrees). Default value `0`. Must contain an integer or a float.
- - `_auto_rotate` If set to `true`, the source image will be rotated following the `Orientation` defined in the image's metadata (if defined). Default value `false`.
- - `_flip_horizontal` If set to `true`, the source image will be horizontally flipped. Default value `false`.
- - `_flip_vertical` If set to `true`, the source image will be vertically flipped. Default value `false`.
+ - `_auto_rotate` If set to `true`, the source image will be rotated following the `Orientation` defined in the image's metadata (if defined). Default value `true`. Possible values are `true`or `false`.
+ - `_flip_horizontal` If set to `true`, the source image will be horizontally flipped. Default value `false`. Possible values are `true`or `false`.
+ - `_flip_vertical` If set to `true`, the source image will be vertically flipped. Default value `false`. Possible values are `true`or `false`.
 
 In this example it will generate a PNG of 400 pixels of width. The height will be defined by the proportion of the original image:
 ```twig

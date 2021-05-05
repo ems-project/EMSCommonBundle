@@ -333,7 +333,7 @@ final class Config
             EmsFields::ASSET_CONFIG_GET_FILE_PATH => false,
             EmsFields::CONTENT_FILES => [],
             EmsFields::ASSET_CONFIG_ROTATE => 0,
-            EmsFields::ASSET_CONFIG_AUTO_ROTATE => false,
+            EmsFields::ASSET_CONFIG_AUTO_ROTATE => true,
             EmsFields::ASSET_CONFIG_FLIP_HORIZONTAL => false,
             EmsFields::ASSET_CONFIG_FLIP_VERTICAL => false,
         ];
