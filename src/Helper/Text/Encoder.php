@@ -125,6 +125,11 @@ class Encoder
      */
     public static function getFontAwesomeFromMimeType(string $mimeType, string $version)
     {
+        $versionIndex = 5;
+        if (\version_compare($version, '5') < 0) {
+                $versionIndex = 4;
+        }
+
         // List of official MIME Types: http://www.iana.org/assignments/media-types/media-types.xhtml
         $icon_classes = [
             // Media
@@ -154,12 +159,12 @@ class Encoder
 
         foreach ($icon_classes as $text => $icon) {
             if (0 === \strpos($mimeType, $text)) {
-                return $icon[$version];
+                return $icon[$versionIndex];
             }
         }
 
         $default = [4 => 'fa fa-file-o', 5 => 'far fa-file'];
 
-        return $default[$version];
+        return $default[$versionIndex];
     }
 }
