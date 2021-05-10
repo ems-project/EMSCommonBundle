@@ -127,7 +127,7 @@ class Encoder
     {
         $versionIndex = 5;
         if (\version_compare($version, '5') < 0) {
-                $versionIndex = 4;
+            $versionIndex = 4;
         }
 
         // List of official MIME Types: http://www.iana.org/assignments/media-types/media-types.xhtml
