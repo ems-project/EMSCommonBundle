@@ -241,22 +241,7 @@ parameters:
 			path: src/Storage/Processor/Image.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:applyResizeAndBackground\\(\\) has parameter \\$height with no typehint specified\\.$#"
-			count: 1
-			path: src/Storage/Processor/Image.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:applyResizeAndBackground\\(\\) has parameter \\$image with no typehint specified\\.$#"
-			count: 1
-			path: src/Storage/Processor/Image.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:applyResizeAndBackground\\(\\) has parameter \\$size with no typehint specified\\.$#"
-			count: 1
-			path: src/Storage/Processor/Image.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:applyResizeAndBackground\\(\\) has parameter \\$width with no typehint specified\\.$#"
 			count: 1
 			path: src/Storage/Processor/Image.php
 

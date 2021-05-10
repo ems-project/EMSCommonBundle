@@ -182,6 +182,26 @@ final class Config
         return (int) $this->options[EmsFields::ASSET_CONFIG_RADIUS];
     }
 
+    public function getRotate(): int
+    {
+        return (int) $this->options[EmsFields::ASSET_CONFIG_ROTATE];
+    }
+
+    public function getAutoRotate(): bool
+    {
+        return (bool) $this->options[EmsFields::ASSET_CONFIG_AUTO_ROTATE];
+    }
+
+    public function getFlipHorizontal(): bool
+    {
+        return (bool) $this->options[EmsFields::ASSET_CONFIG_FLIP_HORIZONTAL];
+    }
+
+    public function getFlipVertical(): bool
+    {
+        return (bool) $this->options[EmsFields::ASSET_CONFIG_FLIP_VERTICAL];
+    }
+
     /**
      * @return array<string>
      */
@@ -262,6 +282,10 @@ final class Config
         $resolver = new OptionsResolver();
         $resolver
             ->setDefaults($defaults)
+            ->setAllowedTypes(EmsFields::ASSET_CONFIG_ROTATE, ['float', 'int'])
+            ->setAllowedTypes(EmsFields::ASSET_CONFIG_AUTO_ROTATE, ['bool'])
+            ->setAllowedTypes(EmsFields::ASSET_CONFIG_FLIP_VERTICAL, ['bool'])
+            ->setAllowedTypes(EmsFields::ASSET_CONFIG_FLIP_HORIZONTAL, ['bool'])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_TYPE, [null, EmsFields::ASSET_CONFIG_TYPE_IMAGE, EmsFields::ASSET_CONFIG_TYPE_ZIP])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_DISPOSITION, [ResponseHeaderBag::DISPOSITION_INLINE, ResponseHeaderBag::DISPOSITION_ATTACHMENT])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY, function ($values) use ($defaults) {
@@ -308,6 +332,10 @@ final class Config
             EmsFields::ASSET_CONFIG_DISPOSITION => ResponseHeaderBag::DISPOSITION_INLINE,
             EmsFields::ASSET_CONFIG_GET_FILE_PATH => false,
             EmsFields::CONTENT_FILES => [],
+            EmsFields::ASSET_CONFIG_ROTATE => 0,
+            EmsFields::ASSET_CONFIG_AUTO_ROTATE => true,
+            EmsFields::ASSET_CONFIG_FLIP_HORIZONTAL => false,
+            EmsFields::ASSET_CONFIG_FLIP_VERTICAL => false,
         ];
     }
 }
