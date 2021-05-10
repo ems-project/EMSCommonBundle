@@ -42,14 +42,16 @@ class Image
             throw new \InvalidArgumentException('could not make image');
         }
 
-        $size = @\getimagesizefromstring($contents);
-        if (false === $size) {
-            throw new \RuntimeException('Could not get size of image');
-        }
-        list($width, $height) = $this->getWidthHeight($size);
+        $image = $this->autorotate($filename, $image);
+        $this->applyFlips($image, $this->config->getFlipHorizontal(), $this->config->getFlipVertical());
+        $image = $this->rotate($image, $this->config->getRotate());
+        $rotatedWidth = \imagesx($image);
+        $rotatedHeight = \imagesy($image);
+
+        list($width, $height) = $this->getWidthHeight($rotatedWidth, $rotatedHeight);
 
         if (null !== $this->config->getResize()) {
-            $image = $this->applyResizeAndBackground($image, $width, $height, $size);
+            $image = $this->applyResizeAndBackground($image, $width, $height, $rotatedWidth, $rotatedHeight);
         } elseif (null !== $this->config->getBackground()) {
             $image = $this->applyBackground($image, $width, $height);
         }
@@ -85,14 +87,10 @@ class Image
     }
 
     /**
-     * @param array<int> $size
-     *
      * @return array<int>
      */
-    private function getWidthHeight(array $size): array
+    private function getWidthHeight(int $originalWidth, int $originalHeight): array
     {
-        list($originalWidth, $originalHeight) = $size;
-
         $width = $this->config->getWidth();
         $height = $this->config->getHeight();
 
@@ -131,23 +129,12 @@ class Image
 
     private function fillBackgroundColor($temp)
     {
-        $background = $this->config->getBackground();
+        $solidColour = $this->getBackgroundColor($temp);
         \imagesavealpha($temp, true);
-
-        $solidColour = \imagecolorallocatealpha(
-            $temp,
-            (int) \hexdec(\substr($background, 1, 2)),
-            (int) \hexdec(\substr($background, 3, 2)),
-            (int) \hexdec(\substr($background, 5, 2)),
-            \intval(\hexdec(\substr($background, 7, 2) ?? '00') / 2)
-        );
-        if (false === $solidColour) {
-            throw new \RuntimeException('Unexpected false imagecolorallocatealpha');
-        }
         \imagefill($temp, 0, 0, $solidColour);
     }
 
-    private function applyResizeAndBackground($image, $width, $height, $size)
+    private function applyResizeAndBackground($image, int $width, int $height, int $originalWidth, int $originalHeight)
     {
         if (\function_exists('imagecreatetruecolor') && ($temp = \imagecreatetruecolor($width, $height))) {
             $resizeFunction = 'imagecopyresampled';
@@ -162,35 +149,35 @@ class Image
         $gravity = $this->config->getGravity();
 
         if ('fillArea' == $resize) {
-            if (($size[1] / $height) < ($size[0] / $width)) {
-                $cal_width = \intval($size[1] * $width / $height);
+            if (($originalHeight / $height) < ($originalWidth / $width)) {
+                $cal_width = \intval($originalHeight * $width / $height);
                 if (false !== \stripos($gravity, 'west')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $cal_width, $size[1]);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $cal_width, $originalHeight);
                 } elseif (false !== \stripos($gravity, 'east')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, $size[0] - $cal_width, 0, $width, $height, $cal_width, $size[1]);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, $originalWidth - $cal_width, 0, $width, $height, $cal_width, $originalHeight);
                 } else {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, \intval(($size[0] - $cal_width) / 2), 0, $width, $height, $cal_width, $size[1]);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, \intval(($originalWidth - $cal_width) / 2), 0, $width, $height, $cal_width, $originalHeight);
                 }
             } else {
-                $cal_height = \intval($size[0] / $width * $height);
+                $cal_height = \intval($originalWidth / $width * $height);
                 if (false !== \stripos($gravity, 'north')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $size[0], $cal_height);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $originalWidth, $cal_height);
                 } elseif (false !== \stripos($gravity, 'south')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, $size[1] - $cal_height, $width, $height, $size[0], $cal_height);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, $originalHeight - $cal_height, $width, $height, $originalWidth, $cal_height);
                 } else {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, \intval(($size[1] - $cal_height) / 2), $width, $height, $size[0], $cal_height);
+                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, \intval(($originalHeight - $cal_height) / 2), $width, $height, $originalWidth, $cal_height);
                 }
             }
         } elseif ('fill' == $resize) {
-            if (($size[1] / $height) < ($size[0] / $width)) {
-                $thumb_height = \intval($width * $size[1] / $size[0]);
-                \call_user_func($resizeFunction, $temp, $image, 0, \intval(($height - $thumb_height) / 2), 0, 0, $width, $thumb_height, $size[0], $size[1]);
+            if (($originalHeight / $height) < ($originalWidth / $width)) {
+                $thumb_height = \intval($width * $originalHeight / $originalWidth);
+                \call_user_func($resizeFunction, $temp, $image, 0, \intval(($height - $thumb_height) / 2), 0, 0, $width, $thumb_height, $originalWidth, $originalHeight);
             } else {
-                $thumb_width = \intval(($size[0] * $height) / $size[1]);
-                \call_user_func($resizeFunction, $temp, $image, \intval(($width - $thumb_width) / 2), 0, 0, 0, $thumb_width, $height, $size[0], $size[1]);
+                $thumb_width = \intval(($originalWidth * $height) / $originalHeight);
+                \call_user_func($resizeFunction, $temp, $image, \intval(($width - $thumb_width) / 2), 0, 0, 0, $thumb_width, $height, $originalWidth, $originalHeight);
             }
         } else {
-            \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $size[0], $size[1]);
+            \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $originalWidth, $originalHeight);
         }
 
         return $temp;
@@ -286,6 +273,124 @@ class Image
         $sx = \imagesx($stamp);
         $sy = \imagesy($stamp);
         \imagecopy($image, $stamp, (int) ($width - $sx) / 2, (int) ($height - $sy) / 2, 0, 0, $sx, $sy);
+
+        return $image;
+    }
+
+    /**
+     * @param resource $image
+     */
+    private function applyFlips($image, bool $flipHorizontal, bool $flipVertical): void
+    {
+        if ($flipHorizontal && $flipVertical) {
+            \imageflip($image, IMG_FLIP_BOTH);
+        } elseif ($flipHorizontal) {
+            \imageflip($image, IMG_FLIP_HORIZONTAL);
+        } elseif ($flipVertical) {
+            \imageflip($image, IMG_FLIP_VERTICAL);
+        }
+    }
+
+    /**
+     * @param resource $image
+     *
+     * @return resource
+     */
+    private function rotate($image, float $angle)
+    {
+        if (0 == $angle) {
+            return $image;
+        }
+
+        $rotated = \imagerotate($image, $angle, $this->getBackgroundColor($image));
+        if (false === $rotated) {
+            throw new \RuntimeException('Could not rotate the image');
+        }
+        \imagedestroy($image);
+
+        return $rotated;
+    }
+
+    /**
+     * @param resource $temp
+     */
+    private function getBackgroundColor($temp): int
+    {
+        $background = $this->config->getBackground();
+        $solidColour = \imagecolorallocatealpha(
+            $temp,
+            (int) \hexdec(\substr($background, 1, 2)),
+            (int) \hexdec(\substr($background, 3, 2)),
+            (int) \hexdec(\substr($background, 5, 2)),
+            \intval(\hexdec(\substr($background, 7, 2) ?? '00') / 2)
+        );
+        if (false === $solidColour) {
+            throw new \RuntimeException('Unexpected false imagecolorallocatealpha');
+        }
+
+        return $solidColour;
+    }
+
+    /**
+     * The 8 EXIF orientation values are numbered 1 to 8.
+     * 1 = 0 degrees: the correct orientation, no adjustment is required.
+     * 2 = 0 degrees, mirrored: image has been flipped back-to-front.
+     * 3 = 180 degrees: image is upside down.
+     * 4 = 180 degrees, mirrored: image has been flipped back-to-front and is upside down.
+     * 5 = 270 degrees anticlockwise: image has been flipped back-to-front and is on its side.
+     * 6 = 270 degrees anticlockwise, mirrored: image is on its side.
+     * 7 = 90 degrees anticlockwise: image has been flipped back-to-front and is on its far side.
+     * 8 = 90 degrees anticlockwise, mirrored: image is on its far side.
+     * ref: https://sirv.com/help/articles/rotate-photos-to-be-upright/.
+     *
+     * @param resource $image
+     *
+     * @return resource
+     */
+    private function autorotate(string $filename, $image)
+    {
+        if (!$this->config->getAutoRotate()) {
+            return $image;
+        }
+
+        try {
+            $metadata = \exif_read_data($filename);
+            if (false === $metadata) {
+                return $image;
+            }
+            $angle = 0;
+            $mirrored = false;
+            switch ($metadata['Orientation'] ?? 0) {
+                case 2:
+                    $mirrored = true;
+                    break;
+                case 3:
+                    $angle = 180;
+                    break;
+                case 4:
+                    $angle = 180;
+                    $mirrored = true;
+                    break;
+                case 5:
+                    $angle = 270;
+                    break;
+                case 6:
+                    $angle = 270;
+                    $mirrored = true;
+                    break;
+                case 7:
+                    $angle = 90;
+                    break;
+                case 8:
+                    $angle = 90;
+                    $mirrored = true;
+                    break;
+            }
+            $image = $this->rotate($image, $angle);
+            $this->applyFlips($image, $mirrored, false);
+        } catch (\Throwable $e) {
+            \trigger_error(\sprintf('Not able to autorotate a file due to: %s', $e->getMessage()), E_USER_WARNING);
+        }
 
         return $image;
     }
