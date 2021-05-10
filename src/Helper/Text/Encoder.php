@@ -128,28 +128,28 @@ class Encoder
         // List of official MIME Types: http://www.iana.org/assignments/media-types/media-types.xhtml
         $icon_classes = [
             // Media
-            'image' => [ 4 => 'fa fa-file-image-o', 5 => 'far fa-file-image'],
-            'audio' => [ 4 => 'fa fa-file-audio-o', 5 => 'far fa-file-audio'],
-            'video' => [ 4 => 'fa fa-file-video-o', 5 => 'far fa-file-video'],
+            'image' => [4 => 'fa fa-file-image-o', 5 => 'far fa-file-image'],
+            'audio' => [4 => 'fa fa-file-audio-o', 5 => 'far fa-file-audio'],
+            'video' => [4 => 'fa fa-file-video-o', 5 => 'far fa-file-video'],
             // Documents
-            'application/pdf' => [ 4 => 'fa fa-file-pdf-o', 5 => 'far fa-file-pdf'],
-            'application/msword' => [ 4 => 'fa fa-file-word-o', 5 => 'far fa-file-word'],
-            'application/vnd.ms-word' => [ 4 => 'fa fa-file-word-o', 5 => 'far fa-file-word'],
-            'application/vnd.oasis.opendocument.text' => [ 4 => 'fa fa-file-word-o', 5 => 'far fa-file-word'],
-            'application/vnd.openxmlformats-officedocument.wordprocessingml' => [ 4 => 'fa fa-file-word-o', 5 => 'far fa-file-word'],
-            'application/vnd.ms-excel' => [ 4 => 'fa fa-file-excel-o', 5 => 'far fa-file-excel'],
-            'application/vnd.openxmlformats-officedocument.spreadsheetml' => [ 4 => 'fa fa-file-excel-o', 5 => 'far fa-file-excel'],
-            'application/vnd.oasis.opendocument.spreadsheet' => [ 4 => 'fa fa-file-excel-o', 5 => 'far fa-file-excel'],
-            'application/vnd.ms-powerpoint' => [ 4 => 'fa fa-file-powerpoint-o', 5 => 'far fa-file-powerpoint'],
-            'application/vnd.openxmlformats-officedocument.presentationml' => [ 4 => 'fa fa-file-powerpoint-o', 5 => 'far fa-file-powerpoint'],
-            'application/vnd.oasis.opendocument.presentation' => [ 4 => 'fa fa-file-powerpoint-o', 5 => 'far fa-file-powerpoint'],
-            'text/plain' => [ 4 => 'fa fa-file-text-o', 5 => 'far fa-file-alt'],
-            'text/html' => [ 4 => 'fa fa-file-code-o', 5 => 'far fa-file-code'],
-            'application/json' => [ 4 => 'fa fa-file-code-o', 5 => 'far fa-file-code'],
+            'application/pdf' => [4 => 'fa fa-file-pdf-o', 5 => 'far fa-file-pdf'],
+            'application/msword' => [4 => 'fa fa-file-word-o', 5 => 'far fa-file-word'],
+            'application/vnd.ms-word' => [4 => 'fa fa-file-word-o', 5 => 'far fa-file-word'],
+            'application/vnd.oasis.opendocument.text' => [4 => 'fa fa-file-word-o', 5 => 'far fa-file-word'],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml' => [4 => 'fa fa-file-word-o', 5 => 'far fa-file-word'],
+            'application/vnd.ms-excel' => [4 => 'fa fa-file-excel-o', 5 => 'far fa-file-excel'],
+            'application/vnd.openxmlformats-officedocument.spreadsheetml' => [4 => 'fa fa-file-excel-o', 5 => 'far fa-file-excel'],
+            'application/vnd.oasis.opendocument.spreadsheet' => [4 => 'fa fa-file-excel-o', 5 => 'far fa-file-excel'],
+            'application/vnd.ms-powerpoint' => [4 => 'fa fa-file-powerpoint-o', 5 => 'far fa-file-powerpoint'],
+            'application/vnd.openxmlformats-officedocument.presentationml' => [4 => 'fa fa-file-powerpoint-o', 5 => 'far fa-file-powerpoint'],
+            'application/vnd.oasis.opendocument.presentation' => [4 => 'fa fa-file-powerpoint-o', 5 => 'far fa-file-powerpoint'],
+            'text/plain' => [4 => 'fa fa-file-text-o', 5 => 'far fa-file-alt'],
+            'text/html' => [4 => 'fa fa-file-code-o', 5 => 'far fa-file-code'],
+            'application/json' => [4 => 'fa fa-file-code-o', 5 => 'far fa-file-code'],
             // Archives
-            'application/gzip' => [ 4 => 'fa fa-file-archive-o', 5 => 'far fa-file-archive'],
-            'application/zip' => [ 4 => 'fa fa-file-archive-o', 5 => 'far fa-file-archive'],
-            'application/x-zip' => [ 4 => 'fa fa-file-archive-o', 5 => 'far fa-file-archive'],
+            'application/gzip' => [4 => 'fa fa-file-archive-o', 5 => 'far fa-file-archive'],
+            'application/zip' => [4 => 'fa fa-file-archive-o', 5 => 'far fa-file-archive'],
+            'application/x-zip' => [4 => 'fa fa-file-archive-o', 5 => 'far fa-file-archive'],
         ];
 
         foreach ($icon_classes as $text => $icon) {
@@ -158,7 +158,8 @@ class Encoder
             }
         }
 
-        $default = [ 4 => 'fa fa-file-o', 5 => 'far fa-file'];
+        $default = [4 => 'fa fa-file-o', 5 => 'far fa-file'];
+
         return $default[$version];
     }
 }
