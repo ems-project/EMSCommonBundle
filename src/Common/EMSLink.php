@@ -6,6 +6,7 @@ use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 
 class EMSLink
 {
+    const EMSLINK_ASSET_PREFIX = 'ems://asset:';
     /**
      * object|asset.
      *
