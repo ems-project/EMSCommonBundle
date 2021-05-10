@@ -35,7 +35,6 @@ final class EmsFields
     const ASSET_CONFIG_BORDER_COLOR = '_border_color';
     const ASSET_CONFIG_WATERMARK_HASH = '_watermark_hash';
     const ASSET_CONFIG_GET_FILE_PATH = '_get_file_path';
-    const ASSET_EMSLINK_PREFIX = 'ems://asset:';
 
     const LOG_ALIAS = 'ems_internal_logger_alias';
     const LOG_TYPE = 'doc';
@@ -76,6 +75,4 @@ final class EmsFields
     const LOG_OPERATION_UPDATE = 'UPDATE';
     const LOG_OPERATION_READ = 'READ';
     const LOG_OPERATION_DELETE = 'DELETE';
-
-    const FONTAWESOME_PREFIX = 'fa ';
 }
