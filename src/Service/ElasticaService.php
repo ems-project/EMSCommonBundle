@@ -224,9 +224,6 @@ class ElasticaService
 
         $version = $this->getVersion();
         if (\version_compare($version, '6.0') >= 0) {
-            if ($query instanceof BoolQuery) {
-                $boolQuery = $query;
-            }
             $boolQuery->addMust($contentType);
 
             return $boolQuery;
