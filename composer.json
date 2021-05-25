@@ -27,7 +27,7 @@
 		"cebe/markdown": "^1.2",
 		"doctrine/doctrine-bundle": "^1.11",
 		"doctrine/orm": "^2.6",
-		"dompdf/dompdf": "^0.8.5",
+		"dompdf/dompdf": "^v1.0.2",
 		"guzzlehttp/guzzle" : "^6.3",
 		"ruflin/elastica" : "5.3.6",
 		"symfony/dom-crawler": "^4.4",
