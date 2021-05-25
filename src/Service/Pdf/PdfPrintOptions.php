@@ -16,12 +16,15 @@ final class PdfPrintOptions
     private $orientation;
     /** @var string */
     private $size;
+    /** @var string */
+    private $chroot;
 
     public const ATTACHMENT = 'attachment';
     public const COMPRESS = 'compress';
     public const HTML5_PARSING = 'html5Parsing';
     public const ORIENTATION = 'orientation';
     public const SIZE = 'size';
+    public const CHROOT = 'chroot';
 
     public function __construct(array $options)
     {
@@ -30,6 +33,7 @@ final class PdfPrintOptions
         $this->setHtml5Parsing($options[self::HTML5_PARSING] ?? true);
         $this->setOrientation($options[self::ORIENTATION] ?? 'portrait');
         $this->setSize($options[self::SIZE] ?? 'a4');
+        $this->setChroot($options[self::CHROOT] ?? '/');
     }
 
     public function getOrientation(): string
@@ -80,5 +84,15 @@ final class PdfPrintOptions
     private function setSize(string $size): void
     {
         $this->size = $size;
+    }
+
+    public function getChroot(): string
+    {
+        return $this->chroot;
+    }
+
+    public function setChroot(string $chroot): void
+    {
+        $this->chroot = $chroot;
     }
 }
