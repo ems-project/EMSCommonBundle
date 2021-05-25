@@ -38,7 +38,10 @@ final class DomPdfPrinter implements PdfPrinterInterface
         $dompdf = new Dompdf();
         $dompdf->loadHtml($pdf->getHtml());
         $dompdf->setPaper($options->getSize(), $options->getOrientation());
-        $dompdf->setOptions(new Options(['isHtml5ParserEnabled' => $options->isHtml5Parsing()]));
+        $dompdf->setOptions(new Options([
+            'isHtml5ParserEnabled' => $options->isHtml5Parsing(),
+            'chroot' => $options->getChroot(),
+        ]));
         $dompdf->render();
 
         return $dompdf;
