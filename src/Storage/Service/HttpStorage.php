@@ -14,6 +14,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class HttpStorage extends AbstractUrlStorage
 {
     /** @var string */
+    const INIT_URL = '/api/file/init-upload';
+    /** @var string */
     private $baseUrl;
     /** @var string */
     private $getUrl;
@@ -28,9 +30,17 @@ class HttpStorage extends AbstractUrlStorage
         $this->authKey = $authKey;
     }
 
-    public static function initUrl(string $hash, int $size, string $name, string $type): string
+    /**
+     * @return array<string, int|string>
+     */
+    public static function initBody(string $hash, int $size, string $name, string $type): array
     {
-        return \sprintf('/api/file/init-upload/%s/%d?name=%s&type=%s', \urlencode($hash), $size, \urlencode($name), \urlencode($type));
+        return [
+            'name' => $name,
+            'type' => $type,
+            'hash' => $hash,
+            'size' => $size,
+        ];
     }
 
     private function getClient(): Client
@@ -82,10 +92,11 @@ class HttpStorage extends AbstractUrlStorage
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
         try {
-            $result = $this->getClient()->post(self::initUrl($hash, $size, $name, $type), [
+            $result = $this->getClient()->post(self::INIT_URL, [
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
+                'body' => self::initBody($hash, $size, $name, $type),
             ]);
 
             return 200 === $result->getStatusCode();
