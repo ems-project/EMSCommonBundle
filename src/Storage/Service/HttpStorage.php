@@ -30,6 +30,11 @@ class HttpStorage extends AbstractUrlStorage
         $this->authKey = $authKey;
     }
 
+    public static function addChunkUrl(string $hash): string
+    {
+        return '/api/file/upload-chunk/'.\urlencode($hash);
+    }
+
     /**
      * @return array<string, int|string>
      */
@@ -108,7 +113,7 @@ class HttpStorage extends AbstractUrlStorage
     public function addChunk(string $hash, string $chunk): bool
     {
         try {
-            $result = $this->getClient()->post('/api/file/upload-chunk/'.\urlencode($hash), [
+            $result = $this->getClient()->post(self::addChunkUrl($hash), [
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
