@@ -63,6 +63,13 @@ abstract class AbstractCommand extends Command implements CommandInterface
         return \intval($this->input->getOption($name));
     }
 
+    protected function getOptionIntNull(string $name): ?int
+    {
+        $option = $this->input->getOption($name);
+
+        return $option ? $this->getOptionInt($name) : null;
+    }
+
     protected function getOptionString(string $name): string
     {
         return \strval($this->input->getOption($name));
