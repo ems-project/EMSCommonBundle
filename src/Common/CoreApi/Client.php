@@ -62,7 +62,9 @@ final class Client
 
     public function get(string $resource): Result
     {
-        return $this->request(Request::METHOD_GET, $resource);
+        return $this->request(Request::METHOD_GET, $resource, [
+            'headers' => $this->headers,
+        ]);
     }
 
     /**
@@ -70,7 +72,18 @@ final class Client
      */
     public function post(string $resource, array $body = []): Result
     {
-        return $this->request(Request::METHOD_POST, $resource, $body);
+        return $this->request(Request::METHOD_POST, $resource, [
+            'headers' => $this->headers,
+            'json' => $body,
+        ]);
+    }
+
+    public function postBody(string $resource, string $body): Result
+    {
+        return $this->request(Request::METHOD_POST, $resource, [
+            'headers' => $this->headers,
+            'body' => $body,
+        ]);
     }
 
     public function setLogger(LoggerInterface $logger): void
@@ -83,18 +96,15 @@ final class Client
     }
 
     /**
-     * @param array<string, mixed> $body
+     * @param array<string, mixed> $options
      */
-    private function request(string $method, string $resource, array $body = []): Result
+    private function request(string $method, string $resource, array $options): Result
     {
         if ('' === $this->baseUrl) {
             throw new BaseUrlNotDefinedException();
         }
 
-        $response = $this->client->request($method, $resource, [
-            'headers' => $this->headers,
-            'json' => $body,
-        ]);
+        $response = $this->client->request($method, $resource, $options);
 
         if (Response::HTTP_UNAUTHORIZED === $response->getStatusCode()) {
             throw new NotAuthenticatedException($response);
