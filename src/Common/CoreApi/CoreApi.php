@@ -9,6 +9,7 @@ use EMS\CommonBundle\Common\CoreApi\Endpoint\User\User;
 use EMS\CommonBundle\Contracts\CoreApi\CoreApiInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\DataInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\User\UserInterface;
+use EMS\CommonBundle\Storage\Service\HttpStorage;
 use EMS\CommonBundle\Storage\StorageManager;
 use Psr\Log\LoggerInterface;
 
@@ -86,5 +87,17 @@ final class CoreApi implements CoreApiInterface
     public function hashFile(string $filename): string
     {
         return $this->storageManager->computeFileHash($filename);
+    }
+
+    public function initUpload(string $hash, int $size, string $filename, string $mimetype): int
+    {
+        $response = $this->client->post(HttpStorage::INIT_URL, HttpStorage::initBody($hash, $size, $filename, $mimetype));
+
+        $data = $response->getData();
+        if (!$response->isSuccess() || !\is_int($data['uploaded'] ?? null)) {
+            throw new \RuntimeException(\sprintf('Init upload failed due to %s', $data['error'][0] ?? 'unknown reason'));
+        }
+
+        return $data['uploaded'];
     }
 }
