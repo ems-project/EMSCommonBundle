@@ -100,4 +100,16 @@ final class CoreApi implements CoreApiInterface
 
         return $data['uploaded'];
     }
+
+    public function addChunk(string $hash, string $chunk): bool
+    {
+        $response = $this->client->postBody(HttpStorage::addChunkUrl($hash), $chunk);
+
+        $data = $response->getData();
+        if (!$response->isSuccess()) {
+            throw new \RuntimeException(\sprintf('Add chunk failed due to %s', $data['error'][0] ?? 'unknown reason'));
+        }
+
+        return \is_bool($data['available']) ? $data['available'] : false;
+    }
 }

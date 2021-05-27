@@ -46,4 +46,6 @@ interface CoreApiInterface
     public function hashFile(string $filename): string;
 
     public function initUpload(string $hash, int $size, string $filename, string $mimetype): int;
+
+    public function addChunk(string $hash, string $chunk): bool;
 }
