@@ -28,6 +28,11 @@ class HttpStorage extends AbstractUrlStorage
         $this->authKey = $authKey;
     }
 
+    public static function initUrl(string $hash, int $size, string $name, string $type): string
+    {
+        return \sprintf('/api/file/init-upload/%s/%d?name=%s&type=%s', \urlencode($hash), $size, \urlencode($name), \urlencode($type));
+    }
+
     private function getClient(): Client
     {
         static $client = null;
@@ -77,7 +82,7 @@ class HttpStorage extends AbstractUrlStorage
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
         try {
-            $result = $this->getClient()->post('/api/file/init-upload/'.\urlencode($hash).'/'.$size.'?name='.\urlencode($name).'&type='.\urlencode($type), [
+            $result = $this->getClient()->post(self::initUrl($hash, $size, $name, $type), [
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
