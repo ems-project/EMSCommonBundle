@@ -42,4 +42,6 @@ interface CoreApiInterface
     public function test(): bool;
 
     public function user(): UserInterface;
+
+    public function hashFile(string $filename): string;
 }
