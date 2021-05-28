@@ -101,6 +101,7 @@ abstract class AbstractCommand extends Command implements CommandInterface
         if ($process->isSuccessful()) {
             $this->io->write(' <fg=green>SUCCESS</>');
             $this->io->newLine();
+
             return 0;
         }
 
