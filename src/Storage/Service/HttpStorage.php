@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class HttpStorage extends AbstractUrlStorage
 {
     /** @var string */
-    const INIT_URL = '/api/file/init-upload';
+    public const INIT_URL = '/api/file/init-upload';
     /** @var string */
     private $baseUrl;
     /** @var string */
