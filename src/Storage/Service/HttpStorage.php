@@ -14,6 +14,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class HttpStorage extends AbstractUrlStorage
 {
     /** @var string */
+    public const INIT_URL = '/api/file/init-upload';
+    /** @var string */
     private $baseUrl;
     /** @var string */
     private $getUrl;
@@ -26,6 +28,24 @@ class HttpStorage extends AbstractUrlStorage
         $this->baseUrl = $baseUrl;
         $this->getUrl = $getUrl;
         $this->authKey = $authKey;
+    }
+
+    public static function addChunkUrl(string $hash): string
+    {
+        return '/api/file/upload-chunk/'.\urlencode($hash);
+    }
+
+    /**
+     * @return array<string, int|string>
+     */
+    public static function initBody(string $hash, int $size, string $name, string $type): array
+    {
+        return [
+            'name' => $name,
+            'type' => $type,
+            'hash' => $hash,
+            'size' => $size,
+        ];
     }
 
     private function getClient(): Client
@@ -77,10 +97,11 @@ class HttpStorage extends AbstractUrlStorage
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
         try {
-            $result = $this->getClient()->post('/api/file/init-upload/'.\urlencode($hash).'/'.$size.'?name='.\urlencode($name).'&type='.\urlencode($type), [
+            $result = $this->getClient()->post(self::INIT_URL, [
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
+                'body' => self::initBody($hash, $size, $name, $type),
             ]);
 
             return 200 === $result->getStatusCode();
@@ -92,7 +113,7 @@ class HttpStorage extends AbstractUrlStorage
     public function addChunk(string $hash, string $chunk): bool
     {
         try {
-            $result = $this->getClient()->post('/api/file/upload-chunk/'.\urlencode($hash), [
+            $result = $this->getClient()->post(self::addChunkUrl($hash), [
                 'headers' => [
                     'X-Auth-Token' => $this->authKey,
                 ],
