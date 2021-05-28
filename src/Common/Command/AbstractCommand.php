@@ -99,14 +99,12 @@ abstract class AbstractCommand extends Command implements CommandInterface
         });
 
         if ($process->isSuccessful()) {
-            $this->io->write(' SUCCESS');
-        } else {
-            $this->io->write(' ERROR');
+            $this->io->write(' <fg=green>SUCCESS</>');
+            $this->io->newLine();
+            return 0;
         }
 
-        $this->io->newLine();
-
-        return $process->getExitCode() ?? 0;
+        throw new \RuntimeException($process->getErrorOutput());
     }
 
     /**
