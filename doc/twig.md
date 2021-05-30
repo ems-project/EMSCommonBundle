@@ -56,3 +56,32 @@ Filter converting any scalar value, array or object into a string.
 {{ someObject|ems_stringify }}
 {{ someArray|ems_stringify }}
 ```
+## ems_asset_average_color
+
+Filter returning the average color, in CSS rgb format, of a passed hash.
+
+I.e.
+```twig
+{{ 'ed266b89065e74483248da7ff71cb80e3cca40a5'|ems_stringify }}
+```
+
+Will return `#666666`. It might be useful in order to define a background color:
+
+```twig
+{{ ems_asset_path({
+    filename: 'avatar.jpg',
+    sha1: avatarHash,
+    mimetype: 'image/jpeg',
+}, {
+    _config_type: 'image',
+    _resize: 'fill',
+    _background: avatarHash|ems_asset_average_color,
+    _width: 400,
+    _height: 600,
+    _quality: 80,
+    _get_file_path: localPath,
+}) }}
+```
+```twig
+style="background-color: {{ avatarHash|ems_asset_average_color }}"
+ ```
