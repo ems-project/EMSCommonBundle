@@ -43,6 +43,7 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('ems_markdown', [Encoder::class, 'markdownToHtml'], ['is_safe' => ['html']]),
             new TwigFilter('ems_stringify', [Converter::class, 'stringify']),
             new TwigFilter('ems_temp_file', [AssetRuntime::class, 'temporaryFile']),
+            new TwigFilter('ems_asset_average_color', [RequestRuntime::class, 'assetAverageColor'], ['is_safe' => ['html']]),
         ];
     }
 
