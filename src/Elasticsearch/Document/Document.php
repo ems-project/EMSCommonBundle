@@ -89,14 +89,10 @@ class Document implements DocumentInterface
     }
 
     /**
-     * @deprecated
-     *
      * @return array<string, mixed>
      */
     public function getRaw(): array
     {
-        @\trigger_error('Document::getRaw is deprecated use the others getters', E_USER_DEPRECATED);
-
         return $this->raw;
     }
 
