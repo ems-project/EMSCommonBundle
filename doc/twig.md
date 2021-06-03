@@ -62,7 +62,7 @@ Filter returning the average color, in CSS rgb format, of a passed hash.
 
 I.e.
 ```twig
-{{ 'ed266b89065e74483248da7ff71cb80e3cca40a5'|ems_stringify }}
+{{ 'ed266b89065e74483248da7ff71cb80e3cca40a5'|ems_asset_average_color}}
 ```
 
 Will return `#666666`. It might be useful in order to define a background color:
