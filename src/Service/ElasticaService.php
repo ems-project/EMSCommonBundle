@@ -352,18 +352,19 @@ class ElasticaService
     }
 
     /**
-     * @param string[] $sourceFields
+     * @param string[] $sourceIncludes
+     * @param string[] $sourcesExcludes
      */
-    public function getDocument(string $index, ?string $contentType, string $id, array $sourceFields = []): Document
+    public function getDocument(string $index, ?string $contentType, string $id, array $sourceIncludes = [], array $sourcesExcludes = []): Document
     {
         $contentTypes = [];
         if (null !== $contentType) {
             $contentTypes[] = $contentType;
         }
         $search = $this->generateTermsSearch([$index], '_id', [$id], $contentTypes);
-        if (\count($sourceFields) > 0) {
-            $search->setSources($sourceFields);
-        }
+        $search->setSources($sourceIncludes);
+        $search->setSourceExcludes($sourcesExcludes);
+
         try {
             return $this->singleSearch($search);
         } catch (NotSingleResultException $e) {
@@ -478,7 +479,7 @@ class ElasticaService
     {
         $boolQuery = $this->filterByContentTypes($search->getQuery(), $search->getContentTypes());
         $query = new Query($boolQuery);
-        if (\count($search->getSources())) {
+        if ($search->hasSources()) {
             $query->setSource($search->getSources());
         }
         if (null !== $search->getSort()) {
