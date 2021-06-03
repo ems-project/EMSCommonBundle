@@ -162,4 +162,39 @@ class RequestRuntime implements RuntimeExtensionInterface
 
         return $this->urlGenerator->generate($route, $parameters, $referenceType);
     }
+
+    public function assetAverageColor(string $hash): string
+    {
+        try {
+            $config = $this->processor->configFactory($hash, [
+                EmsFields::ASSET_CONFIG_TYPE => EmsFields::ASSET_CONFIG_TYPE_IMAGE,
+                EmsFields::ASSET_CONFIG_RESIZE => 'free',
+                EmsFields::ASSET_CONFIG_WIDTH => 1,
+                EmsFields::ASSET_CONFIG_HEIGHT => 1,
+                EmsFields::ASSET_CONFIG_QUALITY => 80,
+                EmsFields::ASSET_CONFIG_MIME_TYPE => 'image/jpeg',
+            ]);
+            $stream = $this->processor->getStream($config, 'one-pixel.jpg');
+
+            $image = \imagecreatefromstring($stream->getContents());
+            if (false === $image) {
+                throw new \RuntimeException('Unexpected imagecreatefromstring error');
+            }
+            $index = \imagecolorat($image, 0, 0);
+            if (false === $index) {
+                throw new \RuntimeException('Unexpected imagecolorat error');
+            }
+            $rgb = \imagecolorsforindex($image, $index);
+            if (false === $rgb) {
+                throw new \RuntimeException('Unexpected imagecolorsforindex error');
+            }
+            $red = \round(\round((($rgb['red'] ?? 255) / 0x33)) * 0x33);
+            $green = \round(\round((($rgb['green'] ?? 255) / 0x33)) * 0x33);
+            $blue = \round(\round((($rgb['blue'] ?? 255) / 0x33)) * 0x33);
+
+            return \sprintf('#%02X%02X%02X', $red, $green, $blue);
+        } catch (\Throwable $e) {
+            return '#FFFFFF';
+        }
+    }
 }
