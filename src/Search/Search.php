@@ -12,7 +12,9 @@ use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 class Search
 {
     /** @var string[] */
-    private $sources = [];
+    private array $sourceIncludes = [];
+    /** @var string[] */
+    private array $sourceExcludes = [];
     /** @var string[] */
     private $contentTypes = [];
     /** @var AbstractAggregation[] */
@@ -45,12 +47,24 @@ class Search
         $this->query = $query;
     }
 
+    public function hasSources(): bool
+    {
+        return \count($this->sourceIncludes) > 0 || \count($this->sourceExcludes) > 0;
+    }
+
     /**
-     * @return string[]
+     * @return string[]|array{includes: string[], excludes: string[]}
      */
     public function getSources(): array
     {
-        return $this->sources;
+        if (\count($this->sourceExcludes) > 0) {
+            return \array_filter([
+                'includes' => $this->sourceIncludes,
+                'excludes' => $this->sourceExcludes,
+            ]);
+        }
+
+        return $this->sourceIncludes;
     }
 
     /**
@@ -67,16 +81,24 @@ class Search
     }
 
     /**
-     * @param string[] $sources
+     * @param string[] $sourceIncludes
      */
-    public function setSources(array $sources): void
+    public function setSources(array $sourceIncludes): void
     {
-        if (0 === \count($sources)) {
-            $this->sources = [];
+        if (0 === \count($sourceIncludes)) {
+            $this->sourceIncludes = [];
 
             return;
         }
-        $this->sources = \array_merge($sources, [EMSSource::FIELD_CONTENT_TYPE]);
+        $this->sourceIncludes = \array_merge($sourceIncludes, [EMSSource::FIELD_CONTENT_TYPE]);
+    }
+
+    /**
+     * @param string[] $sourceExcludes
+     */
+    public function setSourceExcludes(array $sourceExcludes): void
+    {
+        $this->sourceExcludes = $sourceExcludes;
     }
 
     /**
