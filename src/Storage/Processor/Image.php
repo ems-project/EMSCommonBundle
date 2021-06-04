@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Storage\Processor;
 
+use Psr\Log\LoggerInterface;
+
 class Image
 {
     /** @var Config */
     private $config;
     /** @var string|null */
     private $watermark;
+    private ?LoggerInterface $logger;
 
-    public function __construct(Config $config)
+    public function __construct(Config $config, ?LoggerInterface $logger = null)
     {
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     public function setWatermark(string $watermark): void
@@ -389,7 +393,9 @@ class Image
             $image = $this->rotate($image, $angle);
             $this->applyFlips($image, $mirrored, false);
         } catch (\Throwable $e) {
-            \trigger_error(\sprintf('Not able to autorotate a file due to: %s', $e->getMessage()), E_USER_WARNING);
+            if (null !== $this->logger) {
+                $this->logger->warning(\sprintf('Not able to autorotate a file due to: %s', $e->getMessage()));
+            }
         }
 
         return $image;

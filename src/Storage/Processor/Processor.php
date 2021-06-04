@@ -119,7 +119,7 @@ class Processor
 
     private function generateImage(Config $config, string $filename = null, string $cacheFilename = null): string
     {
-        $image = new Image($config);
+        $image = new Image($config, $this->logger);
 
         $watermark = $config->getWatermark();
         if (null !== $watermark && $this->storageManager->head($watermark)) {
