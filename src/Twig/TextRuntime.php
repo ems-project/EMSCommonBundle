@@ -44,4 +44,14 @@ class TextRuntime implements RuntimeExtensionInterface
     {
         return \json_decode($json, $assoc, $depth, $options);
     }
+
+    /**
+     * @param array<mixed> $menu
+     *
+     * @return iterable<mixed>
+     */
+    public function jsonWalk(array $menu, string $childrenFiledName = 'children'): iterable
+    {
+        yield from $this->decoder->jsonWalk($menu, $childrenFiledName);
+    }
 }
