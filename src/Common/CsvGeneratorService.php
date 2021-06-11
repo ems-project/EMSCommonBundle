@@ -27,7 +27,7 @@ final class CsvGeneratorService implements CsvGeneratorServiceInterface
                 if (false === $handle) {
                     throw new \RuntimeException('Unexpected error while opening php://output');
                 }
-                foreach ($options[TABLE_CONTENT] as $row) {
+                foreach ($options[self::TABLE_CONTENT] as $row) {
                     \fputcsv($handle, $row);
                 }
             }
