@@ -26,7 +26,7 @@ class SpreadsheetGeneratorTest extends TestCase
 
     public function testConfigToCsv(): void
     {
-        $config = \json_decode('{"filename":"test-export", "writer": "csv","disposition":"inline","sheets":[[["apple","banana"],["pineapple","strawberry"],["àï$@,& & \\" \' ! @ # $ €", "foobar"]]]}', true);
+        $config = \json_decode('{"filename":"test-export","writer":"csv","disposition":"inline","sheets":[{"rows":[["apple","banana"],["pineapple","strawberry"],["àï$@,& & \\" \' ! @ # $ €","foobar"]]}]}', true);
         /** @var StreamedResponse $csv */
         $csv = $this->callMethod($this->spreadSheetGenerator, 'getCsvResponse', [$config]);
 

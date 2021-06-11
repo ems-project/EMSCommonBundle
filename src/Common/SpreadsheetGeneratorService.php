@@ -93,7 +93,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $resolver->setDefaults($defaults);
         $resolver->setRequired([self::WRITER, self::CONTENT_FILENAME, self::SHEETS, self::CONTENT_DISPOSITION]);
         $resolver->setAllowedTypes(self::CONTENT_DISPOSITION, ['string']);
-        $resolver->setAllowedValues(self::WRITER, [self::XLSX_WRITER]);
+        $resolver->setAllowedValues(self::WRITER, [self::XLSX_WRITER, self::CSV_WRITER]);
         $resolver->setAllowedValues(self::CONTENT_DISPOSITION, ['attachment', 'inline']);
 
         /** @var array{writer: string, filename: string, disposition: string, sheets: array} $resolved */
@@ -137,7 +137,8 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
                 if (false === $handle) {
                     throw new \RuntimeException('Unexpected error while opening php://output');
                 }
-                foreach ($config[self::SHEETS][0] as $row) {
+
+                foreach ($config[self::SHEETS][0]['rows'] ?? [] as $row) {
                     \fputcsv($handle, $row);
                 }
             }
