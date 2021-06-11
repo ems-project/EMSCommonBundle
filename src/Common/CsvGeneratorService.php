@@ -15,7 +15,7 @@ final class CsvGeneratorService implements CsvGeneratorServiceInterface
     public const TABLE_CONTENT = 'table';
 
     /**
-     * @param string[][] $config
+     * @param array<mixed> $config
      */
     public function generateCsv(array $config): StreamedResponse
     {
