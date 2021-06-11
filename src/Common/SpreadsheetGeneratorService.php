@@ -88,7 +88,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     /**
      * @param array<mixed> $config
      *
-     * @return array<mixed>
+     * @return array{writer: string, filename: string, disposition: string, sheets: array}
      */
     private function resolveOptions(array $config): array
     {
@@ -101,6 +101,9 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $resolver->setAllowedValues(self::WRITER, ['xlsx']);
         $resolver->setAllowedValues(self::CONTENT_DISPOSITION, ['attachment', 'inline']);
 
-        return $resolver->resolve($config);
+        /** @var array{writer: string, filename: string, disposition: string, sheets: array} $resolved */
+        $resolved = $resolver->resolve($config);
+
+        return $resolved;
     }
 }
