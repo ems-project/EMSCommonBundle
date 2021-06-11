@@ -10,10 +10,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class CsvGeneratorService implements CsvGeneratorServiceInterface
 {
-    public const CONTENT_DISPOSITION = 'disposition';
-    public const CONTENT_FILENAME = 'filename';
-    public const TABLE_CONTENT = 'table';
-
     /**
      * @param array<mixed> $config
      */

@@ -12,11 +12,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceInterface
 {
-    public const WRITER = 'writer';
-    public const SHEETS = 'sheets';
-    public const CONTENT_FILENAME = 'filename';
-    public const CONTENT_DISPOSITION = 'disposition';
-
     /**
      * @param array<mixed> $config
      *
