@@ -21,17 +21,17 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     {
         $config = $this->resolveOptions($config);
 
-        $spreadsheet = $this->buildUpSheets($config);
+        switch ($config[self::WRITER]) {
+            case self::XLSX_WRITER:
+                $response = $this->getXlsxResponse($config);
+                break;
+            case self::CSV_WRITER:
+                $response = $this->getCsvResponse($config);
+                break;
+            default:
+                throw new \RuntimeException('Unknown Spreadsheet writer');
+        }
 
-        $writer = new Xlsx($spreadsheet);
-
-        $response = new StreamedResponse(
-            function () use ($writer) {
-                $writer->save('php://output');
-            }
-        );
-        $response->headers->set('Content-Type', 'application/vnd.ms-excel');
-        $response->headers->set('Content-Disposition', \sprintf('%s;filename="%s.xlsx"', $config[self::CONTENT_DISPOSITION], $config[self::CONTENT_FILENAME]));
         $response->headers->set('Cache-Control', 'max-age=0');
 
         return $response;
@@ -75,7 +75,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         return [
             self::CONTENT_FILENAME => 'spreadsheet',
             self::CONTENT_DISPOSITION => 'attachment',
-            self::WRITER => 'xlsx',
+            self::WRITER => self::XLSX_WRITER,
             'active_sheet' => 0,
         ];
     }
@@ -93,12 +93,59 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $resolver->setDefaults($defaults);
         $resolver->setRequired([self::WRITER, self::CONTENT_FILENAME, self::SHEETS, self::CONTENT_DISPOSITION]);
         $resolver->setAllowedTypes(self::CONTENT_DISPOSITION, ['string']);
-        $resolver->setAllowedValues(self::WRITER, ['xlsx']);
+        $resolver->setAllowedValues(self::WRITER, [self::XLSX_WRITER]);
         $resolver->setAllowedValues(self::CONTENT_DISPOSITION, ['attachment', 'inline']);
 
         /** @var array{writer: string, filename: string, disposition: string, sheets: array} $resolved */
         $resolved = $resolver->resolve($config);
 
         return $resolved;
+    }
+
+    /**
+     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     */
+    private function getXlsxResponse(array $config): StreamedResponse
+    {
+        $spreadsheet = $this->buildUpSheets($config);
+
+        $writer = new Xlsx($spreadsheet);
+
+        $response = new StreamedResponse(
+            function () use ($writer) {
+                $writer->save('php://output');
+            }
+        );
+        $response->headers->set('Content-Type', 'application/vnd.ms-excel');
+        $response->headers->set('Content-Disposition', \sprintf('%s;filename="%s.xlsx"', $config[self::CONTENT_DISPOSITION], $config[self::CONTENT_FILENAME]));
+
+        return $response;
+    }
+
+    /**
+     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     */
+    private function getCsvResponse(array $config): StreamedResponse
+    {
+        if (1 !== \count($config[self::SHEETS])) {
+            throw new \RuntimeException('Exactly one sheet is expected by the CSV writer');
+        }
+
+        $response = new StreamedResponse(
+            function () use ($config) {
+                $handle = \fopen('php://output', 'r+');
+                if (false === $handle) {
+                    throw new \RuntimeException('Unexpected error while opening php://output');
+                }
+                foreach ($config[self::SHEETS][0] as $row) {
+                    \fputcsv($handle, $row);
+                }
+            }
+        );
+
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', \sprintf('%s;filename="%s.csv"', $config[self::CONTENT_DISPOSITION], $config[self::CONTENT_FILENAME]));
+
+        return $response;
     }
 }
