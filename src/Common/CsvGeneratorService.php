@@ -10,6 +10,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class CsvGeneratorService implements CsvGeneratorServiceInterface
 {
+    public const CONTENT_DISPOSITION = 'disposition';
+    public const CONTENT_FILENAME = 'filename';
+    public const TABLE_CONTENT = 'table';
+
     /**
      * @param string[][] $config
      */
@@ -23,14 +27,14 @@ final class CsvGeneratorService implements CsvGeneratorServiceInterface
                 if (false === $handle) {
                     throw new \RuntimeException('Unexpected error while opening php://output');
                 }
-                foreach ($options['table'] as $row) {
+                foreach ($options[TABLE_CONTENT] as $row) {
                     \fputcsv($handle, $row);
                 }
             }
         );
 
         $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
-        $response->headers->set('Content-Disposition', \sprintf('%s;filename="%s.csv"', $options['disposition'], $options['filename']));
+        $response->headers->set('Content-Disposition', \sprintf('%s;filename="%s.csv"', $options[self::CONTENT_DISPOSITION], $options[self::CONTENT_FILENAME]));
         $response->headers->set('Cache-Control', 'max-age=0');
 
         return $response;
@@ -46,13 +50,13 @@ final class CsvGeneratorService implements CsvGeneratorServiceInterface
         $optionsResolver = new OptionsResolver();
         $optionsResolver->setDefaults([
             'table' => [],
-            'filename' => 'csv_export',
-            'disposition' => 'attachment',
+            self::CONTENT_FILENAME => 'csv_export',
+            self::CONTENT_DISPOSITION => 'attachment',
         ]);
         $optionsResolver->setAllowedTypes('table', ['array']);
-        $optionsResolver->setAllowedTypes('filename', ['string']);
-        $optionsResolver->setAllowedTypes('disposition', ['string']);
-        $optionsResolver->setAllowedValues('disposition', ['attachment', 'inline']);
+        $optionsResolver->setAllowedTypes(self::CONTENT_FILENAME, ['string']);
+        $optionsResolver->setAllowedTypes(self::CONTENT_DISPOSITION, ['string']);
+        $optionsResolver->setAllowedValues(self::CONTENT_DISPOSITION, ['attachment', 'inline']);
         /** @var array{table: string[][], filename: string, disposition: string} $options */
         $options = $optionsResolver->resolve($config);
 
