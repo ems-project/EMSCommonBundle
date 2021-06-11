@@ -12,6 +12,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceInterface
 {
+    public const WRITER = 'writer';
+    public const SHEETS = 'sheets';
+    public const CONTENT_FILENAME = 'filename';
+    public const CONTENT_DISPOSITION = 'disposition';
+
     /**
      * @param array<mixed> $config
      *
@@ -31,7 +36,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
             }
         );
         $response->headers->set('Content-Type', 'application/vnd.ms-excel');
-        $response->headers->set('Content-Disposition', 'attachment;filename="'.$config['filename'].'.xlsx"');
+        $response->headers->set('Content-Disposition', \sprintf('%s;filename="%s.xlsx"', $config[self::CONTENT_DISPOSITION], $config[self::CONTENT_FILENAME]));
         $response->headers->set('Cache-Control', 'max-age=0');
 
         return $response;
@@ -45,7 +50,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $spreadsheet = new Spreadsheet();
 
         $i = 0;
-        foreach ($config['sheets'] as $sheetConfig) {
+        foreach ($config[self::SHEETS] as $sheetConfig) {
             $sheet = (0 === $i) ? $sheet = $spreadsheet->getActiveSheet() : $spreadsheet->createSheet($i);
             $sheet->setTitle($sheetConfig['name']);
             $j = 1;
@@ -73,8 +78,9 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     private static function getDefaults(): array
     {
         return [
-            'filename' => 'spreadsheet',
-            'writer' => 'xlsx',
+            self::CONTENT_FILENAME => 'spreadsheet',
+            self::CONTENT_DISPOSITION => 'attachment',
+            self::WRITER => 'xlsx',
             'active_sheet' => 0,
         ];
     }
@@ -90,8 +96,10 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
 
         $resolver = new OptionsResolver();
         $resolver->setDefaults($defaults);
-        $resolver->setRequired(['writer', 'filename', 'sheets']);
-        $resolver->setAllowedValues('writer', ['xlsx']);
+        $resolver->setRequired([self::WRITER, self::CONTENT_FILENAME, self::SHEETS, self::CONTENT_DISPOSITION]);
+        $resolver->setAllowedTypes(self::CONTENT_DISPOSITION, ['string']);
+        $resolver->setAllowedValues(self::WRITER, ['xlsx']);
+        $resolver->setAllowedValues(self::CONTENT_DISPOSITION, ['attachment', 'inline']);
 
         return $resolver->resolve($config);
     }
