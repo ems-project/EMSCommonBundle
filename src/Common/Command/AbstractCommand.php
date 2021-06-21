@@ -89,7 +89,10 @@ abstract class AbstractCommand extends Command implements CommandInterface
      */
     protected function executeCommand(string $command, array $args): int
     {
-        $process = new Process(['php', 'bin/console', $command, ...$args]);
+        $emsProcessCommand = $_SERVER['EMS_PROCESS_COMMAND'] ?? 'php bin/console';
+        $processCommand = \array_merge(\explode(' ', $emsProcessCommand), [$command, ...$args]);
+
+        $process = new Process($processCommand);
         $process->setTimeout(null);
         $process->setIdleTimeout(null);
         $this->io->write(\implode(' ', [$command, ...$args]).': ');
