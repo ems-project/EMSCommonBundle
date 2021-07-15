@@ -688,6 +688,11 @@ class ElasticaService
                 if (false === $value) {
                     return [EMSSource::FIELD_CONTENT_TYPE];
                 }
+
+                if (\is_array($value) && (isset($value['includes']) || isset($value['excludes']))) {
+                    return $value;
+                }
+
                 if (!\is_array($value)) {
                     return [$value];
                 }
