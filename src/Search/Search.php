@@ -87,12 +87,14 @@ class Search
     {
         if (0 === \count($sources)) {
             $this->sourceIncludes = [];
+
             return;
         }
 
         if (isset($sources['includes']) || isset($sources['excludes'])) {
             $this->sourceIncludes = $sources['includes'] ?? [];
             $this->sourceExcludes = $sources['excludes'] ?? [];
+
             return;
         }
 
