@@ -81,16 +81,24 @@ class Search
     }
 
     /**
-     * @param string[] $sourceIncludes
+     * @param array<mixed> $sources
      */
-    public function setSources(array $sourceIncludes): void
+    public function setSources(array $sources): void
     {
-        if (0 === \count($sourceIncludes)) {
+        if (0 === \count($sources)) {
             $this->sourceIncludes = [];
 
             return;
         }
-        $this->sourceIncludes = \array_merge($sourceIncludes, [EMSSource::FIELD_CONTENT_TYPE]);
+
+        if (isset($sources['includes']) || isset($sources['excludes'])) {
+            $this->sourceIncludes = $sources['includes'] ?? [];
+            $this->sourceExcludes = $sources['excludes'] ?? [];
+
+            return;
+        }
+
+        $this->sourceIncludes = \array_merge($sources, [EMSSource::FIELD_CONTENT_TYPE]);
     }
 
     /**
