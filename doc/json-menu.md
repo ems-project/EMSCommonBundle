@@ -1,11 +1,11 @@
 # JsonMenu
 
-This is a king of elasticms field serializing a JSON in a string. That JSON has a specific structure. It's an array of JsonMenuItem; A JsonMenuItem has the following fields:
- - `id` : contain a unique id (string) for the JsonMenuItem (in the structure)
+JsonMenuStructure is a kind of elasticms field serializing a JSON in a string. That JSON has a specific structure. It's an array of JsonMenuItem; A JsonMenuItem has the following fields:
+ - `id` : contain a unique id (string) for the JsonMenuItem (unique in the structure only)
  - `label` : contain a non-mandatory string labelling the JsonMenuIte
  - `type` : string identifying the subform type of this JsonMenuItem 
  - `object` : contain the JSON of the subform
- - `children` : contains an array of JsonMenuItem (recursive structure)
+ - `children` : contains an non-mandatory array of JsonMenuItem (recursive structure)
 
 # Twig filter ems_json_menu_decode
 
