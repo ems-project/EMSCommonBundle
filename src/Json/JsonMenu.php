@@ -30,6 +30,8 @@ class JsonMenu
 
     /**
      * @param array<mixed> $menu
+     *
+     * @return string[]
      */
     private function recursiveWalk(array &$menu, string $basePath = ''): array
     {
@@ -104,11 +106,19 @@ class JsonMenu
         return $this->glue;
     }
 
+    /**
+     * @return iterable<array<mixed>>|array<mixed>[]
+     */
     public function breadcrumb(string $uid): iterable
     {
         yield from $this->yieldBreadcrumb($uid, $this->structure);
     }
 
+    /**
+     * @param array<mixed> $menu
+     *
+     * @return iterable<array<mixed>>|array<mixed>[]
+     */
     private function yieldBreadcrumb(string $uid, array $menu): iterable
     {
         foreach ($menu as $item) {
