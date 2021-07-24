@@ -31,17 +31,22 @@ class JsonMenu
     /**
      * @param array<mixed> $menu
      */
-    private function recursiveWalk(array $menu, string $basePath = ''): void
+    private function recursiveWalk(array &$menu, string $basePath = ''): array
     {
-        foreach ($menu as $item) {
+        $contains = [];
+        foreach ($menu as &$item) {
             $slug = $basePath.$item['label'];
             $this->items[$item['id']] = $item;
             $this->slugs[$item['id']] = $slug;
             $this->bySlugs[$slug] = $item;
             if (isset($item['children'])) {
-                $this->recursiveWalk($item['children'], $slug.$this->glue);
+                $item['contains'] = $this->recursiveWalk($item['children'], $slug.$this->glue);
+                $contains = \array_merge($contains, $item['contains']);
             }
+            $contains[] = $item['id'];
         }
+
+        return $contains;
     }
 
     /**
@@ -97,5 +102,25 @@ class JsonMenu
     public function getGlue(): string
     {
         return $this->glue;
+    }
+
+    public function breadcrumb(string $uid): iterable
+    {
+        yield from $this->yieldBreadcrumb($uid, $this->structure);
+    }
+
+    private function yieldBreadcrumb(string $uid, array $menu): iterable
+    {
+        foreach ($menu as $item) {
+            if ($item['id'] === $uid) {
+                yield $item;
+                break;
+            }
+            if (\in_array($uid, $item['contains'] ?? [])) {
+                yield $item;
+                yield from $this->yieldBreadcrumb($uid, $item['children'] ?? []);
+                break;
+            }
+        }
     }
 }
