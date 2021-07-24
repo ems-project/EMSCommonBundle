@@ -16,8 +16,6 @@ class JsonMenu
     private $bySlugs;
     /** @var array<mixed> */
     private $items;
-    /** @var string[] */
-    private array $contains;
 
     public function __construct(string $source, string $glue)
     {
@@ -27,7 +25,7 @@ class JsonMenu
         $this->slugs = [];
         $this->bySlugs = [];
         $this->items = [];
-        $this->contains = $this->recursiveWalk($this->structure);
+        $this->recursiveWalk($this->structure);
     }
 
     /**
@@ -108,17 +106,17 @@ class JsonMenu
         return $this->glue;
     }
 
+    public function contains(string $uid): bool
+    {
+        return \in_array($uid, \array_keys($this->items));
+    }
+
     /**
      * @return iterable<array<mixed>>|array<mixed>[]
      */
     public function breadcrumb(string $uid): iterable
     {
         yield from $this->yieldBreadcrumb($uid, $this->structure);
-    }
-
-    public function contains(string $uid): bool
-    {
-        return \in_array($uid, $this->contains);
     }
 
     /**
