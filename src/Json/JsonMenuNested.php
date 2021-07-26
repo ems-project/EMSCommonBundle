@@ -21,6 +21,8 @@ final class JsonMenuNested implements \IteratorAggregate
     private $children = [];
     /** @var JsonMenuNested|null */
     private $parent;
+    /** @var string[] */
+    private array $descendantIds;
 
     /**
      * @param array<mixed> $data
@@ -34,9 +36,11 @@ final class JsonMenuNested implements \IteratorAggregate
 
         $children = $data['children'] ?? [];
 
+        $this->descendantIds = [];
         foreach ($children as $child) {
             $childItem = new JsonMenuNested($child);
             $childItem->setParent($this);
+            $this->descendantIds = \array_merge($this->descendantIds, [$childItem->getId()], $childItem->getDescendantIds());
 
             $this->children[] = $childItem;
         }
@@ -184,5 +188,41 @@ final class JsonMenuNested implements \IteratorAggregate
     public function setParent(?JsonMenuNested $parent): void
     {
         $this->parent = $parent;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getDescendantIds(): array
+    {
+        return $this->descendantIds;
+    }
+
+    /**
+     * @return iterable<JsonMenuNested>
+     */
+    public function breadcrumb(string $uid): iterable
+    {
+        yield from $this->yieldBreadcrumb($uid, $this->children);
+    }
+
+    /**
+     * @param JsonMenuNested[] $menu
+     *
+     * @return iterable<JsonMenuNested>
+     */
+    private function yieldBreadcrumb(string $uid, array $menu): iterable
+    {
+        foreach ($menu as $item) {
+            if ($item->getId() === $uid) {
+                yield $item;
+                break;
+            }
+            if (\in_array($uid, $item->getDescendantIds())) {
+                yield $item;
+                yield from $this->yieldBreadcrumb($uid, $item->getChildren());
+                break;
+            }
+        }
     }
 }

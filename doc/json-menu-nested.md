@@ -1,0 +1,39 @@
+# JsonMenuNested
+
+JsonMenuNestedStructure is a kind of elasticms field serializing a JSON in a string. That JSON has a specific structure. It's an array of JsonMenuNestedItem; A JsonMenuNestedItem has the following fields:
+ - `id` : contain a unique id (string) for the JsonMenuNestedItem (unique in the structure only)
+ - `label` : contain a non-mandatory string labelling the JsonMenuNestedIte
+ - `type` : string identifying the subform type of this JsonMenuNestedItem 
+ - `object` : contain the JSON of the subform
+ - `children` : contains an non-mandatory array of JsonMenuNestedItem (recursive structure)
+
+# Twig filter ems_json_menu_nested_decode
+
+With this filter you can parse a JsonMenuNested field and get a [JsonMenuNested object](../src/Json/JsonMenuNested.php)
+
+## JsonMenuNested object
+
+### Generate a breadcrumb
+
+JsonMenuNested contains a breadcrumb method useful in order to generate breadcrump:
+
+```twig
+        {% if pageInStructure %}
+            {% set structure = attribute(pageInStructure.structure, 'structure_'~locale)|default('{}')|ems_json_menu_nested_decode %}
+            {% if attribute(structure, 'breadcrumb') is defined %}
+                {% for item in structure.breadcrumb(pageInStructure.uid) %}
+                    <li class="breadcrumb-item">
+                        {%  if attribute(paths, [pageInStructure.sid, item.id]|join(':'))|default(false) %}
+                            <a href="{{ path('match_all', {path: attribute(paths, [pageInStructure.sid, item.id]|join(':')) }) }}">
+                                {{ item.label }}
+                            </a>
+                        {% else %}
+                            {{ item.label }}
+                        {%  endif %}
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li class="breadcrumb-item">Please update to skeleton 3.7.8 to get a breadcrumb</li>
+            {% endif %}
+        {%  endif %}
+```
