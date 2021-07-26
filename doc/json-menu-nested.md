@@ -7,7 +7,7 @@ JsonMenuNestedStructure is a kind of elasticms field serializing a JSON in a str
  - `object` : contain the JSON of the subform
  - `children` : contains an non-mandatory array of JsonMenuNestedItem (recursive structure)
 
-# Twig filter ems_json_menu_decode
+# Twig filter ems_json_menu_nested_decode
 
 With this filter you can parse a JsonMenuNested field and get a [JsonMenuNested object](../src/Json/JsonMenuNested.php)
 
