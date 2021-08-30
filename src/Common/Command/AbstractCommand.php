@@ -41,7 +41,7 @@ abstract class AbstractCommand extends Command implements CommandInterface
     protected function getArgumentBool(string $name): bool
     {
         if (null === $arg = $this->input->getArgument($name)) {
-            throw new \RuntimeException(sprintf('Missing argument "%s"', $name));
+            throw new \RuntimeException(\sprintf('Missing argument "%s"', $name));
         }
 
         return \boolval($arg);
@@ -50,7 +50,7 @@ abstract class AbstractCommand extends Command implements CommandInterface
     protected function getArgumentString(string $name): string
     {
         if (null === $arg = $this->input->getArgument($name)) {
-            throw new \RuntimeException(sprintf('Missing argument "%s"', $name));
+            throw new \RuntimeException(\sprintf('Missing argument "%s"', $name));
         }
 
         return \strval($arg);
@@ -59,7 +59,7 @@ abstract class AbstractCommand extends Command implements CommandInterface
     protected function getArgumentInt(string $name): int
     {
         if (null === $arg = $this->input->getArgument($name)) {
-            throw new \RuntimeException(sprintf('Missing argument "%s"', $name));
+            throw new \RuntimeException(\sprintf('Missing argument "%s"', $name));
         }
 
         return \intval($arg);
@@ -85,7 +85,7 @@ abstract class AbstractCommand extends Command implements CommandInterface
     protected function getOptionString(string $name): string
     {
         if (null === $option = $this->input->getOption($name)) {
-            throw new \RuntimeException(sprintf('Missing option "%s"', $option));
+            throw new \RuntimeException(\sprintf('Missing option "%s"', $option));
         }
 
         return \strval($this->input->getOption($name));
