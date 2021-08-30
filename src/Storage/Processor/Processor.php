@@ -24,7 +24,7 @@ class Processor
     /** @var LoggerInterface */
     private $logger;
 
-    const BUFFER_SIZE = 8192;
+    public const BUFFER_SIZE = 8192;
     /** @var Cache */
     private $cacheHelper;
 

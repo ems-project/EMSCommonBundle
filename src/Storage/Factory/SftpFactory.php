@@ -11,21 +11,21 @@ use Psr\Log\LoggerInterface;
 class SftpFactory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
-    const STORAGE_TYPE = 'sftp';
+    public const STORAGE_TYPE = 'sftp';
     /** @var string */
-    const STORAGE_CONFIG_HOST = 'host';
+    public const STORAGE_CONFIG_HOST = 'host';
     /** @var string */
-    const STORAGE_CONFIG_PATH = 'path';
+    public const STORAGE_CONFIG_PATH = 'path';
     /** @var string */
-    const STORAGE_CONFIG_USERNAME = 'username';
+    public const STORAGE_CONFIG_USERNAME = 'username';
     /** @var string */
-    const STORAGE_CONFIG_PUBLIC_KEY_FILE = 'public-key-file';
+    public const STORAGE_CONFIG_PUBLIC_KEY_FILE = 'public-key-file';
     /** @var string */
-    const STORAGE_CONFIG_PRIVATE_KEY_FILE = 'private-key-file';
+    public const STORAGE_CONFIG_PRIVATE_KEY_FILE = 'private-key-file';
     /** @var string */
-    const STORAGE_CONFIG_PASSWORD_PHRASE = 'password-phrase';
+    public const STORAGE_CONFIG_PASSWORD_PHRASE = 'password-phrase';
     /** @var string */
-    const STORAGE_CONFIG_PORT = 'port';
+    public const STORAGE_CONFIG_PORT = 'port';
     /** @var LoggerInterface */
     private $logger;
 

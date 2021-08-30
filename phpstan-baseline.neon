@@ -1,17 +1,17 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Common\\\\Document\\:\\:\\$source type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Common/Document.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Common\\\\Document\\:\\:__construct\\(\\) has parameter \\$source with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Common/Document.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Common\\\\Document\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Common/Document.php
+
+		-
+			message: "#^Property EMS\\\\CommonBundle\\\\Common\\\\Document\\:\\:\\$source type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Common/Document.php
 
@@ -41,11 +41,6 @@ parameters:
 			path: src/EMSCommonBundle.php
 
 		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\:\\:\\$source type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Document.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\:\\:__construct\\(\\) has parameter \\$document with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Document.php
@@ -54,6 +49,16 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Document.php
+
+		-
+			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\:\\:\\$source type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Elasticsearch/Document.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Elasticsearch/DocumentInterface.php
 
 		-
 			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\DocumentCollection\\:\\:\\$documents type has no value type specified in iterable type array\\.$#"
@@ -69,11 +74,6 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Document/DocumentInterface.php
-
-		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\EMSSource\\:\\:\\$source type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Document/EMSSource.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\EMSSource\\:\\:__construct\\(\\) has parameter \\$source with no value type specified in iterable type array\\.$#"
@@ -96,6 +96,11 @@ parameters:
 			path: src/Elasticsearch/Document/EMSSource.php
 
 		-
+			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\EMSSource\\:\\:\\$source type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Elasticsearch/Document/EMSSource.php
+
+		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\EMSSourceInterface\\:\\:get\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Elasticsearch/Document/EMSSourceInterface.php
@@ -111,19 +116,9 @@ parameters:
 			path: src/Elasticsearch/Document/EMSSourceInterface.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\DocumentInterface\\:\\:getSource\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/DocumentInterface.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Factory\\:\\:fromConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Factory.php
-
-		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Request\\\\Request\\:\\:\\$body type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Elasticsearch/Request/Request.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Request\\\\Request\\:\\:__construct\\(\\) has parameter \\$body with no value type specified in iterable type array\\.$#"
@@ -136,14 +131,14 @@ parameters:
 			path: src/Elasticsearch/Request/Request.php
 
 		-
+			message: "#^Property EMS\\\\CommonBundle\\\\Elasticsearch\\\\Request\\\\Request\\:\\:\\$body type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Elasticsearch/Request/Request.php
+
+		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Elasticsearch\\\\Request\\\\RequestInterface\\:\\:toArray\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Elasticsearch/Request/RequestInterface.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\EventListener\\\\CommandListener\\:\\:getSubscribedEvents\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/EventListener/CommandListener.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Exception\\\\DateTimeCreationException\\:\\:fromArray\\(\\) has no return typehint specified\\.$#"
@@ -176,17 +171,17 @@ parameters:
 			path: src/Helper/ArrayTool.php
 
 		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Logger\\\\FlashMessageLogger\\:\\:\\$session type has no value type specified in iterable type Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session\\.$#"
-			count: 1
-			path: src/Logger/FlashMessageLogger.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Logger\\\\FlashMessageLogger\\:\\:__construct\\(\\) has parameter \\$session with no value type specified in iterable type Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session\\.$#"
 			count: 1
 			path: src/Logger/FlashMessageLogger.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Logger\\\\FlashMessageLogger\\:\\:write\\(\\) has parameter \\$record with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Logger/FlashMessageLogger.php
+
+		-
+			message: "#^Property EMS\\\\CommonBundle\\\\Logger\\\\FlashMessageLogger\\:\\:\\$session type has no value type specified in iterable type Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session\\.$#"
 			count: 1
 			path: src/Logger/FlashMessageLogger.php
 
@@ -221,29 +216,89 @@ parameters:
 			path: src/Service/Pdf/PdfPrintOptions.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:generate\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Storage/Processor/Image.php
+			message: "#^Parameter \\#1 \\$path of function realpath expects string, int\\|string\\|null given\\.$#"
+			count: 2
+			path: src/Storage/Factory/FileSystemFactory.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:fillBackgroundColor\\(\\) has no return typehint specified\\.$#"
+			message: "#^Parameter \\#1 \\$pathname of function mkdir expects string, int\\|string\\|null given\\.$#"
 			count: 1
-			path: src/Storage/Processor/Image.php
+			path: src/Storage/Factory/FileSystemFactory.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:fillBackgroundColor\\(\\) has parameter \\$temp with no typehint specified\\.$#"
+			message: "#^Parameter \\#1 \\$string of function substr expects string, int\\|string\\|null given\\.$#"
 			count: 1
-			path: src/Storage/Processor/Image.php
+			path: src/Storage/Factory/FileSystemFactory.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:applyResizeAndBackground\\(\\) has no return typehint specified\\.$#"
+			message: "#^Parameter \\#2 \\$baseUrl of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\HttpStorage constructor expects string, int\\|string given\\.$#"
 			count: 1
-			path: src/Storage/Processor/Image.php
+			path: src/Storage/Factory/HttpFactory.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:applyResizeAndBackground\\(\\) has parameter \\$image with no typehint specified\\.$#"
+			message: "#^Parameter \\#3 \\$getUrl of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\HttpStorage constructor expects string, int\\|string\\|null given\\.$#"
 			count: 1
-			path: src/Storage/Processor/Image.php
+			path: src/Storage/Factory/HttpFactory.php
+
+		-
+			message: "#^Parameter \\#5 \\$authKey of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\HttpStorage constructor expects string\\|null, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/HttpFactory.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function strlen expects string, array\\|int\\|string given\\.$#"
+			count: 1
+			path: src/Storage/Factory/S3Factory.php
+
+		-
+			message: "#^Parameter \\#1 \\$var of function count expects array\\|Countable, array\\|int\\|string given\\.$#"
+			count: 1
+			path: src/Storage/Factory/S3Factory.php
+
+		-
+			message: "#^Parameter \\#2 \\$s3Credentials of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\S3Storage constructor expects array\\(\\?'version' \\=\\> string, \\?'credentials' \\=\\> array\\('key' \\=\\> string, 'secret' \\=\\> string\\), \\?'region' \\=\\> string\\), array\\|int\\|string given\\.$#"
+			count: 1
+			path: src/Storage/Factory/S3Factory.php
+
+		-
+			message: "#^Parameter \\#3 \\$s3Bucket of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\S3Storage constructor expects string, array\\|int\\|string given\\.$#"
+			count: 1
+			path: src/Storage/Factory/S3Factory.php
+
+		-
+			message: "#^Parameter \\#4 \\$usage of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\S3Storage constructor expects int, array\\|int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/S3Factory.php
+
+		-
+			message: "#^Parameter \\#2 \\$host of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string, int\\|string given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
+
+		-
+			message: "#^Parameter \\#3 \\$path of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
+
+		-
+			message: "#^Parameter \\#4 \\$username of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
+
+		-
+			message: "#^Parameter \\#5 \\$publicKeyFile of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
+
+		-
+			message: "#^Parameter \\#6 \\$privateKeyFile of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
+
+		-
+			message: "#^Parameter \\#8 \\$passwordPhrase of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string\\|null, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:applyBackground\\(\\) has no return typehint specified\\.$#"
@@ -286,6 +341,16 @@ parameters:
 			path: src/Storage/Processor/Image.php
 
 		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:applyResizeAndBackground\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Storage/Processor/Image.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:applyResizeAndBackground\\(\\) has parameter \\$image with no typehint specified\\.$#"
+			count: 1
+			path: src/Storage/Processor/Image.php
+
+		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:applyWatermark\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Storage/Processor/Image.php
@@ -306,7 +371,42 @@ parameters:
 			path: src/Storage/Processor/Image.php
 
 		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:fillBackgroundColor\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Storage/Processor/Image.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:fillBackgroundColor\\(\\) has parameter \\$temp with no typehint specified\\.$#"
+			count: 1
+			path: src/Storage/Processor/Image.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:generate\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Storage/Processor/Image.php
+
+		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:__construct\\(\\) has parameter \\$headerBag with no value type specified in iterable type Symfony\\\\Component\\\\HttpFoundation\\\\HeaderBag\\.$#"
+			count: 1
+			path: src/Storage/Processor/StreamRange.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:getContentLengthHeader\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Storage/Processor/StreamRange.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:getContentRangeHeader\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Storage/Processor/StreamRange.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:isPartial\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Storage/Processor/StreamRange.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:isSatisfiable\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Storage/Processor/StreamRange.php
 
@@ -321,26 +421,6 @@ parameters:
 			path: src/Storage/Processor/StreamRange.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:isSatisfiable\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Storage/Processor/StreamRange.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:isPartial\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Storage/Processor/StreamRange.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:getContentRangeHeader\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Storage/Processor/StreamRange.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:getContentLengthHeader\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Storage/Processor/StreamRange.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\CommonExtension\\:\\:arrayKey\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Twig/CommonExtension.php
@@ -349,6 +429,16 @@ parameters:
 			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\CommonExtension\\:\\:arrayKey\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Twig/CommonExtension.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:assetPath\\(\\) has parameter \\$assetConfig with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Twig/RequestRuntime.php
+
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:assetPath\\(\\) has parameter \\$fileField with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Twig/RequestRuntime.php
 
 		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:endsWith\\(\\) has no return typehint specified\\.$#"
@@ -371,16 +461,6 @@ parameters:
 			path: src/Twig/RequestRuntime.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:assetPath\\(\\) has parameter \\$assetConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Twig/RequestRuntime.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:assetPath\\(\\) has parameter \\$fileField with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Twig/RequestRuntime.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\TextRuntime\\:\\:htmlEncode\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Twig/TextRuntime.php
@@ -391,97 +471,12 @@ parameters:
 			path: src/Twig/TextRuntime.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\TextRuntime\\:\\:jsonMenuDecode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Twig/TextRuntime.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\TextRuntime\\:\\:jsonDecode\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Twig/TextRuntime.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Common\\\\EMSLinkTest\\:\\:testFromTextWithEmsObjectTypeAndOuuid\\(\\) has no return typehint specified\\.$#"
+			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\TextRuntime\\:\\:jsonMenuDecode\\(\\) has no return typehint specified\\.$#"
 			count: 1
-			path: tests/Unit/Common/EMSLinkTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Common\\\\EMSLinkTest\\:\\:testFromTextWithoutEMSObjectTypeAndWithOuuid\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: tests/Unit/Common/EMSLinkTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Common\\\\EMSLinkTest\\:\\:testFromMatchWithoutOuuidShouldInvalidArgumentException\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: tests/Unit/Common/EMSLinkTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\ArrayToolTest\\:\\:dataProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/Unit/Helper/ArrayToolTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\ArrayToolTest\\:\\:testNormalizeArray\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/Unit/Helper/ArrayToolTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\ArrayToolTest\\:\\:testNormalizeArray\\(\\) has parameter \\$provided with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/Unit/Helper/ArrayToolTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\ArrayToolTest\\:\\:jsonProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/Unit/Helper/ArrayToolTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\ArrayToolTest\\:\\:testNormalizeAndSerializeArray\\(\\) has parameter \\$provided with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/Unit/Helper/ArrayToolTest.php
-
-		-
-			message: "#^Parameter \\#2 \\$message of static method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNull\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: tests/Unit/Helper/CacheTest.php
-
-		-
-			message: "#^You should use assertNull\\(\\) instead of assertSame\\(null, \\$actual\\)\\.$#"
-			count: 1
-			path: tests/Unit/Helper/CacheTest.php
-
-		-
-			message: "#^You should use assertTrue\\(\\) instead of assertSame\\(\\) when expecting \"true\"$#"
-			count: 1
-			path: tests/Unit/Helper/CacheTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\EncoderTest\\:\\:htmlProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/Unit/Helper/Text/EncoderTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\EncoderTest\\:\\:testHtmlEncode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: tests/Unit/Helper/Text/EncoderTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\EncoderTest\\:\\:piiProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/Unit/Helper/Text/EncoderTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\EncoderTest\\:\\:testHtmlEncodePii\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: tests/Unit/Helper/Text/EncoderTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\EncoderTest\\:\\:urlProvider\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: tests/Unit/Helper/Text/EncoderTest.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Tests\\\\Unit\\\\Helper\\\\Text\\\\EncoderTest\\:\\:testHtmlEncodeUrl\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: tests/Unit/Helper/Text/EncoderTest.php
+			path: src/Twig/TextRuntime.php
 

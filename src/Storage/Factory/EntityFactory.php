@@ -12,9 +12,9 @@ use Psr\Log\LoggerInterface;
 class EntityFactory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
-    const STORAGE_TYPE = 'db';
+    public const STORAGE_TYPE = 'db';
     /** @var string */
-    const STORAGE_CONFIG_ACTIVATE = 'activate';
+    public const STORAGE_CONFIG_ACTIVATE = 'activate';
     /** @var LoggerInterface */
     private $logger;
     /** @var bool */
