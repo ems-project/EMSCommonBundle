@@ -11,11 +11,11 @@ use Psr\Log\LoggerInterface;
 class S3Factory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
-    const STORAGE_TYPE = 's3';
+    public const STORAGE_TYPE = 's3';
     /** @var string */
-    const STORAGE_CONFIG_CREDENTIALS = 'credentials';
+    public const STORAGE_CONFIG_CREDENTIALS = 'credentials';
     /** @var string */
-    const STORAGE_CONFIG_BUCKET = 'bucket';
+    public const STORAGE_CONFIG_BUCKET = 'bucket';
     /** @var LoggerInterface */
     private $logger;
 
