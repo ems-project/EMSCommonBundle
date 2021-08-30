@@ -11,9 +11,9 @@ use Psr\Log\LoggerInterface;
 class FileSystemFactory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
-    const STORAGE_TYPE = 'fs';
+    public const STORAGE_TYPE = 'fs';
     /** @var string */
-    const STORAGE_CONFIG_PATH = 'path';
+    public const STORAGE_CONFIG_PATH = 'path';
     /** @var LoggerInterface */
     private $logger;
     /** @var string[] */
