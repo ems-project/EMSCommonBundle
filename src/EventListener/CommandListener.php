@@ -23,6 +23,9 @@ class CommandListener implements EventSubscriberInterface
         $this->stopwatch = new Stopwatch();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function getSubscribedEvents(): array
     {
         return [

@@ -141,11 +141,6 @@ parameters:
 			path: src/Elasticsearch/Request/RequestInterface.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\EventListener\\\\CommandListener\\:\\:getSubscribedEvents\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/EventListener/CommandListener.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Exception\\\\DateTimeCreationException\\:\\:fromArray\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Exception/DateTimeCreationException.php
