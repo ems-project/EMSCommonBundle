@@ -1,7 +1,3 @@
-.phpunit.result.cache
-phpunit.xml
 /vendor
-/.php_cs.cache
-
-# Backup entities generated with doctrine:generate:entities command
-**/Entity/*~
+/.php-cs-fixer.cache
+/.phpunit.result.cache
