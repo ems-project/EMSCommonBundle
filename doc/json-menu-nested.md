@@ -37,3 +37,10 @@ JsonMenuNested contains a breadcrumb method useful in order to generate breadcru
             {% endif %}
         {%  endif %}
 ```
+
+You can also get the breadcrumb in the reverse order:
+```twig
+    {% for item in structure.breadcrumb(pageInStructure.uid, true) %}
+        ...
+    {% endfor %}
+```

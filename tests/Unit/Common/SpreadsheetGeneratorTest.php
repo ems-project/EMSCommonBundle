@@ -36,7 +36,7 @@ class SpreadsheetGeneratorTest extends TestCase
         $getContent = \ob_get_contents();
         \ob_end_clean();
 
-        $lines = \explode(PHP_EOL, $getContent);
+        $lines = \preg_split('/\r\n|\r|\n/', $getContent);
         $this->assertCount(4, $lines);
         $this->assertSame('apple,banana', $lines[0]);
         $this->assertSame('pineapple,strawberry', $lines[1]);

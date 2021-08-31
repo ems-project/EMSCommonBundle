@@ -10,6 +10,7 @@ use Symfony\Component\Console\Helper\ProcessHelper;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Process;
 
@@ -38,19 +39,57 @@ abstract class AbstractCommand extends Command implements CommandInterface
         return 1;
     }
 
+    /**
+     * @param array<mixed> $choices
+     *
+     * @return mixed
+     */
+    protected function askChoiceQuestion(string $question, array $choices)
+    {
+        $helper = $this->getHelper('question');
+        $question = new ChoiceQuestion($question, $choices);
+        $question->setErrorMessage('Choice %s is invalid.');
+
+        return $helper->ask($this->input, $this->output, $question);
+    }
+
     protected function getArgumentBool(string $name): bool
     {
-        return \boolval($this->input->getArgument($name));
+        if (null === $arg = $this->input->getArgument($name)) {
+            throw new \RuntimeException(\sprintf('Missing argument "%s"', $name));
+        }
+
+        return \boolval($arg);
     }
 
     protected function getArgumentString(string $name): string
     {
-        return \strval($this->input->getArgument($name));
+        if (null === $arg = $this->input->getArgument($name)) {
+            throw new \RuntimeException(\sprintf('Missing argument "%s"', $name));
+        }
+
+        return \strval($arg);
+    }
+
+    /**
+     * @param string[] $choices
+     */
+    protected function choiceArgumentString(string $name, string $question, array $choices): void
+    {
+        if (null !== $this->input->getArgument($name)) {
+            return;
+        }
+
+        $this->input->setArgument($name, $this->askChoiceQuestion($question, $choices));
     }
 
     protected function getArgumentInt(string $name): int
     {
-        return \intval($this->input->getArgument($name));
+        if (null === $arg = $this->input->getArgument($name)) {
+            throw new \RuntimeException(\sprintf('Missing argument "%s"', $name));
+        }
+
+        return \intval($arg);
     }
 
     protected function getOptionBool(string $name): bool
@@ -72,6 +111,10 @@ abstract class AbstractCommand extends Command implements CommandInterface
 
     protected function getOptionString(string $name): string
     {
+        if (null === $option = $this->input->getOption($name)) {
+            throw new \RuntimeException(\sprintf('Missing option "%s"', $option));
+        }
+
         return \strval($this->input->getOption($name));
     }
 
@@ -114,9 +157,10 @@ abstract class AbstractCommand extends Command implements CommandInterface
     /**
      * Run command in same php process.
      *
-     * @param array<string, mixed> $input
+     * @param array<string, mixed> $args
+     * @param array<string, mixed> $options
      */
-    protected function runCommand(string $command, array $input): int
+    protected function runCommand(string $command, array $args = [], array $options = []): int
     {
         try {
             if (null === $application = $this->getApplication()) {
@@ -124,6 +168,10 @@ abstract class AbstractCommand extends Command implements CommandInterface
             }
 
             $cmd = $application->find($command);
+            $input = $args;
+            foreach ($options as $name => $value) {
+                $input['--'.$name] = $value;
+            }
 
             return $cmd->run(new ArrayInput($input), $this->output);
         } catch (\Throwable $e) {

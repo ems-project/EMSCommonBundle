@@ -6,7 +6,7 @@ use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 
 class EMSLink
 {
-    const EMSLINK_ASSET_PREFIX = 'ems://asset:';
+    public const EMSLINK_ASSET_PREFIX = 'ems://asset:';
     /**
      * object|asset.
      *
@@ -30,8 +30,8 @@ class EMSLink
      * Example: <a href="ems://object:page:AV44kX4b1tfmVMOaE61u">example</a>
      * link_type => object, content_type => page, ouuid => AV44kX4b1tfmVMOaE61u
      */
-    const PATTERN = '/ems:\/\/(?P<link_type>.*?):(?:(?P<content_type>([[:alnum:]]|_)*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)(?:\?(?P<query>(?:[^"|\'|\s]*)))?/';
-    const SIMPLE_PATTERN = '/(?:(?P<content_type>.*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)/';
+    public const PATTERN = '/ems:\/\/(?P<link_type>.*?):(?:(?P<content_type>([[:alnum:]]|_)*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)(?:\?(?P<query>(?:[^"|\'|\s]*)))?/';
+    public const SIMPLE_PATTERN = '/(?:(?P<content_type>.*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)/';
 
     private function __construct()
     {

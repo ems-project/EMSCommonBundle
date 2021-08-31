@@ -201,9 +201,9 @@ final class JsonMenuNested implements \IteratorAggregate
     /**
      * @return iterable<JsonMenuNested>
      */
-    public function breadcrumb(string $uid): iterable
+    public function breadcrumb(string $uid, bool $reverseOrder = false): iterable
     {
-        yield from $this->yieldBreadcrumb($uid, $this->children);
+        yield from $this->yieldBreadcrumb($uid, $this->children, $reverseOrder);
     }
 
     /**
@@ -211,7 +211,7 @@ final class JsonMenuNested implements \IteratorAggregate
      *
      * @return iterable<JsonMenuNested>
      */
-    private function yieldBreadcrumb(string $uid, array $menu): iterable
+    private function yieldBreadcrumb(string $uid, array $menu, bool $reverseOrder): iterable
     {
         foreach ($menu as $item) {
             if ($item->getId() === $uid) {
@@ -219,8 +219,13 @@ final class JsonMenuNested implements \IteratorAggregate
                 break;
             }
             if (\in_array($uid, $item->getDescendantIds())) {
-                yield $item;
-                yield from $this->yieldBreadcrumb($uid, $item->getChildren());
+                if (!$reverseOrder) {
+                    yield $item;
+                }
+                yield from $this->yieldBreadcrumb($uid, $item->getChildren(), $reverseOrder);
+                if ($reverseOrder) {
+                    yield $item;
+                }
                 break;
             }
         }
