@@ -216,6 +216,91 @@ parameters:
 			path: src/Service/Pdf/PdfPrintOptions.php
 
 		-
+			message: "#^Parameter \\#1 \\$path of function realpath expects string, int\\|string\\|null given\\.$#"
+			count: 2
+			path: src/Storage/Factory/FileSystemFactory.php
+
+		-
+			message: "#^Parameter \\#1 \\$pathname of function mkdir expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/FileSystemFactory.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function substr expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/FileSystemFactory.php
+
+		-
+			message: "#^Parameter \\#2 \\$baseUrl of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\HttpStorage constructor expects string, int\\|string given\\.$#"
+			count: 1
+			path: src/Storage/Factory/HttpFactory.php
+
+		-
+			message: "#^Parameter \\#3 \\$getUrl of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\HttpStorage constructor expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/HttpFactory.php
+
+		-
+			message: "#^Parameter \\#5 \\$authKey of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\HttpStorage constructor expects string\\|null, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/HttpFactory.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function strlen expects string, array\\|int\\|string given\\.$#"
+			count: 1
+			path: src/Storage/Factory/S3Factory.php
+
+		-
+			message: "#^Parameter \\#1 \\$var of function count expects array\\|Countable, array\\|int\\|string given\\.$#"
+			count: 1
+			path: src/Storage/Factory/S3Factory.php
+
+		-
+			message: "#^Parameter \\#2 \\$s3Credentials of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\S3Storage constructor expects array\\(\\?'version' \\=\\> string, \\?'credentials' \\=\\> array\\('key' \\=\\> string, 'secret' \\=\\> string\\), \\?'region' \\=\\> string\\), array\\|int\\|string given\\.$#"
+			count: 1
+			path: src/Storage/Factory/S3Factory.php
+
+		-
+			message: "#^Parameter \\#3 \\$s3Bucket of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\S3Storage constructor expects string, array\\|int\\|string given\\.$#"
+			count: 1
+			path: src/Storage/Factory/S3Factory.php
+
+		-
+			message: "#^Parameter \\#4 \\$usage of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\S3Storage constructor expects int, array\\|int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/S3Factory.php
+
+		-
+			message: "#^Parameter \\#2 \\$host of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string, int\\|string given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
+
+		-
+			message: "#^Parameter \\#3 \\$path of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
+
+		-
+			message: "#^Parameter \\#4 \\$username of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
+
+		-
+			message: "#^Parameter \\#5 \\$publicKeyFile of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
+
+		-
+			message: "#^Parameter \\#6 \\$privateKeyFile of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
+
+		-
+			message: "#^Parameter \\#8 \\$passwordPhrase of class EMS\\\\CommonBundle\\\\Storage\\\\Service\\\\SftpStorage constructor expects string\\|null, int\\|string\\|null given\\.$#"
+			count: 1
+			path: src/Storage/Factory/SftpFactory.php
+
+		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\Image\\:\\:applyBackground\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Storage/Processor/Image.php
