@@ -10,6 +10,17 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class DomPdfPrinter implements PdfPrinterInterface
 {
+    /** @var string[] */
+    private array $domPdfRootDirectories;
+
+    public function __construct(string $projectDir, string $cacheDir)
+    {
+        $this->domPdfRootDirectories = [$projectDir];
+        if (0 !== \strpos($cacheDir, $projectDir)) {
+            $this->domPdfRootDirectories[] = $cacheDir;
+        }
+    }
+
     public function getPdfOutput(PdfInterface $pdf, ?PdfPrintOptions $options = null): PdfOutput
     {
         $options = $options ?? new PdfPrintOptions([]);
@@ -40,7 +51,7 @@ final class DomPdfPrinter implements PdfPrinterInterface
         $dompdf->setPaper($options->getSize(), $options->getOrientation());
         $dompdf->setOptions(new Options([
             'isHtml5ParserEnabled' => $options->isHtml5Parsing(),
-            'chroot' => $options->getChroot(),
+            'chroot' => \array_filter(\array_merge($this->domPdfRootDirectories, [$options->getChroot()])),
         ]));
         $dompdf->render();
 
