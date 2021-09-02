@@ -7,7 +7,7 @@ use EMS\CommonBundle\Storage\NotSavedException;
 use EMS\CommonBundle\Storage\Processor\Config;
 use EMS\CommonBundle\Storage\Processor\Processor;
 use EMS\CommonBundle\Storage\StorageManager;
-use function GuzzleHttp\Psr7\mimetype_from_filename;
+use GuzzleHttp\Psr7\MimeType;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -105,7 +105,7 @@ class RequestRuntime implements RuntimeExtensionInterface
                 }
             }
         } elseif (!$mimeType) {
-            $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = mimetype_from_filename($filename) ?? 'application/octet-stream';
+            $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = MimeType::fromFilename($filename) ?? 'application/octet-stream';
         } else {
             $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
         }
