@@ -100,41 +100,41 @@ abstract class AbstractCommand extends Command implements CommandInterface
     protected function getOptionInt(string $name, ?int $default = null): int
     {
         if (null !== $option = $this->input->getOption($name)) {
-            return \intval($this->input->getOption($name));
+            return \intval($option);
         }
 
-        if ($default) {
-            return $default;
+        if (null === $default) {
+            throw new \RuntimeException(\sprintf('Missing option "%s"', $name));
         }
 
-        throw new \RuntimeException(\sprintf('Missing option "%s"', $option));
+        return $default;
     }
 
     protected function getOptionIntNull(string $name): ?int
     {
         $option = $this->input->getOption($name);
 
-        return $option ? $this->getOptionInt($name) : null;
+        return null === $option ? null : \intval($option);
     }
 
     protected function getOptionString(string $name, ?string $default = null): string
     {
         if (null !== $option = $this->input->getOption($name)) {
-            return \strval($this->input->getOption($name));
+            return \strval($option);
         }
 
-        if ($default) {
-            return $default;
+        if (null === $default) {
+            throw new \RuntimeException(\sprintf('Missing option "%s"', $name));
         }
 
-        throw new \RuntimeException(\sprintf('Missing option "%s"', $option));
+        return $default;
     }
 
     protected function getOptionStringNull(string $name): ?string
     {
         $option = $this->input->getOption($name);
 
-        return $option ? $this->getOptionString($name) : null;
+        return null === $option ? null : \strval($option);
     }
 
     /**
