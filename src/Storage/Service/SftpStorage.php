@@ -28,9 +28,9 @@ class SftpStorage extends AbstractUrlStorage
     /**
      * @param null $passwordPhrase
      */
-    public function __construct(LoggerInterface $logger, string $host, string $path, string $username, string $publicKeyFile, string $privateKeyFile, int $usage, ?string $passwordPhrase = null, int $port = 22)
+    public function __construct(LoggerInterface $logger, string $host, string $path, string $username, string $publicKeyFile, string $privateKeyFile, int $usage, int $hotSynchronizeLimit = 0, ?string $passwordPhrase = null, int $port = 22)
     {
-        parent::__construct($logger, $usage);
+        parent::__construct($logger, $usage, $hotSynchronizeLimit);
         $this->host = $host;
         $this->path = $path;
         $this->port = $port;

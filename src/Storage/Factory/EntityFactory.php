@@ -46,7 +46,7 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
         }
         $this->registered = true;
 
-        return new EntityStorage($this->doctrine, $config[self::STORAGE_CONFIG_USAGE]);
+        return new EntityStorage($this->doctrine, $config[self::STORAGE_CONFIG_USAGE], $config[self::STORAGE_CONFIG_HOT_SYNCHRONIZE_LIMIT]);
     }
 
     public function getStorageType(): string
@@ -57,7 +57,7 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
     /**
      * @param array<string, mixed> $parameters
      *
-     * @return array{type: string, activate: bool, usage: int}
+     * @return array{type: string, activate: bool, usage: int, hot-synchronize-limit: int}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -73,7 +73,7 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
             ->setAllowedValues(self::STORAGE_CONFIG_ACTIVATE, [true, false])
         ;
 
-        /** @var array{type: string, activate: bool, usage: int} $resolvedParameter */
+        /** @var array{type: string, activate: bool, usage: int, hot-synchronize-limit: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
 
         return $resolvedParameter;
