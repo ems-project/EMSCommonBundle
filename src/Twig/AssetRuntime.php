@@ -15,14 +15,10 @@ use ZipArchive;
 
 class AssetRuntime
 {
-    /** @var StorageManager */
-    private $storageManager;
-    /** @var LoggerInterface */
-    private $logger;
-    /** @var string */
-    private $publicDir;
-    /** @var Filesystem */
-    private $filesystem;
+    private StorageManager $storageManager;
+    private LoggerInterface $logger;
+    private string $publicDir;
+    private Filesystem $filesystem;
 
     public function __construct(StorageManager $storageManager, LoggerInterface $logger, string $projectDir)
     {

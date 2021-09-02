@@ -15,20 +15,11 @@ use Twig\Extension\RuntimeExtensionInterface;
 
 class RequestRuntime implements RuntimeExtensionInterface
 {
-    /** @var RequestStack */
-    private $requestStack;
-
-    /** @var StorageManager */
-    private $storageManager;
-
-    /** @var UrlGeneratorInterface */
-    private $urlGenerator;
-
-    /** @var Processor */
-    private $processor;
-
-    /** @var string */
-    private $cacheDir;
+    private RequestStack $requestStack;
+    private StorageManager $storageManager;
+    private UrlGeneratorInterface$urlGenerator;
+    private Processor $processor;
+    private string $cacheDir;
 
     public function __construct(RequestStack $requestStack, StorageManager $storageManager, UrlGeneratorInterface $urlGenerator, Processor $processor, string $cacheDir)
     {
@@ -39,7 +30,7 @@ class RequestRuntime implements RuntimeExtensionInterface
         $this->cacheDir = $cacheDir;
     }
 
-    public static function endsWith($haystack, $needle)
+    public static function endsWith(string $haystack, string $needle)
     {
         $length = \strlen($needle);
         if (0 == $length) {

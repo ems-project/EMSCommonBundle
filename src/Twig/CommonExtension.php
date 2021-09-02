@@ -11,9 +11,6 @@ use Twig\TwigFunction;
 
 class CommonExtension extends AbstractExtension
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getFunctions()
     {
         return [
@@ -22,9 +19,6 @@ class CommonExtension extends AbstractExtension
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getFilters()
     {
         return [
@@ -52,10 +46,7 @@ class CommonExtension extends AbstractExtension
         return \file_exists($filename);
     }
 
-    /**
-     * @param string $key
-     */
-    public function arrayKey(array $array, $key = 'key'): array
+    public function arrayKey(array $array, string $key = 'key'): array
     {
         $out = [];
 

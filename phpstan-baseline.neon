@@ -361,37 +361,7 @@ parameters:
 			path: src/Twig/RequestRuntime.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:endsWith\\(\\) has parameter \\$haystack with no typehint specified\\.$#"
-			count: 1
-			path: src/Twig/RequestRuntime.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:endsWith\\(\\) has parameter \\$needle with no typehint specified\\.$#"
-			count: 1
-			path: src/Twig/RequestRuntime.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:localeAttribute\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Twig/RequestRuntime.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\TextRuntime\\:\\:htmlEncode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Twig/TextRuntime.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\TextRuntime\\:\\:htmlEncodePii\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Twig/TextRuntime.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\TextRuntime\\:\\:jsonDecode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Twig/TextRuntime.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\TextRuntime\\:\\:jsonMenuDecode\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Twig/TextRuntime.php
 
