@@ -66,42 +66,37 @@ class RequestRuntime implements RuntimeExtensionInterface
 
         $hash = $fileField[EmsFields::CONTENT_FILE_HASH_FIELD_] ?? $fileField[$fileHashField] ?? 'processor';
         $filename = $fileField[EmsFields::CONTENT_FILE_NAME_FIELD_] ?? $fileField[$filenameField] ?? 'asset.bin';
-        $mimeType = $fileField[EmsFields::CONTENT_MIME_TYPE_FIELD_] ?? $fileField[$mimeTypeField] ?? 'application/bin';
+        $mimeType = $fileField[EmsFields::CONTENT_MIME_TYPE_FIELD_] ?? $fileField[$mimeTypeField] ?? MimeType::fromFilename($filename) ?? 'application/octet-stream';
 
-        //We are generating an image
         if (EmsFields::ASSET_CONFIG_TYPE_IMAGE === ($config[EmsFields::ASSET_CONFIG_TYPE] ?? null)) {
-            //an SVG image wont be reworked
             if ($mimeType && \preg_match('/image\/svg.*/', $mimeType)) {
-                $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
                 if (!self::endsWith($filename, '.svg')) {
                     $filename .= '.svg';
                 }
-            } elseif (isset($config[EmsFields::ASSET_CONFIG_QUALITY]) && !$config[EmsFields::ASSET_CONFIG_QUALITY]) {
-                $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = 'image/png';
+            } elseif (0 !== ($config[EmsFields::ASSET_CONFIG_QUALITY] ?? 0)) {
+                $mimeType = 'image/png';
                 if (!self::endsWith($filename, '.png')) {
                     $filename .= '.png';
                 }
             } else {
-                $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = 'image/jpeg';
+                $mimeType = 'image/jpeg';
                 if (!self::endsWith($filename, '.jpeg') && !self::endsWith($filename, '.jpg')) {
                     $filename .= '.jpg';
                 }
             }
-        } elseif (!$mimeType) {
-            $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = MimeType::fromFilename($filename) ?? 'application/octet-stream';
-        } else {
-            $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
         }
 
-        // We are generating a URL for a zip file
-        if (isset($config[EmsFields::ASSET_CONFIG_TYPE]) && EmsFields::ASSET_CONFIG_TYPE_ZIP === $config[EmsFields::ASSET_CONFIG_TYPE]) {
-            $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = 'application/zip';
+        if (EmsFields::ASSET_CONFIG_TYPE_ZIP === ($config[EmsFields::ASSET_CONFIG_TYPE] ?? null)) {
+            $mimeType = 'application/zip';
             if (isset($config[EmsFields::CONTENT_FILES]) && !empty($config[EmsFields::CONTENT_FILES])) {
                 if (!self::endsWith($filename, '.zip')) {
                     $filename .= '.zip';
                 }
             }
         }
+
+        $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
+
         try {
             $hashConfig = $this->storageManager->saveConfig($config);
         } catch (NotSavedException $e) {
