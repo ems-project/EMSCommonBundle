@@ -64,29 +64,12 @@ class RequestRuntime implements RuntimeExtensionInterface
     {
         $config = $assetConfig;
 
-        $hash = 'processor';
-        if (isset($fileField[EmsFields::CONTENT_FILE_HASH_FIELD_])) {
-            $hash = $fileField[EmsFields::CONTENT_FILE_HASH_FIELD_];
-        } elseif (isset($fileField[$fileHashField])) {
-            $hash = $fileField[$fileHashField];
-        }
-
-        $filename = 'asset.bin';
-        if (isset($fileField[EmsFields::CONTENT_FILE_NAME_FIELD_])) {
-            $filename = $fileField[EmsFields::CONTENT_FILE_NAME_FIELD_];
-        } elseif (isset($fileField[$filenameField])) {
-            $filename = $fileField[$filenameField];
-        }
-
-        $mimeType = 'application/bin';
-        if (isset($fileField[EmsFields::CONTENT_MIME_TYPE_FIELD_])) {
-            $mimeType = $fileField[EmsFields::CONTENT_MIME_TYPE_FIELD_];
-        } elseif (isset($fileField[$mimeTypeField])) {
-            $mimeType = $fileField[$mimeTypeField];
-        }
+        $hash = $fileField[EmsFields::CONTENT_FILE_HASH_FIELD_] ?? $fileField[$fileHashField] ?? 'processor';
+        $filename = $fileField[EmsFields::CONTENT_FILE_NAME_FIELD_] ?? $fileField[$filenameField] ?? 'asset.bin';
+        $mimeType = $fileField[EmsFields::CONTENT_MIME_TYPE_FIELD_] ?? $fileField[$mimeTypeField] ?? 'application/bin';
 
         //We are generating an image
-        if (isset($config[EmsFields::ASSET_CONFIG_TYPE]) && EmsFields::ASSET_CONFIG_TYPE_IMAGE === $config[EmsFields::ASSET_CONFIG_TYPE]) {
+        if (EmsFields::ASSET_CONFIG_TYPE_IMAGE === ($config[EmsFields::ASSET_CONFIG_TYPE] ?? null)) {
             //an SVG image wont be reworked
             if ($mimeType && \preg_match('/image\/svg.*/', $mimeType)) {
                 $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
