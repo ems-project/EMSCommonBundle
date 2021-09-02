@@ -101,13 +101,20 @@ class StorageManager
 
     public function getStream(string $hash): StreamInterface
     {
+        /** @var StorageInterface[] $missingIn */
+        $missingIn = [];
+
         foreach ($this->adapters as $adapter) {
             if ($adapter->head($hash)) {
                 try {
+                    $this->hotSynchronize($hash, $adapter, $missingIn);
+
                     return $adapter->read($hash);
                 } catch (\Throwable $e) {
                     continue;
                 }
+            } else {
+                $missingIn[] = $adapter;
             }
         }
         throw new NotFoundException($hash);
@@ -360,5 +367,45 @@ class StorageManager
         }
 
         return $usageRequested >= $adapter->getUsage();
+    }
+
+    /**
+     * @param StorageInterface[] $missingIn
+     */
+    private function hotSynchronize(string $hash, StorageInterface $source, array $missingIn): void
+    {
+        if (empty($missingIn)) {
+            return;
+        }
+        try {
+            $size = $this->getSize($hash);
+            $filteredAdapters = [];
+            foreach ($missingIn as $adapter) {
+                if ($size < $adapter->getHotSynchronizeLimit()) {
+                    $filteredAdapters[] = $adapter;
+                }
+            }
+
+            if (empty($filteredAdapters)) {
+                return;
+            }
+
+            foreach ($filteredAdapters as $adapter) {
+                $adapter->initUpload($hash, $size, 'hotSynchronized', 'application/bin');
+            }
+
+            $stream = $source->read($hash);
+            while (!$stream->eof()) {
+                $chunk = $stream->read(4096);
+                foreach ($filteredAdapters as $adapter) {
+                    $adapter->addChunk($hash, $chunk);
+                }
+            }
+
+            foreach ($filteredAdapters as $adapter) {
+                $adapter->finalizeUpload($hash);
+            }
+        } catch (\Throwable $e) {
+        }
     }
 }
