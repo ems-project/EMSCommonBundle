@@ -30,7 +30,7 @@ class RequestRuntime implements RuntimeExtensionInterface
         $this->cacheDir = $cacheDir;
     }
 
-    public static function endsWith(string $haystack, string $needle)
+    private static function endsWith(string $haystack, string $needle)
     {
         $length = \strlen($needle);
         if (0 == $length) {
