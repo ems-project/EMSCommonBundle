@@ -40,19 +40,20 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('ems_json_menu_nested_decode', [TextRuntime::class, 'jsonMenuNestedDecode']),
             new TwigFilter('ems_json_decode', [TextRuntime::class, 'jsonDecode']),
             new TwigFilter('ems_webalize', [Encoder::class, 'webalize']),
+            new TwigFilter('ems_markdown', [Encoder::class, 'markdownToHtml'], ['is_safe' => ['html']]),
+            new TwigFilter('ems_stringify', [Converter::class, 'stringify']),
+            new TwigFilter('ems_temp_file', [AssetRuntime::class, 'temporaryFile']),
+            new TwigFilter('ems_asset_average_color', [RequestRuntime::class, 'assetAverageColor'], ['is_safe' => ['html']]),
         ];
     }
 
     public function fileExists(string $filename): bool
     {
-        return file_exists($filename);
+        return \file_exists($filename);
     }
 
     /**
-     * @param array  $array
      * @param string $key
-     *
-     * @return array
      */
     public function arrayKey(array $array, $key = 'key'): array
     {
@@ -60,20 +61,15 @@ class CommonExtension extends AbstractExtension
 
         foreach ($array as $id => $item) {
             if (isset($item[$key])) {
-                $out[$item[$key]] =  $item;
+                $out[$item[$key]] = $item;
             } else {
-                $out[$id] =  $item;
+                $out[$id] = $item;
             }
         }
 
         return $out;
     }
 
-    /**
-     * @param string $emsLink
-     *
-     * @return string
-     */
     public function getOuuid(string $emsLink): string
     {
         return EMSLink::fromText($emsLink)->getOuuid();

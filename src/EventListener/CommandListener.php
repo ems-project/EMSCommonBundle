@@ -24,7 +24,7 @@ class CommandListener implements EventSubscriberInterface
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
     public static function getSubscribedEvents(): array
     {
@@ -35,8 +35,6 @@ class CommandListener implements EventSubscriberInterface
     }
 
     /**
-     * @param ConsoleCommandEvent $event
-     *
      * @return void
      */
     public function onCommand(ConsoleCommandEvent $event)
@@ -51,8 +49,6 @@ class CommandListener implements EventSubscriberInterface
     }
 
     /**
-     * @param ConsoleTerminateEvent $event
-     *
      * @return void
      */
     public function onTerminate(ConsoleTerminateEvent $event)
@@ -67,8 +63,8 @@ class CommandListener implements EventSubscriberInterface
 
         $io = new SymfonyStyle($event->getInput(), $event->getOutput());
         $io->listing([
-            sprintf('Duration: %d s', $stopwatch->getDuration() / 1000),
-            sprintf('Memory: %s', Converter::formatBytes($stopwatch->getMemory()))
+            \sprintf('Duration: %d s', $stopwatch->getDuration() / 1000),
+            \sprintf('Memory: %s', Converter::formatBytes($stopwatch->getMemory())),
         ]);
     }
 }

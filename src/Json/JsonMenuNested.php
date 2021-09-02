@@ -19,8 +19,10 @@ final class JsonMenuNested implements \IteratorAggregate
     private $object;
     /** @var JsonMenuNested[] */
     private $children = [];
-    /** @var null|JsonMenuNested */
+    /** @var JsonMenuNested|null */
     private $parent;
+    /** @var string[] */
+    private array $descendantIds;
 
     /**
      * @param array<mixed> $data
@@ -29,14 +31,16 @@ final class JsonMenuNested implements \IteratorAggregate
     {
         $this->id = $data['id'];
         $this->type = $data['type'];
-        $this->label = $data['label'];
+        $this->label = $data['label'] ?? '';
         $this->object = $data['object'] ?? [];
 
         $children = $data['children'] ?? [];
 
+        $this->descendantIds = [];
         foreach ($children as $child) {
             $childItem = new JsonMenuNested($child);
             $childItem->setParent($this);
+            $this->descendantIds = \array_merge($this->descendantIds, [$childItem->getId()], $childItem->getDescendantIds());
 
             $this->children[] = $childItem;
         }
@@ -48,7 +52,7 @@ final class JsonMenuNested implements \IteratorAggregate
            'id' => 'root',
            'type' => 'root',
            'label' => 'root',
-           'children' => \json_decode($structure, true)
+           'children' => \json_decode($structure, true),
         ]);
     }
 
@@ -58,7 +62,7 @@ final class JsonMenuNested implements \IteratorAggregate
     }
 
     /**
-     * Return a flat array
+     * Return a flat array.
      *
      * @return array<JsonMenuNested>
      */
@@ -67,14 +71,35 @@ final class JsonMenuNested implements \IteratorAggregate
         $data = [$this];
 
         foreach ($this->children as $child) {
-            $data = array_merge($data, $child->toArray());
+            $data = \array_merge($data, $child->toArray());
         }
 
         return $data;
     }
 
     /**
-     * Loop through the children recursively
+     * @return array<string, mixed>
+     */
+    public function toArrayStructure(bool $includeRoot = false): array
+    {
+        $children = $this->children;
+        $structureChildren = \array_map(fn (JsonMenuNested $c) => $c->toArrayStructure(true), $children);
+
+        if (!$includeRoot) {
+            return $structureChildren;
+        }
+
+        return [
+            'id' => $this->id,
+            'label' => $this->label,
+            'type' => $this->type,
+            'object' => $this->object,
+            'children' => \array_map(fn (JsonMenuNested $c) => $c->toArrayStructure(true), $children),
+        ];
+    }
+
+    /**
+     * Loop through the children recursively.
      */
     public function getIterator()
     {
@@ -125,8 +150,8 @@ final class JsonMenuNested implements \IteratorAggregate
     {
         $path = [$this];
 
-        if ($this->parent !== null && !$this->parent->isRoot()) {
-            $path = array_merge($this->parent->getPath(), $path);
+        if (null !== $this->parent && !$this->parent->isRoot()) {
+            $path = \array_merge($this->parent->getPath(), $path);
         }
 
         return $path;
@@ -144,11 +169,65 @@ final class JsonMenuNested implements \IteratorAggregate
 
     public function isRoot(): bool
     {
-        return $this->parent === null;
+        return null === $this->parent;
+    }
+
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
+    }
+
+    /**
+     * @param array<string, mixed> $object
+     */
+    public function setObject(array $object): void
+    {
+        $this->object = $object;
     }
 
     public function setParent(?JsonMenuNested $parent): void
     {
         $this->parent = $parent;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getDescendantIds(): array
+    {
+        return $this->descendantIds;
+    }
+
+    /**
+     * @return iterable<JsonMenuNested>
+     */
+    public function breadcrumb(string $uid, bool $reverseOrder = false): iterable
+    {
+        yield from $this->yieldBreadcrumb($uid, $this->children, $reverseOrder);
+    }
+
+    /**
+     * @param JsonMenuNested[] $menu
+     *
+     * @return iterable<JsonMenuNested>
+     */
+    private function yieldBreadcrumb(string $uid, array $menu, bool $reverseOrder): iterable
+    {
+        foreach ($menu as $item) {
+            if ($item->getId() === $uid) {
+                yield $item;
+                break;
+            }
+            if (\in_array($uid, $item->getDescendantIds())) {
+                if (!$reverseOrder) {
+                    yield $item;
+                }
+                yield from $this->yieldBreadcrumb($uid, $item->getChildren(), $reverseOrder);
+                if ($reverseOrder) {
+                    yield $item;
+                }
+                break;
+            }
+        }
     }
 }

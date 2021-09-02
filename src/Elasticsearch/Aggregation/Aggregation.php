@@ -4,6 +4,7 @@ namespace EMS\CommonBundle\Elasticsearch\Aggregation;
 
 class Aggregation
 {
+    private string $name;
     /** @var array<mixed> */
     private $buckets;
     /** @var int */
@@ -14,15 +15,21 @@ class Aggregation
     /**
      * @param array<mixed> $aggregation
      */
-    public function __construct(array $aggregation)
+    public function __construct(string $name, array $aggregation)
     {
+        $this->name = $name;
         $this->buckets = $aggregation['buckets'] ?? [];
         $this->count = $aggregation['doc_count'] ?? 0;
         $this->raw = $aggregation;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     /**
-     * @return iterable<Bucket>
+     * @return iterable<Bucket>|Bucket[]
      */
     public function getBuckets(): iterable
     {
@@ -37,12 +44,10 @@ class Aggregation
     }
 
     /**
-     * @deprecated
      * @return array<mixed>
      */
     public function getRaw(): array
     {
-        @trigger_error("Aggregation::getRaw is deprecated use the others getters", E_USER_DEPRECATED);
         return $this->raw;
     }
 
@@ -53,12 +58,16 @@ class Aggregation
     {
         $out = [];
         foreach ($this->buckets as $bucket) {
+            if (!$bucket instanceof Bucket) {
+                $bucket = new Bucket($bucket);
+            }
             $key = $bucket->getKey();
-            if ($key === null) {
+            if (null === $key) {
                 continue;
             }
             $out[] = $key;
         }
+
         return $out;
     }
 }

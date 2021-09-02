@@ -6,8 +6,9 @@ use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 
 class EMSLink
 {
+    public const EMSLINK_ASSET_PREFIX = 'ems://asset:';
     /**
-     * object|asset
+     * object|asset.
      *
      * @var string
      */
@@ -19,18 +20,18 @@ class EMSLink
     /** @var string */
     private $ouuid;
 
-    /** @var string|null  */
+    /** @var string|null */
     private $query = null;
 
     /**
      * Regex for searching ems links in content
-     * content_type and query can be empty/optional
+     * content_type and query can be empty/optional.
      *
      * Example: <a href="ems://object:page:AV44kX4b1tfmVMOaE61u">example</a>
      * link_type => object, content_type => page, ouuid => AV44kX4b1tfmVMOaE61u
      */
-    const PATTERN = '/ems:\/\/(?P<link_type>.*?):(?:(?P<content_type>([[:alnum:]]|_)*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)(?:\?(?P<query>(?:[^"|\'|\s]*)))?/';
-    const SIMPLE_PATTERN = '/(?:(?P<content_type>.*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)/';
+    public const PATTERN = '/ems:\/\/(?P<link_type>.*?):(?:(?P<content_type>([[:alnum:]]|_)*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)(?:\?(?P<query>(?:[^"|\'|\s]*)))?/';
+    public const SIMPLE_PATTERN = '/(?:(?P<content_type>.*?):)?(?P<ouuid>([[:alnum:]]|-|_)*)/';
 
     private function __construct()
     {
@@ -38,8 +39,8 @@ class EMSLink
 
     public static function fromText(string $text): EMSLink
     {
-        $pattern = substr($text, 0, 6) === 'ems://' ? self::PATTERN : self::SIMPLE_PATTERN;
-        preg_match($pattern, $text, $match);
+        $pattern = 'ems://' === \substr($text, 0, 6) ? self::PATTERN : self::SIMPLE_PATTERN;
+        \preg_match($pattern, $text, $match);
 
         return self::fromMatch($match);
     }
@@ -52,7 +53,7 @@ class EMSLink
         $link = new self();
 
         if (!isset($match['ouuid'])) {
-            throw new \InvalidArgumentException(sprintf('ouuid is required! (%s)', implode(',', $match)));
+            throw new \InvalidArgumentException(\sprintf('ouuid is required! (%s)', \implode(',', $match)));
         }
 
         $link->ouuid = $match['ouuid'];
@@ -60,7 +61,7 @@ class EMSLink
 
         if (isset($match['content_type']) && !empty($match['content_type'])) {
             $link->contentType = $match['content_type'];
-        } else if (isset($match['link_type']) && !empty($match['link_type'])) {
+        } elseif (isset($match['link_type']) && !empty($match['link_type'])) {
             $link->contentType = $match['link_type'];
         }
 
@@ -72,7 +73,7 @@ class EMSLink
     }
 
     /**
-     * @param array{_id: string, _type?: string, _source: array}  $document
+     * @param array{_id: string, _type?: string, _source: array} $document
      */
     public static function fromDocument(array $document): EMSLink
     {
@@ -80,12 +81,12 @@ class EMSLink
         $link->ouuid = $document['_id'];
 
         $contentType = $document['_source'][EMSSource::FIELD_CONTENT_TYPE] ?? null;
-        if ($contentType == null) {
+        if (null == $contentType) {
             $contentType = $document['_type'] ?? null;
-            @trigger_error(sprintf('The field %s is missing in the document %s', EMSSource::FIELD_CONTENT_TYPE, $link->getEmsId()), E_USER_DEPRECATED);
+            @\trigger_error(\sprintf('The field %s is missing in the document %s', EMSSource::FIELD_CONTENT_TYPE, $link->getEmsId()), E_USER_DEPRECATED);
         }
-        if ($contentType == null) {
-            throw new \RuntimeException(sprintf('Unable to determine the content type for document %s', $link->ouuid));
+        if (null == $contentType) {
+            throw new \RuntimeException(\sprintf('Unable to determine the content type for document %s', $link->ouuid));
         }
         $link->contentType = $contentType;
 
@@ -94,11 +95,11 @@ class EMSLink
 
     public function __toString(): string
     {
-        return vsprintf('ems://%s:%s%s%s', [
+        return \vsprintf('ems://%s:%s%s%s', [
             $this->linkType,
-            ($this->contentType ? $this->contentType . ':' : ''),
+            ($this->contentType ? $this->contentType.':' : ''),
             $this->ouuid,
-            ($this->query ? '?' . $this->query : '')
+            ($this->query ? '?'.$this->query : ''),
         ]);
     }
 
@@ -122,7 +123,7 @@ class EMSLink
      */
     public function getQuery(): array
     {
-        if ($this->query == null) {
+        if (null == $this->query) {
             return [];
         }
         \parse_str($this->query, $output);
@@ -137,6 +138,6 @@ class EMSLink
 
     public function getEmsId(): string
     {
-        return sprintf('%s:%s', $this->contentType, $this->ouuid);
+        return \sprintf('%s:%s', $this->contentType, $this->ouuid);
     }
 }

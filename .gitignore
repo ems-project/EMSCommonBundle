@@ -1,7 +1,3 @@
-.phpunit.result.cache
-composer.lock
-phpunit.xml
 /vendor
-
-# Backup entities generated with doctrine:generate:entities command
-**/Entity/*~
+/.php-cs-fixer.cache
+/.phpunit.result.cache

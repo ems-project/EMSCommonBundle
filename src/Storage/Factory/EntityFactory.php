@@ -8,14 +8,13 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use EMS\CommonBundle\Storage\Service\EntityStorage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EntityFactory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
-    const STORAGE_TYPE = 'db';
+    public const STORAGE_TYPE = 'db';
     /** @var string */
-    const STORAGE_CONFIG_ACTIVATE = 'activate';
+    public const STORAGE_CONFIG_ACTIVATE = 'activate';
     /** @var LoggerInterface */
     private $logger;
     /** @var bool */
@@ -42,11 +41,12 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
 
         if ($this->registered) {
             $this->logger->warning('The entity storage service is already registered');
+
             return null;
         }
         $this->registered = true;
 
-         return new EntityStorage($this->doctrine, $config[self::STORAGE_CONFIG_USAGE]);
+        return new EntityStorage($this->doctrine, $config[self::STORAGE_CONFIG_USAGE]);
     }
 
     public function getStorageType(): string
@@ -54,9 +54,9 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
         return self::STORAGE_TYPE;
     }
 
-
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, activate: bool, usage: int}
      */
     private function resolveParameters(array $parameters): array
@@ -66,7 +66,7 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_ACTIVATE => true,
-                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CONFIG,
+                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CONFIG_ATTRIBUTE,
             ])
             ->setAllowedTypes(self::STORAGE_CONFIG_ACTIVATE, 'bool')
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
@@ -75,6 +75,7 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
 
         /** @var array{type: string, activate: bool, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }

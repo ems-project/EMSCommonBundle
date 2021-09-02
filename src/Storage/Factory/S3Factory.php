@@ -7,16 +7,15 @@ namespace EMS\CommonBundle\Storage\Factory;
 use EMS\CommonBundle\Storage\Service\S3Storage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class S3Factory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
-    const STORAGE_TYPE = 's3';
+    public const STORAGE_TYPE = 's3';
     /** @var string */
-    const STORAGE_CONFIG_CREDENTIALS = 'credentials';
+    public const STORAGE_CONFIG_CREDENTIALS = 'credentials';
     /** @var string */
-    const STORAGE_CONFIG_BUCKET = 'bucket';
+    public const STORAGE_CONFIG_BUCKET = 'bucket';
     /** @var LoggerInterface */
     private $logger;
 
@@ -32,8 +31,9 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
         $credentials = $config[self::STORAGE_CONFIG_CREDENTIALS] ?? null;
         $bucket = $config[self::STORAGE_CONFIG_BUCKET] ?? null;
 
-        if ($credentials === null || $bucket === null) {
-            @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+        if (null === $credentials || 0 === \count($credentials) || null === $bucket || 0 === \strlen($bucket)) {
+            @\trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+
             return null;
         }
 
@@ -47,6 +47,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, credentials: null|array, bucket: null|string, usage: int}
      */
     private function resolveParameters(array $parameters): array
@@ -64,6 +65,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
         ;
         /** @var array{type: string, credentials: null|array, bucket: null|string, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }

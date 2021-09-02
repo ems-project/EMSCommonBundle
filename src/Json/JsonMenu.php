@@ -21,7 +21,7 @@ class JsonMenu
     {
         $this->json = $source;
         $this->glue = $glue;
-        $this->structure = json_decode($source, true);
+        $this->structure = \json_decode($source, true);
         $this->slugs = [];
         $this->bySlugs = [];
         $this->items = [];
@@ -30,18 +30,25 @@ class JsonMenu
 
     /**
      * @param array<mixed> $menu
+     *
+     * @return string[]
      */
-    private function recursiveWalk(array $menu, string $basePath = ''): void
+    private function recursiveWalk(array &$menu, string $basePath = ''): array
     {
-        foreach ($menu as $item) {
-            $slug = $basePath . $item['label'];
+        $contains = [];
+        foreach ($menu as &$item) {
+            $slug = $basePath.$item['label'];
             $this->items[$item['id']] = $item;
             $this->slugs[$item['id']] = $slug;
             $this->bySlugs[$slug] = $item;
             if (isset($item['children'])) {
-                $this->recursiveWalk($item['children'], $slug . $this->glue);
+                $item['contains'] = $this->recursiveWalk($item['children'], $slug.$this->glue);
+                $contains = \array_merge($contains, $item['contains']);
             }
+            $contains[] = $item['id'];
         }
+
+        return $contains;
     }
 
     /**
@@ -58,7 +65,7 @@ class JsonMenu
     }
 
     /**
-     * @return null|array<mixed>
+     * @return array<mixed>|null
      */
     public function getItem(string $id): ?array
     {
@@ -70,7 +77,7 @@ class JsonMenu
      */
     public function getUids(): array
     {
-        return array_keys($this->slugs);
+        return \array_keys($this->slugs);
     }
 
     /**
@@ -78,7 +85,7 @@ class JsonMenu
      */
     public function getSlugs(): array
     {
-        return array_values($this->slugs);
+        return \array_values($this->slugs);
     }
 
     public function getJson(): string
@@ -97,5 +104,38 @@ class JsonMenu
     public function getGlue(): string
     {
         return $this->glue;
+    }
+
+    public function contains(string $uid): bool
+    {
+        return \in_array($uid, \array_keys($this->items));
+    }
+
+    /**
+     * @return iterable<array<mixed>>|array<mixed>[]
+     */
+    public function breadcrumb(string $uid): iterable
+    {
+        yield from $this->yieldBreadcrumb($uid, $this->structure);
+    }
+
+    /**
+     * @param array<mixed> $menu
+     *
+     * @return iterable<array<mixed>>|array<mixed>[]
+     */
+    private function yieldBreadcrumb(string $uid, array $menu): iterable
+    {
+        foreach ($menu as $item) {
+            if ($item['id'] === $uid) {
+                yield $item;
+                break;
+            }
+            if (\in_array($uid, $item['contains'] ?? [])) {
+                yield $item;
+                yield from $this->yieldBreadcrumb($uid, $item['children'] ?? []);
+                break;
+            }
+        }
     }
 }

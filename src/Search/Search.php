@@ -3,14 +3,18 @@
 namespace EMS\CommonBundle\Search;
 
 use Elastica\Aggregation\AbstractAggregation;
+use Elastica\Aggregation\Terms;
 use Elastica\Query\AbstractQuery;
 use Elastica\Search as ElasticaSearch;
+use Elastica\Suggest;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
 
 class Search
 {
     /** @var string[] */
-    private $sources = [];
+    private array $sourceIncludes = [];
+    /** @var string[] */
+    private array $sourceExcludes = [];
     /** @var string[] */
     private $contentTypes = [];
     /** @var AbstractAggregation[] */
@@ -23,8 +27,16 @@ class Search
     private $size = 10;
     /** @var int */
     private $from = 0;
-    /** @var null|array<mixed>  */
+    /** @var array<mixed>|null */
     private $sort = null;
+    /** @var AbstractQuery|null */
+    private $postFilter = null;
+    /** @var Suggest */
+    private $suggest = null;
+    /** @var array<mixed>|null */
+    private $highlight = null;
+
+    private ?string $regex = null;
 
     /**
      * @param string[] $indices
@@ -35,12 +47,24 @@ class Search
         $this->query = $query;
     }
 
+    public function hasSources(): bool
+    {
+        return \count($this->sourceIncludes) > 0 || \count($this->sourceExcludes) > 0;
+    }
+
     /**
-     * @return string[]
+     * @return string[]|array{includes: string[], excludes: string[]}
      */
     public function getSources(): array
     {
-        return $this->sources;
+        if (\count($this->sourceExcludes) > 0) {
+            return \array_filter([
+                'includes' => $this->sourceIncludes,
+                'excludes' => $this->sourceExcludes,
+            ]);
+        }
+
+        return $this->sourceIncludes;
     }
 
     /**
@@ -57,11 +81,32 @@ class Search
     }
 
     /**
-     * @param string[] $sources
+     * @param array<mixed> $sources
      */
     public function setSources(array $sources): void
     {
-        $this->sources = \array_merge($sources, [EMSSource::FIELD_CONTENT_TYPE]);
+        if (0 === \count($sources)) {
+            $this->sourceIncludes = [];
+
+            return;
+        }
+
+        if (isset($sources['includes']) || isset($sources['excludes'])) {
+            $this->sourceIncludes = $sources['includes'] ?? [];
+            $this->sourceExcludes = $sources['excludes'] ?? [];
+
+            return;
+        }
+
+        $this->sourceIncludes = \array_merge($sources, [EMSSource::FIELD_CONTENT_TYPE]);
+    }
+
+    /**
+     * @param string[] $sourceExcludes
+     */
+    public function setSourceExcludes(array $sourceExcludes): void
+    {
+        $this->sourceExcludes = $sourceExcludes;
     }
 
     /**
@@ -110,9 +155,9 @@ class Search
     }
 
     /**
-     * @param array<mixed> $sort
+     * @param array<mixed>|null $sort
      */
-    public function setSort(array $sort): void
+    public function setSort(?array $sort): void
     {
         $this->sort = $sort;
     }
@@ -121,6 +166,16 @@ class Search
      * @return array<mixed>
      */
     public function getScrollOptions(): array
+    {
+        return [
+            ElasticaSearch::OPTION_SIZE => $this->size,
+        ];
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function getCountOptions(): array
     {
         return [];
     }
@@ -144,5 +199,59 @@ class Search
     public function getAggregations(): array
     {
         return $this->aggregations;
+    }
+
+    public function addTermsAggregation(string $name, string $field, int $size = 20): void
+    {
+        $termsAggregation = new Terms($name);
+        $termsAggregation->setField($field);
+        $termsAggregation->setSize($size);
+        $this->addAggregation($termsAggregation);
+    }
+
+    public function setPostFilter(?AbstractQuery $postFilter): void
+    {
+        $this->postFilter = $postFilter;
+    }
+
+    public function getPostFilter(): ?AbstractQuery
+    {
+        return $this->postFilter;
+    }
+
+    public function getSuggest(): ?Suggest
+    {
+        return $this->suggest;
+    }
+
+    public function setSuggest(Suggest $suggest): void
+    {
+        $this->suggest = $suggest;
+    }
+
+    /**
+     * @return array<mixed>|null
+     */
+    public function getHighlight(): ?array
+    {
+        return $this->highlight;
+    }
+
+    /**
+     * @param array<mixed> $highlight
+     */
+    public function setHighlight(array $highlight): void
+    {
+        $this->highlight = $highlight;
+    }
+
+    public function getRegex(): ?string
+    {
+        return $this->regex;
+    }
+
+    public function setRegex(?string $regex): void
+    {
+        $this->regex = $regex;
     }
 }

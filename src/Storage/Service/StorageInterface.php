@@ -8,24 +8,34 @@ use Psr\Http\Message\StreamInterface;
 
 interface StorageInterface
 {
-    /** @var int  */
+    /** @var int */
     public const STORAGE_USAGE_CACHE = 0;
-    /** @var int  */
+    /** @var int */
     public const STORAGE_USAGE_CONFIG = 1;
-    /** @var int  */
+    /** @var int */
     public const STORAGE_USAGE_ASSET = 2;
-    /** @var int  */
+    /** @var int */
     public const STORAGE_USAGE_BACKUP = 3;
-    /** @var int  */
+    /** @var int */
     public const STORAGE_USAGE_EXTERNAL = 4;
+    /** @var string */
+    public const STORAGE_USAGE_CACHE_ATTRIBUTE = 'cache';
+    /** @var string */
+    public const STORAGE_USAGE_CONFIG_ATTRIBUTE = 'config';
+    /** @var string */
+    public const STORAGE_USAGE_ASSET_ATTRIBUTE = 'asset';
+    /** @var string */
+    public const STORAGE_USAGE_BACKUP_ATTRIBUTE = 'backup';
+    /** @var string */
+    public const STORAGE_USAGE_EXTERNAL_ATTRIBUTE = 'external';
 
     /** @var array<string, int> */
     public const STORAGE_USAGES = [
-        'usage' => self::STORAGE_USAGE_CACHE,
-        'config' => self::STORAGE_USAGE_CONFIG,
-        'asset' => self::STORAGE_USAGE_ASSET,
-        'backup' => self::STORAGE_USAGE_BACKUP,
-        'external' => self::STORAGE_USAGE_EXTERNAL,
+        self::STORAGE_USAGE_CACHE_ATTRIBUTE => self::STORAGE_USAGE_CACHE,
+        self::STORAGE_USAGE_CONFIG_ATTRIBUTE => self::STORAGE_USAGE_CONFIG,
+        self::STORAGE_USAGE_ASSET_ATTRIBUTE => self::STORAGE_USAGE_ASSET,
+        self::STORAGE_USAGE_BACKUP_ATTRIBUTE => self::STORAGE_USAGE_BACKUP,
+        self::STORAGE_USAGE_EXTERNAL_ATTRIBUTE => self::STORAGE_USAGE_EXTERNAL,
     ];
 
     public function head(string $hash): bool;

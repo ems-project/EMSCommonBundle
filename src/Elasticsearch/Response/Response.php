@@ -17,7 +17,7 @@ final class Response implements ResponseInterface
     /** @var array<string, mixed> */
     private $hits;
 
-    /** @var null|string */
+    /** @var string|null */
     private $scrollId;
     /** @var bool */
     private $accurate;
@@ -27,11 +27,11 @@ final class Response implements ResponseInterface
     /**
      * @param array<mixed> $response
      */
-    private function __construct($response)
+    private function __construct(array $response)
     {
         $this->total = $response['hits']['total']['value'] ?? $response['hits']['total'] ?? 0;
         $this->accurate = true;
-        if ('eq' !== $response['hits']['total']['relation'] ?? null) {
+        if (\is_array($response['hits']['total'] ?? null) && 'eq' !== $response['hits']['total']['relation'] ?? null) {
             $this->accurate = false;
         }
         $this->hits = $response['hits']['hits'] ?? [];
@@ -67,18 +67,19 @@ final class Response implements ResponseInterface
     public function getAggregation(string $name): ?Aggregation
     {
         if (isset($this->aggregations[$name])) {
-            return new Aggregation($this->aggregations[$name]);
+            return new Aggregation($name, $this->aggregations[$name]);
         }
+
         return null;
     }
 
     /**
-     * @return iterable<Aggregation>
+     * @return iterable|Aggregation[]
      */
     public function getAggregations(): iterable
     {
-        foreach ($this->aggregations as $aggregation) {
-            yield new Aggregation($aggregation);
+        foreach ($this->aggregations as $name => $aggregation) {
+            yield new Aggregation($name, $aggregation);
         }
     }
 
@@ -103,6 +104,7 @@ final class Response implements ResponseInterface
         if (!$this->accurate) {
             $format = '≥%s';
         }
+
         return \sprintf($format, $this->total);
     }
 

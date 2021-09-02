@@ -7,16 +7,10 @@
     <services>
         <defaults public="false" />
 
-        <service id="ems_common.data_collector.elasticsearch_processor" class="EMS\CommonBundle\DataCollector\ElasticsearchProcessor">
-            <argument type="service" id="ems_common.data_collector.elasticsearch_data_collector" />
-            <argument type="service" id="logger" />
-            <tag name="monolog.logger" channel="elastic"/>
-            <tag name="monolog.processor" channel="elasticsearch" />
-        </service>
-        <service id="ems_common.data_collector.elasticsearch_data_collector" class="EMS\CommonBundle\DataCollector\ElasticsearchDataCollector">
-            <tag name="data_collector"
-                 template="@EMSCommon/DataCollector/template.html.twig"
-                 id="elasticsearch" />
+        <service id="ems_common.data_collector.elastica" class="EMS\CommonBundle\DataCollector\ElasticaDataCollector">
+            <argument type="service" id="ems_common.logger.elastica" />
+            <argument type="service" id="ems_common.service.elastica" />
+            <tag name="data_collector" template="@EMSCommon/DataCollector/elastica.html.twig" id="elastica" />
         </service>
     </services>
 </container>

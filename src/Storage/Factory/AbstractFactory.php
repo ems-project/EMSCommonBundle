@@ -16,7 +16,7 @@ abstract class AbstractFactory implements StorageFactoryInterface
         $resolver
             ->setDefaults([
                 self::STORAGE_CONFIG_TYPE => null,
-                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CACHE,
+                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_CACHE_ATTRIBUTE,
             ])
             ->setAllowedTypes(self::STORAGE_CONFIG_TYPE, 'string')
             ->setAllowedTypes(self::STORAGE_CONFIG_USAGE, 'string')
@@ -24,6 +24,7 @@ abstract class AbstractFactory implements StorageFactoryInterface
             ->setAllowedValues(self::STORAGE_CONFIG_USAGE, \array_keys(StorageInterface::STORAGE_USAGES))
             ->setNormalizer(self::STORAGE_CONFIG_USAGE, self::usageResolver())
         ;
+
         return $resolver;
     }
 

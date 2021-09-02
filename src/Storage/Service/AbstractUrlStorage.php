@@ -29,8 +29,13 @@ abstract class AbstractUrlStorage implements StorageInterface
         if ($this->usage >= self::STORAGE_USAGE_EXTERNAL) {
             return;
         }
-        if (!\file_exists(\dirname($filename))) {
-            \mkdir(\dirname($filename), 0777, true);
+        $directoryName = \dirname($filename);
+        if (!\file_exists($directoryName)) {
+            try {
+                \mkdir($directoryName, 0777, true);
+            } catch (\Throwable $e) {
+                $this->logger->warning('Not able to create a {directoryName} folder', ['directoryName' => $directoryName]);
+            }
         }
     }
 
@@ -47,21 +52,22 @@ abstract class AbstractUrlStorage implements StorageInterface
     {
         return \join($ds, [
             $this->getBaseUrl(),
-            substr($hash, 0, 3),
+            \substr($hash, 0, 3),
             $hash,
         ]);
     }
 
     public function head(string $hash): bool
     {
-        return file_exists($this->getPath($hash));
+        return \file_exists($this->getPath($hash));
     }
 
     public function create(string $hash, string $filename): bool
     {
         $path = $this->getPath($hash);
         $this->initDirectory($path);
-        return copy($filename, $path);
+
+        return \copy($filename, $path);
     }
 
     public function read(string $hash, bool $confirmed = true): StreamInterface
@@ -71,21 +77,20 @@ abstract class AbstractUrlStorage implements StorageInterface
         } else {
             $out = $this->getUploadPath($hash);
         }
-        if (!file_exists($out)) {
+        if (!\file_exists($out)) {
             throw new NotFoundHttpException($hash);
         }
-        $resource = fopen($out, 'rb');
-        if (!is_resource($resource)) {
+        $resource = \fopen($out, 'rb');
+        if (!\is_resource($resource)) {
             throw new NotFoundHttpException($hash);
         }
 
         return new Stream($resource);
     }
 
-
     public function health(): bool
     {
-        return is_dir($this->getBaseUrl());
+        return \is_dir($this->getBaseUrl());
     }
 
     public function getSize(string $hash): int
@@ -96,8 +101,8 @@ abstract class AbstractUrlStorage implements StorageInterface
             throw new NotFoundHttpException($hash);
         }
 
-        $size = @filesize($path);
-        if ($size === false) {
+        $size = @\filesize($path);
+        if (false === $size) {
             throw new NotFoundHttpException($hash);
         }
 
@@ -109,37 +114,38 @@ abstract class AbstractUrlStorage implements StorageInterface
     public function remove(string $hash): bool
     {
         $file = $this->getPath($hash);
-        if (file_exists($file)) {
-            unlink($file);
+        if (\file_exists($file)) {
+            \unlink($file);
         }
+
         return true;
     }
-
 
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
         $path = $this->getUploadPath($hash);
         $this->initDirectory($path);
-        return file_put_contents($path, "") !== false;
+
+        return false !== \file_put_contents($path, '');
     }
 
     public function addChunk(string $hash, string $chunk): bool
     {
         $path = $this->getUploadPath($hash);
-        if (!file_exists($path)) {
+        if (!\file_exists($path)) {
             throw new NotFoundHttpException('temporary file not found');
         }
 
-        $file = fopen($path, "a");
-        if ($file === false) {
+        $file = \fopen($path, 'a');
+        if (false === $file) {
             return false;
         }
 
-        $result = fwrite($file, $chunk);
-        fflush($file);
-        fclose($file);
+        $result = \fwrite($file, $chunk);
+        \fflush($file);
+        \fclose($file);
 
-        if ($result === false || $result != strlen($chunk)) {
+        if (false === $result || $result != \strlen($chunk)) {
             return false;
         }
 
@@ -149,18 +155,29 @@ abstract class AbstractUrlStorage implements StorageInterface
     public function finalizeUpload(string $hash): bool
     {
         $source = $this->getUploadPath($hash);
-        $destination  = $this->getPath($hash);
+        $destination = $this->getPath($hash);
         $this->initDirectory($destination);
         try {
             return \rename($source, $destination);
         } catch (\Throwable $e) {
-            $this->logger->info('Rename {source} to {destination} failed: message', [$source, $destination, $e->getMessage()]);
+            $this->logger->info('Rename {source} to {destination} failed: {message} in service {serviceName}', [
+                'source' => $source,
+                'destination' => $destination,
+                'message' => $e->getMessage(),
+                'serviceName' => $this->__toString(),
+            ]);
         }
         try {
             return \copy($source, $destination);
         } catch (\Throwable $e) {
-            $this->logger->warning('Copy {source} to {destination} failed: {message}', [$source, $destination, $e->getMessage()]);
+            $this->logger->warning('Copy {source} to {destination} failed: {message}in service {serviceName}', [
+                'source' => $source,
+                'destination' => $destination,
+                'message' => $e->getMessage(),
+                'serviceName' => $this->__toString(),
+            ]);
         }
+
         return false;
     }
 

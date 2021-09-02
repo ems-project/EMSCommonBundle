@@ -3,10 +3,17 @@
 namespace EMS\CommonBundle\Logger;
 
 use DateTime;
-use Elasticsearch\Client;
+use Elastica\Bulk;
+use Elastica\Bulk\Action;
+use Elasticsearch\Endpoints\Indices\Template\Get;
+use Elasticsearch\Endpoints\Indices\Template\Put;
+use EMS\CommonBundle\Elasticsearch\Client;
+use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
+use EMS\CommonBundle\Elasticsearch\Mapping;
 use EMS\CommonBundle\Helper\EmsFields;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
+use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
@@ -16,45 +23,51 @@ use Symfony\Component\Security\Core\Security;
 
 class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarmerInterface, EventSubscriberInterface
 {
+    /** @var string */
+    public const MAPPING_VERSION = '1.0.2';
+    /** @var string */
+    private const EMS_INTERNAL_LOGGER_INDEX_PATTERN = 'ems_internal_logger_index_*';
+    /** @var string */
+    public const EMS_INTERNAL_LOGGER_ALIAS = 'ems_internal_logger_alias';
+    /** @var string */
+    private const EMS_INTERNAL_LOGGER_INDEX = 'ems_internal_logger_index_';
+    /** @var string */
+    private const EMS_INTERNAL_LOGGER_TEMPLATE = 'ems_internal_logger_template';
+    /** @var string */
+    private const EMS_LOGS = 'ems__logs';
+
     /** @var Client */
     private $client;
-
     /** @var Security */
     private $security;
-
+    /** @var Mapping */
+    private $mapping;
     /** @var int */
     protected $level;
-
     /** @var string */
     protected $instanceId;
-
     /** @var string */
     protected $version;
-
     /** @var string */
     protected $component;
-
     /** @var ?string */
     protected $user;
-
     /** @var ?string */
     protected $impersonator;
-
-    /** @var array */
-    protected $bulk;
-
+    /** @var Bulk */
+    private $bulk;
     /** @var bool */
     protected $tooLate;
-
     /** @var float */
     protected $startMicrotime;
-
     /** @var bool */
     protected $byPass;
+    /** @var string */
+    private $contentTypeName;
 
-    public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security, bool $byPass = false)
+    public function __construct(string $level, string $instanceId, string $version, string $component, Client $client, Security $security, Mapping $mapping, bool $byPass = false, string $contentTypeName = self::EMS_LOGS)
     {
-        $levelName = strtoupper($level);
+        $levelName = \strtoupper($level);
         if (isset(Logger::getLevels()[$levelName])) {
             $this->level = Logger::getLevels()[$levelName];
         } else {
@@ -64,127 +77,90 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         parent::__construct($this->level);
         $this->startMicrotime = \microtime(true);
         $this->client = $client;
+        $this->mapping = $mapping;
         $this->instanceId = $instanceId;
         $this->version = $version;
         $this->component = $component;
         $this->security = $security;
         $this->user = null;
         $this->impersonator = null;
-        $this->bulk = [];
+        $this->bulk = new Bulk($this->client);
         $this->tooLate = false;
         $this->byPass = $byPass;
+        $this->contentTypeName = $contentTypeName;
     }
 
-    public function warmUp($cacheDir)
+    public function warmUp($cacheDir): void
     {
-        if ($this->byPass) {
+        if ($this->byPass || !$this->updateRequired()) {
             return;
         }
 
         try {
-            $template = ['name' => 'ems_internal_logger_template'];
-            if ($this->client->indices()->existsTemplate($template)) {
-                $this->client->indices()->deleteTemplate($template);
-            }
+            $mapping = [
+                'channel' => $this->mapping->getLimitedKeywordMapping(),
+                'component' => $this->mapping->getLimitedKeywordMapping(),
+                EmsFields::LOG_CONTENTTYPE_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_OUUID_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_ENVIRONMENT_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_OPERATION_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_USERNAME_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_IMPERSONATOR_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_HOST_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_ROUTE_FIELD => $this->mapping->getKeywordMapping(),
+                EmsFields::LOG_URL_FIELD => $this->mapping->getTextWithSubRawMapping(),
+                'instance_id' => $this->mapping->getLimitedKeywordMapping(),
+                EmsFields::LOG_SESSION_ID_FIELD => $this->mapping->getKeywordMapping(),
+                'version' => $this->mapping->getLimitedKeywordMapping(),
+                'level_name' => $this->mapping->getKeywordMapping(),
+                'datetime' => $this->mapping->getDateTimeMapping(),
+                'level' => $this->mapping->getLongMapping(),
+                EmsFields::LOG_REVISION_ID_FIELD => $this->mapping->getLongMapping(),
+                EmsFields::LOG_MICROTIME_FIELD => $this->mapping->getFloatMapping(),
+                'message' => $this->mapping->getTextMapping(),
+                'context' => [
+                    'type' => 'nested',
+                    'properties' => [
+                        'key' => $this->mapping->getLimitedKeywordMapping(),
+                        'value' => $this->mapping->getTextMapping(),
+                    ],
+                ],
+            ];
 
-            $this->client->indices()->putTemplate([
-                'name' => $template['name'],
-                'body' => [
-                    'template' => 'ems_internal_logger_index_*',
-                    'aliases' => ['ems_internal_logger_alias' => (object) array()],
+            $mapping = \array_merge($mapping, $this->mapping->defaultMapping());
+
+            if (\version_compare($this->client->getVersion(), '7') >= 0) {
+                $body = [
+                    'index_patterns' => [self::EMS_INTERNAL_LOGGER_INDEX_PATTERN],
+                    'aliases' => [self::EMS_INTERNAL_LOGGER_ALIAS => (object) []],
+                    'mappings' => [
+                        'properties' => $mapping,
+                        '_meta' => [
+                            'version' => self::MAPPING_VERSION,
+                        ],
+                    ],
+                ];
+            } else {
+                $body = [
+                    'template' => self::EMS_INTERNAL_LOGGER_INDEX_PATTERN,
+                    'aliases' => [self::EMS_INTERNAL_LOGGER_ALIAS => (object) []],
                     'mappings' => [
                         'doc' => [
-                            'properties' => [
-                                'channel' => [
-                                    'type' => 'keyword',
-                                    'ignore_above' => 256,
-                                ],
-                                'component' => [
-                                    'type' => 'keyword',
-                                    'ignore_above' => 256,
-                                ],
-                                EmsFields::LOG_CONTENTTYPE_FIELD  => [
-                                    'type' => 'keyword',
-                                ],
-                                EmsFields::LOG_OUUID_FIELD => [
-                                    'type' => 'keyword',
-                                ],
-                                EmsFields::LOG_ENVIRONMENT_FIELD => [
-                                    'type' => 'keyword',
-                                ],
-                                EmsFields::LOG_OPERATION_FIELD => [
-                                    'type' => 'keyword',
-                                ],
-                                EmsFields::LOG_USERNAME_FIELD => [
-                                    'type' => 'keyword',
-                                ],
-                                EmsFields::LOG_IMPERSONATOR_FIELD => [
-                                    'type' => 'keyword',
-                                ],
-                                EmsFields::LOG_HOST_FIELD => [
-                                    'type' => 'keyword',
-                                ],
-                                EmsFields::LOG_ROUTE_FIELD => [
-                                    'type' => 'keyword',
-                                ],
-                                EmsFields::LOG_URL_FIELD => [
-                                    'type' => 'text',
-                                    "fields" => [
-                                        "raw" => [
-                                            "type" =>  "keyword"
-                                        ]
-                                    ]
-                                ],
-                                'instance_id' => [
-                                    'type' => 'keyword',
-                                    'ignore_above' => 256,
-                                ],
-                                EmsFields::LOG_SESSION_ID_FIELD => [
-                                    'type' => 'keyword'
-                                ],
-                                'version' => [
-                                    'type' => 'keyword',
-                                    'ignore_above' => 256,
-                                ],
-                                'level_name' => [
-                                    'type' => 'keyword',
-                                    'ignore_above' => 30,
-                                ],
-                                'datetime' => [
-                                    'type' => 'date',
-                                    'format' => 'date_time_no_millis',
-                                ],
-                                'level' => [
-                                    'type' => 'long',
-                                ],
-                                EmsFields::LOG_REVISION_ID_FIELD => [
-                                    'type' => 'long',
-                                ],
-                                EmsFields::LOG_MICROTIME_FIELD => [
-                                    'type' => 'float',
-                                ],
-                                'message' => [
-                                    'type' => 'text',
-                                ],
-                                'context' => [
-                                    'type' => 'nested',
-                                    'properties' => [
-                                        'key' => [
-                                            'type' => 'keyword',
-                                            'ignore_above' => 256,
-                                        ],
-                                        'value' => [
-                                            'type' => 'text',
-                                        ],
-                                    ],
-                                ],
+                            'properties' => $mapping,
+                            '_meta' => [
+                                'version' => self::MAPPING_VERSION,
                             ],
                         ],
                     ],
-                ],
-            ]);
+                ];
+            }
+
+            $putTemplateEndpoint = new Put();
+            $putTemplateEndpoint->setName(self::EMS_INTERNAL_LOGGER_TEMPLATE);
+            $putTemplateEndpoint->setBody($body);
+            $this->client->requestEndpoint($putTemplateEndpoint);
         } catch (\Throwable $e) {
-        // the cluster might be available only in read only (dev behind a reverse proxy)
+            // the cluster might be available only in read only (dev behind a reverse proxy)
         }
     }
 
@@ -193,18 +169,33 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         return false;
     }
 
-    protected function write(array $record)
+    /**
+     * @param array<mixed> $record
+     */
+    protected function write(array $record): void
     {
         if ($this->byPass) {
             return;
         }
 
+        try {
+            $this->writeRecord($record);
+        } catch (\Throwable $e) {
+        }
+    }
+
+    /**
+     * @param array<mixed> $record
+     */
+    protected function writeRecord(array $record): void
+    {
         if ($record[EmsFields::LOG_LEVEL_FIELD] >= $this->level && !$this->tooLate) {
             $datetime = null;
             if ($record[EmsFields::LOG_DATETIME_FIELD] instanceof \DateTime) {
                 $datetime = $record[EmsFields::LOG_DATETIME_FIELD]->format('c');
             }
             $body = [
+                EMSSource::FIELD_CONTENT_TYPE => $this->contentTypeName,
                 EmsFields::LOG_LEVEL_NAME_FIELD => $record[EmsFields::LOG_LEVEL_NAME_FIELD],
                 EmsFields::LOG_LEVEL_FIELD => $record[EmsFields::LOG_LEVEL_FIELD],
                 EmsFields::LOG_MESSAGE_FIELD => $record[EmsFields::LOG_MESSAGE_FIELD],
@@ -215,15 +206,13 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 EmsFields::LOG_COMPONENT_FIELD => $this->component,
                 EmsFields::LOG_CONTEXT_FIELD => [],
             ];
-            unset($body['formatted']);
 
             foreach ($record[EmsFields::LOG_CONTEXT_FIELD] as $key => &$value) {
-                if (!is_object($value)) {
-                    if (
-                        in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
+                if (!\is_object($value)) {
+                    if (\in_array($key, [EmsFields::LOG_OPERATION_FIELD, EmsFields::LOG_ENVIRONMENT_FIELD, EmsFields::LOG_CONTENTTYPE_FIELD,
                         EmsFields::LOG_OUUID_FIELD, EmsFields::LOG_REVISION_ID_FIELD, EmsFields::LOG_HOST_FIELD, EmsFields::LOG_URL_FIELD,
                         EmsFields::LOG_STATUS_CODE_FIELD, EmsFields::LOG_SIZE_FIELD, EmsFields::LOG_ROUTE_FIELD, EmsFields::LOG_MICROTIME_FIELD,
-                        EmsFields::LOG_SESSION_ID_FIELD])
+                        EmsFields::LOG_SESSION_ID_FIELD, ])
                     ) {
                         $body[$key] = $value;
                     } else {
@@ -235,7 +224,7 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 }
             }
 
-            if ($this->user === null && $this->security->getToken() !== null) {
+            if (null === $this->user && null !== $this->security->getToken()) {
                 $this->user = $this->security->getToken()->getUsername();
                 if ($this->security->isGranted('ROLE_PREVIOUS_ADMIN')) {
                     foreach ($this->security->getToken()->getRoles() as $role) {
@@ -249,42 +238,91 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
             $body[EmsFields::LOG_USERNAME_FIELD] = $this->user;
             $body[EmsFields::LOG_IMPERSONATOR_FIELD] = $this->impersonator;
 
+            $action = new Action();
+            $action->setIndex(self::EMS_INTERNAL_LOGGER_INDEX.(new DateTime())->format('Ymd'));
 
-            $this->bulk[] = [
-                'index' => [
-                    '_type' => 'doc',
-                    '_index' => 'ems_internal_logger_index_' . (new DateTime())->format('Ymd'),
-                ],
-            ];
-            $this->bulk[] = $body;
+            if (\version_compare($this->client->getVersion(), '7') < 0) {
+                $action->setType('doc');
+            }
+            $action->setOpType(Action::OP_TYPE_INDEX);
+            $action->setSource($body);
 
-            if (count($this->bulk) > 200) {
+            $this->bulk->addAction($action);
+            if (\count($this->bulk->getActions()) > 200) {
                 $this->treatBulk();
             }
         }
     }
 
-    private function treatBulk(bool $tooLate = false)
+    public function onConsoleTerminate(ConsoleTerminateEvent $event): void
     {
-        if ($this->byPass) {
+        $commandObject = $event->getCommand();
+        if (null === $commandObject) {
+            $this->treatBulk();
+
             return;
         }
 
-        if (!empty($this->bulk) && !$this->tooLate) {
-            $this->tooLate = $tooLate;
+        $arguments = [];
+        foreach ($event->getInput()->getArguments() as $argument) {
+            if (\is_array($argument)) {
+                $arguments[] = \implode(' ', $argument);
+            } else {
+                $arguments[] = \strval($argument);
+            }
+        }
+        $command = \implode(' ', $arguments);
+
+        foreach ($event->getInput()->getOptions() as $id => $value) {
+            if ($commandObject->getDefinition()->getOption($id)->getDefault() !== $value) {
+                if (\is_bool($value) || null === $value) {
+                    $command .= \sprintf(' --%s', $id);
+                } elseif (\is_string($value)) {
+                    $command .= \sprintf(' --%s=%s', $id, $value);
+                } elseif (\is_int($value)) {
+                    $command .= \sprintf(' --%s=%d', $id, $value);
+                } elseif (\is_array($value)) {
+                    $command .= \sprintf(' --%s=%s', $id, \implode('|', $value));
+                } else {
+                    $command .= \sprintf(' (Unsupported value format for option %s)', $id);
+                }
+            }
+        }
+        $record = [
+            'datetime' => new \DateTime(),
+            'level' => 0 === $event->getExitCode() ? Logger::INFO : Logger::ERROR,
+            'level_name' => 0 === $event->getExitCode() ? 'INFO' : 'ERROR',
+            'channel' => 'app',
+            'message' => 'app.command',
+            'context' => [
+                EmsFields::LOG_OPERATION_FIELD => EmsFields::LOG_OPERATION_UPDATE,
+                EmsFields::LOG_EXIT_CODE => $event->getExitCode(),
+                EmsFields::LOG_COMMAND_NAME => $commandObject->getName(),
+                EmsFields::LOG_COMMAND_LINE => $command,
+            ],
+        ];
+        $this->write($record);
+
+        $this->treatBulk();
+    }
+
+    private function treatBulk(bool $tooLate = false): void
+    {
+        if ($this->byPass || $this->tooLate) {
+            return;
+        }
+
+        $this->tooLate = $tooLate;
+        if (\count($this->bulk->getActions()) > 0) {
             try {
-                $this->client->bulk([
-                    'body' => $this->bulk,
-                ]);
+                $this->bulk->send();
             } catch (\Throwable $e) {
                 // the cluster might be available only in read only (dev behind a reverse proxy)
             }
-            $this->bulk = [];
         }
     }
 
-
-    public function onKernelTerminate(PostResponseEvent $event)
+    public function onKernelTerminate(PostResponseEvent $event): void
     {
         if ($this->byPass) {
             return;
@@ -309,15 +347,15 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                 $operation = null;
         }
         $route = $request->attributes->get('_route', null);
-        if ($operation && $route && !in_array($route, ['_wdt'])) {
+        if ($operation && $route && !\in_array($route, ['_wdt'])) {
             $statusCode = $event->getResponse()->getStatusCode();
             if ($statusCode < 300) {
                 $level = Logger::INFO;
                 $level_name = 'INFO';
-            } else if ($statusCode < 400) {
+            } elseif ($statusCode < 400) {
                 $level = Logger::NOTICE;
                 $level_name = 'NOTICE';
-            } else if ($statusCode < 500) {
+            } elseif ($statusCode < 500) {
                 $level = Logger::WARNING;
                 $level_name = 'WARNING';
             } else {
@@ -337,8 +375,8 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
                     EmsFields::LOG_URL_FIELD => $request->getRequestUri(),
                     EmsFields::LOG_ROUTE_FIELD => $route,
                     EmsFields::LOG_STATUS_CODE_FIELD => $statusCode,
-                    EmsFields::LOG_SIZE_FIELD => strlen((string) $event->getResponse()->getContent()),
-                    EmsFields::LOG_MICROTIME_FIELD => (microtime(true) - $this->startMicrotime),
+                    EmsFields::LOG_SIZE_FIELD => \strlen((string) $event->getResponse()->getContent()),
+                    EmsFields::LOG_MICROTIME_FIELD => (\microtime(true) - $this->startMicrotime),
                 ],
             ];
             if ($request->hasSession()) {
@@ -349,10 +387,29 @@ class ElasticsearchLogger extends AbstractProcessingHandler implements CacheWarm
         $this->treatBulk(true);
     }
 
-    public static function getSubscribedEvents()
+    /**
+     * @return array[]
+     */
+    public static function getSubscribedEvents(): array
     {
-        return array(
-            KernelEvents::TERMINATE => array('onKernelTerminate', -1024),
-        );
+        return [
+            KernelEvents::TERMINATE => ['onKernelTerminate', -1024],
+        ];
+    }
+
+    private function updateRequired(): bool
+    {
+        try {
+            $getEndpoint = new Get();
+            $getEndpoint->setName(self::EMS_INTERNAL_LOGGER_TEMPLATE);
+            $data = $this->client->requestEndpoint($getEndpoint)->getData();
+
+            $mapping = \reset($data);
+            $version = $mapping['mappings']['doc']['_meta']['version'] ?? $mapping['mappings']['_meta']['version'];
+
+            return \version_compare($version, self::MAPPING_VERSION) < 0;
+        } catch (\Throwable $e) {
+            return true;
+        }
     }
 }

@@ -10,6 +10,17 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class DomPdfPrinter implements PdfPrinterInterface
 {
+    /** @var string[] */
+    private array $domPdfRootDirectories;
+
+    public function __construct(string $projectDir, string $cacheDir)
+    {
+        $this->domPdfRootDirectories = [$projectDir];
+        if (0 !== \strpos($cacheDir, $projectDir)) {
+            $this->domPdfRootDirectories[] = $cacheDir;
+        }
+    }
+
     public function getPdfOutput(PdfInterface $pdf, ?PdfPrintOptions $options = null): PdfOutput
     {
         $options = $options ?? new PdfPrintOptions([]);
@@ -28,7 +39,7 @@ final class DomPdfPrinter implements PdfPrinterInterface
         return new StreamedResponse(function () use ($dompdf, $pdf, $options) {
             $dompdf->stream($pdf->getFileName(), [
                 'compress' => (int) $options->isCompress(),
-                'Attachment' => (int) $options->isAttachment()
+                'Attachment' => (int) $options->isAttachment(),
             ]);
         });
     }
@@ -38,7 +49,10 @@ final class DomPdfPrinter implements PdfPrinterInterface
         $dompdf = new Dompdf();
         $dompdf->loadHtml($pdf->getHtml());
         $dompdf->setPaper($options->getSize(), $options->getOrientation());
-        $dompdf->setOptions(new Options(['isHtml5ParserEnabled' => $options->isHtml5Parsing()]));
+        $dompdf->setOptions(new Options([
+            'isHtml5ParserEnabled' => $options->isHtml5Parsing(),
+            'chroot' => \array_filter(\array_merge($this->domPdfRootDirectories, [$options->getChroot()])),
+        ]));
         $dompdf->render();
 
         return $dompdf;

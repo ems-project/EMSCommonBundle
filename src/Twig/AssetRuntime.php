@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Twig;
 
+use EMS\CommonBundle\Storage\Processor\Processor;
 use EMS\CommonBundle\Storage\StorageManager;
 use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerInterface;
@@ -27,7 +28,7 @@ class AssetRuntime
     {
         $this->storageManager = $storageManager;
         $this->logger = $logger;
-        $this->publicDir = $projectDir . '/public';
+        $this->publicDir = $projectDir.'/public';
         $this->filesystem = new Filesystem();
     }
 
@@ -37,8 +38,8 @@ class AssetRuntime
     public function unzip(string $hash, string $saveDir, bool $mergeContent = false): array
     {
         try {
-            $checkFilename = $saveDir . \DIRECTORY_SEPARATOR . $this->storageManager->computeStringHash($saveDir);
-            $checkHash = file_exists($checkFilename) ? file_get_contents($checkFilename) : false;
+            $checkFilename = $saveDir.\DIRECTORY_SEPARATOR.$this->storageManager->computeStringHash($saveDir);
+            $checkHash = \file_exists($checkFilename) ? \file_get_contents($checkFilename) : false;
 
             if ($checkHash !== $hash) {
                 if (!$mergeContent && $this->filesystem->exists($saveDir)) {
@@ -46,14 +47,14 @@ class AssetRuntime
                 }
 
                 $this::extract($this->storageManager->getStream($hash), $saveDir);
-                file_put_contents($checkFilename, $hash);
+                \file_put_contents($checkFilename, $hash);
             }
 
             $excludeCheckFile = function (SplFileInfo $f) use ($checkFilename) {
                 return $f->getPathname() !== $checkFilename;
             };
 
-            return iterator_to_array(Finder::create()->in($saveDir)->files()->filter($excludeCheckFile)->getIterator());
+            return \iterator_to_array(Finder::create()->in($saveDir)->files()->filter($excludeCheckFile)->getIterator());
         } catch (\Exception $e) {
             $this->logger->error('ems_zip failed : {error}', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
         }
@@ -61,22 +62,50 @@ class AssetRuntime
         return [];
     }
 
-    public static function extract(StreamInterface $stream, string $destination): bool
+    public function temporaryFile(string $hash): ?string
     {
-        $path = tempnam(sys_get_temp_dir(), 'emsch');
-        if (!$path) {
-            throw new \RuntimeException(sprintf('Could not create temp file in %s', sys_get_temp_dir()));
+        if (!$this->storageManager->head($hash)) {
+            return null;
         }
 
-        file_put_contents($path, $stream->getContents());
+        return self::streamToTempFile($this->storageManager->getStream($hash));
+    }
+
+    private static function streamToTempFile(StreamInterface $stream): string
+    {
+        $path = \tempnam(\sys_get_temp_dir(), 'emsch');
+        if (!$path) {
+            throw new \RuntimeException(\sprintf('Could not create temp file in %s', \sys_get_temp_dir()));
+        }
+
+        if ($stream->isSeekable() && $stream->tell() > 0) {
+            $stream->rewind();
+        }
+
+        $handle = \fopen($path, 'w');
+        if (false === $handle) {
+            throw new \RuntimeException(\sprintf('Could not open temp file %s', $path));
+        }
+        while (!$stream->eof()) {
+            \fwrite($handle, $stream->read(Processor::BUFFER_SIZE));
+        }
+        \fclose($handle);
+        $stream->close();
+
+        return $path;
+    }
+
+    public static function extract(StreamInterface $stream, string $destination): bool
+    {
+        $path = self::streamToTempFile($stream);
 
         $zip = new ZipArchive();
         if (true !== $open = $zip->open($path)) {
-            throw new \RuntimeException(sprintf('Failed opening zip %s (ZipArchive %s)', $path, $open));
+            throw new \RuntimeException(\sprintf('Failed opening zip %s (ZipArchive %s)', $path, $open));
         }
 
         if (!$zip->extractTo($destination)) {
-            throw new \RuntimeException(sprintf('Extracting of zip file failed (%s)', $destination));
+            throw new \RuntimeException(\sprintf('Extracting of zip file failed (%s)', $destination));
         }
 
         $zip->close();

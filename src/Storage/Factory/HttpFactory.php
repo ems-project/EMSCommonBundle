@@ -7,18 +7,17 @@ namespace EMS\CommonBundle\Storage\Factory;
 use EMS\CommonBundle\Storage\Service\HttpStorage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class HttpFactory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
-    const STORAGE_TYPE = 'http';
+    public const STORAGE_TYPE = 'http';
     /** @var string */
-    const STORAGE_CONFIG_BASE_URL = 'base-url';
+    public const STORAGE_CONFIG_BASE_URL = 'base-url';
     /** @var string */
-    const STORAGE_CONFIG_GET_URL = 'get-url';
+    public const STORAGE_CONFIG_GET_URL = 'get-url';
     /** @var string */
-    const STORAGE_CONFIG_AUTH_KEY = 'auth-key';
+    public const STORAGE_CONFIG_AUTH_KEY = 'auth-key';
     /** @var LoggerInterface */
     private $logger;
 
@@ -38,12 +37,13 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
         $getUrl = $config[self::STORAGE_CONFIG_GET_URL];
         $authKey = $config[self::STORAGE_CONFIG_AUTH_KEY];
 
-        if ($baseUrl === null || $baseUrl === '') {
-            @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+        if (null === $baseUrl || '' === $baseUrl) {
+            @\trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+
             return null;
         }
 
-        $usage = $authKey === null ? StorageInterface::STORAGE_USAGE_EXTERNAL : $config[self::STORAGE_CONFIG_USAGE];
+        $usage = null === $authKey ? StorageInterface::STORAGE_USAGE_EXTERNAL : $config[self::STORAGE_CONFIG_USAGE];
 
         return new HttpStorage($this->logger, $baseUrl, $getUrl, $usage, $authKey);
     }
@@ -53,9 +53,9 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
         return self::STORAGE_TYPE;
     }
 
-
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, base-url: null|string, get-url: string, auth-key: null|string, usage: int}
      */
     private function resolveParameters(array $parameters): array
@@ -67,7 +67,7 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_BASE_URL => null,
                 self::STORAGE_CONFIG_GET_URL => '/public/file/',
                 self::STORAGE_CONFIG_AUTH_KEY => null,
-                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_BACKUP,
+                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_BACKUP_ATTRIBUTE,
             ])
             ->setRequired(self::STORAGE_CONFIG_GET_URL)
             ->setAllowedTypes(self::STORAGE_CONFIG_BASE_URL, ['null', 'string'])
@@ -78,6 +78,7 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
 
         /** @var array{type: string, base-url: null|string, get-url: string, auth-key: null|string, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }

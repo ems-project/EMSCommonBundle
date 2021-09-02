@@ -5,7 +5,7 @@ namespace EMS\CommonBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Analyzer
+ * Analyzer.
  *
  * @ORM\Table(name="asset_storage")
  * @ORM\Entity(repositoryClass="EMS\CommonBundle\Repository\AssetStorageRepository")
@@ -84,6 +84,7 @@ class AssetStorage
     public function setHash(string $hash): AssetStorage
     {
         $this->hash = $hash;
+
         return $this;
     }
 
@@ -98,9 +99,9 @@ class AssetStorage
     public function setContents(string $contents): AssetStorage
     {
         $this->contents = $contents;
+
         return $this;
     }
-
 
     public function getId(): ?int
     {
@@ -139,6 +140,7 @@ class AssetStorage
     public function setSize(int $size): AssetStorage
     {
         $this->size = $size;
+
         return $this;
     }
 
@@ -150,6 +152,7 @@ class AssetStorage
     public function setConfirmed(bool $confirmed): AssetStorage
     {
         $this->confirmed = $confirmed;
+
         return $this;
     }
 }

@@ -7,26 +7,25 @@ namespace EMS\CommonBundle\Storage\Factory;
 use EMS\CommonBundle\Storage\Service\SftpStorage;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class SftpFactory extends AbstractFactory implements StorageFactoryInterface
 {
     /** @var string */
-    const STORAGE_TYPE = 'sftp';
+    public const STORAGE_TYPE = 'sftp';
     /** @var string */
-    const STORAGE_CONFIG_HOST = 'host';
+    public const STORAGE_CONFIG_HOST = 'host';
     /** @var string */
-    const STORAGE_CONFIG_PATH = 'path';
+    public const STORAGE_CONFIG_PATH = 'path';
     /** @var string */
-    const STORAGE_CONFIG_USERNAME = 'username';
+    public const STORAGE_CONFIG_USERNAME = 'username';
     /** @var string */
-    const STORAGE_CONFIG_PUBLIC_KEY_FILE = 'public-key-file';
+    public const STORAGE_CONFIG_PUBLIC_KEY_FILE = 'public-key-file';
     /** @var string */
-    const STORAGE_CONFIG_PRIVATE_KEY_FILE = 'private-key-file';
+    public const STORAGE_CONFIG_PRIVATE_KEY_FILE = 'private-key-file';
     /** @var string */
-    const STORAGE_CONFIG_PASSWORD_PHRASE = 'password-phrase';
+    public const STORAGE_CONFIG_PASSWORD_PHRASE = 'password-phrase';
     /** @var string */
-    const STORAGE_CONFIG_PORT = 'port';
+    public const STORAGE_CONFIG_PORT = 'port';
     /** @var LoggerInterface */
     private $logger;
 
@@ -43,8 +42,9 @@ class SftpFactory extends AbstractFactory implements StorageFactoryInterface
         $config = $this->resolveParameters($parameters);
 
         $host = $config[self::STORAGE_CONFIG_HOST];
-        if ($host === null || $host === '') {
-            @trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+        if (null === $host || '' === $host) {
+            @\trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
+
             return null;
         }
         $path = $config[self::STORAGE_CONFIG_PATH];
@@ -64,6 +64,7 @@ class SftpFactory extends AbstractFactory implements StorageFactoryInterface
 
     /**
      * @param array<string, mixed> $parameters
+     *
      * @return array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int, usage: int}
      */
     private function resolveParameters(array $parameters): array
@@ -79,7 +80,7 @@ class SftpFactory extends AbstractFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_PRIVATE_KEY_FILE => null,
                 self::STORAGE_CONFIG_PASSWORD_PHRASE => null,
                 self::STORAGE_CONFIG_PORT => 22,
-                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_BACKUP,
+                self::STORAGE_CONFIG_USAGE => StorageInterface::STORAGE_USAGE_BACKUP_ATTRIBUTE,
             ])
             ->setRequired([
                 self::STORAGE_CONFIG_TYPE,
@@ -100,6 +101,7 @@ class SftpFactory extends AbstractFactory implements StorageFactoryInterface
 
         /** @var array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int, usage: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
+
         return $resolvedParameter;
     }
 }
