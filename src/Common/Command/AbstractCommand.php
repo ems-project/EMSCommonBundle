@@ -36,7 +36,7 @@ abstract class AbstractCommand extends Command implements CommandInterface
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        return 1;
+        return self::EXECUTE_SUCCESS;
     }
 
     /**
@@ -97,32 +97,44 @@ abstract class AbstractCommand extends Command implements CommandInterface
         return true === $this->input->getOption($name);
     }
 
-    protected function getOptionInt(string $name): int
+    protected function getOptionInt(string $name, ?int $default = null): int
     {
-        return \intval($this->input->getOption($name));
+        if (null !== $option = $this->input->getOption($name)) {
+            return \intval($option);
+        }
+
+        if (null === $default) {
+            throw new \RuntimeException(\sprintf('Missing option "%s"', $name));
+        }
+
+        return $default;
     }
 
     protected function getOptionIntNull(string $name): ?int
     {
         $option = $this->input->getOption($name);
 
-        return $option ? $this->getOptionInt($name) : null;
+        return null === $option ? null : \intval($option);
     }
 
-    protected function getOptionString(string $name): string
+    protected function getOptionString(string $name, ?string $default = null): string
     {
-        if (null === $option = $this->input->getOption($name)) {
-            throw new \RuntimeException(\sprintf('Missing option "%s"', $option));
+        if (null !== $option = $this->input->getOption($name)) {
+            return \strval($option);
         }
 
-        return \strval($this->input->getOption($name));
+        if (null === $default) {
+            throw new \RuntimeException(\sprintf('Missing option "%s"', $name));
+        }
+
+        return $default;
     }
 
     protected function getOptionStringNull(string $name): ?string
     {
         $option = $this->input->getOption($name);
 
-        return $option ? $this->getOptionString($name) : null;
+        return null === $option ? null : \strval($option);
     }
 
     /**
