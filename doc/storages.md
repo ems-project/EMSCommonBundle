@@ -40,7 +40,12 @@ For a regular website (1 elasticms and 1 skeleton) a best practice is to defined
  With this configuration you won't fill you storages with useless files.
  
  If you have a performant enough backup storage, you can just define it as `asset`. No need to schedule the `ems:asset:synchronize` commend. But a backup storage should never be configured as external (i.e. on a Skeleton).  
- 
+
+### Hot synchronize limit
+
+An `hot-synchronize-limit` attribute can be specified. It's a file size attribute (`10M`,`1G`) that force synchronize missing assets (smaller than the limit) on more prioritized storage services. It's useful if you intend to use a volatile storage with high performances or if you interconnect environments or in development combine with a http storage service. 
+
+
 ## Cleaning useless assets
 With the time the size of your storages can increase. For security reason, it's not possible to cleaned them from the application. But, there is a procedure.
 
@@ -50,7 +55,7 @@ Now if you define a new storage you'll be able to synchronize it with `ems:asset
 
 Finally, it's time to remove your old storage from the `EMS_STORAGES` config. And, if your are sure this storage isn't used by another elasticms, you can drop it.
  
-## Existing type os storages services
+## Existing type of storages services
 
 ### File system
 This service can be instantiated as many as you want and will use a regular folder to save/read assets. 
