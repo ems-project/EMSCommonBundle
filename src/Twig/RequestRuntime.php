@@ -73,7 +73,7 @@ class RequestRuntime implements RuntimeExtensionInterface
                 if (!self::endsWith($filename, '.svg')) {
                     $filename .= '.svg';
                 }
-            } elseif (0 !== ($config[EmsFields::ASSET_CONFIG_QUALITY] ?? 0)) {
+            } elseif (0 === ($config[EmsFields::ASSET_CONFIG_QUALITY] ?? 0)) {
                 $mimeType = 'image/png';
                 if (!self::endsWith($filename, '.png')) {
                     $filename .= '.png';
