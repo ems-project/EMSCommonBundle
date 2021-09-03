@@ -16,7 +16,6 @@ class Request implements RequestInterface
     private $size = 10;
 
     /**
-     * @param string $index
      * @param array<mixed> $body
      */
     public function __construct(string $index, array $body)

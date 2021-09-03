@@ -8,6 +8,7 @@ interface EMSSourceInterface
 {
     /**
      * @param mixed $default
+     *
      * @return mixed
      */
     public function get(string $field, $default = null);
