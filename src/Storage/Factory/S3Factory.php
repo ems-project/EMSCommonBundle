@@ -37,7 +37,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
             return null;
         }
 
-        return new S3Storage($this->logger, $credentials, $bucket, $config[self::STORAGE_CONFIG_USAGE]);
+        return new S3Storage($this->logger, $credentials, $bucket, $config[self::STORAGE_CONFIG_USAGE], $config[self::STORAGE_CONFIG_HOT_SYNCHRONIZE_LIMIT]);
     }
 
     public function getStorageType(): string
@@ -48,7 +48,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
     /**
      * @param array<string, mixed> $parameters
      *
-     * @return array{type: string, credentials: null|array, bucket: null|string, usage: int}
+     * @return array{type: string, credentials: null|array, bucket: null|string, usage: int, hot-synchronize-limit: int}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -63,7 +63,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
             ->setAllowedTypes(self::STORAGE_CONFIG_BUCKET, ['null', 'string'])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
-        /** @var array{type: string, credentials: null|array, bucket: null|string, usage: int} $resolvedParameter */
+        /** @var array{type: string, credentials: null|array, bucket: null|string, usage: int, hot-synchronize-limit: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
 
         return $resolvedParameter;

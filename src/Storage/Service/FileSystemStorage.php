@@ -14,9 +14,9 @@ class FileSystemStorage extends AbstractUrlStorage
     /** @var string */
     private $directorySeparator;
 
-    public function __construct(LoggerInterface $logger, string $storagePath, int $usage, string $directorySeparator = DIRECTORY_SEPARATOR)
+    public function __construct(LoggerInterface $logger, string $storagePath, int $usage, int $hotSynchronizeLimit = 0, string $directorySeparator = DIRECTORY_SEPARATOR)
     {
-        parent::__construct($logger, $usage);
+        parent::__construct($logger, $usage, $hotSynchronizeLimit);
         $this->storagePath = $storagePath;
         $this->directorySeparator = $directorySeparator;
     }

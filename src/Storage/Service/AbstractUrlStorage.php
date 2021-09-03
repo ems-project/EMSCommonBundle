@@ -11,15 +11,15 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class AbstractUrlStorage implements StorageInterface
 {
-    /** @var int */
-    private $usage;
-    /** @var LoggerInterface */
-    private $logger;
+    private int $usage;
+    private LoggerInterface $logger;
+    private int $hotSynchronizeLimit;
 
-    public function __construct(LoggerInterface $logger, int $usage)
+    public function __construct(LoggerInterface $logger, int $usage, int $hotSynchronizeLimit)
     {
         $this->logger = $logger;
         $this->usage = $usage;
+        $this->hotSynchronizeLimit = $hotSynchronizeLimit;
     }
 
     abstract protected function getBaseUrl(): string;
@@ -184,5 +184,10 @@ abstract class AbstractUrlStorage implements StorageInterface
     public function getUsage(): int
     {
         return $this->usage;
+    }
+
+    public function getHotSynchronizeLimit(): int
+    {
+        return $this->hotSynchronizeLimit;
     }
 }
