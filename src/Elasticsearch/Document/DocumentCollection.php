@@ -8,7 +8,7 @@ use EMS\CommonBundle\Elasticsearch\Response\ResponseInterface;
 
 final class DocumentCollection implements DocumentCollectionInterface
 {
-    /** @var array */
+    /** @var array<mixed> */
     private $documents;
 
     private function __construct()

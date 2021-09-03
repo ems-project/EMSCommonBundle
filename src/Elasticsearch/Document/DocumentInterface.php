@@ -10,6 +10,9 @@ interface DocumentInterface
 
     public function getEmsId(): string;
 
+    /**
+     * @return array<mixed>
+     */
     public function getSource(): array;
 
     public function getEMSSource(): EMSSourceInterface;

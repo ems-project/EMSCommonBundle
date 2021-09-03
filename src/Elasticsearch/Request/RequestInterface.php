@@ -10,5 +10,8 @@ interface RequestInterface
 
     public function setSize(int $size): void;
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array;
 }
