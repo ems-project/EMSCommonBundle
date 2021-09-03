@@ -68,26 +68,25 @@ class RequestRuntime implements RuntimeExtensionInterface
             $hashConfig = $e->getHash();
         }
 
-        if ($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH] ?? false) {
-            $configObj = new Config($this->storageManager, $hash, $hashConfig, $config);
-
-            $filesystem = new Filesystem();
-            $filesystem->mkdir($this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path'.DIRECTORY_SEPARATOR.$hashConfig);
-            $cacheFilename = $this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path'.DIRECTORY_SEPARATOR.$hashConfig.DIRECTORY_SEPARATOR.$hash;
-
-            if (!$filesystem->exists($cacheFilename)) {
-                $stream = $this->processor->getStream($configObj, $filename);
-                \file_put_contents($cacheFilename, $stream->getContents());
-            }
-
-            return $cacheFilename;
+        if (!($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH] ?? false)) {
+            return $this->urlGenerator->generate($route, [
+                'hash_config' => $hashConfig,
+                'filename' => \basename($filename),
+                'hash' => $hash ?? $hashConfig,
+            ], $referenceType);
         }
 
-        return $this->urlGenerator->generate($route, [
-            'hash_config' => $hashConfig,
-            'filename' => \basename($filename),
-            'hash' => $hash ?? $hashConfig,
-        ], $referenceType);
+        $configObj = new Config($this->storageManager, $hash, $hashConfig, $config);
+        $filesystem = new Filesystem();
+        $filesystem->mkdir($this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path'.DIRECTORY_SEPARATOR.$hashConfig);
+        $cacheFilename = $this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path'.DIRECTORY_SEPARATOR.$hashConfig.DIRECTORY_SEPARATOR.$hash;
+
+        if (!$filesystem->exists($cacheFilename)) {
+            $stream = $this->processor->getStream($configObj, $filename);
+            \file_put_contents($cacheFilename, $stream->getContents());
+        }
+
+        return $cacheFilename;
     }
 
     public function assetAverageColor(string $hash): string
