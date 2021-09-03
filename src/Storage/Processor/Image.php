@@ -145,15 +145,13 @@ class Image
      */
     private function applyResizeAndBackground($image, int $width, int $height, int $originalWidth, int $originalHeight)
     {
-        if (\function_exists('imagecreatetruecolor') && ($temp = \imagecreatetruecolor($width, $height))) {
+        if (\function_exists('imagecreatetruecolor') && \function_exists('imagecopyresampled')) {
             $resizeFunction = 'imagecopyresampled';
         } else {
-            $temp = \imagecreate($width, $height);
             $resizeFunction = 'imagecopyresized';
         }
-        if (false === $temp) {
-            throw new \RuntimeException('Unexpected false imagecreate');
-        }
+
+        $temp = $this->imageCreate($width, $height);
 
         $this->fillBackgroundColor($temp);
 
@@ -202,15 +200,13 @@ class Image
      */
     private function applyBackground($image, int $width, int $height)
     {
-        if (\function_exists('imagecreatetruecolor') && ($temp = \imagecreatetruecolor($width, $height))) {
+        if (\function_exists('imagecreatetruecolor') && \function_exists('imagecopyresampled')) {
             $resizeFunction = 'imagecopyresampled';
         } else {
-            $temp = \imagecreate($width, $height);
             $resizeFunction = 'imagecopyresized';
         }
-        if (false === $temp) {
-            throw new \RuntimeException('Unexpected false imagecreate');
-        }
+
+        $temp = $this->imageCreate($width, $height);
 
         $this->fillBackgroundColor($temp);
 
@@ -229,10 +225,7 @@ class Image
         $radius = $this->config->getRadius();
         $color = $this->config->getBorderColor() ?? $this->config->getBackground();
 
-        $cornerImage = \imagecreatetruecolor($radius, $radius);
-        if (false === $cornerImage) {
-            throw new \RuntimeException('Could not create cornerImage');
-        }
+        $cornerImage = $this->imageCreate($radius, $radius);
         $clearColor = \imagecolorallocate($cornerImage, 0, 0, 0);
         if (false === $clearColor) {
             throw new \RuntimeException('Unexpected false imagecolorallocate');
@@ -422,6 +415,21 @@ class Image
             if (null !== $this->logger) {
                 $this->logger->warning(\sprintf('Not able to autorotate a file due to: %s', $e->getMessage()));
             }
+        }
+
+        return $image;
+    }
+
+    /**
+     * @return resource
+     */
+    private function imageCreate(int $width, int $height)
+    {
+        if (!\function_exists('imagecreatetruecolor') || false === ($image = \imagecreatetruecolor($width, $height))) {
+            $image = \imagecreate($width, $height);
+        }
+        if (false === $image) {
+            throw new \RuntimeException('Unexpected false imagecreate');
         }
 
         return $image;
