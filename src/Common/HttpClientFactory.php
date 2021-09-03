@@ -7,9 +7,9 @@ use GuzzleHttp\Client;
 class HttpClientFactory
 {
     /**
-     * @param int $timeout
+     * @param array<mixed> $headers
      */
-    public static function create(string $baseUrl, array $headers = [], $timeout = 30, bool $allowRedirects = false): Client
+    public static function create(string $baseUrl, array $headers = [], int $timeout = 30, bool $allowRedirects = false): Client
     {
         return new Client([
             'base_uri' => $baseUrl,

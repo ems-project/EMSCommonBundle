@@ -9,14 +9,9 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 class FlashMessageLogger extends AbstractProcessingHandler
 {
-    /** @var Session */
-    private $session;
-
-    /** @var TranslatorInterface */
-    private $translator;
-
-    /** @var string */
-    private $translationDomain;
+    private Session $session;
+    private TranslatorInterface $translator;
+    private string $translationDomain;
 
     public function __construct(Session $session, TranslatorInterface $translator, string $translationDomain)
     {
@@ -26,7 +21,10 @@ class FlashMessageLogger extends AbstractProcessingHandler
         $this->translationDomain = $translationDomain;
     }
 
-    protected function write(array $record)
+    /**
+     * @param array<mixed> $record
+     */
+    protected function write(array $record): void
     {
         if ($record['level'] >= Logger::NOTICE) {
             $parameters = [];

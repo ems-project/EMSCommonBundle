@@ -26,6 +26,9 @@ class PdfGenerator
         return $this->pdfPrinter->getStreamedResponse(new Pdf($filename, $html), $pdfPrintOptions);
     }
 
+    /**
+     * @return array<string, string>
+     */
     private function getMetaTags(string $html): array
     {
         $metaTags = [];
@@ -39,14 +42,25 @@ class PdfGenerator
         return $metaTags;
     }
 
+    /**
+     * @param array<mixed> $metaData
+     *
+     * @return array<mixed>
+     */
     private function sanitizeMetaTags(array $metaData): array
     {
-        return \filter_var_array($metaData, [
+        $filtered = \filter_var_array($metaData, [
             PdfPrintOptions::ATTACHMENT => FILTER_VALIDATE_BOOLEAN,
             PdfPrintOptions::COMPRESS => FILTER_VALIDATE_BOOLEAN,
             PdfPrintOptions::HTML5_PARSING => FILTER_VALIDATE_BOOLEAN,
             PdfPrintOptions::ORIENTATION => null,
             PdfPrintOptions::SIZE => null,
         ], false);
+
+        if (!\is_array($filtered)) {
+            throw new \RuntimeException('Unexpected sanitizeMetaTags error');
+        }
+
+        return $filtered;
     }
 }

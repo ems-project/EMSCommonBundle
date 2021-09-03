@@ -25,6 +25,9 @@ final class PdfPrintOptions
     public const SIZE = 'size';
     public const CHROOT = 'chroot';
 
+    /**
+     * @param array<mixed> $options
+     */
     public function __construct(array $options)
     {
         $this->setAttachment($options[self::ATTACHMENT] ?? true);
