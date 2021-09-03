@@ -68,7 +68,7 @@ class RequestRuntime implements RuntimeExtensionInterface
             $hashConfig = $e->getHash();
         }
 
-        if (isset($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) && $config[EmsFields::ASSET_CONFIG_GET_FILE_PATH]) {
+        if ($config[EmsFields::ASSET_CONFIG_GET_FILE_PATH] ?? false) {
             $configObj = new Config($this->storageManager, $hash, $hashConfig, $config);
 
             $filesystem = new Filesystem();
@@ -88,13 +88,11 @@ class RequestRuntime implements RuntimeExtensionInterface
             return $cacheFilename;
         }
 
-        $parameters = [
+        return $this->urlGenerator->generate($route, [
             'hash_config' => $hashConfig,
             'filename' => \basename($filename),
             'hash' => $hash ?? $hashConfig,
-        ];
-
-        return $this->urlGenerator->generate($route, $parameters, $referenceType);
+        ], $referenceType);
     }
 
     public function assetAverageColor(string $hash): string
