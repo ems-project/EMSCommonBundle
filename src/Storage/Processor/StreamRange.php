@@ -28,7 +28,7 @@ class StreamRange
         }
     }
 
-    private function parseRangeHeader(HeaderBag $headerBag)
+    private function parseRangeHeader(HeaderBag $headerBag): void
     {
         $range = $headerBag->get('Range');
         if (null === $range) {
@@ -47,17 +47,17 @@ class StreamRange
         }
     }
 
-    public function isSatisfiable()
+    public function isSatisfiable(): bool
     {
         return $this->start >= 0 && $this->end < $this->fileSize;
     }
 
-    public function isPartial()
+    public function isPartial(): bool
     {
         return $this->isSatisfiable() && ($this->start > 0 || $this->end < ($this->fileSize - 1));
     }
 
-    public function getContentRangeHeader()
+    public function getContentRangeHeader(): string
     {
         if ($this->isSatisfiable()) {
             return \sprintf('bytes %s-%s/%s', $this->start, $this->end, $this->fileSize);
@@ -66,7 +66,7 @@ class StreamRange
         return \sprintf('bytes */%s', $this->fileSize);
     }
 
-    public function getContentLengthHeader()
+    public function getContentLengthHeader(): string
     {
         return \strval($this->end - $this->start + 1);
     }
