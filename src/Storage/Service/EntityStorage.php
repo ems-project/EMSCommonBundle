@@ -15,17 +15,16 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class EntityStorage implements StorageInterface
 {
-    /** @var ObjectManager */
-    private $manager;
-    /** @var AssetStorageRepository */
-    private $repository;
-    /** @var int */
-    private $usage;
+    private ObjectManager $manager;
+    private AssetStorageRepository $repository;
+    private int $usage;
+    private int $hotSynchronizeLimit;
 
-    public function __construct(Registry $doctrine, int $usage)
+    public function __construct(Registry $doctrine, int $usage, int $hotSynchronizeLimit = 0)
     {
         $this->manager = $doctrine->getManager();
         $this->usage = $usage;
+        $this->hotSynchronizeLimit = $hotSynchronizeLimit;
 
         //TODO: Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
         $repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
@@ -183,6 +182,11 @@ class EntityStorage implements StorageInterface
     public function getUsage(): int
     {
         return $this->usage;
+    }
+
+    public function getHotSynchronizeLimit(): int
+    {
+        return $this->hotSynchronizeLimit;
     }
 
     protected function isUsageSupported(int $usageRequested): bool

@@ -59,4 +59,6 @@ interface StorageInterface
     public function finalizeUpload(string $hash): bool;
 
     public function getUsage(): int;
+
+    public function getHotSynchronizeLimit(): int;
 }
