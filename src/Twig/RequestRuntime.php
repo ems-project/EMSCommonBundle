@@ -30,16 +30,6 @@ class RequestRuntime implements RuntimeExtensionInterface
         $this->cacheDir = $cacheDir;
     }
 
-    private static function endsWith(string $haystack, string $needle)
-    {
-        $length = \strlen($needle);
-        if (0 == $length) {
-            return true;
-        }
-
-        return \substr($haystack, -$length) === $needle;
-    }
-
     /**
      * @return mixed
      */
@@ -68,33 +58,28 @@ class RequestRuntime implements RuntimeExtensionInterface
         $filename = $fileField[EmsFields::CONTENT_FILE_NAME_FIELD_] ?? $fileField[$filenameField] ?? 'asset.bin';
         $mimeType = $fileField[EmsFields::CONTENT_MIME_TYPE_FIELD_] ?? $fileField[$mimeTypeField] ?? MimeType::fromFilename($filename) ?? 'application/octet-stream';
 
+        $mimeType = $this->processor->overwriteMimeType($mimeType, $config);
+
         if (EmsFields::ASSET_CONFIG_TYPE_IMAGE === ($config[EmsFields::ASSET_CONFIG_TYPE] ?? null)) {
             if ($mimeType && \preg_match('/image\/svg.*/', $mimeType)) {
-                if (!self::endsWith($filename, '.svg')) {
+                if (MimeType::fromFilename($filename) !== $mimeType) {
                     $filename .= '.svg';
                 }
             } elseif (0 === ($config[EmsFields::ASSET_CONFIG_QUALITY] ?? 0)) {
-                $mimeType = 'image/png';
-                if (!self::endsWith($filename, '.png')) {
+                if (MimeType::fromFilename($filename) !== $mimeType) {
                     $filename .= '.png';
                 }
             } else {
-                $mimeType = 'image/jpeg';
-                if (!self::endsWith($filename, '.jpeg') && !self::endsWith($filename, '.jpg')) {
+                if (MimeType::fromFilename($filename) !== $mimeType) {
                     $filename .= '.jpg';
                 }
             }
         }
-
         if (EmsFields::ASSET_CONFIG_TYPE_ZIP === ($config[EmsFields::ASSET_CONFIG_TYPE] ?? null)) {
-            $mimeType = 'application/zip';
-            if (isset($config[EmsFields::CONTENT_FILES]) && !empty($config[EmsFields::CONTENT_FILES])) {
-                if (!self::endsWith($filename, '.zip')) {
-                    $filename .= '.zip';
-                }
+            if (MimeType::fromFilename($filename) !== $mimeType) {
+                $filename .= '.zip';
             }
         }
-
         $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
 
         try {
