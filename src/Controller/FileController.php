@@ -4,52 +4,31 @@ namespace EMS\CommonBundle\Controller;
 
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\Processor\Processor;
-use EMS\CommonBundle\Storage\StorageManager;
 use EMS\CommonBundle\Twig\RequestRuntime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FileController extends AbstractController
 {
-    /**
-     * @var StorageManager
-     */
-    private $storageManager;
+    private Processor $processor;
+    private RequestRuntime $requestRuntime;
 
-    /**
-     * @var Processor
-     */
-    private $processor;
-
-    /**
-     * @var RequestRuntime
-     */
-    private $requestRuntime;
-
-    public function __construct(StorageManager $storageManager, Processor $processor, RequestRuntime $requestRuntime)
+    public function __construct(Processor $processor, RequestRuntime $requestRuntime)
     {
-        $this->storageManager = $storageManager;
         $this->processor = $processor;
         $this->requestRuntime = $requestRuntime;
     }
 
-    /**
-     * @return Response|StreamedResponse
-     */
-    public function asset(Request $request, string $hash, string $hash_config, string $filename)
+    public function asset(Request $request, string $hash, string $hash_config, string $filename): Response
     {
         $this->closeSession($request);
 
         return $this->processor->getResponse($request, $hash, $hash_config, $filename, true);
     }
 
-    /**
-     * @return Response
-     */
-    public function view(Request $request, string $sha1)
+    public function view(Request $request, string $sha1): Response
     {
         @\trigger_error('FileController::view is deprecated use the ems_asset twig filter to generate the route', E_USER_DEPRECATED);
 
@@ -58,10 +37,7 @@ class FileController extends AbstractController
         return $this->getFile($request, $sha1, ResponseHeaderBag::DISPOSITION_INLINE);
     }
 
-    /**
-     * @return Response
-     */
-    public function download(Request $request, string $sha1)
+    public function download(Request $request, string $sha1): Response
     {
         @\trigger_error('FileController::download is deprecated use the ems_asset twig filter to generate the route', E_USER_DEPRECATED);
 
