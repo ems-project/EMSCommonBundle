@@ -13,7 +13,9 @@
         <service id="EMS\CommonBundle\Twig\AssetRuntime">
             <argument type="service" id="ems_common.storage.manager" />
             <argument type="service" id="logger" />
-            <argument type="string">%kernel.project_dir%</argument>
+            <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface" />
+            <argument type="service" id="EMS\CommonBundle\Storage\Processor\Processor" />
+            <argument type="string">%kernel.cache_dir%</argument>
             <tag name="twig.runtime" />
         </service>
         <service id="ems_common.twig.runtime.request" alias="EMS\CommonBundle\Twig\RequestRuntime"/>
@@ -22,10 +24,7 @@
         </service>
         <service id="EMS\CommonBundle\Twig\RequestRuntime">
             <argument type="service" id="request_stack" />
-            <argument type="service" id="ems_common.storage.manager" />
-            <argument type="service" id="Symfony\Component\Routing\Generator\UrlGeneratorInterface" />
-            <argument type="service" id="EMS\CommonBundle\Storage\Processor\Processor" />
-            <argument type="string">%kernel.cache_dir%</argument>
+            <argument type="service" id="EMS\CommonBundle\Twig\AssetRuntime" />
             <tag name="twig.runtime" />
         </service>
 
