@@ -16,10 +16,12 @@ class StorageManagerTest extends WebTestCase
     private StorageManager $storageManager;
     private string $tempFile;
     private string $hash;
+    private LoggerInterface $mockLogger;
 
     protected function setUp(): void
     {
-        $this->storageManager = new StorageManager(new FileLocator(), [$this->getFsFactory()], 'sha1', [[
+        $this->mockLogger = $this->createMock(LoggerInterface::class);
+        $this->storageManager = new StorageManager($this->mockLogger, new FileLocator(), [$this->getFsFactory()], 'sha1', [[
             'type' => 'fs',
             'path' => $this->getFsDir(),
         ], [
@@ -118,7 +120,7 @@ class StorageManagerTest extends WebTestCase
     {
         $fsDirSource = $this->getFsDir();
 
-        $storageManagerA = new StorageManager(new FileLocator(), [$this->getFsFactory()], 'sha1', [[
+        $storageManagerA = new StorageManager($this->mockLogger, new FileLocator(), [$this->getFsFactory()], 'sha1', [[
             'type' => 'fs',
             'path' => $fsDirSource,
         ]]);
@@ -126,7 +128,7 @@ class StorageManagerTest extends WebTestCase
         $this->assertEquals($this->hash, $hash);
         $this->assertEquals(1, \count($storageManagerA->headIn($hash)));
 
-        $storageManagerB = new StorageManager(new FileLocator(), [$this->getFsFactory()], 'sha1', [[
+        $storageManagerB = new StorageManager($this->mockLogger, new FileLocator(), [$this->getFsFactory()], 'sha1', [[
             'type' => 'fs',
             'path' => $this->getFsDir(),
             'hot-synchronize-limit' => '5',
@@ -162,8 +164,7 @@ class StorageManagerTest extends WebTestCase
 
     protected function getFsFactory(): FileSystemFactory
     {
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $fsFactory = new FileSystemFactory($mockLogger, \tempnam(\sys_get_temp_dir(), 'StorageManagerTest'), \sys_get_temp_dir());
+        $fsFactory = new FileSystemFactory($this->mockLogger, \tempnam(\sys_get_temp_dir(), 'StorageManagerTest'), \sys_get_temp_dir());
 
         return $fsFactory;
     }
