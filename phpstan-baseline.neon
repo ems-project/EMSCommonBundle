@@ -346,16 +346,6 @@ parameters:
 			path: src/Twig/CommonExtension.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:assetPath\\(\\) has parameter \\$assetConfig with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Twig/RequestRuntime.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:assetPath\\(\\) has parameter \\$fileField with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Twig/RequestRuntime.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:localeAttribute\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Twig/RequestRuntime.php
