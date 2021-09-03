@@ -25,7 +25,7 @@ class Image
         $this->watermark = $watermark;
     }
 
-    public function generate(string $filename, string $cacheFilename = null)
+    public function generate(string $filename, string $cacheFilename = null): string
     {
         $length = \filesize($filename);
         if (false === $length) {
@@ -58,9 +58,6 @@ class Image
             $image = $this->applyResizeAndBackground($image, $width, $height, $rotatedWidth, $rotatedHeight);
         } elseif (null !== $this->config->getBackground()) {
             $image = $this->applyBackground($image, $width, $height);
-        }
-        if (false === $image) {
-            throw new \RuntimeException('Unexpected false image');
         }
 
         if ($this->config->getRadius() > 0) {
@@ -131,13 +128,21 @@ class Image
         return [\intval($width), \intval($height)];
     }
 
-    private function fillBackgroundColor($temp)
+    /**
+     * @param resource $temp
+     */
+    private function fillBackgroundColor($temp): void
     {
         $solidColour = $this->getBackgroundColor($temp);
         \imagesavealpha($temp, true);
         \imagefill($temp, 0, 0, $solidColour);
     }
 
+    /**
+     * @param resource $image
+     *
+     * @return resource
+     */
     private function applyResizeAndBackground($image, int $width, int $height, int $originalWidth, int $originalHeight)
     {
         if (\function_exists('imagecreatetruecolor') && ($temp = \imagecreatetruecolor($width, $height))) {
@@ -145,6 +150,9 @@ class Image
         } else {
             $temp = \imagecreate($width, $height);
             $resizeFunction = 'imagecopyresized';
+        }
+        if (false === $temp) {
+            throw new \RuntimeException('Unexpected false imagecreate');
         }
 
         $this->fillBackgroundColor($temp);
@@ -187,13 +195,21 @@ class Image
         return $temp;
     }
 
-    private function applyBackground($image, $width, $height)
+    /**
+     * @param resource $image
+     *
+     * @return resource
+     */
+    private function applyBackground($image, int $width, int $height)
     {
         if (\function_exists('imagecreatetruecolor') && ($temp = \imagecreatetruecolor($width, $height))) {
             $resizeFunction = 'imagecopyresampled';
         } else {
             $temp = \imagecreate($width, $height);
             $resizeFunction = 'imagecopyresized';
+        }
+        if (false === $temp) {
+            throw new \RuntimeException('Unexpected false imagecreate');
         }
 
         $this->fillBackgroundColor($temp);
@@ -203,7 +219,12 @@ class Image
         return $temp;
     }
 
-    private function applyCorner($image, $width, $height)
+    /**
+     * @param resource $image
+     *
+     * @return resource
+     */
+    private function applyCorner($image, int $width, int $height)
     {
         $radius = $this->config->getRadius();
         $color = $this->config->getBorderColor() ?? $this->config->getBackground();
@@ -232,7 +253,7 @@ class Image
             \imagecopymerge($image, $cornerImage, 0, 0, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = \imagerotate($cornerImage, 90, 0);
-        if (false === $image || false === $cornerImage) {
+        if (false === $cornerImage) {
             throw new \RuntimeException('Unexpected false image');
         }
 
@@ -265,7 +286,12 @@ class Image
         return $image;
     }
 
-    private function applyWatermark($image, $width, $height)
+    /**
+     * @param resource $image
+     *
+     * @return resource
+     */
+    private function applyWatermark($image, int $width, int $height)
     {
         if (null === $this->watermark) {
             return $image;
