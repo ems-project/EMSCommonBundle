@@ -16,30 +16,20 @@ class StorageManagerTest extends WebTestCase
     private StorageManager $storageManager;
     private string $tempFile;
     private string $hash;
+    private LoggerInterface $mockLogger;
 
     protected function setUp(): void
     {
-        $fileLocator = new FileLocator();
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $fsFactory = new FileSystemFactory($mockLogger, \tempnam(\sys_get_temp_dir(), 'StorageManagerTest'), \sys_get_temp_dir());
-        $fsDir1 = \tempnam(\sys_get_temp_dir(), 'StorageManagerTest');
-        \unlink($fsDir1);
-        \mkdir($fsDir1);
-        $fsDir2 = \tempnam(\sys_get_temp_dir(), 'StorageManagerTest');
-        \unlink($fsDir2);
-        \mkdir($fsDir2);
-        $fsDir3 = \tempnam(\sys_get_temp_dir(), 'StorageManagerTest');
-        \unlink($fsDir3);
-        \mkdir($fsDir3);
-        $this->storageManager = new StorageManager($fileLocator, [$fsFactory], 'sha1', [[
+        $this->mockLogger = $this->createMock(LoggerInterface::class);
+        $this->storageManager = new StorageManager($this->mockLogger, new FileLocator(), [$this->getFsFactory()], 'sha1', [[
             'type' => 'fs',
-            'path' => $fsDir1,
+            'path' => $this->getFsDir(),
         ], [
             'type' => 'fs',
-            'path' => $fsDir2,
+            'path' => $this->getFsDir(),
         ], [
             'type' => 'fs',
-            'path' => $fsDir3,
+            'path' => $this->getFsDir(),
             'usage' => StorageInterface::STORAGE_USAGE_ASSET_ATTRIBUTE,
         ]]);
 
@@ -124,5 +114,58 @@ class StorageManagerTest extends WebTestCase
         $this->assertEquals(\sha1(\json_encode($data)), $configHash);
         $this->assertEquals(2, \count($this->storageManager->headIn($configHash)));
         $this->assertEquals(3, $this->storageManager->remove($configHash));
+    }
+
+    public function testHotSynchronize(): void
+    {
+        $fsDirSource = $this->getFsDir();
+
+        $storageManagerA = new StorageManager($this->mockLogger, new FileLocator(), [$this->getFsFactory()], 'sha1', [[
+            'type' => 'fs',
+            'path' => $fsDirSource,
+        ]]);
+        $hash = $storageManagerA->saveContents(self::FOO.self::BAR, 'foobar.txt', 'text/plain', StorageInterface::STORAGE_USAGE_ASSET);
+        $this->assertEquals($this->hash, $hash);
+        $this->assertEquals(1, \count($storageManagerA->headIn($hash)));
+
+        $storageManagerB = new StorageManager($this->mockLogger, new FileLocator(), [$this->getFsFactory()], 'sha1', [[
+            'type' => 'fs',
+            'path' => $this->getFsDir(),
+            'hot-synchronize-limit' => '5',
+        ], [
+            'type' => 'fs',
+            'path' => $this->getFsDir(),
+            'hot-synchronize-limit' => '1M',
+        ], [
+            'type' => 'fs',
+            'path' => $fsDirSource,
+        ], [
+            'type' => 'fs',
+            'path' => $fsDirSource,
+            'hot-synchronize-limit' => '1M',
+        ]]);
+
+        $this->assertEquals(1, \count($storageManagerB->headIn($hash)));
+        $this->assertEquals(self::FOO.self::BAR, $storageManagerB->getContents($hash));
+        $this->assertEquals(2, \count($storageManagerB->headIn($hash)));
+    }
+
+    /**
+     * @return false|string
+     */
+    protected function getFsDir()
+    {
+        $fsDir = \tempnam(\sys_get_temp_dir(), 'StorageManagerTest');
+        \unlink($fsDir);
+        \mkdir($fsDir);
+
+        return $fsDir;
+    }
+
+    protected function getFsFactory(): FileSystemFactory
+    {
+        $fsFactory = new FileSystemFactory($this->mockLogger, \tempnam(\sys_get_temp_dir(), 'StorageManagerTest'), \sys_get_temp_dir());
+
+        return $fsFactory;
     }
 }

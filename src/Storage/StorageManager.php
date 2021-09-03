@@ -8,28 +8,26 @@ use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Storage\Factory\StorageFactoryInterface;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\FileLocatorInterface;
 
 class StorageManager
 {
     /** @var StorageInterface[] */
-    private $adapters = [];
+    private array $adapters = [];
     /** @var StorageFactoryInterface[] */
-    private $factories = [];
-
-    /** @var FileLocatorInterface */
-    private $fileLocator;
-
-    /** @var string */
-    private $hashAlgo;
+    private array $factories = [];
+    private FileLocatorInterface $fileLocator;
+    private LoggerInterface $logger;
+    private string $hashAlgo;
     /** @var array<array{type?: string, url?: string, required?: bool, read-only?: bool}> */
-    private $storageConfigs;
+    private array $storageConfigs;
 
     /**
      * @param iterable<StorageFactoryInterface>                                            $factories
      * @param array<array{type?: string, url?: string, required?: bool, read-only?: bool}> $storageConfigs
      */
-    public function __construct(FileLocatorInterface $fileLocator, iterable $factories, string $hashAlgo, array $storageConfigs = [])
+    public function __construct(LoggerInterface $logger, FileLocatorInterface $fileLocator, iterable $factories, string $hashAlgo, array $storageConfigs = [])
     {
         foreach ($factories as $factory) {
             if (!$factory instanceof StorageFactoryInterface) {
@@ -37,6 +35,7 @@ class StorageManager
             }
             $this->addStorageFactory($factory);
         }
+        $this->logger = $logger;
         $this->fileLocator = $fileLocator;
         $this->hashAlgo = $hashAlgo;
         $this->storageConfigs = $storageConfigs;
@@ -101,13 +100,20 @@ class StorageManager
 
     public function getStream(string $hash): StreamInterface
     {
+        /** @var StorageInterface[] $missingIn */
+        $missingIn = [];
+
         foreach ($this->adapters as $adapter) {
             if ($adapter->head($hash)) {
                 try {
+                    $this->hotSynchronize($hash, $adapter, $missingIn);
+
                     return $adapter->read($hash);
                 } catch (\Throwable $e) {
                     continue;
                 }
+            } else {
+                $missingIn[] = $adapter;
             }
         }
         throw new NotFoundException($hash);
@@ -360,5 +366,46 @@ class StorageManager
         }
 
         return $usageRequested >= $adapter->getUsage();
+    }
+
+    /**
+     * @param StorageInterface[] $missingIn
+     */
+    private function hotSynchronize(string $hash, StorageInterface $source, array $missingIn): void
+    {
+        if (empty($missingIn)) {
+            return;
+        }
+        try {
+            $size = $this->getSize($hash);
+            $filteredAdapters = [];
+            foreach ($missingIn as $adapter) {
+                if ($size < $adapter->getHotSynchronizeLimit()) {
+                    $filteredAdapters[] = $adapter;
+                }
+            }
+
+            if (empty($filteredAdapters)) {
+                return;
+            }
+
+            foreach ($filteredAdapters as $adapter) {
+                $adapter->initUpload($hash, $size, 'hotSynchronized', 'application/bin');
+            }
+
+            $stream = $source->read($hash);
+            while (!$stream->eof()) {
+                $chunk = $stream->read(4096);
+                foreach ($filteredAdapters as $adapter) {
+                    $adapter->addChunk($hash, $chunk);
+                }
+            }
+
+            foreach ($filteredAdapters as $adapter) {
+                $adapter->finalizeUpload($hash);
+            }
+        } catch (\Throwable $e) {
+            $this->logger->warning(\sprintf('It was not possible to hot synchronize the asset %s: %s', $hash, $e->getMessage()));
+        }
     }
 }

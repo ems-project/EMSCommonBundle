@@ -6,6 +6,7 @@ namespace EMS\CommonBundle\Storage\Processor;
 
 use EMS\CommonBundle\Helper\ArrayTool;
 use EMS\CommonBundle\Helper\Cache;
+use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\NotFoundException;
 use EMS\CommonBundle\Storage\StorageManager;
 use GuzzleHttp\Psr7\Stream;
@@ -249,5 +250,27 @@ class Processor
         }
 
         return $response;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    public function overwriteMimeType(string $mimeType, array $config): string
+    {
+        switch ($config[EmsFields::ASSET_CONFIG_TYPE] ?? 'none') {
+            case EmsFields::ASSET_CONFIG_TYPE_IMAGE:
+                if ($mimeType && \preg_match('/image\/svg.*/', $mimeType)) {
+                    return $mimeType;
+                }
+                if (0 === ($config[EmsFields::ASSET_CONFIG_QUALITY] ?? 0)) {
+                    return 'image/png';
+                }
+
+                return 'image/jpeg';
+            case EmsFields::ASSET_CONFIG_TYPE_ZIP:
+                return 'application/zip';
+        }
+
+        return $mimeType;
     }
 }

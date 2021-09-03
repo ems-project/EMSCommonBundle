@@ -8,13 +8,13 @@
         <defaults public="false" />
 
         <service id="ems_common.storage.manager" class="EMS\CommonBundle\Storage\StorageManager">
+            <argument type="service" id="logger" />
             <argument type="service" id="file_locator" />
             <argument type="tagged" tag="ems_common.storage.factory"/>
             <argument type="string">%ems_common.hash_algo%</argument>
             <argument type="string">%ems_common.storages%</argument>
         </service>
         <service id="ems_common.controller.file" class="EMS\CommonBundle\Controller\FileController">
-            <argument type="service" id="ems_common.storage.manager"/>
             <argument type="service" id="ems_common.storage.processor"/>
             <argument type="service" id="ems_common.twig.runtime.request"/>
             <tag name="controller.service_arguments"/>

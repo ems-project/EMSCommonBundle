@@ -97,7 +97,7 @@ class Encoder
     }
 
     /**
-     * Allow to encode other pii using a class "pii"
+     * Allow encoding other pii using a class "pii"
      * <a href="tel:02/123.45.23"><span class="pii">02/123.45.23</span></a>.
      *
      * The <span> element is consumed and is not kept in the end result.

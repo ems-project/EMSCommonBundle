@@ -5,7 +5,9 @@ namespace EMS\CommonBundle\Helper;
 class ArrayTool
 {
     /**
-     * Normalize and json encode an array in order to compute it's hash.
+     * Normalize and json encode an array in order to compute its hash.
+     *
+     * @param array<mixed> $array
      *
      * @return false|string
      */
@@ -17,9 +19,11 @@ class ArrayTool
     }
 
     /**
-     * Normalize an array in order to compute it's hash.
+     * Normalize an array in order to compute its hash.
+     *
+     * @param array<mixed> $array
      */
-    public static function normalizeArray(array &$array, int $sort_flags = SORT_REGULAR)
+    public static function normalizeArray(array &$array, int $sort_flags = SORT_REGULAR): void
     {
         \ksort($array, $sort_flags);
 

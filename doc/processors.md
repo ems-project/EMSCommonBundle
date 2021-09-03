@@ -5,7 +5,7 @@
 All file field (indexed file field and file field) share the same base structure:
 
  - filename: mainly the original file name uploaded by the used (but it can be adjusted by the user)
- - mimetype: mainly the original mimetype identified by the user's computer (but it can be adjusted by the user
+ - mimetype: mainly the original mimetype identified by the user's computer (but it can be adjusted by the user). If missing it will be guessed from the filename.
  - sha1: the file's hash
  - filesize: the file size
  
@@ -38,7 +38,9 @@ Regarding the file's type, it's possible to generate response from a source file
  - `_file_names` (array of file path) if provided the first file found will be used instead of the original asset 
  - `_config_type` specify the processor that should process the asset. If not define the asset itself will be delivered
     - `image` will generate an image (PNG, SVG or JPEG) using the [image processor](#Image processor)
+    - `zip` will generate a ZIP archive the [ZIP processor](#ZIP processor)
  - `_get_file_path` if set to true will generate a server path to a file. Not an url path. To use in case of PDF generation or for local reports.
+ - `_mime_type` Can be used to override the file field's `mimetype` value.
  
 In the following example the path generated will force to download the asset:
 ```twig
@@ -76,7 +78,7 @@ With this processor you'll be able to generate images from a source asset:
      - `south-west`
      - `north-east`
      - `south-east`
- - `_quality` is an integer between 0 and 100. Is set to 0 a PNG will be generated. Otherwise is refers to the quality of the JPEG generated. 
+ - `_quality` is an integer between 0 and 100. Is set to 0 a PNG will be generated, otherwise is refers to the quality of the JPEG generated. 
  - `_background` color used to replace (semi-)transparent pixels in the format `#000000`
  - `_height` define the height (in pixel) of the generated image is `_resize` is defined. If not define it will be computed from the `_width` parameter in order to preserve the initial proportion.
  - `_width` define the height (in pixel) of the generated image is `_resize` is defined. If not define it will be computed from the `_width` parameter in order to preserve the initial proportion.
@@ -102,7 +104,7 @@ In this example it will generate a PNG of 400 pixels of width. The height will b
 }) }}">
 ```
 
-## Zip processor
+## ZIP processor
 
 ```twig
 {{ ems_asset_path({

@@ -11,20 +11,14 @@ use Twig\TwigFunction;
 
 class CommonExtension extends AbstractExtension
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getFunctions()
     {
         return [
-            new TwigFunction('ems_asset_path', [RequestRuntime::class, 'assetPath'], ['is_safe' => ['html']]),
+            new TwigFunction('ems_asset_path', [AssetRuntime::class, 'assetPath'], ['is_safe' => ['html']]),
             new TwigFunction('ems_unzip', [AssetRuntime::class, 'unzip']),
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getFilters()
     {
         return [
@@ -43,7 +37,7 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('ems_markdown', [Encoder::class, 'markdownToHtml'], ['is_safe' => ['html']]),
             new TwigFilter('ems_stringify', [Converter::class, 'stringify']),
             new TwigFilter('ems_temp_file', [AssetRuntime::class, 'temporaryFile']),
-            new TwigFilter('ems_asset_average_color', [RequestRuntime::class, 'assetAverageColor'], ['is_safe' => ['html']]),
+            new TwigFilter('ems_asset_average_color', [AssetRuntime::class, 'assetAverageColor'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -53,9 +47,11 @@ class CommonExtension extends AbstractExtension
     }
 
     /**
-     * @param string $key
+     * @param array<mixed> $array
+     *
+     * @return array<mixed>
      */
-    public function arrayKey(array $array, $key = 'key'): array
+    public function arrayKey(array $array, string $key = 'key'): array
     {
         $out = [];
 
