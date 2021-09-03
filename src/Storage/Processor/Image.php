@@ -25,7 +25,7 @@ class Image
         $this->watermark = $watermark;
     }
 
-    public function generate(string $filename, string $cacheFilename = null)
+    public function generate(string $filename, string $cacheFilename = null): string
     {
         $length = \filesize($filename);
         if (false === $length) {
@@ -58,9 +58,6 @@ class Image
             $image = $this->applyResizeAndBackground($image, $width, $height, $rotatedWidth, $rotatedHeight);
         } elseif (null !== $this->config->getBackground()) {
             $image = $this->applyBackground($image, $width, $height);
-        }
-        if (false === $image) {
-            throw new \RuntimeException('Unexpected false image');
         }
 
         if ($this->config->getRadius() > 0) {
@@ -131,21 +128,24 @@ class Image
         return [\intval($width), \intval($height)];
     }
 
-    private function fillBackgroundColor($temp)
+    /**
+     * @param resource $temp
+     */
+    private function fillBackgroundColor($temp): void
     {
         $solidColour = $this->getBackgroundColor($temp);
         \imagesavealpha($temp, true);
         \imagefill($temp, 0, 0, $solidColour);
     }
 
+    /**
+     * @param resource $image
+     *
+     * @return resource
+     */
     private function applyResizeAndBackground($image, int $width, int $height, int $originalWidth, int $originalHeight)
     {
-        if (\function_exists('imagecreatetruecolor') && ($temp = \imagecreatetruecolor($width, $height))) {
-            $resizeFunction = 'imagecopyresampled';
-        } else {
-            $temp = \imagecreate($width, $height);
-            $resizeFunction = 'imagecopyresized';
-        }
+        $temp = $this->imageCreate($width, $height);
 
         $this->fillBackgroundColor($temp);
 
@@ -156,62 +156,64 @@ class Image
             if (($originalHeight / $height) < ($originalWidth / $width)) {
                 $cal_width = \intval($originalHeight * $width / $height);
                 if (false !== \stripos($gravity, 'west')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $cal_width, $originalHeight);
+                    $this->imageCopyResized($temp, $image, 0, 0, 0, 0, $width, $height, $cal_width, $originalHeight);
                 } elseif (false !== \stripos($gravity, 'east')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, $originalWidth - $cal_width, 0, $width, $height, $cal_width, $originalHeight);
+                    $this->imageCopyResized($temp, $image, 0, 0, $originalWidth - $cal_width, 0, $width, $height, $cal_width, $originalHeight);
                 } else {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, \intval(($originalWidth - $cal_width) / 2), 0, $width, $height, $cal_width, $originalHeight);
+                    $this->imageCopyResized($temp, $image, 0, 0, \intval(($originalWidth - $cal_width) / 2), 0, $width, $height, $cal_width, $originalHeight);
                 }
             } else {
                 $cal_height = \intval($originalWidth / $width * $height);
                 if (false !== \stripos($gravity, 'north')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $originalWidth, $cal_height);
+                    $this->imageCopyResized($temp, $image, 0, 0, 0, 0, $width, $height, $originalWidth, $cal_height);
                 } elseif (false !== \stripos($gravity, 'south')) {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, $originalHeight - $cal_height, $width, $height, $originalWidth, $cal_height);
+                    $this->imageCopyResized($temp, $image, 0, 0, 0, $originalHeight - $cal_height, $width, $height, $originalWidth, $cal_height);
                 } else {
-                    \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, \intval(($originalHeight - $cal_height) / 2), $width, $height, $originalWidth, $cal_height);
+                    $this->imageCopyResized($temp, $image, 0, 0, 0, \intval(($originalHeight - $cal_height) / 2), $width, $height, $originalWidth, $cal_height);
                 }
             }
         } elseif ('fill' == $resize) {
             if (($originalHeight / $height) < ($originalWidth / $width)) {
                 $thumb_height = \intval($width * $originalHeight / $originalWidth);
-                \call_user_func($resizeFunction, $temp, $image, 0, \intval(($height - $thumb_height) / 2), 0, 0, $width, $thumb_height, $originalWidth, $originalHeight);
+                $this->imageCopyResized($temp, $image, 0, \intval(($height - $thumb_height) / 2), 0, 0, $width, $thumb_height, $originalWidth, $originalHeight);
             } else {
                 $thumb_width = \intval(($originalWidth * $height) / $originalHeight);
-                \call_user_func($resizeFunction, $temp, $image, \intval(($width - $thumb_width) / 2), 0, 0, 0, $thumb_width, $height, $originalWidth, $originalHeight);
+                $this->imageCopyResized($temp, $image, \intval(($width - $thumb_width) / 2), 0, 0, 0, $thumb_width, $height, $originalWidth, $originalHeight);
             }
         } else {
-            \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $originalWidth, $originalHeight);
+            $this->imageCopyResized($temp, $image, 0, 0, 0, 0, $width, $height, $originalWidth, $originalHeight);
         }
 
         return $temp;
     }
 
-    private function applyBackground($image, $width, $height)
+    /**
+     * @param resource $image
+     *
+     * @return resource
+     */
+    private function applyBackground($image, int $width, int $height)
     {
-        if (\function_exists('imagecreatetruecolor') && ($temp = \imagecreatetruecolor($width, $height))) {
-            $resizeFunction = 'imagecopyresampled';
-        } else {
-            $temp = \imagecreate($width, $height);
-            $resizeFunction = 'imagecopyresized';
-        }
+        $temp = $this->imageCreate($width, $height);
 
         $this->fillBackgroundColor($temp);
 
-        \call_user_func($resizeFunction, $temp, $image, 0, 0, 0, 0, $width, $height, $width, $height);
+        $this->imageCopyResized($temp, $image, 0, 0, 0, 0, $width, $height, $width, $height);
 
         return $temp;
     }
 
-    private function applyCorner($image, $width, $height)
+    /**
+     * @param resource $image
+     *
+     * @return resource
+     */
+    private function applyCorner($image, int $width, int $height)
     {
         $radius = $this->config->getRadius();
         $color = $this->config->getBorderColor() ?? $this->config->getBackground();
 
-        $cornerImage = \imagecreatetruecolor($radius, $radius);
-        if (false === $cornerImage) {
-            throw new \RuntimeException('Could not create cornerImage');
-        }
+        $cornerImage = $this->imageCreate($radius, $radius);
         $clearColor = \imagecolorallocate($cornerImage, 0, 0, 0);
         if (false === $clearColor) {
             throw new \RuntimeException('Unexpected false imagecolorallocate');
@@ -232,7 +234,7 @@ class Image
             \imagecopymerge($image, $cornerImage, 0, 0, 0, 0, $radius, $radius, 100);
         }
         $cornerImage = \imagerotate($cornerImage, 90, 0);
-        if (false === $image || false === $cornerImage) {
+        if (false === $cornerImage) {
             throw new \RuntimeException('Unexpected false image');
         }
 
@@ -265,7 +267,12 @@ class Image
         return $image;
     }
 
-    private function applyWatermark($image, $width, $height)
+    /**
+     * @param resource $image
+     *
+     * @return resource
+     */
+    private function applyWatermark($image, int $width, int $height)
     {
         if (null === $this->watermark) {
             return $image;
@@ -399,5 +406,37 @@ class Image
         }
 
         return $image;
+    }
+
+    /**
+     * @return resource
+     */
+    private function imageCreate(int $width, int $height)
+    {
+        if (!\function_exists('imagecreatetruecolor') || false === ($image = \imagecreatetruecolor($width, $height))) {
+            $image = \imagecreate($width, $height);
+        }
+        if (false === $image) {
+            throw new \RuntimeException('Unexpected false imagecreate');
+        }
+
+        return $image;
+    }
+
+    /**
+     * @param resource $dstImage
+     * @param resource $srcImage
+     */
+    private function imageCopyResized($dstImage, $srcImage, int $dstX, int $dstY, int $srcX, int $srcY, int $dstWidth, int $dstHeight, int $srcWidth, int $srcHeight): void
+    {
+        if (\function_exists('imagecreatetruecolor') && \function_exists('imagecopyresampled')) {
+            $resizeFunction = 'imagecopyresampled';
+        } else {
+            $resizeFunction = 'imagecopyresized';
+        }
+
+        if (false === \call_user_func($resizeFunction, $dstImage, $srcImage, $dstX, $dstY, $srcX, $srcY, $dstWidth, $dstHeight, $srcWidth, $srcHeight)) {
+            throw new \RuntimeException('Unexpected error while resizing image');
+        }
     }
 }

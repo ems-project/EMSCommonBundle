@@ -15,7 +15,6 @@
             <argument type="string">%ems_common.storages%</argument>
         </service>
         <service id="ems_common.controller.file" class="EMS\CommonBundle\Controller\FileController">
-            <argument type="service" id="ems_common.storage.manager"/>
             <argument type="service" id="ems_common.storage.processor"/>
             <argument type="service" id="ems_common.twig.runtime.request"/>
             <tag name="controller.service_arguments"/>

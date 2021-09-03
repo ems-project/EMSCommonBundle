@@ -6,6 +6,11 @@ namespace EMS\CommonBundle\Elasticsearch\Document;
 
 interface EMSSourceInterface
 {
+    /**
+     * @param mixed $default
+     *
+     * @return mixed
+     */
     public function get(string $field, $default = null);
 
     public function getContentType(): string;
@@ -18,5 +23,8 @@ interface EMSSourceInterface
 
     public function getPublicationDateTime(): \DateTimeImmutable;
 
+    /**
+     * @return array<mixed>
+     */
     public function toArray(): array;
 }

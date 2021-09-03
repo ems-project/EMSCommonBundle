@@ -78,7 +78,7 @@ With this processor you'll be able to generate images from a source asset:
      - `south-west`
      - `north-east`
      - `south-east`
- - `_quality` is an integer between 0 and 100. Is set to 0 a PNG will be generated. Otherwise is refers to the quality of the JPEG generated. 
+ - `_quality` is an integer between 0 and 100. Is set to 0 a PNG will be generated, otherwise is refers to the quality of the JPEG generated. 
  - `_background` color used to replace (semi-)transparent pixels in the format `#000000`
  - `_height` define the height (in pixel) of the generated image is `_resize` is defined. If not define it will be computed from the `_width` parameter in order to preserve the initial proportion.
  - `_width` define the height (in pixel) of the generated image is `_resize` is defined. If not define it will be computed from the `_width` parameter in order to preserve the initial proportion.
@@ -104,7 +104,7 @@ In this example it will generate a PNG of 400 pixels of width. The height will b
 }) }}">
 ```
 
-## Zip processor
+## ZIP processor
 
 ```twig
 {{ ems_asset_path({

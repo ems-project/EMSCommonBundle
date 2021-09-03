@@ -6,7 +6,7 @@ namespace EMS\CommonBundle\Elasticsearch\Request;
 
 class Request implements RequestInterface
 {
-    /** @var array */
+    /** @var array<mixed> */
     private $body;
     /** @var string */
     private $index;
@@ -15,6 +15,9 @@ class Request implements RequestInterface
     /** @var int */
     private $size = 10;
 
+    /**
+     * @param array<mixed> $body
+     */
     public function __construct(string $index, array $body)
     {
         $this->index = $index;
@@ -31,6 +34,9 @@ class Request implements RequestInterface
         $this->size = $size;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [
