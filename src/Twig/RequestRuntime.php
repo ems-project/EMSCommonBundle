@@ -19,9 +19,11 @@ class RequestRuntime implements RuntimeExtensionInterface
     }
 
     /**
+     * @param array<mixed> $source
+     *
      * @return mixed
      */
-    public function localeAttribute(array $array, string $attribute)
+    public function localeAttribute(array $source, string $attribute)
     {
         $request = $this->requestStack->getCurrentRequest();
         if (null === $request) {
@@ -30,7 +32,7 @@ class RequestRuntime implements RuntimeExtensionInterface
 
         $locale = $request->getLocale();
 
-        return isset($array[$attribute.$locale]) ? $array[$attribute.$locale] : '';
+        return isset($source[$attribute.$locale]) ? $source[$attribute.$locale] : '';
     }
 
     /**

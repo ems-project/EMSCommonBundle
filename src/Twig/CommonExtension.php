@@ -46,6 +46,11 @@ class CommonExtension extends AbstractExtension
         return \file_exists($filename);
     }
 
+    /**
+     * @param array<mixed> $array
+     *
+     * @return array<mixed>
+     */
     public function arrayKey(array $array, string $key = 'key'): array
     {
         $out = [];

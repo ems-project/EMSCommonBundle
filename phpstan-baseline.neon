@@ -335,18 +335,3 @@ parameters:
 			count: 1
 			path: src/Storage/Processor/StreamRange.php
 
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\CommonExtension\\:\\:arrayKey\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Twig/CommonExtension.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\CommonExtension\\:\\:arrayKey\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Twig/CommonExtension.php
-
-		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Twig\\\\RequestRuntime\\:\\:localeAttribute\\(\\) has parameter \\$array with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Twig/RequestRuntime.php
-
