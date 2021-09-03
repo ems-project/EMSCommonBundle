@@ -18,7 +18,7 @@ final class EMSSource implements EMSSourceInterface
     private $hash;
     /** @var \DateTimeImmutable */
     private $publicationDateTime;
-    /** @var array */
+    /** @var array<mixed> */
     private $source;
 
     public const FIELD_CONTENT_TYPE = '_contenttype';
@@ -30,6 +30,9 @@ final class EMSSource implements EMSSourceInterface
     public const FIELD_VERSION_UUID = '_version_uuid';
     public const FIELD_VERSION_TAG = '_version_tag';
 
+    /**
+     * @param array<mixed> $source
+     */
     public function __construct(array $source)
     {
         $this->contentType = $source[self::FIELD_CONTENT_TYPE] ?? null;

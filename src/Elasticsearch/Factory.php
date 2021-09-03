@@ -22,6 +22,9 @@ class Factory
         $this->env = $env;
     }
 
+    /**
+     * @param array<mixed> $config
+     */
     public function fromConfig(array $config): Client
     {
         if ('dev' === $this->env && 'cli' !== \php_sapi_name()) {

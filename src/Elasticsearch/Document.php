@@ -18,10 +18,13 @@ class Document implements DocumentInterface
     private $type;
 
     /**
-     * @var array
+     * @var array<mixed>
      */
     private $source;
 
+    /**
+     * @param array<mixed> $document
+     */
     public function __construct(array $document)
     {
         $this->id = $document['_id'];
@@ -44,6 +47,9 @@ class Document implements DocumentInterface
         return "$this->type:$this->id";
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getSource(): array
     {
         return $this->source;
