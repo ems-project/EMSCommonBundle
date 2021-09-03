@@ -59,27 +59,7 @@ class RequestRuntime implements RuntimeExtensionInterface
         $mimeType = $fileField[EmsFields::CONTENT_MIME_TYPE_FIELD_] ?? $fileField[$mimeTypeField] ?? MimeType::fromFilename($filename) ?? 'application/octet-stream';
 
         $mimeType = $this->processor->overwriteMimeType($mimeType, $config);
-
-        if (EmsFields::ASSET_CONFIG_TYPE_IMAGE === ($config[EmsFields::ASSET_CONFIG_TYPE] ?? null)) {
-            if ($mimeType && \preg_match('/image\/svg.*/', $mimeType)) {
-                if (MimeType::fromFilename($filename) !== $mimeType) {
-                    $filename .= '.svg';
-                }
-            } elseif (0 === ($config[EmsFields::ASSET_CONFIG_QUALITY] ?? 0)) {
-                if (MimeType::fromFilename($filename) !== $mimeType) {
-                    $filename .= '.png';
-                }
-            } else {
-                if (MimeType::fromFilename($filename) !== $mimeType) {
-                    $filename .= '.jpg';
-                }
-            }
-        }
-        if (EmsFields::ASSET_CONFIG_TYPE_ZIP === ($config[EmsFields::ASSET_CONFIG_TYPE] ?? null)) {
-            if (MimeType::fromFilename($filename) !== $mimeType) {
-                $filename .= '.zip';
-            }
-        }
+        $filename = $this->fixFileExtension($filename, $mimeType);
         $config[EmsFields::ASSET_CONFIG_MIME_TYPE] = $mimeType;
 
         try {
@@ -150,5 +130,101 @@ class RequestRuntime implements RuntimeExtensionInterface
         } catch (\Throwable $e) {
             return '#FFFFFF';
         }
+    }
+
+    private function fixFileExtension(string $filename, string $mimeType): string
+    {
+        static $mimetypes = [
+            'video/3gpp' => '3gp',
+            'application/x-7z-compressed' => '7z',
+            'audio/x-aac' => 'aac',
+            'audio/x-aiff' => 'aif',
+            'video/x-ms-asf' => 'asf',
+            'application/atom+xml' => 'atom',
+            'video/x-msvideo' => 'avi',
+            'image/bmp' => 'bmp',
+            'application/x-bzip2' => 'bz2',
+            'application/pkix-cert' => 'cer',
+            'application/pkix-crl' => 'crl',
+            'application/x-x509-ca-cert' => 'crt',
+            'text/css' => 'css',
+            'text/csv' => 'csv',
+            'application/cu-seeme' => 'cu',
+            'application/x-debian-package' => 'deb',
+            'application/msword' => 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+            'application/x-dvi' => 'dvi',
+            'application/vnd.ms-fontobject' => 'eot',
+            'application/epub+zip' => 'epub',
+            'text/x-setext' => 'etx',
+            'audio/flac' => 'flac',
+            'video/x-flv' => 'flv',
+            'image/gif' => 'gif',
+            'application/gzip' => 'gz',
+            'text/html' => 'html',
+            'image/x-icon' => 'ico',
+            'text/calendar' => 'ics',
+            'application/x-iso9660-image' => 'iso',
+            'application/java-archive' => 'jar',
+            'image/jpeg' => 'jpeg',
+            'text/javascript' => 'js',
+            'application/json' => 'json',
+            'application/x-latex' => 'latex',
+            'audio/midi' => 'midi',
+            'video/quicktime' => 'mov',
+            'video/x-matroska' => 'mkv',
+            'audio/mpeg' => 'mp3',
+            'video/mp4' => 'mp4',
+            'audio/mp4' => 'mp4a',
+            'video/mpeg' => 'mpeg',
+            'audio/ogg' => 'ogg',
+            'video/ogg' => 'ogv',
+            'application/ogg' => 'ogx',
+            'image/x-portable-bitmap' => 'pbm',
+            'application/pdf' => 'pdf',
+            'image/x-portable-graymap' => 'pgm',
+            'image/png' => 'png',
+            'image/x-portable-anymap' => 'pnm',
+            'image/x-portable-pixmap' => 'ppm',
+            'application/vnd.ms-powerpoint' => 'ppt',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'pptx',
+            'application/x-rar-compressed' => 'rar',
+            'image/x-cmu-raster' => 'ras',
+            'application/rss+xml' => 'rss',
+            'application/rtf' => 'rtf',
+            'text/sgml' => 'sgml',
+            'image/svg+xml' => 'svg',
+            'application/x-shockwave-flash' => 'swf',
+            'application/x-tar' => 'tar',
+            'image/tiff' => 'tiff',
+            'application/x-bittorrent' => 'torrent',
+            'application/x-font-ttf' => 'ttf',
+            'text/plain' => 'txt',
+            'audio/x-wav' => 'wav',
+            'video/webm' => 'webm',
+            'image/webp' => 'webp',
+            'audio/x-ms-wma' => 'wma',
+            'video/x-ms-wmv' => 'wmv',
+            'application/x-font-woff' => 'woff',
+            'application/wsdl+xml' => 'wsdl',
+            'image/x-xbitmap' => 'xbm',
+            'application/vnd.ms-excel' => 'xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+            'application/xml' => 'xml',
+            'image/x-xpixmap' => 'xpm',
+            'image/x-xwindowdump' => 'xwd',
+            'text/yaml' => 'yml',
+            'application/zip' => 'zip',
+        ];
+
+        if (!isset($mimetypes[$mimeType])) {
+            return $filename;
+        }
+
+        if (MimeType::fromFilename($filename) === $mimeType) {
+            return $filename;
+        }
+
+        return \implode('.', [\pathinfo($filename, PATHINFO_FILENAME), $mimetypes[$mimeType]]);
     }
 }
