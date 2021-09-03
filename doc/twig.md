@@ -28,7 +28,7 @@ outside an anchor, the custom selection of pii method should be used.
 Note: When using custom selection of pii, make sure that no HTML tags are present inside the pii span.
 
 Note: the custom selection pii span is only present in the backend. The obfuscation method removes the span
-tag from the code that is send to the browser.
+tag from the code that is sent to the browser.
 
 ## ems_html_encode
 
@@ -42,7 +42,7 @@ See unit test for more examples.
 
 ## ems_markdown
 
-Filter converting a markdown text into an HTML text following the github standards. 
+Filter converting a Markdown text into an HTML text following the GitHub standards. 
 
 ```twig
 {{ source.body|ems_markdown }}

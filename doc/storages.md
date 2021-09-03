@@ -2,7 +2,7 @@
 
 There are many types of file storages supported such as regular file system, asset saved in database, S3 and so forth. It's also possible to extend this list.
 
-To configure the storages of your solution you should  configure the bundle parameter `ems_common.storages` (or via the environment (.env) `EMS_STORAGES` variable if your are using elasticms or the skeleton). This variable must contain a JSON array listing all storage services that you want ordered. I.e.:
+To configure the storages of your solution you should  configure the bundle parameter `ems_common.storages` (or via the environment (.env) `EMS_STORAGES` variable if you are using elasticms or the skeleton). This variable must contain a JSON array listing all storage services that you want ordered. I.e.:
 
 ```yaml
 EMS_STORAGES='[{"type":"fs","path":"./var/assets"},{"type":"fs","path":"./var/assets2"}]'
@@ -27,7 +27,7 @@ Each storage adapter can be defined with a `usage` attribute. This attribute can
  - `backup` : refers to files synchronized by the ems:asset:synchronize` command
  - `external` : refers to files handled by an external data source. I.e. the S3 admin storage from a skeleton.
  
- So, if a want to upload an asset, it will be saved on cache, config and cache storages, And config will be save on cache and config storages. Externals storages act like a read-only storage.
+ So, if a want to upload an asset, it will be saved on cache, config and cache storages, And config will be saved on cache and config storages. Externals storages act like a read-only storage.
  
 For a regular website (1 elasticms and 1 skeleton) a best practice is to defined 4 storages:
  - A `config` storage for the skeleton : typically in an empty directory or in the docker images. As `config` and `cache` files doesn't have to be persisted.
@@ -49,11 +49,11 @@ An `hot-synchronize-limit` attribute can be specified. It's a file size attribut
 ## Cleaning useless assets
 With the time the size of your storages can increase. For security reason, it's not possible to cleaned them from the application. But, there is a procedure.
 
-With the EMSCoreBundle command `ems:asset:clean` you can remove from the database all references to files that are not used by at least one revision. Typically, it cleans files that have been uploaded in a document but the or document has never been finalized, or the file has been replaced. 
+With the EMSCoreBundle command `ems:asset:clean` you can remove from the database all files references that are not used by at least one revision. Typically, it cleans files that have been uploaded in a document but the or document has never been finalized, or the file has been replaced. 
  
 Now if you define a new storage you'll be able to synchronize it with `ems:asset:synchronize`. This command is only synchronizing the referenced files.
 
-Finally, it's time to remove your old storage from the `EMS_STORAGES` config. And, if your are sure this storage isn't used by another elasticms, you can drop it.
+Finally, it's time to remove your old storage from the `EMS_STORAGES` config. And, if you are sure this storage isn't used by another elasticms, you can drop it.
  
 ## Existing type of storages services
 
@@ -89,7 +89,7 @@ This will save/read assets in the default relational database.
 ```
  
 ### HTTP
-The will instantiate an HTTP service to read/save assets, typically an elasticms.
+They will instantiate an HTTP service to read/save assets, typically an elasticms.
  - `type` (mandatory): `"html"`
  - `base-url` (mandatory): The base url (with scheme, protocol, ...) of your service i.e. `http://my-website.eu/admin`
  - `get-url` (optional): the relative url where to get asset by with a file's hash. Default value `/public/file/`
@@ -136,7 +136,7 @@ The will instantiate a S3 client service to read/save assets in a S3 (or a s3-li
 
 
  ### SFTP
-The will instantiate a SFTP client service to read/save assets on a SSH server. See the [PHP ssh2_auth_pubkey_file function documentation](https://www.php.net/manual/en/function.ssh2-auth-pubkey-file.php).
+They will instantiate a SFTP client service to read/save assets on an SSH server. See the [PHP ssh2_auth_pubkey_file function documentation](https://www.php.net/manual/en/function.ssh2-auth-pubkey-file.php).
  - `type` (mandatory): `"s3"`.
  - `host` (mandatory): Host name or IP.
  - `path` (mandatory): Path to locate assets.

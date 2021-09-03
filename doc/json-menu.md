@@ -7,7 +7,7 @@ JsonMenuStructure is a kind of elasticms field serializing a JSON in a string. T
  - `label` : contain a non-mandatory string labelling the JsonMenuIte
  - `type` : string identifying the subform type of this JsonMenuItem 
  - `object` : contain the JSON of the subform
- - `children` : contains an non-mandatory array of JsonMenuItem (recursive structure)
+ - `children` : contains a non-mandatory array of JsonMenuItem (recursive structure)
 
 # Twig filter ems_json_menu_decode
 
