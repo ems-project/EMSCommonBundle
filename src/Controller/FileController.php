@@ -89,7 +89,7 @@ class FileController extends AbstractController
     /**
      * http://blog.alterphp.com/2012/08/how-to-deal-with-asynchronous-request.html.
      */
-    private function closeSession(Request $request)
+    private function closeSession(Request $request): void
     {
         if (!$request->hasSession()) {
             return;

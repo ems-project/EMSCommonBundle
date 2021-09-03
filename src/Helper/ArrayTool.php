@@ -7,6 +7,8 @@ class ArrayTool
     /**
      * Normalize and json encode an array in order to compute it's hash.
      *
+     * @param array<mixed> $array
+     *
      * @return false|string
      */
     public static function normalizeAndSerializeArray(array &$array, int $sort_flags = SORT_REGULAR, int $jsonEncodeOptions = 0)
@@ -18,8 +20,10 @@ class ArrayTool
 
     /**
      * Normalize an array in order to compute it's hash.
+     *
+     * @param array<mixed> $array
      */
-    public static function normalizeArray(array &$array, int $sort_flags = SORT_REGULAR)
+    public static function normalizeArray(array &$array, int $sort_flags = SORT_REGULAR): void
     {
         \ksort($array, $sort_flags);
 
