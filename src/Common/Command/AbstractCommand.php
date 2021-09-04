@@ -72,6 +72,19 @@ abstract class AbstractCommand extends Command implements CommandInterface
     }
 
     /**
+     * @return string[]
+     */
+    protected function getArgumentStringArray(string $name): array
+    {
+        $arg = $this->input->getArgument($name);
+        if (!\is_array($arg) || empty($arg)) {
+            throw new \RuntimeException(\sprintf('Missing array argument "%s"', $name));
+        }
+
+        return $arg;
+    }
+
+    /**
      * @param string[] $choices
      */
     protected function choiceArgumentString(string $name, string $question, array $choices): void
@@ -92,6 +105,14 @@ abstract class AbstractCommand extends Command implements CommandInterface
         return \intval($arg);
     }
 
+    /**
+     * @return int[]
+     */
+    protected function getArgumentIntArray(string $name): array
+    {
+        return \array_map('\intval', $this->getArgumentStringArray($name));
+    }
+
     protected function getOptionBool(string $name): bool
     {
         return true === $this->input->getOption($name);
@@ -108,6 +129,14 @@ abstract class AbstractCommand extends Command implements CommandInterface
         }
 
         return $default;
+    }
+
+    /**
+     * @return int[]
+     */
+    protected function getOptionIntArray(string $name): array
+    {
+        return \array_map('\intval', $this->getOptionStringArray($name));
     }
 
     protected function getOptionIntNull(string $name): ?int
@@ -128,6 +157,19 @@ abstract class AbstractCommand extends Command implements CommandInterface
         }
 
         return $default;
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getOptionStringArray(string $name): array
+    {
+        $option = $this->input->getOption($name);
+        if (!\is_array($option) || empty($option)) {
+            throw new \RuntimeException(\sprintf('Missing array option "%s"', $name));
+        }
+
+        return $option;
     }
 
     protected function getOptionStringNull(string $name): ?string
