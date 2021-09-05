@@ -10,6 +10,7 @@
         <service id="ems_common.twig.extension.common" class="EMS\CommonBundle\Twig\CommonExtension">
             <tag name="twig.extension" />
         </service>
+        <service id="ems_common.twig.runtime.asset" alias="EMS\CommonBundle\Twig\AssetRuntime"/>
         <service id="EMS\CommonBundle\Twig\AssetRuntime">
             <argument type="service" id="ems_common.storage.manager" />
             <argument type="service" id="logger" />
