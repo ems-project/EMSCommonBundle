@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Json;
 
+use Symfony\Component\PropertyAccess\PropertyAccess;
+
 /**
  * @implements \IteratorAggregate<JsonMenuNested>
  */
@@ -99,15 +101,39 @@ final class JsonMenuNested implements \IteratorAggregate
     }
 
     /**
-     * Loop through the children recursively.
+     * @return iterable<JsonMenuNested>|JsonMenuNested[]
      */
-    public function getIterator()
+    public function getIterator(): iterable
     {
         foreach ($this->children as $child) {
             yield $child;
 
             if ($child->hasChildren()) {
                 yield from $child;
+            }
+        }
+    }
+
+    /**
+     * @return iterable<JsonMenuNested>|JsonMenuNested[]
+     */
+    public function search(string $propertyPath, string $value, ?string $type = null): iterable
+    {
+        $propertyAccessor = PropertyAccess::createPropertyAccessor();
+
+        foreach ($this->getIterator() as $child) {
+            if (null !== $type && $child->getType() !== $type) {
+                continue;
+            }
+
+            if (!$propertyAccessor->isReadable($child->getObject(), $propertyPath)) {
+                continue;
+            }
+
+            $objectValue = $propertyAccessor->getValue($child->getObject(), $propertyPath);
+
+            if ($objectValue === $value) {
+                yield $child;
             }
         }
     }
