@@ -13,9 +13,32 @@ With this filter you can parse a JsonMenuNested field and get a [JsonMenuNested 
 
 ## JsonMenuNested object
 
+### Searching for a object value
+
+Searching inside a JsonMenuNested you can use the search method on the object.
+
+Arguments:
+- `propertyPath`: the property path defined for symfony's [property accessor](https://symfony.com/doc/current/components/property_access.html)
+- `value`: the value to match
+- `type`: optional argument, for limiting the search on only items of the type passed
+
+It returns an iterable result, if you are only intressed in one object use twig filter first.
+
+> Example searching for a item which contains page_nl with the falue 'example:ouuid'
+```twig
+{% set structureJson = '{...}'|ems_json_menu_nested_decode %}
+{% set item = structure.search("[page_nl]", "example:ouuid")|first %}
+```
+> Example searching for page items from the author John
+```twig
+{% set structureJson = '{...}'|ems_json_menu_nested_decode %}
+{% set johnsPages = structure.search("[author]", "John", "page") %}
+{% for page in johnsPages %}...{% endfor %}
+```
+
 ### Generate a breadcrumb
 
-JsonMenuNested contains a breadcrumb method useful in order to generate breadcrump:
+JsonMenuNested contains a breadcrumb method useful in order to generate breadcrumb:
 
 ```twig
         {% if pageInStructure %}
