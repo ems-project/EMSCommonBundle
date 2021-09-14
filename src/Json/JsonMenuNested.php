@@ -138,6 +138,17 @@ final class JsonMenuNested implements \IteratorAggregate
         }
     }
 
+    public function getItemById(string $id): ?JsonMenuNested
+    {
+        foreach ($this->getIterator() as $child) {
+            if ($child->getId() === $id) {
+                return $child;
+            }
+        }
+
+        return null;
+    }
+
     public function getId(): string
     {
         return $this->id;
