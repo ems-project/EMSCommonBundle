@@ -26,15 +26,23 @@ class AssetRuntime
     private UrlGeneratorInterface $urlGenerator;
     private Processor $processor;
     private string $cacheDir;
+    private string $projectDir;
 
-    public function __construct(StorageManager $storageManager, LoggerInterface $logger, UrlGeneratorInterface $urlGenerator, Processor $processor, string $cacheDir)
-    {
+    public function __construct(
+        StorageManager $storageManager,
+        LoggerInterface $logger,
+        UrlGeneratorInterface $urlGenerator,
+        Processor $processor,
+        string $cacheDir,
+        string $projectDir
+    ) {
         $this->storageManager = $storageManager;
         $this->logger = $logger;
         $this->filesystem = new Filesystem();
         $this->urlGenerator = $urlGenerator;
         $this->processor = $processor;
         $this->cacheDir = $cacheDir;
+        $this->projectDir = $projectDir;
     }
 
     /**
@@ -129,6 +137,7 @@ class AssetRuntime
         $hash = $fileField[EmsFields::CONTENT_FILE_HASH_FIELD_] ?? $fileField[$fileHashField] ?? 'processor';
         $filename = $fileField[EmsFields::CONTENT_FILE_NAME_FIELD_] ?? $fileField[$filenameField] ?? 'asset.bin';
         $mimeType = $config[EmsFields::ASSET_CONFIG_MIME_TYPE] ?? $fileField[EmsFields::CONTENT_MIME_TYPE_FIELD_] ?? $fileField[$mimeTypeField] ?? MimeType::fromFilename($filename) ?? 'application/octet-stream';
+        $referenceType = $assetConfig[EmsFields::ASSET_CONFIG_URL_TYPE] ?? $referenceType;
 
         $mimeType = $this->processor->overwriteMimeType($mimeType, $config);
         $filename = $this->fixFileExtension($filename, $mimeType);
@@ -194,6 +203,13 @@ class AssetRuntime
         } catch (\Throwable $e) {
             return '#FFFFFF';
         }
+    }
+
+    public function assetUrlFilePath(string $url, string $folder = 'public'): string
+    {
+        $path = \str_replace('/', \DIRECTORY_SEPARATOR, $url);
+
+        return \implode(\DIRECTORY_SEPARATOR, [$this->projectDir, $folder]).$path;
     }
 
     private function fixFileExtension(string $filename, string $mimeType): string
