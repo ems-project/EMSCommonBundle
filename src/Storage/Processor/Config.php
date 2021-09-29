@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class Config
 {
@@ -282,6 +283,7 @@ final class Config
         $resolver = new OptionsResolver();
         $resolver
             ->setDefaults($defaults)
+            ->setAllowedTypes(EmsFields::ASSET_CONFIG_URL_TYPE, ['int'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_ROTATE, ['float', 'int'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_AUTO_ROTATE, ['bool'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_FLIP_VERTICAL, ['bool'])
@@ -315,6 +317,7 @@ final class Config
     public static function getDefaults(): array
     {
         return [
+            EmsFields::ASSET_CONFIG_URL_TYPE => UrlGeneratorInterface::RELATIVE_PATH,
             EmsFields::ASSET_CONFIG_TYPE => null,
             EmsFields::ASSET_CONFIG_FILE_NAMES => null,
             EmsFields::ASSET_CONFIG_QUALITY => 0,

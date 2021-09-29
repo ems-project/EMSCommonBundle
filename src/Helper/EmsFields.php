@@ -21,6 +21,7 @@ final class EmsFields
     public const ASSET_CONFIG_DISPOSITION = '_disposition';
     public const ASSET_CONFIG_BACKGROUND = '_background';
     public const ASSET_CONFIG_TYPE = '_config_type';
+    public const ASSET_CONFIG_URL_TYPE = '_url_type';
     public const ASSET_CONFIG_TYPE_IMAGE = 'image';
     public const ASSET_CONFIG_TYPE_ZIP = 'zip';
     public const ASSET_CONFIG_GRAVITY = '_gravity';

@@ -53,6 +53,7 @@ class PdfGenerator
             PdfPrintOptions::ATTACHMENT => FILTER_VALIDATE_BOOLEAN,
             PdfPrintOptions::COMPRESS => FILTER_VALIDATE_BOOLEAN,
             PdfPrintOptions::HTML5_PARSING => FILTER_VALIDATE_BOOLEAN,
+            PdfPrintOptions::PHP_ENABLED => FILTER_VALIDATE_BOOLEAN,
             PdfPrintOptions::ORIENTATION => null,
             PdfPrintOptions::SIZE => null,
         ], false);

@@ -6,21 +6,18 @@ namespace EMS\CommonBundle\Service\Pdf;
 
 final class PdfPrintOptions
 {
-    /** @var bool */
-    private $attachment;
-    /** @var bool */
-    private $compress;
-    /** @var bool */
-    private $html5Parsing;
-    /** @var string */
-    private $orientation;
-    /** @var string */
-    private $size;
+    private bool $attachment;
+    private bool $compress;
+    private bool $html5Parsing;
+    private bool $isPhpEnabled;
+    private string $orientation;
+    private string $size;
     private ?string $chroot;
 
     public const ATTACHMENT = 'attachment';
     public const COMPRESS = 'compress';
     public const HTML5_PARSING = 'html5Parsing';
+    public const PHP_ENABLED = 'phpEnabled';
     public const ORIENTATION = 'orientation';
     public const SIZE = 'size';
     public const CHROOT = 'chroot';
@@ -30,12 +27,13 @@ final class PdfPrintOptions
      */
     public function __construct(array $options)
     {
-        $this->setAttachment($options[self::ATTACHMENT] ?? true);
-        $this->setCompress($options[self::COMPRESS] ?? true);
-        $this->setHtml5Parsing($options[self::HTML5_PARSING] ?? true);
-        $this->setOrientation($options[self::ORIENTATION] ?? 'portrait');
-        $this->setSize($options[self::SIZE] ?? 'a4');
-        $this->setChroot($options[self::CHROOT] ?? null);
+        $this->attachment = $options[self::ATTACHMENT] ?? true;
+        $this->compress = $options[self::COMPRESS] ?? true;
+        $this->html5Parsing = $options[self::HTML5_PARSING] ?? true;
+        $this->isPhpEnabled = $options[self::PHP_ENABLED] ?? false;
+        $this->orientation = $options[self::ORIENTATION] ?? 'portrait';
+        $this->size = $options[self::SIZE] ?? 'a4';
+        $this->chroot = $options[self::CHROOT] ?? null;
     }
 
     public function getOrientation(): string
@@ -63,38 +61,13 @@ final class PdfPrintOptions
         return $this->html5Parsing;
     }
 
-    private function setAttachment(bool $attachment): void
+    public function isPhpEnabled(): bool
     {
-        $this->attachment = $attachment;
-    }
-
-    private function setCompress(bool $compress): void
-    {
-        $this->compress = $compress;
-    }
-
-    private function setHtml5Parsing(bool $html5Parsing): void
-    {
-        $this->html5Parsing = $html5Parsing;
-    }
-
-    private function setOrientation(string $orientation): void
-    {
-        $this->orientation = $orientation;
-    }
-
-    private function setSize(string $size): void
-    {
-        $this->size = $size;
+        return $this->isPhpEnabled;
     }
 
     public function getChroot(): ?string
     {
         return $this->chroot;
-    }
-
-    public function setChroot(?string $chroot): void
-    {
-        $this->chroot = $chroot;
     }
 }
