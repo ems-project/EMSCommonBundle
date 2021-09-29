@@ -129,6 +129,7 @@ class AssetRuntime
         $hash = $fileField[EmsFields::CONTENT_FILE_HASH_FIELD_] ?? $fileField[$fileHashField] ?? 'processor';
         $filename = $fileField[EmsFields::CONTENT_FILE_NAME_FIELD_] ?? $fileField[$filenameField] ?? 'asset.bin';
         $mimeType = $config[EmsFields::ASSET_CONFIG_MIME_TYPE] ?? $fileField[EmsFields::CONTENT_MIME_TYPE_FIELD_] ?? $fileField[$mimeTypeField] ?? MimeType::fromFilename($filename) ?? 'application/octet-stream';
+        $referenceType = $assetConfig[EmsFields::ASSET_CONFIG_URL_TYPE] ?? $referenceType;
 
         $mimeType = $this->processor->overwriteMimeType($mimeType, $config);
         $filename = $this->fixFileExtension($filename, $mimeType);
