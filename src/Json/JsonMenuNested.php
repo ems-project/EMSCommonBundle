@@ -173,6 +173,14 @@ final class JsonMenuNested implements \IteratorAggregate
     }
 
     /**
+     * @param JsonMenuNested[] $children
+     */
+    public function setChildren(array $children): array
+    {
+        return $this->children = $children;
+    }
+
+    /**
      * @return JsonMenuNested[]
      */
     public function getChildren(): array
