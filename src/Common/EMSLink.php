@@ -37,6 +37,11 @@ class EMSLink
     {
     }
 
+    public function isValid(): bool
+    {
+        return null !== $this->contentType && null !== $this->ouuid;
+    }
+
     public static function fromText(string $text): EMSLink
     {
         $pattern = 'ems://' === \substr($text, 0, 6) ? self::PATTERN : self::SIMPLE_PATTERN;

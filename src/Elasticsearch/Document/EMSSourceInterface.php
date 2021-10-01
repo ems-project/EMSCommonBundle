@@ -15,13 +15,19 @@ interface EMSSourceInterface
 
     public function getContentType(): string;
 
+    public function getHash(): string;
+
+    public function hasFinalizedBy(): bool;
+
+    public function hasFinalizationDateTime(): bool;
+
+    public function hasPublicationDateTime(): bool;
+
     public function getFinalizedBy(): string;
 
-    public function getFinalizationDateTime(): \DateTimeImmutable;
+    public function getFinalizationDateTime(): \DateTimeInterface;
 
-    public function getHash(): ?string;
-
-    public function getPublicationDateTime(): \DateTimeImmutable;
+    public function getPublicationDateTime(): \DateTimeInterface;
 
     /**
      * @return array<mixed>
