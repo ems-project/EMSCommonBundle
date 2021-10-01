@@ -4,22 +4,17 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch\Document;
 
-use EMS\CommonBundle\Exception\DateTimeCreationException;
+use EMS\CommonBundle\Common\Standard\DateTime;
 
 final class EMSSource implements EMSSourceInterface
 {
-    /** @var string */
-    private $contentType;
-    /** @var string */
-    private $finalizedBy;
-    /** @var \DateTimeImmutable */
-    private $finalizationDateTime;
-    /** @var string */
-    private $hash;
-    /** @var \DateTimeImmutable */
-    private $publicationDateTime;
+    private string $contentType;
+    private string $hash;
+    private ?string $finalizedBy;
+    private ?\DateTimeInterface $finalizationDateTime = null;
+    private ?\DateTimeInterface $publicationDateTime = null;
     /** @var array<mixed> */
-    private $source;
+    private array $source;
 
     public const FIELD_CONTENT_TYPE = '_contenttype';
     public const FIELD_FINALIZED_BY = '_finalized_by';
@@ -35,28 +30,17 @@ final class EMSSource implements EMSSourceInterface
      */
     public function __construct(array $source)
     {
-        $this->contentType = $source[self::FIELD_CONTENT_TYPE] ?? null;
+        $this->contentType = $source[self::FIELD_CONTENT_TYPE];
         $this->finalizedBy = $source[self::FIELD_FINALIZED_BY] ?? null;
-        $this->hash = $source[self::FIELD_HASH] ?? null;
+        $this->hash = $source[self::FIELD_HASH];
         $this->source = $source;
 
-        $finalizationDateTime = \DateTimeImmutable::createFromFormat(
-            \DATE_ATOM,
-            $source[self::FIELD_FINALIZATION_DATETIME]
-        );
-        if (false === $finalizationDateTime) {
-            throw DateTimeCreationException::fromArray($source, self::FIELD_FINALIZATION_DATETIME);
+        if (isset($source[self::FIELD_FINALIZATION_DATETIME])) {
+            $this->finalizationDateTime = DateTime::createFromFormat($source[self::FIELD_FINALIZATION_DATETIME]);
         }
-        $this->finalizationDateTime = $finalizationDateTime;
-
-        $publicationDateTime = \DateTimeImmutable::createFromFormat(
-            \DATE_ATOM,
-            $source[self::FIELD_PUBLICATION_DATETIME]
-        );
-        if (false === $publicationDateTime) {
-            throw DateTimeCreationException::fromArray($source, self::FIELD_PUBLICATION_DATETIME);
+        if (isset($source[self::FIELD_PUBLICATION_DATETIME])) {
+            $this->publicationDateTime = DateTime::createFromFormat($source[self::FIELD_PUBLICATION_DATETIME]);
         }
-        $this->publicationDateTime = $publicationDateTime;
     }
 
     public function get(string $field, $default = null)
@@ -69,24 +53,51 @@ final class EMSSource implements EMSSourceInterface
         return $this->contentType;
     }
 
-    public function getFinalizedBy(): string
-    {
-        return $this->finalizedBy;
-    }
-
-    public function getFinalizationDateTime(): \DateTimeImmutable
-    {
-        return $this->finalizationDateTime;
-    }
-
     public function getHash(): string
     {
         return $this->hash;
     }
 
-    public function getPublicationDateTime(): \DateTimeImmutable
+    public function hasFinalizedBy(): bool
     {
-        return $this->publicationDateTime;
+        return null !== $this->finalizedBy;
+    }
+
+    public function getFinalizedBy(): string
+    {
+        if (null === $finalizedBy = $this->finalizedBy) {
+            throw new \RuntimeException('Finalized by missing');
+        }
+
+        return $finalizedBy;
+    }
+
+    public function hasFinalizationDateTime(): bool
+    {
+        return null !== $this->finalizationDateTime;
+    }
+
+    public function getFinalizationDateTime(): \DateTimeInterface
+    {
+        if (null === $finalizationDateTime = $this->finalizationDateTime) {
+            throw new \RuntimeException('Finalization datetime by missing');
+        }
+
+        return $finalizationDateTime;
+    }
+
+    public function hasPublicationDateTime(): bool
+    {
+        return null !== $this->publicationDateTime;
+    }
+
+    public function getPublicationDateTime(): \DateTimeInterface
+    {
+        if (null === $publicationDateTime = $this->publicationDateTime) {
+            throw new \RuntimeException('Finalization datetime by missing');
+        }
+
+        return $publicationDateTime;
     }
 
     public function toArray(): array
