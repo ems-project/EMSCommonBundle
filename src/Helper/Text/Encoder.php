@@ -8,7 +8,7 @@ class Encoder
 {
     public function htmlEncode(string $text): string
     {
-        return \mb_encode_numericentity(\html_entity_decode($text), [0x0, 0xffff, 0, 0xffff], 'UTF-8');
+        return \mb_encode_numericentity(\html_entity_decode($text), [0x0, 0xFFFF, 0, 0xFFFF], 'UTF-8');
     }
 
     public function htmlEncodePii(string $text): string
