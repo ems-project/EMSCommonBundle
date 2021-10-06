@@ -64,6 +64,7 @@ class TextRuntime implements RuntimeExtensionInterface
                 'replacement' => $replacement,
                 'exception' => $e,
             ]);
+
             return $text;
         }
     }
