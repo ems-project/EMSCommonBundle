@@ -27,6 +27,11 @@ class TextRuntime implements RuntimeExtensionInterface
         return $this->encoder->htmlEncode($text);
     }
 
+    public function htmlDecode(string $text, int $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, string $encoding = 'UTF-8'): string
+    {
+        return $this->encoder->htmlDecode($text, $flags, $encoding);
+    }
+
     public function htmlEncodePii(string $text): string
     {
         return $this->encoder->htmlEncodePii($text);

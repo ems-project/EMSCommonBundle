@@ -11,6 +11,11 @@ class Encoder
         return \mb_encode_numericentity(\html_entity_decode($text), [0x0, 0xFFFF, 0, 0xFFFF], 'UTF-8');
     }
 
+    public function htmlDecode(string $text, int $flags, string $encoding): string
+    {
+        return \html_entity_decode($text, $flags, $encoding);
+    }
+
     public function htmlEncodePii(string $text): string
     {
         return $this->encodePhone($this->encodeEmail($this->encodePiiClass($text)));
