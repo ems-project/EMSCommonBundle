@@ -101,3 +101,17 @@ Example replace all ems links by a span tag.
 {{ text|ems_replace_regex('/<a.*ems:\\/\\/.*>(.*)<\\/a>/m', '<span>$1</span>')|raw }}
 ```
 
+## ems_html_decode
+
+Convert HTML entities  to their corresponding characters
+
+The following example will generate a `è` :
+
+```twig
+{{ '&grave;'|ems_html_decode|json_encode|raw }}
+```
+
+### Other parameters:
+
+ - flags: [refers to html_entity_decode's flags paramter](https://www.php.net/manual/en/function.html-entity-decode.php), default value `ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5`
+ - encoding: [defining the encoding used when converting characters](https://www.php.net/manual/en/function.html-entity-decode.php), default value `"UTF-8""`
