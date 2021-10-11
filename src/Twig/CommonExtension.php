@@ -28,6 +28,7 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('emsch_ouuid', [$this, 'getOuuid']),
             new TwigFilter('locale_attr', [RequestRuntime::class, 'localeAttribute']),
             new TwigFilter('ems_html_encode', [TextRuntime::class, 'htmlEncode'], ['is_safe' => ['html']]),
+            new TwigFilter('ems_html_decode', [TextRuntime::class, 'htmlDecode']),
             new TwigFilter('ems_anti_spam', [TextRuntime::class, 'htmlEncodePii'], ['is_safe' => ['html']]),
             new TwigFilter('ems_manifest', [ManifestRuntime::class, 'manifest']),
             new TwigFilter('ems_json_menu_decode', [TextRuntime::class, 'jsonMenuDecode']),
@@ -38,6 +39,7 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('ems_stringify', [Converter::class, 'stringify']),
             new TwigFilter('ems_temp_file', [AssetRuntime::class, 'temporaryFile']),
             new TwigFilter('ems_asset_average_color', [AssetRuntime::class, 'assetAverageColor'], ['is_safe' => ['html']]),
+            new TwigFilter('ems_replace_regex', [TextRuntime::class, 'replaceRegex'], ['is_safe' => ['html']]),
         ];
     }
 

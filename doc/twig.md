@@ -85,3 +85,33 @@ Will return `#666666`. It might be useful in order to define a background color:
 ```twig
 style="background-color: {{ avatarHash|ems_asset_average_color }}"
  ```
+
+## ems_replace_regex
+
+Apply php **preg_replace** function on a text string. All possible exceptions are catched and logged as warning.
+
+Example replace all ems links by a span tag.
+```twig
+{% set text %}
+    <h1>Example</h1>
+    <p><a href="ems://object:page:dabc33113a53866fe1a1443b42a4c16d1f4bc138">Homepage</a></p>
+    <p><a href="ems://object:page:7cc6310cc57818bb571e706ede0a4c10623b430c">News</a></p>
+    <p>the end</p>
+{% endset %}
+{{ text|ems_replace_regex('/<a.*ems:\\/\\/.*>(.*)<\\/a>/m', '<span>$1</span>')|raw }}
+```
+
+## ems_html_decode
+
+Convert HTML entities  to their corresponding characters
+
+The following example will generate a `è` :
+
+```twig
+{{ '&grave;'|ems_html_decode|json_encode|raw }}
+```
+
+### Other parameters:
+
+ - flags: [refers to html_entity_decode's flags paramter](https://www.php.net/manual/en/function.html-entity-decode.php), default value `ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5`
+ - encoding: [defining the encoding used when converting characters](https://www.php.net/manual/en/function.html-entity-decode.php), default value `"UTF-8""`
