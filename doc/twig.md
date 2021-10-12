@@ -98,7 +98,7 @@ Example replace all ems links by a span tag.
     <p><a href="ems://object:page:7cc6310cc57818bb571e706ede0a4c10623b430c">News</a></p>
     <p>the end</p>
 {% endset %}
-{{ text|ems_replace_regex('/<a.*ems:\\/\\/.*>(.*)<\\/a>/m', '<span>$1</span>')|raw }}
+{{ text|ems_replace_regex('/<a.*?href="ems:\\/\\/\\S+".*?>(.*?)<\\/a>', '<span>$1</span>')|raw }}
 ```
 
 ## ems_html_decode
