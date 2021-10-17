@@ -162,4 +162,14 @@ final class CoreApi implements CoreApiInterface
 
         return $hash;
     }
+
+    public function headFile(string $realPath): bool
+    {
+        $hash = $this->hashFile($realPath);
+        try {
+            return $this->client->head('/api/file/'.$hash);
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
 }
