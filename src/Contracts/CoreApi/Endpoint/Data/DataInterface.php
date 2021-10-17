@@ -53,4 +53,18 @@ interface DataInterface
      * @throws CoreApiExceptionInterface
      */
     public function update(string $ouuid, array $rawData): DraftInterface;
+
+    /**
+     * @param array<string, mixed> $rawData
+     *
+     * @throws CoreApiExceptionInterface
+     */
+    public function createOrUpdateAndFinalize(string $ouuid, array $rawData): void;
+
+    /**
+     * @param array<string, mixed> $rawData
+     *
+     * @throws CoreApiExceptionInterface
+     */
+    public function createOrReplaceAndFinalize(string $ouuid, array $rawData): void;
 }

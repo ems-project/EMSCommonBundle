@@ -88,6 +88,32 @@ final class Data implements DataInterface
         return $this->client->head($resource);
     }
 
+    /**
+     * @param array<string, mixed> $rawData
+     */
+    public function createOrUpdateAndFinalize(string $ouuid, array $rawData): void
+    {
+        if ($this->head($ouuid)) {
+            $draft = $this->update($ouuid, $rawData);
+        } else {
+            $draft = $this->create($rawData, $ouuid);
+        }
+        $this->finalize($draft->getRevisionId());
+    }
+
+    /**
+     * @param array<string, mixed> $rawData
+     */
+    public function createOrReplaceAndFinalize(string $ouuid, array $rawData): void
+    {
+        if ($this->head($ouuid)) {
+            $draft = $this->replace($ouuid, $rawData);
+        } else {
+            $draft = $this->create($rawData, $ouuid);
+        }
+        $this->finalize($draft->getRevisionId());
+    }
+
     private function makeResource(?string ...$path): string
     {
         return \implode('/', \array_merge($this->endPoint, \array_filter($path)));
