@@ -36,6 +36,11 @@ interface DataInterface
     public function get(string $ouuid): RevisionInterface;
 
     /**
+     * @throws CoreApiExceptionInterface
+     */
+    public function head(string $ouuid): bool;
+
+    /**
      * @param array<string, mixed> $rawData
      *
      * @throws CoreApiExceptionInterface

@@ -81,6 +81,13 @@ final class Data implements DataInterface
         return new Draft($this->client->post($resource, $rawData));
     }
 
+    public function head(string $ouuid): bool
+    {
+        $resource = $this->makeResource($ouuid);
+
+        return $this->client->head($resource);
+    }
+
     private function makeResource(?string ...$path): string
     {
         return \implode('/', \array_merge($this->endPoint, \array_filter($path)));
