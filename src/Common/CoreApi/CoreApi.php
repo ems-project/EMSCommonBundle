@@ -12,16 +12,19 @@ use EMS\CommonBundle\Contracts\CoreApi\Endpoint\User\UserInterface;
 use EMS\CommonBundle\Storage\Service\HttpStorage;
 use EMS\CommonBundle\Storage\StorageManager;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
 
 final class CoreApi implements CoreApiInterface
 {
     private Client $client;
     private StorageManager $storageManager;
+    private MimeTypeGuesser $mimeTypeGuesser;
 
     public function __construct(Client $client, StorageManager $storageManager)
     {
         $this->client = $client;
         $this->storageManager = $storageManager;
+        $this->mimeTypeGuesser = MimeTypeGuesser::getInstance();
     }
 
     public function authenticate(string $username, string $password): CoreApiInterface
@@ -111,5 +114,52 @@ final class CoreApi implements CoreApiInterface
         }
 
         return $data['uploaded'];
+    }
+
+    public function uploadFile(string $realPath, string $mimeType = null): ?string
+    {
+        $hash = $this->hashFile($realPath);
+        $filesize = \filesize($realPath);
+        if (!\is_int($filesize)) {
+            throw new \RuntimeException('Unexpected file size type');
+        }
+
+        $exploded = \explode(DIRECTORY_SEPARATOR, $realPath);
+        $fromByte = $this->initUpload($hash, $filesize, \end($exploded), $mimeType ?? $this->mimeTypeGuesser->guess($realPath) ?? 'application/octet-stream');
+        if ($fromByte < 0) {
+            throw new \RuntimeException(\sprintf('Unexpected negative offset: %d', $fromByte));
+        }
+        if ($fromByte > $filesize) {
+            throw new \RuntimeException(\sprintf('Unexpected bigger offset than the filesize: %d > %d', $fromByte, $filesize));
+        }
+
+        $handle = \fopen($realPath, 'r');
+        if (false === $handle) {
+            throw new \RuntimeException(\sprintf('Unexpected error while open the archive %s', $realPath));
+        }
+        if ($fromByte > 0) {
+            if (0 !== \fseek($handle, $fromByte)) {
+                throw new \RuntimeException(\sprintf('Unexpected error while seeking the file pointer at position %s', $fromByte));
+            }
+        }
+
+        if ($fromByte === $filesize) {
+            return $hash;
+        }
+
+        $uploaded = $fromByte;
+        while (!\feof($handle)) {
+            $chunk = \fread($handle, 819200);
+            if (!\is_string($chunk)) {
+                throw new \RuntimeException('Unexpected chunk type');
+            }
+            $uploaded = $this->addChunk($hash, $chunk);
+        }
+        \fclose($handle);
+        if ($uploaded !== $filesize) {
+            throw new \RuntimeException(\sprintf('Sizes mismatched %d vs. %d for assets %s', $uploaded, $filesize, $hash));
+        }
+
+        return $hash;
     }
 }
