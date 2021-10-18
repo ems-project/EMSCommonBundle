@@ -62,5 +62,5 @@ interface DataInterface
      *
      * @throws CoreApiExceptionInterface
      */
-    public function save(string $ouuid, array $rawData, int $mode = self::MODE_UPDATE): DraftInterface;
+    public function save(string $ouuid, array $rawData, int $mode = self::MODE_UPDATE): int;
 }

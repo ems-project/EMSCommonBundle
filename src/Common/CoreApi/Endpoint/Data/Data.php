@@ -91,7 +91,7 @@ final class Data implements DataInterface
     /**
      * @param array<string, mixed> $rawData
      */
-    public function save(string $ouuid, array $rawData, int $mode = self::MODE_UPDATE): DraftInterface
+    public function save(string $ouuid, array $rawData, int $mode = self::MODE_UPDATE): int
     {
         if (!$this->head($ouuid)) {
             $draft = $this->create($rawData, $ouuid);
@@ -104,7 +104,7 @@ final class Data implements DataInterface
         }
         $this->finalize($draft->getRevisionId());
 
-        return $draft;
+        return $draft->getRevisionId();
     }
 
     private function makeResource(?string ...$path): string
