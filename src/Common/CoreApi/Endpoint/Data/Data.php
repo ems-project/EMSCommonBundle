@@ -91,27 +91,20 @@ final class Data implements DataInterface
     /**
      * @param array<string, mixed> $rawData
      */
-    public function createOrUpdateAndFinalize(string $ouuid, array $rawData): void
+    public function save(string $ouuid, array $rawData, int $mode = self::MODE_UPDATE): DraftInterface
     {
-        if ($this->head($ouuid)) {
-            $draft = $this->update($ouuid, $rawData);
-        } else {
+        if (!$this->head($ouuid)) {
             $draft = $this->create($rawData, $ouuid);
-        }
-        $this->finalize($draft->getRevisionId());
-    }
-
-    /**
-     * @param array<string, mixed> $rawData
-     */
-    public function createOrReplaceAndFinalize(string $ouuid, array $rawData): void
-    {
-        if ($this->head($ouuid)) {
+        } elseif (self::MODE_UPDATE === $mode) {
+            $draft = $this->update($ouuid, $rawData);
+        } elseif (self::MODE_REPLACE === $mode) {
             $draft = $this->replace($ouuid, $rawData);
         } else {
-            $draft = $this->create($rawData, $ouuid);
+            throw new \RuntimeException(\sprintf('Update mode unknown: %d', $mode));
         }
         $this->finalize($draft->getRevisionId());
+
+        return $draft;
     }
 
     private function makeResource(?string ...$path): string
