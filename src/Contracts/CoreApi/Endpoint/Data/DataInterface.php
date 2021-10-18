@@ -8,6 +8,9 @@ use EMS\CommonBundle\Contracts\CoreApi\CoreApiExceptionInterface;
 
 interface DataInterface
 {
+    public const MODE_UPDATE = 1;
+    public const MODE_REPLACE = 2;
+
     /**
      * @param array<string, mixed> $rawData
      *
@@ -36,6 +39,11 @@ interface DataInterface
     public function get(string $ouuid): RevisionInterface;
 
     /**
+     * @throws CoreApiExceptionInterface
+     */
+    public function head(string $ouuid): bool;
+
+    /**
      * @param array<string, mixed> $rawData
      *
      * @throws CoreApiExceptionInterface
@@ -48,4 +56,11 @@ interface DataInterface
      * @throws CoreApiExceptionInterface
      */
     public function update(string $ouuid, array $rawData): DraftInterface;
+
+    /**
+     * @param array<string, mixed> $rawData
+     *
+     * @throws CoreApiExceptionInterface
+     */
+    public function save(string $ouuid, array $rawData, int $mode = self::MODE_UPDATE): int;
 }

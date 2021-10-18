@@ -78,6 +78,15 @@ final class Client
         ]);
     }
 
+    public function head(string $resource): bool
+    {
+        $response = $this->client->request(Request::METHOD_HEAD, $resource, [
+            'headers' => $this->headers,
+        ]);
+
+        return 200 === $response->getStatusCode();
+    }
+
     public function postBody(string $resource, string $body): Result
     {
         return $this->request(Request::METHOD_POST, $resource, [
