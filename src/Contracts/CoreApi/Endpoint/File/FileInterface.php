@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data;
+namespace EMS\CommonBundle\Contracts\CoreApi\Endpoint\File;
 
 interface FileInterface
 {

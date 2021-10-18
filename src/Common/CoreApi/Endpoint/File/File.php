@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Common\CoreApi\Endpoint\File;
 
 use EMS\CommonBundle\Common\CoreApi\Client;
-use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\FileInterface;
+use EMS\CommonBundle\Contracts\CoreApi\Endpoint\File\FileInterface;
 use EMS\CommonBundle\Storage\Service\HttpStorage;
 use EMS\CommonBundle\Storage\StorageManager;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
