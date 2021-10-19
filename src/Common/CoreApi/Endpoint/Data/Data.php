@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Common\CoreApi\Endpoint\Data;
 
 use EMS\CommonBundle\Common\CoreApi\Client;
+use EMS\CommonBundle\Contracts\CoreApi\CoreApiExceptionInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\DataInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\DraftInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\RevisionInterface;
@@ -102,7 +103,13 @@ final class Data implements DataInterface
         } else {
             throw new \RuntimeException(\sprintf('Update mode unknown: %d', $mode));
         }
-        $this->finalize($draft->getRevisionId());
+
+        try {
+            $this->finalize($draft->getRevisionId());
+        } catch (CoreApiExceptionInterface $e) {
+            $this->discard($draft->getRevisionId());
+            throw $e;
+        }
 
         return $draft->getRevisionId();
     }
