@@ -7,7 +7,7 @@
     <services>
         <defaults public="false" />
 
-        <service id="ems_common.logger.elastica" class="EMS\CommonBundle\Logger\ElasticaLogger">
+        <service id="ems_common.elasticsearch.elastica_logger" class="EMS\CommonBundle\Elasticsearch\ElasticaLogger">
             <argument type="service" id="logger" on-invalid="null" />
             <argument>%kernel.debug%</argument>
             <tag name="monolog.logger" channel="elastica" />
@@ -31,7 +31,7 @@
         </service>
 
         <service id="ems_common.elastica.factory" class="EMS\CommonBundle\Elasticsearch\ElasticaFactory">
-            <argument type="service" id="ems_common.logger.elastica" />
+            <argument type="service" id="ems_common.elasticsearch.elastica_logger" />
             <argument>%kernel.environment%</argument>
             <tag name="monolog.logger" channel="elasticsearch"/>
         </service>
