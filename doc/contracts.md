@@ -52,6 +52,8 @@ final class Example
         } catch (CoreApiExceptionInterface $e) {
             $dataEndpoint->discard($draftUpdate->getRevisionId());
         }
+        
+        $dataEndpoint->save($ouuid, ['test' => 'test2']);
 
         $dataEndpoint->delete($ouuid);
     }
@@ -72,6 +74,7 @@ final class Example
 ### Endpoints
 * **data**(string $contentType): [DataInterface](../src/Contracts/CoreApi/Endpoint/Data/DataInterface.php)
 * **user**(): [UserInterface](../src/Contracts/CoreApi/Endpoint/User/UserInterface.php)
+* **file**(): [FileInterface](../src/Contracts/CoreApi/Endpoint/File/FileInterface.php)
 ### Extra
 * **getBaseUrl**(): string
     > Throws [BaseUrlNotDefinedExceptionInterface](../src/Contracts/CoreApi/Exception/BaseUrlNotDefinedExceptionInterface.php)
@@ -94,10 +97,24 @@ final class Example
 * **replace**(string $ouuid, array $rawData): [DraftInterface](../src/Contracts/CoreApi/Endpoint/Data/DraftInterface.php)
 * **update**(string $ouuid, array $rawData): [DraftInterface](../src/Contracts/CoreApi/Endpoint/Data/DraftInterface.php)
     > Will merge the passed rawData with the current rawData.
+* **save**(string $ouuid, array $rawData, int $mode = DataInterface::MODE_UPDATE): int
+    > Save (create, update or replace) the raw for the given ouuid. 
 ### User ([UserInterface](../src/Contracts/CoreApi/Endpoint/User/UserInterface.php))
 * **getProfiles**(): array
     > Return an array of [ProfileInterface](../src/Contracts/CoreApi/Endpoint/User/ProfileInterface.php) instances
 * **getProfileAuthenticated**(): [ProfileInterface](../src/Contracts/CoreApi/Endpoint/User/ProfileInterface.php)
+### File ([FileInterface](../src/Contracts/CoreApi/Endpoint/File/FileInterface.php))
+* **hashFile**(string $filename): string
+    > Return a hash for a given filename
+* **initUpload**(string $hash, int $size, string $filename, string $mimetype): int
+    > Resume an upload to the returned byte 
+* **addChunk**(string $hash, string $chunk): int
+    > Add a chunk to an in progress upload 
+* **uploadFile**(string $realPath, string $mimeType = null): ?string
+    > Upload a file. If the mimetype is not provided a mimetype will be guessed. It returns the file's hash
+* **headFile**(string $realPath): ?string
+    > Tests if a given file has been already uploaded
+
 
 
 
