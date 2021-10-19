@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Contracts\CoreApi;
 
+use EMS\CommonBundle\Common\CoreApi\Endpoint\File\File;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\DataInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\User\UserInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Exception\BaseUrlNotDefinedExceptionInterface;
@@ -21,6 +22,8 @@ interface CoreApiInterface
     public function authenticate(string $username, string $password): CoreApiInterface;
 
     public function data(string $contentType): DataInterface;
+
+    public function file(): File;
 
     /**
      * @throws BaseUrlNotDefinedExceptionInterface
@@ -43,9 +46,18 @@ interface CoreApiInterface
 
     public function user(): UserInterface;
 
+    /**
+     * @deprecated
+     */
     public function hashFile(string $filename): string;
 
+    /**
+     * @deprecated
+     */
     public function initUpload(string $hash, int $size, string $filename, string $mimetype): int;
 
+    /**
+     * @deprecated
+     */
     public function addChunk(string $hash, string $chunk): int;
 }

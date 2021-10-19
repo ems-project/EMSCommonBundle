@@ -81,6 +81,32 @@ final class Data implements DataInterface
         return new Draft($this->client->post($resource, $rawData));
     }
 
+    public function head(string $ouuid): bool
+    {
+        $resource = $this->makeResource($ouuid);
+
+        return $this->client->head($resource);
+    }
+
+    /**
+     * @param array<string, mixed> $rawData
+     */
+    public function save(string $ouuid, array $rawData, int $mode = self::MODE_UPDATE): int
+    {
+        if (!$this->head($ouuid)) {
+            $draft = $this->create($rawData, $ouuid);
+        } elseif (self::MODE_UPDATE === $mode) {
+            $draft = $this->update($ouuid, $rawData);
+        } elseif (self::MODE_REPLACE === $mode) {
+            $draft = $this->replace($ouuid, $rawData);
+        } else {
+            throw new \RuntimeException(\sprintf('Update mode unknown: %d', $mode));
+        }
+        $this->finalize($draft->getRevisionId());
+
+        return $draft->getRevisionId();
+    }
+
     private function makeResource(?string ...$path): string
     {
         return \implode('/', \array_merge($this->endPoint, \array_filter($path)));
