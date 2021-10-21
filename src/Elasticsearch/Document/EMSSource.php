@@ -25,6 +25,12 @@ final class EMSSource implements EMSSourceInterface
     public const FIELD_VERSION_UUID = '_version_uuid';
     public const FIELD_VERSION_TAG = '_version_tag';
 
+    public const REQUIRED_FIELDS = [
+        EMSSource::FIELD_CONTENT_TYPE,
+        EMSSource::FIELD_VERSION_UUID,
+        EMSSource::FIELD_HASH,
+    ];
+
     /**
      * @param array<mixed> $source
      */
