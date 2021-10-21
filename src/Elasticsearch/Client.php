@@ -9,7 +9,6 @@ use Elastica\Connection;
 use Elastica\Exception\ClientException;
 use Elastica\Request;
 use Elastica\Response;
-use EMS\CommonBundle\Logger\ElasticaLogger;
 use Symfony\Component\Stopwatch\Stopwatch;
 
 class Client extends BaseClient

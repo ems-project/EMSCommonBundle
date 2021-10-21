@@ -8,7 +8,7 @@
         <defaults public="false" />
 
         <service id="ems_common.data_collector.elastica" class="EMS\CommonBundle\DataCollector\ElasticaDataCollector">
-            <argument type="service" id="ems_common.logger.elastica" />
+            <argument type="service" id="ems_common.elasticsearch.elastica_logger" />
             <argument type="service" id="ems_common.service.elastica" />
             <tag name="data_collector" template="@EMSCommon/DataCollector/elastica.html.twig" id="elastica" />
         </service>
