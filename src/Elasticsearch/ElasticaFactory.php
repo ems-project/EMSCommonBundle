@@ -10,10 +10,8 @@ use Symfony\Component\Stopwatch\Stopwatch;
 
 class ElasticaFactory
 {
-    /** @var LoggerInterface */
-    private $logger;
-    /** @var string */
-    private $env;
+    private LoggerInterface $logger;
+    private string $env;
 
     public function __construct(LoggerInterface $logger, string $env)
     {

@@ -6,16 +6,6 @@ parameters:
 			path: src/Elasticsearch/Document/DocumentCollectionInterface.php
 
 		-
-			message: "#^Method EMS\\\\CommonBundle\\\\Logger\\\\FlashMessageLogger\\:\\:__construct\\(\\) has parameter \\$session with no value type specified in iterable type Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session\\.$#"
-			count: 1
-			path: src/Logger/FlashMessageLogger.php
-
-		-
-			message: "#^Property EMS\\\\CommonBundle\\\\Logger\\\\FlashMessageLogger\\:\\:\\$session type has no value type specified in iterable type Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session\\.$#"
-			count: 1
-			path: src/Logger/FlashMessageLogger.php
-
-		-
 			message: "#^Generator expects value type DOMElement, DOMNode given\\.$#"
 			count: 1
 			path: src/Service/Dom/HtmlCrawler.php

@@ -2,19 +2,17 @@
 
 declare(strict_types=1);
 
-namespace EMS\CommonBundle\Logger;
+namespace EMS\CommonBundle\Elasticsearch;
 
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 
 class ElasticaLogger extends AbstractLogger
 {
-    /** @var LoggerInterface|null */
-    protected $logger;
+    protected ?LoggerInterface $logger;
     /** @var array<mixed> */
     protected $queries = [];
-    /** @var bool */
-    protected $debug;
+    protected bool $debug;
 
     public function __construct(?LoggerInterface $logger = null, bool $debug = false)
     {

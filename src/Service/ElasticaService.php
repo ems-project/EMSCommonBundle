@@ -118,6 +118,19 @@ class ElasticaService
 
     /**
      * @param string[] $indexes
+     * @param string[] $contentTypes
+     */
+    public function generateSearch(array $indexes, AbstractQuery $query, array $contentTypes = []): Search
+    {
+        if (empty($contentTypes)) {
+            $query = $this->filterByContentTypes($query, $contentTypes);
+        }
+
+        return new Search($indexes, $query);
+    }
+
+    /**
+     * @param string[] $indexes
      * @param string[] $terms
      * @param string[] $contentTypes
      */
@@ -355,13 +368,19 @@ class ElasticaService
      * @param string[] $sourceIncludes
      * @param string[] $sourcesExcludes
      */
-    public function getDocument(string $index, ?string $contentType, string $id, array $sourceIncludes = [], array $sourcesExcludes = []): Document
+    public function getDocument(string $index, ?string $contentType, string $id, array $sourceIncludes = [], array $sourcesExcludes = [], ?AbstractQuery $query = null): Document
     {
         $contentTypes = [];
         if (null !== $contentType) {
             $contentTypes[] = $contentType;
         }
-        $search = $this->generateTermsSearch([$index], '_id', [$id], $contentTypes);
+
+        if ($query) {
+            $search = $this->generateSearch([$index], $query, $contentTypes);
+        } else {
+            $search = $this->generateTermsSearch([$index], '_id', [$id], $contentTypes);
+        }
+
         $search->setSources($sourceIncludes);
         $search->setSourceExcludes($sourcesExcludes);
 

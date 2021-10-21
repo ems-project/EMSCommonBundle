@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\DataCollector;
 
-use EMS\CommonBundle\Logger\ElasticaLogger;
+use EMS\CommonBundle\Elasticsearch\ElasticaLogger;
 use EMS\CommonBundle\Service\ElasticaService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,10 +12,8 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 
 class ElasticaDataCollector extends DataCollector
 {
-    /** @var ElasticaLogger */
-    private $logger;
-    /** @var ElasticaService */
-    private $elasticaService;
+    private ElasticaLogger $logger;
+    private ElasticaService $elasticaService;
 
     public function __construct(ElasticaLogger $logger, ElasticaService $elasticaService)
     {
