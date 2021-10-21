@@ -98,7 +98,7 @@ class Search
             return;
         }
 
-        $this->sourceIncludes = \array_merge($sources, [EMSSource::FIELD_CONTENT_TYPE]);
+        $this->sourceIncludes = \array_merge($sources, EMSSource::REQUIRED_FIELDS);
     }
 
     /**

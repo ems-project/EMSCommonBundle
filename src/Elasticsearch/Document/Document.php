@@ -67,7 +67,9 @@ class Document implements DocumentInterface
 
     public function getEmsId(): string
     {
-        return \sprintf('%s:%s', $this->contentType, $this->id);
+        $id = $this->getEMSSource()->get('_version_uuid', $this->id);
+
+        return \sprintf('%s:%s', $this->contentType, $id);
     }
 
     /**
