@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Storage\Processor;
 
+use EMS\CommonBundle\Common\Standard\Base64;
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\FileCollection;
 use EMS\CommonBundle\Storage\StorageManager;
@@ -271,6 +272,27 @@ final class Config
         return new FileCollection($this->options[EmsFields::CONTENT_FILES], $this->storageManager);
     }
 
+    public function isAuthorized(string $authorization): bool
+    {
+        $username = $this->options[EmsFields::ASSET_CONFIG_USERNAME] ?? null;
+        $password = $this->options[EmsFields::ASSET_CONFIG_PASSWORD] ?? null;
+
+        if (!\is_string($username) || !\is_string($password)) {
+            return true;
+        }
+        if (false === \strpos($authorization, ' ')) {
+            return false;
+        }
+        list($basic, $key) = \explode(' ', $authorization);
+
+        if (0 !== \strcasecmp('Basic', $basic)) {
+            throw new \RuntimeException(\sprintf('Unexpected authorization type %s', $basic));
+        }
+        list($username2, $password2) = \explode(':', Base64::decode($key));
+
+        return $username === $username2 && $password === $password2;
+    }
+
     /**
      * @param array<string, int|string|array|bool|\DateTime|null> $options
      *
@@ -288,6 +310,8 @@ final class Config
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_AUTO_ROTATE, ['bool'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_FLIP_VERTICAL, ['bool'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_FLIP_HORIZONTAL, ['bool'])
+            ->setAllowedTypes(EmsFields::ASSET_CONFIG_USERNAME, ['string', 'null'])
+            ->setAllowedTypes(EmsFields::ASSET_CONFIG_PASSWORD, ['string', 'null'])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_TYPE, [null, EmsFields::ASSET_CONFIG_TYPE_IMAGE, EmsFields::ASSET_CONFIG_TYPE_ZIP])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_DISPOSITION, [ResponseHeaderBag::DISPOSITION_INLINE, ResponseHeaderBag::DISPOSITION_ATTACHMENT])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY, function ($values) use ($defaults) {
@@ -339,6 +363,8 @@ final class Config
             EmsFields::ASSET_CONFIG_AUTO_ROTATE => true,
             EmsFields::ASSET_CONFIG_FLIP_HORIZONTAL => false,
             EmsFields::ASSET_CONFIG_FLIP_VERTICAL => false,
+            EmsFields::ASSET_CONFIG_USERNAME => null,
+            EmsFields::ASSET_CONFIG_PASSWORD => null,
         ];
     }
 }
