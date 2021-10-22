@@ -43,8 +43,8 @@ Regarding the file's type, it's possible to generate response from a source file
  - `_mime_type` Can be used to override the file field's `mimetype` value.
  - `_username` if defined the asset will be password protected with the provided username.
  - `_password` if defined the asset will be password protected with the provided password.
- - `_before` if defined the asset will be available until before the UNIX epoch provided.
- - `_after` if defined the asset will be available after the UNIX epoch provided.
+ - `_before` if defined the asset will be available until before the UNIX epoch integer or the strtotime string provided.
+ - `_after` if defined the asset will be available after the UNIX epoch integer or the strtotime string provided.
  
 In the following example the path generated will force to download the asset:
 ```twig

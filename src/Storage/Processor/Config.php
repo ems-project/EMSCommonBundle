@@ -274,8 +274,18 @@ final class Config
 
     public function isAvailabe(): bool
     {
-        $before = \intval($this->options[EmsFields::ASSET_CONFIG_BEFORE] ?? 0);
-        $after = \intval($this->options[EmsFields::ASSET_CONFIG_AFTER] ?? 0);
+        $before = $this->options[EmsFields::ASSET_CONFIG_BEFORE] ?? 0;
+        $after = $this->options[EmsFields::ASSET_CONFIG_AFTER] ?? 0;
+
+        if (\is_string($before)) {
+            $before = \strtotime($before) ?? $before;
+        }
+        $before = \intval($before);
+
+        if (\is_string($after)) {
+            $after = \strtotime($after) ?? $after;
+        }
+        $after = \intval($after);
 
         $time = \time();
         if (0 !== $before && $time > $before) {
