@@ -42,6 +42,8 @@ final class EmsFields
     public const ASSET_CONFIG_FLIP_VERTICAL = '_flip_vertical';
     public const ASSET_CONFIG_USERNAME = '_username';
     public const ASSET_CONFIG_PASSWORD = '_password';
+    public const ASSET_CONFIG_AFTER = '_after';
+    public const ASSET_CONFIG_BEFORE = '_before';
 
     public const LOG_ALIAS = 'ems_internal_logger_alias';
     public const LOG_TYPE = 'doc';
