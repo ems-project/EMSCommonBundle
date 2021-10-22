@@ -50,6 +50,14 @@ class Processor
 
     public function getStreamedResponse(Request $request, Config $config, string $filename, bool $immutableRoute): Response
     {
+        $authorization = \strval($request->headers->get('Authorization'));
+        if (!$config->isAuthorized($authorization)) {
+            $response = new Response('Unauthorized access', 401);
+            $response->headers->set('WWW-Authenticate', 'basic realm="Access to ressource"');
+
+            return $response;
+        }
+
         $cacheKey = $config->getCacheKey();
 
         $cacheResponse = new Response();
