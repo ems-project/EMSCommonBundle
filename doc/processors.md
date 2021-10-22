@@ -41,6 +41,8 @@ Regarding the file's type, it's possible to generate response from a source file
     - `zip` will generate a ZIP archive the [ZIP processor](#ZIP processor)
  - `_get_file_path` if set to true will generate a server path to a file. Not an url path. To use in case of PDF generation or for local reports.
  - `_mime_type` Can be used to override the file field's `mimetype` value.
+ - `_username` if defined the asset will be password protected with the provided username.
+ - `_password` if defined the asset will be password protected with the provided password.
  
 In the following example the path generated will force to download the asset:
 ```twig
