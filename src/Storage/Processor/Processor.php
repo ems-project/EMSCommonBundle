@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Processor
@@ -50,6 +51,10 @@ class Processor
 
     public function getStreamedResponse(Request $request, Config $config, string $filename, bool $immutableRoute): Response
     {
+        if (!$config->isAvailabe()) {
+            throw new AccessDeniedHttpException();
+        }
+
         $authorization = \strval($request->headers->get('Authorization'));
         if (!$config->isAuthorized($authorization)) {
             $response = new Response('Unauthorized access', 401);

@@ -272,6 +272,22 @@ final class Config
         return new FileCollection($this->options[EmsFields::CONTENT_FILES], $this->storageManager);
     }
 
+    public function isAvailabe(): bool
+    {
+        $before = \intval($this->options[EmsFields::ASSET_CONFIG_BEFORE] ?? 0);
+        $after = \intval($this->options[EmsFields::ASSET_CONFIG_AFTER] ?? 0);
+
+        $time = \time();
+        if (0 !== $before && $time > $before) {
+            return false;
+        }
+        if (0 !== $after && $time < $after) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function isAuthorized(string $authorization): bool
     {
         $username = $this->options[EmsFields::ASSET_CONFIG_USERNAME] ?? null;
@@ -312,6 +328,8 @@ final class Config
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_FLIP_HORIZONTAL, ['bool'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_USERNAME, ['string', 'null'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_PASSWORD, ['string', 'null'])
+            ->setAllowedTypes(EmsFields::ASSET_CONFIG_BEFORE, ['string', 'int'])
+            ->setAllowedTypes(EmsFields::ASSET_CONFIG_AFTER, ['string', 'int'])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_TYPE, [null, EmsFields::ASSET_CONFIG_TYPE_IMAGE, EmsFields::ASSET_CONFIG_TYPE_ZIP])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_DISPOSITION, [ResponseHeaderBag::DISPOSITION_INLINE, ResponseHeaderBag::DISPOSITION_ATTACHMENT])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY, function ($values) use ($defaults) {
@@ -365,6 +383,8 @@ final class Config
             EmsFields::ASSET_CONFIG_FLIP_VERTICAL => false,
             EmsFields::ASSET_CONFIG_USERNAME => null,
             EmsFields::ASSET_CONFIG_PASSWORD => null,
+            EmsFields::ASSET_CONFIG_BEFORE => 0,
+            EmsFields::ASSET_CONFIG_AFTER => 0,
         ];
     }
 }
