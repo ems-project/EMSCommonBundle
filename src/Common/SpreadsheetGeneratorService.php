@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Common;
 
 use EMS\CommonBundle\Contracts\SpreadsheetGeneratorServiceInterface;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -46,13 +47,13 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
 
         $i = 0;
         foreach ($config[self::SHEETS] as $sheetConfig) {
-            $sheet = (0 === $i) ? $sheet = $spreadsheet->getActiveSheet() : $spreadsheet->createSheet($i);
+            $sheet = (0 === $i) ? $spreadsheet->getActiveSheet() : $spreadsheet->createSheet($i);
             $sheet->setTitle($sheetConfig['name']);
             $j = 1;
             foreach ($sheetConfig['rows'] as $row) {
-                $k = 'A';
+                $k = 1;
                 foreach ($row as $value) {
-                    $sheet->setCellValue($k.$j, Converter::stringify($value));
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($k).$j, Converter::stringify($value));
                     ++$k;
                 }
                 ++$j;
