@@ -68,4 +68,10 @@ class AssetStorageRepository extends EntityRepository
             return null;
         }
     }
+
+    public function delete(AssetStorage $assetStorage): void
+    {
+        $this->getEntityManager()->remove($assetStorage);
+        $this->getEntityManager()->flush();
+    }
 }

@@ -288,10 +288,12 @@ class StorageManager
             $computedHash = $this->computeStringHash($handler->getContents());
 
             if ($computedHash !== $hash) {
+                $adapter->removeUpload($hash);
                 throw new HashMismatchException($hash, $computedHash);
             }
 
             if ($uploadedSize !== $size) {
+                $adapter->removeUpload($hash);
                 throw new SizeMismatchException($hash, $size, $uploadedSize);
             }
 
