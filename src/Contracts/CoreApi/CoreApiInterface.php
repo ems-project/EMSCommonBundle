@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Contracts\CoreApi;
 
 use EMS\CommonBundle\Common\CoreApi\Endpoint\File\File;
+use EMS\CommonBundle\Common\CoreApi\Search\Search;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\DataInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\User\UserInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Exception\BaseUrlNotDefinedExceptionInterface;
@@ -24,6 +25,8 @@ interface CoreApiInterface
     public function data(string $contentType): DataInterface;
 
     public function file(): File;
+
+    public function search(): Search;
 
     /**
      * @throws BaseUrlNotDefinedExceptionInterface

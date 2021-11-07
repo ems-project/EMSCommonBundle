@@ -7,6 +7,7 @@ namespace EMS\CommonBundle\Common\CoreApi;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\Data\Data;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\File\File;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\User\User;
+use EMS\CommonBundle\Common\CoreApi\Search\Search;
 use EMS\CommonBundle\Contracts\CoreApi\CoreApiInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\DataInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\User\UserInterface;
@@ -17,11 +18,13 @@ final class CoreApi implements CoreApiInterface
 {
     private Client $client;
     private File $fileEndpoint;
+    private Search $searchEndpoint;
 
     public function __construct(Client $client, StorageManager $storageManager)
     {
         $this->client = $client;
         $this->fileEndpoint = new File($client, $storageManager);
+        $this->searchEndpoint = new Search($client);
     }
 
     public function authenticate(string $username, string $password): CoreApiInterface
@@ -48,6 +51,11 @@ final class CoreApi implements CoreApiInterface
     public function file(): File
     {
         return $this->fileEndpoint;
+    }
+
+    public function search(): Search
+    {
+        return $this->searchEndpoint;
     }
 
     public function getBaseUrl(): string
