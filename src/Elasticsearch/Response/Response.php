@@ -15,7 +15,7 @@ final class Response implements ResponseInterface
     /** @var int */
     private $total;
 
-    /** @var array<string, mixed> */
+    /** @var array<int, mixed> */
     private $hits;
 
     /** @var string|null */
@@ -66,6 +66,11 @@ final class Response implements ResponseInterface
         foreach ($this->hits as $hit) {
             yield Document::fromArray($hit);
         }
+    }
+
+    public function getDocument(int $index): DocumentInterface
+    {
+        return Document::fromArray($this->hits[$index]);
     }
 
     public function getAggregation(string $name): ?Aggregation
