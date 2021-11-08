@@ -14,6 +14,9 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
+/**
+ *
+ */
 class Search
 {
     /** @var string[] */
@@ -166,6 +169,11 @@ class Search
     public function setSize(int $size): void
     {
         $this->size = $size;
+    }
+
+    public function getSize(): int
+    {
+        return $this->size;
     }
 
     public function setFrom(int $from): void

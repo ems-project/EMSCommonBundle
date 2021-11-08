@@ -1,0 +1,93 @@
+<?php
+
+namespace EMS\CommonBundle\Common\CoreApi\Search;
+
+use EMS\CommonBundle\Common\CoreApi\Client;
+use EMS\CommonBundle\Search\Search;
+
+/**
+ * @implements \Iterator<string, array<mixed>>
+ */
+class Scroll implements \Iterator
+{
+    private Client $client;
+    private Search $search;
+    private string $expireTime;
+    private ?string $nextScrollId;
+    private int $currentPage;
+    private int $totalPages;
+    /**
+     * @var mixed[]
+     */
+    private array $currentResultSet;
+    private int $count;
+    private int $index = 0;
+
+    public function __construct(Client $client, Search $search, string $expireTime = '3m')
+    {
+        $this->client = $client;
+        $this->search = $search;
+        $this->expireTime = $expireTime;
+    }
+
+    public function current(): array
+    {
+        return $this->currentResultSet['hits']['hits'][$this->index];
+    }
+
+    public function next()
+    {
+        ++$this->index;
+        if (!isset($this->currentResultSet['hits']['hits'][$this->index])) {
+            $this->nextScroll();
+        }
+    }
+
+    private function nextScroll(): void
+    {
+        $this->currentResultSet = $this->client->post('/api/search/next-scroll', [
+            'scroll-id' => $this->nextScrollId,
+            'expire-time' => $this->expireTime,
+        ])->getData();
+
+        ++$this->currentPage;
+        $this->setScrollId();
+    }
+
+    private function setScrollId(): void
+    {
+        $this->index = 0;
+        $count = $this->currentResultSet['hits']['total']['value'] ?? $this->currentResultSet['hits']['total'] ?? 0;
+        $this->totalPages = \intval($this->search->getSize() > 0 ? \floor($count / $this->search->getSize()) : 0);
+        $this->nextScrollId = $this->currentPage <= $this->totalPages ? $this->currentResultSet['_scroll_id'] ?? null : null;
+    }
+
+    public function key(): string
+    {
+        if ($this->nextScrollId === null) {
+            throw new \RuntimeException('Invalid scroll');
+        }
+        return $this->nextScrollId;
+    }
+
+    public function valid(): bool
+    {
+        return $this->nextScrollId !== null;
+    }
+
+    public function rewind(): void
+    {
+        $this->initScroll();
+    }
+
+    private function initScroll(): void
+    {
+        $this->currentResultSet = $this->client->post('/api/search/init-scroll', [
+            'search' => $this->search->serialize(),
+            'expire-time' => $this->expireTime,
+        ])->getData();
+        $this->currentPage = 0;
+        $this->setScrollId();
+
+    }
+}

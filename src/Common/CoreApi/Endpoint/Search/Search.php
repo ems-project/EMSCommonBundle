@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Common\CoreApi\Endpoint\Search;
 
 use EMS\CommonBundle\Common\CoreApi\Client;
+use EMS\CommonBundle\Common\CoreApi\Search\Scroll;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Search\SearchInterface;
 use EMS\CommonBundle\Search\Search as SearchObject;
 
@@ -35,28 +36,9 @@ class Search implements SearchInterface
         return $count;
     }
 
-    public function initScroll(SearchObject $search, string $expireTime = '3m'): string
+    public function scroll(SearchObject $search, string $expireTime = '3m'): Scroll
     {
-        $scrollId = $this->client->post('/api/search/init-scroll', [
-            'search' => $search->serialize(),
-            'expire-time' => $expireTime,
-        ])->getData()['scroll-id'] ?? null;
-        if (!\is_string($scrollId)) {
-            throw new \RuntimeException('Unexpected: scroll-id must be a string');
-        }
-
-        return $scrollId;
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    public function nextScroll(string $scrollId, string $expireTime = '3m'): array
-    {
-        return $this->client->post('/api/search/next-scroll', [
-            'scroll-id' => $scrollId,
-            'expire-time' => $expireTime,
-        ])->getData();
+        return new Scroll($this->client, $search, $expireTime);
     }
 
     public function version(): string
