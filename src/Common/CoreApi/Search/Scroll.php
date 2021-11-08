@@ -4,10 +4,11 @@ namespace EMS\CommonBundle\Common\CoreApi\Search;
 
 use EMS\CommonBundle\Common\CoreApi\Client;
 use EMS\CommonBundle\Elasticsearch\Document\Document;
+use EMS\CommonBundle\Elasticsearch\Document\DocumentInterface;
 use EMS\CommonBundle\Search\Search;
 
 /**
- * @implements \Iterator<string, Document>
+ * @implements \Iterator<string, DocumentInterface>
  */
 class Scroll implements \Iterator
 {
@@ -31,7 +32,7 @@ class Scroll implements \Iterator
         $this->expireTime = $expireTime;
     }
 
-    public function current(): Document
+    public function current(): DocumentInterface
     {
         return Document::fromArray($this->currentResultSet['hits']['hits'][$this->index]);
     }
