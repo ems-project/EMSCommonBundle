@@ -114,6 +114,9 @@ final class Example
     > Upload a file. If the mimetype is not provided a mimetype will be guessed. It returns the file's hash
 * **headFile**(string $realPath): ?string
     > Tests if a given file has been already uploaded
+### DataExtract ([DataExtractInterface](../src/Contracts/CoreApi/Endpoint/File/DataExtractInterface.php))
+* **get**(string $hash): string
+    > Return an associative array with all data extracted from an asset/file identified by the hash parameter
 
 
 
