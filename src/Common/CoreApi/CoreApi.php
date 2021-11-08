@@ -59,6 +59,8 @@ final class CoreApi implements CoreApiInterface
     public function search(): Search
     {
         return $this->searchEndpoint;
+    }
+
     public function dataExtract(): DataExtract
     {
         return $this->dataExtractEndpoint;
