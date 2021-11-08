@@ -8,6 +8,11 @@ use Elastica\Query\AbstractQuery;
 use Elastica\Search as ElasticaSearch;
 use Elastica\Suggest;
 use EMS\CommonBundle\Elasticsearch\Document\EMSSource;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 class Search
 {
@@ -16,35 +21,45 @@ class Search
     /** @var string[] */
     private array $sourceExcludes = [];
     /** @var string[] */
-    private $contentTypes = [];
+    private array $contentTypes = [];
     /** @var AbstractAggregation[] */
-    private $aggregations = [];
-    /** @var AbstractQuery|null */
+    private array $aggregations = [];
+    /** @var AbstractQuery|array<mixed>|null */
     private $query;
     /** @var string[] */
-    private $indices;
-    /** @var int */
-    private $size = 10;
-    /** @var int */
-    private $from = 0;
+    private array $indices;
+    private int $size = 10;
+    private int $from = 0;
     /** @var array<mixed>|null */
     private $sort = null;
     /** @var AbstractQuery|null */
     private $postFilter = null;
-    /** @var Suggest */
-    private $suggest = null;
+    private ?Suggest $suggest = null;
     /** @var array<mixed>|null */
-    private $highlight = null;
+    private ?array $highlight = null;
 
     private ?string $regex = null;
 
     /**
-     * @param string[] $indices
+     * @param string[]                        $indices
+     * @param AbstractQuery|array<mixed>|null $query
      */
-    public function __construct(array $indices, AbstractQuery $query = null)
+    public function __construct(array $indices, $query = null)
     {
         $this->indices = $indices;
         $this->query = $query;
+    }
+
+    public function serialize(string $format = 'json'): string
+    {
+        return self::getSerializer()->serialize($this, $format, [AbstractNormalizer::IGNORED_ATTRIBUTES => ['query']]);
+    }
+
+    public static function deserialize(string $data, string $format = 'json'): Search
+    {
+        $data = self::getSerializer()->deserialize($data, Search::class, $format);
+
+        return $data;
     }
 
     public function hasSources(): bool
@@ -75,9 +90,32 @@ class Search
         return $this->contentTypes;
     }
 
-    public function getQuery(): ?AbstractQuery
+    /**
+     * @return AbstractQuery|array<mixed>|null
+     */
+    public function getQuery()
     {
         return $this->query;
+    }
+
+    /**
+     * @return array<mixed>|null
+     */
+    public function getQueryArray(): ?array
+    {
+        if ($this->query instanceof AbstractQuery) {
+            return $this->query->toArray();
+        }
+
+        return $this->query;
+    }
+
+    /**
+     * @param array<mixed>|null$query
+     */
+    public function setQueryArray(?array $query): void
+    {
+        $this->query = $query;
     }
 
     /**
@@ -224,7 +262,7 @@ class Search
         return $this->suggest;
     }
 
-    public function setSuggest(Suggest $suggest): void
+    public function setSuggest(?Suggest $suggest): void
     {
         $this->suggest = $suggest;
     }
@@ -240,7 +278,7 @@ class Search
     /**
      * @param array<mixed> $highlight
      */
-    public function setHighlight(array $highlight): void
+    public function setHighlight(?array $highlight): void
     {
         $this->highlight = $highlight;
     }
@@ -253,5 +291,15 @@ class Search
     public function setRegex(?string $regex): void
     {
         $this->regex = $regex;
+    }
+
+    public static function getSerializer(): Serializer
+    {
+        $encoders = [new XmlEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
+
+        $serializer = new Serializer($normalizers, $encoders);
+
+        return $serializer;
     }
 }
