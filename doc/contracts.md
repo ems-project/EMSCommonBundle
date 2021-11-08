@@ -117,9 +117,6 @@ final class Example
 ### Search ([SearchInterface](../src/Contracts/CoreApi/Endpoint/Search/SearchInterface.php))
 * **search**([Search](../src/Search/Search.php) $search): array
     > Perform a remote search based on the [Search](../src/Search/Search.php) object
-
-
-
-
-
-
+### DataExtract ([DataExtractInterface](../src/Contracts/CoreApi/Endpoint/File/DataExtractInterface.php))
+* **get**(string $hash): string
+    > Return an associative array with all data extracted from an asset/file identified by the hash parameter
