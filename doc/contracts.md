@@ -114,6 +114,9 @@ final class Example
     > Upload a file. If the mimetype is not provided a mimetype will be guessed. It returns the file's hash
 * **headFile**(string $realPath): ?string
     > Tests if a given file has been already uploaded
+### Search ([SearchInterface](../src/Contracts/CoreApi/Endpoint/Search/SearchInterface.php))
+* **search**([Search](../src/Search/Search.php) $search): array
+    > Perform a remote search based on the [Search](../src/Search/Search.php) object
 
 
 
