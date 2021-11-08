@@ -167,8 +167,9 @@ abstract class AbstractUrlStorage implements StorageInterface
                 'serviceName' => $this->__toString(),
             ]);
         }
+        $copyResult = false;
         try {
-            return \copy($source, $destination);
+            $copyResult = \copy($source, $destination);
         } catch (\Throwable $e) {
             $this->logger->warning('Copy {source} to {destination} failed: {message}in service {serviceName}', [
                 'source' => $source,
@@ -176,9 +177,11 @@ abstract class AbstractUrlStorage implements StorageInterface
                 'message' => $e->getMessage(),
                 'serviceName' => $this->__toString(),
             ]);
+        } finally {
+            $this->removeUpload($hash);
         }
 
-        return false;
+        return $copyResult;
     }
 
     public function getUsage(): int
@@ -189,5 +192,16 @@ abstract class AbstractUrlStorage implements StorageInterface
     public function getHotSynchronizeLimit(): int
     {
         return $this->hotSynchronizeLimit;
+    }
+
+    public function removeUpload(string $hash): void
+    {
+        try {
+            $file = $this->getUploadPath($hash);
+            if (\file_exists($file)) {
+                \unlink($file);
+            }
+        } catch (\Throwable $e) {
+        }
     }
 }
