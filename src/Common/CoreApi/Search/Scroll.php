@@ -3,10 +3,11 @@
 namespace EMS\CommonBundle\Common\CoreApi\Search;
 
 use EMS\CommonBundle\Common\CoreApi\Client;
+use EMS\CommonBundle\Elasticsearch\Document\Document;
 use EMS\CommonBundle\Search\Search;
 
 /**
- * @implements \Iterator<string, array<mixed>>
+ * @implements \Iterator<string, Document>
  */
 class Scroll implements \Iterator
 {
@@ -30,9 +31,9 @@ class Scroll implements \Iterator
         $this->expireTime = $expireTime;
     }
 
-    public function current(): array
+    public function current(): Document
     {
-        return $this->currentResultSet['hits']['hits'][$this->index];
+        return Document::fromArray($this->currentResultSet['hits']['hits'][$this->index]);
     }
 
     public function next()
@@ -64,15 +65,16 @@ class Scroll implements \Iterator
 
     public function key(): string
     {
-        if ($this->nextScrollId === null) {
+        if (null === $this->nextScrollId) {
             throw new \RuntimeException('Invalid scroll');
         }
-        return $this->nextScrollId;
+
+        return $this->currentResultSet['hits']['hits'][$this->index]['_id'];
     }
 
     public function valid(): bool
     {
-        return $this->nextScrollId !== null;
+        return null !== $this->nextScrollId;
     }
 
     public function rewind(): void
@@ -88,6 +90,5 @@ class Scroll implements \Iterator
         ])->getData();
         $this->currentPage = 0;
         $this->setScrollId();
-
     }
 }
