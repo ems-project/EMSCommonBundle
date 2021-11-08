@@ -7,6 +7,10 @@ namespace EMS\CommonBundle\Common\CoreApi\Endpoint\Search;
 use EMS\CommonBundle\Common\CoreApi\Client;
 use EMS\CommonBundle\Common\CoreApi\Search\Scroll;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Search\SearchInterface;
+use EMS\CommonBundle\Elasticsearch\Document\Document;
+use EMS\CommonBundle\Elasticsearch\Document\DocumentInterface;
+use EMS\CommonBundle\Elasticsearch\Response\Response;
+use EMS\CommonBundle\Elasticsearch\Response\ResponseInterface;
 use EMS\CommonBundle\Search\Search as SearchObject;
 
 class Search implements SearchInterface
@@ -18,12 +22,9 @@ class Search implements SearchInterface
         $this->client = $client;
     }
 
-    /**
-     * @return array<mixed>
-     */
-    public function search(SearchObject $search): array
+    public function search(SearchObject $search): ResponseInterface
     {
-        return $this->client->post('/api/search/search', ['search' => $search->serialize()])->getData();
+        return Response::fromArray($this->client->post('/api/search/search', ['search' => $search->serialize()])->getData());
     }
 
     public function count(SearchObject $search): int
@@ -36,8 +37,11 @@ class Search implements SearchInterface
         return $count;
     }
 
-    public function scroll(SearchObject $search, string $expireTime = '3m'): Scroll
+    public function scroll(SearchObject $search, int $scrollSize = 10, string $expireTime = '3m'): Scroll
     {
+        $search->setSize($scrollSize);
+        $search->setFrom(0);
+
         return new Scroll($this->client, $search, $expireTime);
     }
 
@@ -106,17 +110,15 @@ class Search implements SearchInterface
     /**
      * @param string[] $sourceIncludes
      * @param string[] $sourcesExcludes
-     *
-     * @return array<mixed>
      */
-    public function getDocument(string $index, ?string $contentType, string $id, array $sourceIncludes = [], array $sourcesExcludes = []): array
+    public function getDocument(string $index, ?string $contentType, string $id, array $sourceIncludes = [], array $sourcesExcludes = []): DocumentInterface
     {
-        return $this->client->post('/api/search/document', [
+        return Document::fromArray($this->client->post('/api/search/document', [
             'index' => $index,
             'content-type' => $contentType,
             'ouuid' => $id,
             'source-includes' => $sourceIncludes,
             'sources-excludes' => $sourcesExcludes,
-        ])->getData();
+        ])->getData());
     }
 }
