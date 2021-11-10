@@ -220,9 +220,12 @@ class ElasticaService
     }
 
     /**
-     * @param string[] $contentTypes
+     * @param AbstractQuery|array<mixed>|null $query
+     * @param string[]                        $contentTypes
+     *
+     * @return AbstractQuery|array<mixed>|null
      */
-    public function filterByContentTypes(?AbstractQuery $query, array $contentTypes): ?AbstractQuery
+    public function filterByContentTypes($query, array $contentTypes)
     {
         if (0 === \count($contentTypes)) {
             return $query;

@@ -189,6 +189,18 @@ class EntityStorage implements StorageInterface
         return $this->hotSynchronizeLimit;
     }
 
+    public function removeUpload(string $hash): void
+    {
+        try {
+            $entity = $this->repository->findByHash($hash, false);
+
+            if (null !== $entity) {
+                $this->repository->delete($entity);
+            }
+        } catch (\Throwable $e) {
+        }
+    }
+
     protected function isUsageSupported(int $usageRequested): bool
     {
         if ($usageRequested >= self::STORAGE_USAGE_EXTERNAL) {

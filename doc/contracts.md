@@ -115,8 +115,26 @@ final class Example
 * **headFile**(string $realPath): ?string
     > Tests if a given file has been already uploaded
 
+### Search ([SearchInterface](../src/Contracts/CoreApi/Endpoint/Search/SearchInterface.php))
+* **search**([Search](../src/Search/Search.php) $search): ResponseInterface
+    > Perform a remote search based on the [Search](../src/Search/Search.php) object
+* **count**([Search](../src/Search/Search.php) $search): int
+    > Count the document matching the [Search](../src/Search/Search.php) object
+* **scroll**([Search](../src/Search/Search.php) $search, int $scrollSize = 10, string $expireTime = '3m'): [Scroll](../src/Common/CoreApi/Search/Scroll.php)
+    > Return a scroller looping on all documents match the [Search](../src/Search/Search.php) object
+* **version**(): string
+    > Return the cluster version
+* **healthStatus**(): string
+    > Return the cluster status [gren, yellow or red]
+* **refresh**(?string $index = null): bool
+    > Refresh the index
+* **getIndicesFromAlias**(string $alias): string[]
+    > Return the indices containing the $alias
+* **getAliasesFromIndex**(string $index): string[]
+    > Return the aliases containing the index
+* **getDocument**(string $index, ?string $contentType, string $id, string[] $sourceIncludes = [], string[] $sourcesExcludes = []): DocumentInterface
+    > Return the aliases containing the index
 
-
-
-
-
+### DataExtract ([DataExtractInterface](../src/Contracts/CoreApi/Endpoint/File/DataExtractInterface.php))
+* **get**(string $hash): string
+    > Return an associative array with all data extracted from an asset/file identified by the hash parameter
