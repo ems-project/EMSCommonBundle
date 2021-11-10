@@ -16,6 +16,8 @@ interface ResponseInterface
      */
     public function getDocuments(): iterable;
 
+    public function getDocument(int $index): DocumentInterface;
+
     /**
      * @return DocumentCollection<DocumentInterface>
      */

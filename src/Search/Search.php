@@ -168,6 +168,11 @@ class Search
         $this->size = $size;
     }
 
+    public function getSize(): int
+    {
+        return $this->size;
+    }
+
     public function setFrom(int $from): void
     {
         $this->from = $from;

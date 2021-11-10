@@ -6,7 +6,7 @@ namespace EMS\CommonBundle\Contracts\CoreApi;
 
 use EMS\CommonBundle\Common\CoreApi\Endpoint\File\DataExtract;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\File\File;
-use EMS\CommonBundle\Common\CoreApi\Search\Search;
+use EMS\CommonBundle\Common\CoreApi\Endpoint\Search\Search;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\DataInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\User\UserInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Exception\BaseUrlNotDefinedExceptionInterface;
