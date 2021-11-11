@@ -189,6 +189,16 @@ class StorageManager
         return $hashFile;
     }
 
+    public function computeStreamHash(StreamInterface $handler): string
+    {
+        $hashContext = \hash_init($this->hashAlgo);
+        while (!$handler->eof()) {
+            \hash_update($hashContext, $handler->read(1024 * 1024));
+        }
+
+        return \hash_final($hashContext);
+    }
+
     public function initUploadFile(string $fileHash, int $fileSize, string $fileName, string $mimeType, int $usageType): int
     {
         $count = 0;
@@ -285,7 +295,7 @@ class StorageManager
             if (null === $uploadedSize) {
                 continue;
             }
-            $computedHash = $this->computeStringHash($handler->getContents());
+            $computedHash = $this->computeStreamHash($handler);
 
             if ($computedHash !== $hash) {
                 $adapter->removeUpload($hash);
