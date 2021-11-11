@@ -6,7 +6,6 @@ namespace EMS\CommonBundle\Storage\Service;
 
 use Aws\S3\S3Client;
 use EMS\CommonBundle\Common\Standard\Json;
-use GuzzleHttp\Psr7\Stream;
 use Psr\Log\LoggerInterface;
 
 class S3Storage extends AbstractUrlStorage
