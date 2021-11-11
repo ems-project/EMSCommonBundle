@@ -10,14 +10,11 @@ use Psr\Log\LoggerInterface;
 
 class S3Factory extends AbstractFactory implements StorageFactoryInterface
 {
-    /** @var string */
     public const STORAGE_TYPE = 's3';
-    /** @var string */
     public const STORAGE_CONFIG_CREDENTIALS = 'credentials';
-    /** @var string */
     public const STORAGE_CONFIG_BUCKET = 'bucket';
-    /** @var LoggerInterface */
-    private $logger;
+    public const STORAGE_CONFIG_UPLOAD_FOLDER = 'upload-folder';
+    private LoggerInterface $logger;
 
     public function __construct(LoggerInterface $logger)
     {
@@ -37,7 +34,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
             return null;
         }
 
-        return new S3Storage($this->logger, $credentials, $bucket, $config[self::STORAGE_CONFIG_USAGE], $config[self::STORAGE_CONFIG_HOT_SYNCHRONIZE_LIMIT]);
+        return new S3Storage($this->logger, $credentials, $bucket, $config[self::STORAGE_CONFIG_USAGE], $config[self::STORAGE_CONFIG_HOT_SYNCHRONIZE_LIMIT], $config[self::STORAGE_CONFIG_UPLOAD_FOLDER]);
     }
 
     public function getStorageType(): string
@@ -48,7 +45,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
     /**
      * @param array<string, mixed> $parameters
      *
-     * @return array{type: string, credentials: null|array, bucket: null|string, usage: int, hot-synchronize-limit: int}
+     * @return array{type: string, credentials: null|array, bucket: null|string, usage: int, hot-synchronize-limit: int, upload-folder: null|string}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -58,12 +55,14 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
                 self::STORAGE_CONFIG_TYPE => self::STORAGE_TYPE,
                 self::STORAGE_CONFIG_CREDENTIALS => null,
                 self::STORAGE_CONFIG_BUCKET => null,
+                self::STORAGE_CONFIG_UPLOAD_FOLDER => null,
             ])
             ->setAllowedTypes(self::STORAGE_CONFIG_CREDENTIALS, ['null', 'array'])
             ->setAllowedTypes(self::STORAGE_CONFIG_BUCKET, ['null', 'string'])
+            ->setAllowedTypes(self::STORAGE_CONFIG_UPLOAD_FOLDER, ['null', 'string'])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
-        /** @var array{type: string, credentials: null|array, bucket: null|string, usage: int, hot-synchronize-limit: int} $resolvedParameter */
+        /** @var array{type: string, credentials: null|array, bucket: null|string, usage: int, hot-synchronize-limit: int, upload-folder: null|string} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
 
         return $resolvedParameter;

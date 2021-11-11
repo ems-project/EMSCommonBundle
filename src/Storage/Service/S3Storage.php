@@ -17,15 +17,17 @@ class S3Storage extends AbstractUrlStorage
 
     /** @var array{version?:string,credentials?:array{key:string,secret:string},region?:string} */
     private $credentials;
+    private ?string $uploadFolder;
 
     /**
      * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
      */
-    public function __construct(LoggerInterface $logger, array $s3Credentials, string $s3Bucket, int $usage, int $hotSynchronizeLimit = 0)
+    public function __construct(LoggerInterface $logger, array $s3Credentials, string $s3Bucket, int $usage, int $hotSynchronizeLimit = 0, string $uploadFolder = null)
     {
         parent::__construct($logger, $usage, $hotSynchronizeLimit);
         $this->bucket = $s3Bucket;
         $this->credentials = $s3Credentials;
+        $this->uploadFolder = $uploadFolder;
     }
 
     protected function getBaseUrl(): string
