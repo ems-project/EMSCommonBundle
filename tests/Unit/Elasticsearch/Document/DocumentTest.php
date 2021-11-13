@@ -65,5 +65,7 @@ class DocumentTest extends TestCase
         $this->assertEquals('[foo][0][45][toto]', Document::fieldPathToPropertyPath('foo[0][45].toto'));
         $this->assertEquals('[foo][0][45][toto]', Document::fieldPathToPropertyPath('foo.0.45.toto'));
         $this->assertEquals('[foo][0][45][toto]', Document::fieldPathToPropertyPath('foo[0].45.toto'));
+        $this->assertEquals('[foo]', Document::fieldPathToPropertyPath('[foo]'));
+        $this->assertEquals('[foo][0][45][toto]', Document::fieldPathToPropertyPath('[foo][0][45][toto]'));
     }
 }

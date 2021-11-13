@@ -119,8 +119,12 @@ class Document implements DocumentInterface
     public static function fieldPathToPropertyPath(string $fieldPath): string
     {
         $propertyPath = \preg_replace_callback(
-            '/(?P<slug>[^\[\.]+)(?P<indexes>(\[.*\])*)\.?/',
+            '/(?P<slug>[^\[\.]*)(?P<indexes>(\[.*\])*)\.?/',
             function ($matches) {
+                if ('' === $matches['slug']) {
+                    return $matches['indexes'];
+                }
+
                 return \sprintf('[%s]%s', $matches['slug'], $matches['indexes']);
             },
             $fieldPath
