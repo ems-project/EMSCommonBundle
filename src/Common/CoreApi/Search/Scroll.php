@@ -72,7 +72,7 @@ class Scroll implements \Iterator
 
     public function valid(): bool
     {
-        return null !== $this->nextScrollId;
+        return null !== $this->nextScrollId && $this->currentResponse->getTotalDocuments() > 0;
     }
 
     public function rewind(): void
