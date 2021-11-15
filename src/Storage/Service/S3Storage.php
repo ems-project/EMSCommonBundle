@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Storage\Service;
 
 use Aws\S3\S3Client;
+use EMS\CommonBundle\Common\Standard\Json;
 use Psr\Log\LoggerInterface;
 
 class S3Storage extends AbstractUrlStorage
@@ -17,15 +18,18 @@ class S3Storage extends AbstractUrlStorage
 
     /** @var array{version?:string,credentials?:array{key:string,secret:string},region?:string} */
     private $credentials;
+    private ?string $uploadFolder;
+    private ?string $bucketHash = null;
 
     /**
      * @param array{version?:string,credentials?:array{key:string,secret:string},region?:string} $s3Credentials
      */
-    public function __construct(LoggerInterface $logger, array $s3Credentials, string $s3Bucket, int $usage, int $hotSynchronizeLimit = 0)
+    public function __construct(LoggerInterface $logger, array $s3Credentials, string $s3Bucket, int $usage, int $hotSynchronizeLimit = 0, string $uploadFolder = null)
     {
         parent::__construct($logger, $usage, $hotSynchronizeLimit);
         $this->bucket = $s3Bucket;
         $this->credentials = $s3Credentials;
+        $this->uploadFolder = $uploadFolder;
     }
 
     protected function getBaseUrl(): string
@@ -43,8 +47,25 @@ class S3Storage extends AbstractUrlStorage
         return S3Storage::class." ($this->bucket)";
     }
 
+    protected function getUploadPath(string $hash, string $ds = '/'): string
+    {
+        if (null === $this->uploadFolder) {
+            return parent::getUploadPath($hash, $ds);
+        }
+
+        return \join($ds, [
+            $this->uploadFolder,
+            $this->getBucketHash(),
+            $hash,
+        ]);
+    }
+
     public function initUpload(string $hash, int $size, string $name, string $type): bool
     {
+        if (null !== $this->uploadFolder) {
+            return parent::initUpload($hash, $size, $name, $type);
+        }
+
         $path = $this->getUploadPath($hash);
         $this->initDirectory($path);
         $result = $this->s3Client->putObject([
@@ -62,13 +83,33 @@ class S3Storage extends AbstractUrlStorage
     {
         $source = $this->getUploadPath($hash);
         $destination = $this->getPath($hash);
-        \copy($source, $destination);
+        $result = \copy($source, $destination);
+        $this->removeUpload($hash);
 
+        return $result;
+    }
+
+    private function getBucketHash(): string
+    {
+        if (null !== $this->bucketHash) {
+            return $this->bucketHash;
+        }
+        $this->bucketHash = \sha1(\sprintf('s3_%s_%s', $this->bucket, Json::encode($this->credentials)));
+
+        return $this->bucketHash;
+    }
+
+    public function removeUpload(string $hash): void
+    {
+        if (null !== $this->uploadFolder) {
+            parent::removeUpload($hash);
+
+            return;
+        }
+        $source = $this->getUploadPath($hash);
         $this->s3Client->deleteObject([
             'Bucket' => $this->bucket,
             'Key' => \substr($source, 1 + \strlen($this->getBaseUrl())),
         ]);
-
-        return true;
     }
 }
