@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Command;
 
+use EMS\CommonBundle\Commands;
 use EMS\CommonBundle\Common\Command\AbstractCommand;
 use EMS\CommonBundle\Service\ElasticaService;
 use EMS\CommonBundle\Storage\StorageManager;
@@ -30,7 +31,7 @@ class StatusCommand extends AbstractCommand
     protected function configure(): void
     {
         $this
-            ->setName('ems:status')
+            ->setName(Commands::STATUS)
             ->setDescription('Returns the health status of the elasticsearch cluster and of the different storage services.')
             ->addOption(
                 self::OPTION_SILENT,
