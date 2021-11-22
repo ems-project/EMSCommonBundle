@@ -8,6 +8,7 @@ use EMS\CommonBundle\Common\CoreApi\Client;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\File\FileInterface;
 use EMS\CommonBundle\Storage\Service\HttpStorage;
 use EMS\CommonBundle\Storage\StorageManager;
+use Psr\Http\Message\StreamInterface;
 use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
 
 final class File implements FileInterface
@@ -21,6 +22,37 @@ final class File implements FileInterface
         $this->client = $client;
         $this->storageManager = $storageManager;
         $this->mimeTypeGuesser = MimeTypeGuesser::getInstance();
+    }
+
+    public function uploadStream(StreamInterface $stream, string $filename, string $mimeType): ?string
+    {
+        $hash = $this->hashStream($stream);
+        if ($this->headHash($hash)) {
+            return $hash;
+        }
+        $size = $stream->getSize();
+        if (null === $size) {
+            throw new \RuntimeException('Unexpected null size');
+        }
+        $fromByte = $this->initUpload($hash, $size, $filename, $mimeType);
+        if ($fromByte < 0) {
+            throw new \RuntimeException(\sprintf('Unexpected negative offset: %d', $fromByte));
+        }
+        if ($fromByte > $size) {
+            throw new \RuntimeException(\sprintf('Unexpected bigger offset than the filesize: %d > %d', $fromByte, $size));
+        }
+        $stream->seek($fromByte);
+
+        $uploaded = $fromByte;
+        while (!$stream->eof()) {
+            $uploaded = $this->addChunk($hash, $stream->read(819200));
+        }
+
+        if ($uploaded !== $size) {
+            throw new \RuntimeException(\sprintf('Sizes mismatched %d vs. %d for assets %s', $uploaded, $size, $hash));
+        }
+
+        return $hash;
     }
 
     public function uploadFile(string $realPath, string $mimeType = null): ?string
@@ -75,6 +107,11 @@ final class File implements FileInterface
         return $this->storageManager->computeFileHash($filename);
     }
 
+    public function hashStream(StreamInterface $stream): string
+    {
+        return $this->storageManager->computeStreamHash($stream);
+    }
+
     public function initUpload(string $hash, int $size, string $filename, string $mimetype): int
     {
         $response = $this->client->post(HttpStorage::INIT_URL, HttpStorage::initBody($hash, $size, $filename, $mimetype));
@@ -102,6 +139,12 @@ final class File implements FileInterface
     public function headFile(string $realPath): bool
     {
         $hash = $this->hashFile($realPath);
+
+        return $this->headHash($hash);
+    }
+
+    public function headHash(string $hash): bool
+    {
         try {
             return $this->client->head('/api/file/'.$hash);
         } catch (\Throwable $e) {
