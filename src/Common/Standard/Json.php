@@ -25,7 +25,7 @@ final class Json
     {
         $encoded = self::encode($value, $pretty);
         if (\strlen($encoded) < 2) {
-            throw new \RuntimeException('Unexpected to short string');
+            throw new \RuntimeException('Unexpected too short string');
         }
 
         return \substr($encoded, 1, \strlen($encoded) - 2);
