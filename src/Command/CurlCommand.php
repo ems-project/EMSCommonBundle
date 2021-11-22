@@ -143,10 +143,9 @@ class CurlCommand extends AbstractCommand
             [
                 EmsFields::CONTENT_FILE_NAME_FIELD_ => $basename,
                 EmsFields::CONTENT_FILE_HASH_FIELD_ => $hash,
+                EmsFields::CONTENT_MIME_TYPE_FIELD_ => $guesser->guess($this->filename) ?? 'application/bin',
             ],
-            [
-                EmsFields::ASSET_CONFIG_MIME_TYPE => $guesser->guess($this->filename) ?? 'application/bin',
-            ],
+            [],
             'ems_asset',
             EmsFields::CONTENT_FILE_HASH_FIELD,
             EmsFields::CONTENT_FILE_NAME_FIELD,
