@@ -58,6 +58,9 @@ class Search
     public static function deserialize(string $data, string $format = 'json'): Search
     {
         $data = self::getSerializer()->deserialize($data, Search::class, $format);
+        if (!$data instanceof Search) {
+            throw new \RuntimeException('Unexpected search object');
+        }
 
         return $data;
     }
