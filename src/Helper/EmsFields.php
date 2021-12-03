@@ -44,6 +44,7 @@ final class EmsFields
     public const ASSET_CONFIG_PASSWORD = '_password';
     public const ASSET_CONFIG_AFTER = '_after';
     public const ASSET_CONFIG_BEFORE = '_before';
+    public const ASSET_SEED = '_seed';
 
     public const LOG_ALIAS = 'ems_internal_logger_alias';
     public const LOG_TYPE = 'doc';
