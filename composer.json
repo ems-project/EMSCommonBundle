@@ -23,6 +23,7 @@
 		"ext-iconv": "*",
 		"ext-json": "*",
 		"ext-mbstring": "*",
+		"ext-zip": "*",
 		"aws/aws-sdk-php": "^3.109",
 		"cebe/markdown": "^1.2",
 		"doctrine/doctrine-bundle": "^1.11",

@@ -38,7 +38,7 @@ class AssetRuntime
     }
 
     /**
-     * @return array<int, SplFileInfo>
+     * @return array<string, SplFileInfo>
      */
     public function unzip(string $hash, string $saveDir, bool $mergeContent = false): array
     {
