@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Storage;
 
 use EMS\CommonBundle\Helper\ArrayTool;
+use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\Factory\StorageFactoryInterface;
 use EMS\CommonBundle\Storage\Service\StorageInterface;
 use Psr\Http\Message\StreamInterface;
@@ -363,6 +364,30 @@ class StorageManager
      */
     public function saveConfig(array $config): string
     {
+        if (\is_array($config[EmsFields::ASSET_CONFIG_FILE_NAMES] ?? null) && \count($config[EmsFields::ASSET_CONFIG_FILE_NAMES]) > 0) {
+            $hashContext = \hash_init('sha1');
+            foreach ($config[EmsFields::ASSET_CONFIG_FILE_NAMES] as $filename) {
+                if (!\file_exists($filename)) {
+                    continue;
+                }
+                $handle = \fopen($filename, 'rb');
+                if (false === $handle) {
+                    continue;
+                }
+
+                while (!\feof($handle)) {
+                    $data = \fread($handle, 8192);
+                    if (false === $data) {
+                        throw new \RuntimeException('Unxected false data');
+                    }
+                    \hash_update($hashContext, $data);
+                }
+                \fclose($handle);
+                break;
+            }
+            $config[EmsFields::ASSET_SEED] = \hash_final($hashContext);
+        }
+
         $normalizedArray = ArrayTool::normalizeAndSerializeArray($config);
         if (false === $normalizedArray) {
             throw new \RuntimeException('Could not normalize config.');

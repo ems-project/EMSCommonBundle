@@ -337,6 +337,7 @@ final class Config
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_FLIP_VERTICAL, ['bool'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_FLIP_HORIZONTAL, ['bool'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_USERNAME, ['string', 'null'])
+            ->setAllowedTypes(EmsFields::ASSET_SEED, ['string', 'null'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_PASSWORD, ['string', 'null'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_BEFORE, ['string', 'int'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_AFTER, ['string', 'int'])
@@ -395,6 +396,7 @@ final class Config
             EmsFields::ASSET_CONFIG_PASSWORD => null,
             EmsFields::ASSET_CONFIG_BEFORE => 0,
             EmsFields::ASSET_CONFIG_AFTER => 0,
+            EmsFields::ASSET_SEED => null,
         ];
     }
 }

@@ -57,7 +57,8 @@ And in this sample il will generate an url to a file on the sever file system:
 ```twig
 <a href="{{ ems_asset_path({
    filename: 'Rapport.pdf',
-   mimetype: 'application/pdf'
+   mimetype: 'application/pdf',
+   sha1: 'dummy'
 }, {
    _file_names: [
        '/opt/files/rapport.pdf',
