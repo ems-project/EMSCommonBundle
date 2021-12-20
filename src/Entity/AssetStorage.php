@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass="EMS\CommonBundle\Repository\AssetStorageRepository")
  * @ORM\HasLifecycleCallbacks()
  */
-class AssetStorage
+class AssetStorage implements EntityInterface
 {
     /**
      * @var int
