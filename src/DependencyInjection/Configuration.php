@@ -9,6 +9,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 class Configuration implements ConfigurationInterface
 {
     private const ELASTICSEARCH_DEFAULT_HOSTS = ['http://localhost:9200'];
+    private const LOG_LEVEL = 250;
 
     public function getConfigTreeBuilder()
     {
@@ -22,6 +23,7 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('profiler')->defaultFalse()->end()
                 ->scalarNode('hash_algo')->defaultValue('sha1')->end()
                 ->variableNode('elasticsearch_hosts')->defaultValue(self::ELASTICSEARCH_DEFAULT_HOSTS)->end()
+                ->integerNode('log_level')->defaultValue(self::LOG_LEVEL)->end()
             ->end()
         ;
 

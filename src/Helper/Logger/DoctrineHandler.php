@@ -14,13 +14,15 @@ class DoctrineHandler extends AbstractProcessingHandler
 {
     private EntityManagerInterface $entityManager;
     private TokenStorageInterface $tokenStorage;
+    private int $minLevel;
 
-    public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage)
+    public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage, int $minLevel)
     {
         parent::__construct();
 
         $this->entityManager = $entityManager;
         $this->tokenStorage = $tokenStorage;
+        $this->minLevel = $minLevel;
     }
 
     /**
@@ -28,6 +30,10 @@ class DoctrineHandler extends AbstractProcessingHandler
      */
     protected function write(array $record): void
     {
+        if ($record['level'] < $this->minLevel) {
+            return;
+        }
+
         $log = new Log();
         $log->setMessage($record['message']);
         $log->setContext($record['context']);

@@ -30,5 +30,6 @@ class EMSCommonExtension extends Extension
         $container->setParameter('ems_common.hash_algo', $config['hash_algo']);
         $container->setParameter('ems_common.elasticsearch_hosts', $config['elasticsearch_hosts']);
         $container->setParameter('ems_common.storages', $config['storages']);
+        $container->setParameter('ems_common.log_level', $config['log_level']);
     }
 }
