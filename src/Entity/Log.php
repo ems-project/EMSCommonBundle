@@ -7,8 +7,6 @@ use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * Analyzer.
- *
  * @ORM\Table(name="log")
  * @ORM\Entity
  * @ORM\HasLifecycleCallbacks()
