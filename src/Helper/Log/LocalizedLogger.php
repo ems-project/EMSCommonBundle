@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Helper\Log;
 
 use Psr\Log\LoggerInterface;
@@ -71,7 +73,7 @@ class LocalizedLogger implements LoggerInterface
         $translation = $this->translator->trans($message, [], 'ems_logger');
 
         return \preg_replace_callback(self::PATTERN, function ($match) use ($context) {
-                return $context[$match['parameter']] ?? $match['parameter'];
-            }, $translation) ?? $message;
+            return $context[$match['parameter']] ?? $match['parameter'];
+        }, $translation) ?? $message;
     }
 }
