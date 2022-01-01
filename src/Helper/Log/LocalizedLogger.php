@@ -22,19 +22,6 @@ class LocalizedLogger implements LoggerInterface
         $this->logger->emergency($this->translateMessage($message, $context), $context);
     }
 
-    /**
-     * @param array<string, mixed> $context
-     */
-    private function translateMessage(string $message, array &$context): string
-    {
-        $context['translation_message'] = $message;
-        $translation = $this->translator->trans($message);
-
-        return \preg_replace_callback(self::PATTERN, function ($match) use ($context) {
-            return $context[$match['parameter']] ?? $match['parameter'];
-        }, $translation) ?? $message;
-    }
-
     public function alert($message, array $context = []): void
     {
         $this->logger->alert($this->translateMessage($message, $context), $context);
@@ -73,5 +60,18 @@ class LocalizedLogger implements LoggerInterface
     public function log($level, $message, array $context = []): void
     {
         $this->logger->log($level, $this->translateMessage($message, $context), $context);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function translateMessage(string $message, array &$context): string
+    {
+        $context['translation_message'] = $message;
+        $translation = $this->translator->trans($message, [], 'ems_logger');
+
+        return \preg_replace_callback(self::PATTERN, function ($match) use ($context) {
+                return $context[$match['parameter']] ?? $match['parameter'];
+            }, $translation) ?? $message;
     }
 }
