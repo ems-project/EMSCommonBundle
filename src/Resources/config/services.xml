@@ -67,6 +67,11 @@
             <argument type="service" id="logger" />
             <argument type="service" id="ems_common.elastica.client" />
         </service>
+        <service id="ems.logger" alias="ems_common.localized_logger"/>
+        <service id="ems_common.localized_logger" class="EMS\CommonBundle\Helper\Log\LocalizedLogger">
+            <argument type="service" id="logger" />
+            <argument type="service" id="translator" />
+        </service>
 
         <!-- twig -->
         <service id="ems_common.twig.runtime.text" class="EMS\CommonBundle\Twig\TextRuntime">
