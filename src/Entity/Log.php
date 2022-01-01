@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -7,7 +9,7 @@ use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ORM\Table(name="log")
+ * @ORM\Table(name="log_message")
  * @ORM\Entity
  * @ORM\HasLifecycleCallbacks()
  */
