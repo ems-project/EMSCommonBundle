@@ -13,10 +13,13 @@ class LogRepository extends ServiceEntityRepository
         parent::__construct($registry, Log::class);
     }
 
-    public function clear(): bool
+    public function clearLogs(\DateTime $before): bool
     {
         try {
-            $qb = $this->createQueryBuilder('log')->delete();
+            $qb = $this->createQueryBuilder('log')
+                ->delete()
+                ->where('log.created < :before')
+                ->setParameter('before', $before);
 
             return false !== $qb->getQuery()->execute();
         } catch (\Throwable $e) {
