@@ -75,6 +75,11 @@
         <service id="ems_common.repository.log" class="EMS\CommonBundle\Repository\LogRepository" public="true">
             <argument type="service" id="doctrine"/>
         </service>
+        <service id="ems.logger" alias="ems_common.localized_logger"/>
+        <service id="ems_common.localized_logger" class="EMS\CommonBundle\Helper\Log\LocalizedLogger">
+            <argument type="service" id="logger" />
+            <argument type="service" id="translator" />
+        </service>
 
         <!-- twig -->
         <service id="ems_common.twig.runtime.text" class="EMS\CommonBundle\Twig\TextRuntime">
@@ -113,7 +118,7 @@
             <argument type="service" id="ems_common.repository.log"/>
             <tag name="console.command" />
         </service>
-        
+
         <!-- envProcessor -->
         
         <service id="urlencode.env_var_processor" class="EMS\CommonBundle\DependencyInjection\EnvVarProcessor\UrlEncodeEnvVarProcessor" >
