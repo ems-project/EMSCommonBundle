@@ -67,6 +67,14 @@
             <argument type="service" id="logger" />
             <argument type="service" id="ems_common.elastica.client" />
         </service>
+        <service id="ems_common.monolog.doctrine" class="EMS\CommonBundle\Helper\Logger\DoctrineHandler">
+            <argument type="service" id="doctrine.orm.default_entity_manager" />
+            <argument type="service" id="security.token_storage" />
+            <argument type="string">%ems_common.log_level%</argument>
+        </service>
+        <service id="ems_common.repository.log" class="EMS\CommonBundle\Repository\LogRepository" public="true">
+            <argument type="service" id="doctrine"/>
+        </service>
         <service id="ems.logger" alias="ems_common.localized_logger"/>
         <service id="ems_common.localized_logger" class="EMS\CommonBundle\Helper\Log\LocalizedLogger">
             <argument type="service" id="logger" />
@@ -106,7 +114,11 @@
             <argument type="service" id="ems_common.twig.runtime.asset"/>
             <tag name="console.command" />
         </service>
-        
+        <service id="ems.command.logs.clear" class="EMS\CommonBundle\Command\ClearLogsCommand">
+            <argument type="service" id="ems_common.repository.log"/>
+            <tag name="console.command" />
+        </service>
+
         <!-- envProcessor -->
         
         <service id="urlencode.env_var_processor" class="EMS\CommonBundle\DependencyInjection\EnvVarProcessor\UrlEncodeEnvVarProcessor" >

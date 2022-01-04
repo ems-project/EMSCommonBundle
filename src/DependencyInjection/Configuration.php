@@ -2,6 +2,7 @@
 
 namespace EMS\CommonBundle\DependencyInjection;
 
+use Monolog\Logger;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -9,6 +10,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 class Configuration implements ConfigurationInterface
 {
     private const ELASTICSEARCH_DEFAULT_HOSTS = ['http://localhost:9200'];
+    private const LOG_LEVEL = Logger::NOTICE;
 
     public function getConfigTreeBuilder()
     {
@@ -22,6 +24,7 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('profiler')->defaultFalse()->end()
                 ->scalarNode('hash_algo')->defaultValue('sha1')->end()
                 ->variableNode('elasticsearch_hosts')->defaultValue(self::ELASTICSEARCH_DEFAULT_HOSTS)->end()
+                ->integerNode('log_level')->defaultValue(self::LOG_LEVEL)->end()
             ->end()
         ;
 

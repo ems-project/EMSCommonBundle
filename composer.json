@@ -31,6 +31,7 @@
 		"dompdf/dompdf": "^v1.0.2",
 		"guzzlehttp/guzzle": "^6.3",
 		"phpoffice/phpspreadsheet": "^1.16",
+		"ramsey/uuid-doctrine": "^1.6",
 		"ruflin/elastica": "5.3.6",
 		"symfony/dom-crawler": "^4.4",
 		"symfony/expression-language": "^4.4",
