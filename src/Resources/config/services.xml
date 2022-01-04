@@ -67,6 +67,14 @@
             <argument type="service" id="logger" />
             <argument type="service" id="ems_common.elastica.client" />
         </service>
+        <service id="ems_common.monolog.doctrine" class="EMS\CommonBundle\Helper\Logger\DoctrineHandler">
+            <argument type="service" id="doctrine.orm.default_entity_manager" />
+            <argument type="service" id="security.token_storage" />
+            <argument type="string">%ems_common.log_level%</argument>
+        </service>
+        <service id="ems_common.repository.log" class="EMS\CommonBundle\Repository\LogRepository" public="true">
+            <argument type="service" id="doctrine"/>
+        </service>
 
         <!-- twig -->
         <service id="ems_common.twig.runtime.text" class="EMS\CommonBundle\Twig\TextRuntime">
@@ -99,6 +107,10 @@
             <argument type="service" id="request_stack"/>
             <argument type="service" id="ems_common.storage.manager"/>
             <argument type="service" id="ems_common.twig.runtime.asset"/>
+            <tag name="console.command" />
+        </service>
+        <service id="ems.command.logs.clear" class="EMS\CommonBundle\Command\ClearLogsCommand">
+            <argument type="service" id="ems_common.repository.log"/>
             <tag name="console.command" />
         </service>
         
