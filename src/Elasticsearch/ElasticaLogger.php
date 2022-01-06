@@ -4,20 +4,39 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Elasticsearch;
 
+use EMS\CommonBundle\Common\Standard\Json;
+use EMS\CommonBundle\Contracts\Elasticsearch\QueryLoggerInterface;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 
-class ElasticaLogger extends AbstractLogger
+class ElasticaLogger extends AbstractLogger implements QueryLoggerInterface
 {
-    protected ?LoggerInterface $logger;
+    private ?LoggerInterface $logger;
     /** @var array<mixed> */
-    protected $queries = [];
-    protected bool $debug;
+    private $queries = [];
+    private bool $debug;
+    private bool $enabled;
 
     public function __construct(?LoggerInterface $logger = null, bool $debug = false)
     {
         $this->logger = $logger;
         $this->debug = $debug;
+        $this->enabled = true;
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function disable(): void
+    {
+        $this->enabled = false;
+    }
+
+    public function enable(): void
+    {
+        $this->enabled = true;
     }
 
     /**
@@ -30,13 +49,12 @@ class ElasticaLogger extends AbstractLogger
         $executionMS = $queryTime * 1000;
 
         if ($this->debug) {
-            $e = new \Exception();
             if (\is_string($data)) {
                 $jsonStrings = \explode("\n", $data);
                 $data = [];
                 foreach ($jsonStrings as $json) {
                     if ('' != $json) {
-                        $data[] = \json_decode($json, true);
+                        $data[] = Json::decode($json);
                     }
                 }
             } else {
@@ -52,7 +70,7 @@ class ElasticaLogger extends AbstractLogger
                 'connection' => $connection,
                 'queryString' => $query,
                 'itemCount' => $itemCount,
-                'backtrace' => $e->getTraceAsString(),
+                'backtrace' => (new \Exception())->getTraceAsString(),
             ];
         }
 
@@ -77,7 +95,7 @@ class ElasticaLogger extends AbstractLogger
 
     public function log($level, $message, array $context = []): void
     {
-        if (null !== $this->logger) {
+        if (null !== $this->logger && $this->isEnabled()) {
             $this->logger->log($level, $message, $context);
         }
     }
