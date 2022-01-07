@@ -31,17 +31,22 @@ final class DomPdfPrinter implements PdfPrinterInterface
         });
     }
 
-    public function getStreamedResponse(PdfInterface $pdf, ?PdfPrintOptions $options = null): StreamedResponse
+    public function getStream(PdfInterface $pdf, ?PdfPrintOptions $options = null): callable
     {
         $options = $options ?? new PdfPrintOptions([]);
         $dompdf = $this->makeDomPdf($pdf, $options);
 
-        return new StreamedResponse(function () use ($dompdf, $pdf, $options) {
+        return function () use ($dompdf, $pdf, $options) {
             $dompdf->stream($pdf->getFileName(), [
                 'compress' => (int) $options->isCompress(),
                 'Attachment' => (int) $options->isAttachment(),
             ]);
-        });
+        };
+    }
+
+    public function getStreamedResponse(PdfInterface $pdf, ?PdfPrintOptions $options = null): StreamedResponse
+    {
+        return new StreamedResponse($this->getStream($pdf, $options));
     }
 
     private function makeDomPdf(PdfInterface $pdf, PdfPrintOptions $options): Dompdf
