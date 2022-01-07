@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Service\Pdf;
 
 use EMS\CommonBundle\Contracts\Generator\Pdf\PdfGeneratorInterface;
-use EMS\CommonBundle\Contracts\Generator\Pdf\PdfOptionsInterface;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
