@@ -6,6 +6,7 @@ namespace EMS\CommonBundle\Service\Pdf;
 
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use EMS\CommonBundle\Contracts\Generator\Pdf\PdfOptionsInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 final class DomPdfPrinter implements PdfPrinterInterface

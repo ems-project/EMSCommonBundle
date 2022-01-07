@@ -6,11 +6,6 @@ parameters:
 			path: src/Elasticsearch/Document/DocumentCollectionInterface.php
 
 		-
-			message: "#^Generator expects value type DOMElement, DOMNode given\\.$#"
-			count: 1
-			path: src/Service/Dom/HtmlCrawler.php
-
-		-
 			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:__construct\\(\\) has parameter \\$headerBag with no value type specified in iterable type Symfony\\\\Component\\\\HttpFoundation\\\\HeaderBag\\.$#"
 			count: 1
 			path: src/Storage/Processor/StreamRange.php
