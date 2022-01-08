@@ -4,64 +4,48 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Service\Pdf;
 
-use EMS\CommonBundle\Service\Dom\HtmlCrawler;
+use EMS\CommonBundle\Contracts\Generator\Pdf\PdfGeneratorInterface;
+use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class PdfGenerator
+class PdfGenerator implements PdfGeneratorInterface
 {
-    /** @var PdfPrinterInterface */
-    private $pdfPrinter;
+    private PdfPrinterInterface $pdfPrinter;
 
     public function __construct(PdfPrinterInterface $pdfPrinter)
     {
         $this->pdfPrinter = $pdfPrinter;
     }
 
-    public function getStreamedResponse(string $html): StreamedResponse
+    public function createOptionsFromHtml(string $html): PdfPrintOptions
     {
-        $metaTags = $this->getMetaTags($html);
-        $pdfPrintOptions = new PdfPrintOptions($this->sanitizeMetaTags($metaTags));
-        $filename = $metaTags[PdfInterface::FILENAME] ?? 'export.pdf';
-
-        return $this->pdfPrinter->getStreamedResponse(new Pdf($filename, $html), $pdfPrintOptions);
+        return new PdfPrintOptionsHtml($html);
     }
 
-    /**
-     * @return array<string, string>
-     */
-    private function getMetaTags(string $html): array
+    public function generateResponseFromHtml(string $html, ?PdfPrintOptions $options = null): Response
     {
-        $metaTags = [];
-        $crawler = new HtmlCrawler($html);
+        $options = $options ?? new PdfPrintOptions([]);
+        $pdf = new Pdf($options->getFilename(), $html);
 
-        foreach ($crawler->getMetaTagsByXpath('//meta[contains(@name, "pdf:")]') as $node) {
-            $name = \substr($node->getAttribute('name'), 4);
-            $metaTags[$name] = $node->getAttribute('content');
-        }
+        $pdfOutput = $this->pdfPrinter->getPdfOutput($pdf, $options);
 
-        return $metaTags;
+        $response = new Response();
+        $response->setContent($pdfOutput->make());
+
+        $dispositionType = $options->isAttachment() ? HeaderUtils::DISPOSITION_ATTACHMENT : HeaderUtils::DISPOSITION_INLINE;
+        $disposition = HeaderUtils::makeDisposition($dispositionType, $pdf->getFilename());
+        $response->headers->set('Content-Disposition', $disposition);
+        $response->headers->set('Content-Type', 'application/pdf');
+
+        return $response;
     }
 
-    /**
-     * @param array<mixed> $metaData
-     *
-     * @return array<mixed>
-     */
-    private function sanitizeMetaTags(array $metaData): array
+    public function generateStreamedResponseFromHtml(string $html, ?PdfPrintOptions $options = null): StreamedResponse
     {
-        $filtered = \filter_var_array($metaData, [
-            PdfPrintOptions::ATTACHMENT => FILTER_VALIDATE_BOOLEAN,
-            PdfPrintOptions::COMPRESS => FILTER_VALIDATE_BOOLEAN,
-            PdfPrintOptions::HTML5_PARSING => FILTER_VALIDATE_BOOLEAN,
-            PdfPrintOptions::PHP_ENABLED => FILTER_VALIDATE_BOOLEAN,
-            PdfPrintOptions::ORIENTATION => null,
-            PdfPrintOptions::SIZE => null,
-        ], false);
+        $options = $options ?? new PdfPrintOptions([]);
+        $pdf = new Pdf($options->getFilename(), $html);
 
-        if (!\is_array($filtered)) {
-            throw new \RuntimeException('Unexpected sanitizeMetaTags error');
-        }
-
-        return $filtered;
+        return $this->pdfPrinter->getStreamedResponse($pdf, $options);
     }
 }

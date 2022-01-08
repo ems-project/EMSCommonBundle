@@ -6,10 +6,8 @@ namespace EMS\CommonBundle\Service\Pdf;
 
 final class Pdf implements PdfInterface
 {
-    /** @var string */
-    private $filename;
-    /** @var string */
-    private $html;
+    private string $filename;
+    private string $html;
 
     public function __construct(string $filename, string $html)
     {
