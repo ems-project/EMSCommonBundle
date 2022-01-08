@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use EMS\CommonBundle\Entity\Log;
 use Monolog\Handler\AbstractProcessingHandler;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\SwitchUserToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class DoctrineHandler extends AbstractProcessingHandler
@@ -46,6 +47,9 @@ class DoctrineHandler extends AbstractProcessingHandler
         $token = $this->tokenStorage->getToken();
         if ($token instanceof TokenInterface) {
             $log->setUsername($token->getUsername());
+        }
+        if ($token instanceof SwitchUserToken) {
+            $log->setImpersonator($token->getOriginalToken()->getUsername());
         }
 
         $this->entityManager->persist($log);
