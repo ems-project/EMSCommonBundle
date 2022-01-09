@@ -65,7 +65,7 @@ class Client extends BaseClient
      */
     private function logQuery(Response $elasticaResponse, Connection $connection, string $path, string $method, array $query, $data): void
     {
-        if (!$this->_logger instanceof ElasticaLogger) {
+        if (!$this->_logger instanceof ElasticaLogger || !$this->_logger->isEnabled()) {
             return;
         }
 

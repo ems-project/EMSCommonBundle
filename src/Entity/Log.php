@@ -76,6 +76,11 @@ class Log implements EntityInterface
     private ?string $username = null;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $impersonator = null;
+
+    /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
      */
@@ -174,35 +179,33 @@ class Log implements EntityInterface
         $this->extra = $extra;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getFormatted()
+    public function getFormatted(): string
     {
         return $this->formatted;
     }
 
-    /**
-     * @param mixed $formatted
-     */
-    public function setFormatted($formatted): void
+    public function setFormatted(string $formatted): void
     {
         $this->formatted = $formatted;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getUsername()
+    public function getUsername(): ?string
     {
         return $this->username;
     }
 
-    /**
-     * @param mixed $username
-     */
-    public function setUsername($username): void
+    public function setUsername(string $username): void
     {
         $this->username = $username;
+    }
+
+    public function getImpersonator(): ?string
+    {
+        return $this->impersonator;
+    }
+
+    public function setImpersonator(string $impersonator): void
+    {
+        $this->impersonator = $impersonator;
     }
 }

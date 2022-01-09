@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Service\Pdf;
 
-final class PdfPrintOptions
+class PdfPrintOptions
 {
+    private string $filename;
     private bool $attachment;
     private bool $compress;
     private bool $html5Parsing;
@@ -14,6 +15,7 @@ final class PdfPrintOptions
     private string $size;
     private ?string $chroot;
 
+    public const FILENAME = 'filename';
     public const ATTACHMENT = 'attachment';
     public const COMPRESS = 'compress';
     public const HTML5_PARSING = 'html5Parsing';
@@ -23,10 +25,11 @@ final class PdfPrintOptions
     public const CHROOT = 'chroot';
 
     /**
-     * @param array<mixed> $options
+     * @param array<string, mixed> $options
      */
     public function __construct(array $options)
     {
+        $this->filename = $options[self::FILENAME] ?? 'export.pdf';
         $this->attachment = $options[self::ATTACHMENT] ?? true;
         $this->compress = $options[self::COMPRESS] ?? true;
         $this->html5Parsing = $options[self::HTML5_PARSING] ?? true;
@@ -34,6 +37,11 @@ final class PdfPrintOptions
         $this->orientation = $options[self::ORIENTATION] ?? 'portrait';
         $this->size = $options[self::SIZE] ?? 'a4';
         $this->chroot = $options[self::CHROOT] ?? null;
+    }
+
+    public function getFilename(): string
+    {
+        return $this->filename;
     }
 
     public function getOrientation(): string
