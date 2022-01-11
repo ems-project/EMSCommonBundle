@@ -45,6 +45,13 @@ class ElasticaService
         $this->logger = $logger;
     }
 
+    public function getUrl(): string
+    {
+        $url = $this->client->getConnection()->getConfig('url');
+
+        return \is_array($url) ? \implode(' | ', $url) : $url;
+    }
+
     public function refresh(?string $index): bool
     {
         $endpoint = new Refresh();
