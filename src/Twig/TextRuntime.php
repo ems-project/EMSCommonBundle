@@ -2,6 +2,7 @@
 
 namespace EMS\CommonBundle\Twig;
 
+use EMS\CommonBundle\Common\Text\EmsHtml;
 use EMS\CommonBundle\Helper\Text\Encoder;
 use EMS\CommonBundle\Json\Decoder;
 use EMS\CommonBundle\Json\JsonMenu;
@@ -20,6 +21,11 @@ class TextRuntime implements RuntimeExtensionInterface
         $this->encoder = $encoder;
         $this->decoder = $decoder;
         $this->logger = $logger;
+    }
+
+    public function emsHtml(string $html): EmsHtml
+    {
+        return new EmsHtml($html);
     }
 
     public function htmlEncode(string $text): string
