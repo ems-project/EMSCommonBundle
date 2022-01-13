@@ -28,7 +28,7 @@ final class EmsHtml extends Markup
             return $keepContent ? $match['content'] : '';
         }, $this->html);
 
-        $this->html = is_string($replaced) ? $replaced : $this->html;
+        $this->html = \is_string($replaced) ? $replaced : $this->html;
 
         return $this;
     }
@@ -41,7 +41,7 @@ final class EmsHtml extends Markup
             return \str_replace([':content', ':href'], [$match['content'], $match['href']], $format);
         }, $this->html);
 
-        $this->html = is_string($replaced) ? $replaced : $this->html;
+        $this->html = \is_string($replaced) ? $replaced : $this->html;
 
         return $this;
     }
