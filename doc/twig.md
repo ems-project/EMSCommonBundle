@@ -1,3 +1,26 @@
+# Twig Functions
+
+## ems_html
+
+Will return a instance of [EmsHtml](../src/Common/Text/EmsHtml.php) which is an extension of Twig\Markup.
+You can easyly replace text, remove html tags, printUrls.
+
+### Example
+> This example is usefull for generating pdf's.
+- This wil replace 'example' by 'EXAMPLE' and 'searchX' by 'replaceX'
+- Remove all a tags if the attribute text contains 'mywebsite.com' and will keep the content
+- Print urls will transform the a tags based on the format (default: ':content (:href)')
+
+```twig
+{% set description = ems_html(page.description) %}
+{% do description
+    .replace({ 'example': 'EXAMPLE', 'searchX': 'replaceX' })
+    .removeTag('a', ".*?mywebsite.com.*?", true)
+    .printUrls(':content (<i><u>:href</u></i>)')
+%}
+{{ description|emsch_routing_config(emschRoutingConfig) }}
+```
+
 # Twig filters
 
 ## ems_anti_spam
