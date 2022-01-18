@@ -6,8 +6,6 @@ namespace EMS\CommonBundle\Helper\Logger;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
-use EMS\CommonBundle\Common\Standard\Json;
-use EMS\CommonBundle\Entity\Log;
 use Monolog\Handler\AbstractProcessingHandler;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
