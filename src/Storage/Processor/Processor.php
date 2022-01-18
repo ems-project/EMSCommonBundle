@@ -284,7 +284,7 @@ class Processor
                 if (EmsFields::ASSET_CONFIG_WEBP_IMAGE_FORMAT === ($config[EmsFields::ASSET_CONFIG_IMAGE_FORMAT] ?? null)) {
                     return 'image/webp';
                 }
-                if (0 === ($config[EmsFields::ASSET_CONFIG_QUALITY] ?? 0)) {
+                if ((0 === ($config[EmsFields::ASSET_CONFIG_QUALITY] ?? 0) && null === ($config[EmsFields::ASSET_CONFIG_IMAGE_FORMAT] ?? null)) || EmsFields::ASSET_CONFIG_PNG_IMAGE_FORMAT === ($config[EmsFields::ASSET_CONFIG_IMAGE_FORMAT] ?? null)) {
                     return 'image/png';
                 }
 

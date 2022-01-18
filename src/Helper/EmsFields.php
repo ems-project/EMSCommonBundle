@@ -33,6 +33,8 @@ final class EmsFields
     public const ASSET_CONFIG_WEBP_IMAGE_FORMAT = 'webp';
     public const ASSET_CONFIG_GIF_IMAGE_FORMAT = 'gif';
     public const ASSET_CONFIG_BMP_IMAGE_FORMAT = 'bmp';
+    public const ASSET_CONFIG_JPEG_IMAGE_FORMAT = 'jpeg';
+    public const ASSET_CONFIG_PNG_IMAGE_FORMAT = 'png';
     public const ASSET_CONFIG_RESIZE = '_resize';
     public const ASSET_CONFIG_WIDTH = '_width';
     public const ASSET_CONFIG_RADIUS = '_radius';

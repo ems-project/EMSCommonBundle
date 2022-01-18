@@ -358,6 +358,8 @@ final class Config
                 EmsFields::ASSET_CONFIG_WEBP_IMAGE_FORMAT,
                 EmsFields::ASSET_CONFIG_GIF_IMAGE_FORMAT,
                 EmsFields::ASSET_CONFIG_BMP_IMAGE_FORMAT,
+                EmsFields::ASSET_CONFIG_JPEG_IMAGE_FORMAT,
+                EmsFields::ASSET_CONFIG_PNG_IMAGE_FORMAT,
             ])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY, function ($values) use ($defaults) {
                 if (!\is_array($values)) {

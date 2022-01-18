@@ -85,7 +85,7 @@ class Image
             \imagebmp($image, $path);
         } elseif (EmsFields::ASSET_CONFIG_GIF_IMAGE_FORMAT === $this->config->getImageFormat()) {
             \imagegif($image, $path);
-        } elseif ($this->config->getQuality() > 0) {
+        } elseif (EmsFields::ASSET_CONFIG_JPEG_IMAGE_FORMAT === $this->config->getImageFormat() || (null === $this->config->getImageFormat() && $this->config->getQuality() > 0)) {
             \imagejpeg($image, $path, $this->config->getQuality());
         } else {
             \imagepng($image, $path);
