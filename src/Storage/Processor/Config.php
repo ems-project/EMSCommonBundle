@@ -353,7 +353,12 @@ final class Config
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_IMAGE_FORMAT, ['string', 'null'])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_TYPE, [null, EmsFields::ASSET_CONFIG_TYPE_IMAGE, EmsFields::ASSET_CONFIG_TYPE_ZIP])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_DISPOSITION, [ResponseHeaderBag::DISPOSITION_INLINE, ResponseHeaderBag::DISPOSITION_ATTACHMENT])
-            ->setAllowedValues(EmsFields::ASSET_CONFIG_IMAGE_FORMAT, [null, EmsFields::ASSET_CONFIG_WEBP_IMAGE_FORMAT])
+            ->setAllowedValues(EmsFields::ASSET_CONFIG_IMAGE_FORMAT, [
+                null,
+                EmsFields::ASSET_CONFIG_WEBP_IMAGE_FORMAT,
+                EmsFields::ASSET_CONFIG_GIF_IMAGE_FORMAT,
+                EmsFields::ASSET_CONFIG_BMP_IMAGE_FORMAT,
+            ])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY, function ($values) use ($defaults) {
                 if (!\is_array($values)) {
                     return false;

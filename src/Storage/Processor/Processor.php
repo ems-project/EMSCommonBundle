@@ -275,6 +275,15 @@ class Processor
                 if ($mimeType && \preg_match('/image\/svg.*/', $mimeType)) {
                     return $mimeType;
                 }
+                if (EmsFields::ASSET_CONFIG_GIF_IMAGE_FORMAT === ($config[EmsFields::ASSET_CONFIG_IMAGE_FORMAT] ?? null)) {
+                    return 'image/gif';
+                }
+                if (EmsFields::ASSET_CONFIG_BMP_IMAGE_FORMAT === ($config[EmsFields::ASSET_CONFIG_IMAGE_FORMAT] ?? null)) {
+                    return 'image/bmp';
+                }
+                if (EmsFields::ASSET_CONFIG_WEBP_IMAGE_FORMAT === ($config[EmsFields::ASSET_CONFIG_IMAGE_FORMAT] ?? null)) {
+                    return 'image/webp';
+                }
                 if (0 === ($config[EmsFields::ASSET_CONFIG_QUALITY] ?? 0)) {
                     return 'image/png';
                 }

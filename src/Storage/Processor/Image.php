@@ -81,6 +81,10 @@ class Image
 
         if (EmsFields::ASSET_CONFIG_WEBP_IMAGE_FORMAT === $this->config->getImageFormat()) {
             \imagewebp($image, $path, $this->config->getQuality());
+        } elseif (EmsFields::ASSET_CONFIG_BMP_IMAGE_FORMAT === $this->config->getImageFormat()) {
+            \imagebmp($image, $path);
+        } elseif (EmsFields::ASSET_CONFIG_GIF_IMAGE_FORMAT === $this->config->getImageFormat()) {
+            \imagegif($image, $path);
         } elseif ($this->config->getQuality() > 0) {
             \imagejpeg($image, $path, $this->config->getQuality());
         } else {
