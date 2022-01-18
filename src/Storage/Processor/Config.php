@@ -236,6 +236,15 @@ final class Config
         return (string) $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
     }
 
+    public function getImageFormat(): ?string
+    {
+        if (isset($this->options[EmsFields::ASSET_CONFIG_IMAGE_FORMAT]) && null !== $this->options[EmsFields::ASSET_CONFIG_IMAGE_FORMAT]) {
+            return (string) $this->options[EmsFields::ASSET_CONFIG_IMAGE_FORMAT];
+        }
+
+        return null;
+    }
+
     public function isCacheableResult(): bool
     {
         return $this->cacheableResult;
@@ -341,8 +350,10 @@ final class Config
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_PASSWORD, ['string', 'null'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_BEFORE, ['string', 'int'])
             ->setAllowedTypes(EmsFields::ASSET_CONFIG_AFTER, ['string', 'int'])
+            ->setAllowedTypes(EmsFields::ASSET_CONFIG_IMAGE_FORMAT, ['string', 'null'])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_TYPE, [null, EmsFields::ASSET_CONFIG_TYPE_IMAGE, EmsFields::ASSET_CONFIG_TYPE_ZIP])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_DISPOSITION, [ResponseHeaderBag::DISPOSITION_INLINE, ResponseHeaderBag::DISPOSITION_ATTACHMENT])
+            ->setAllowedValues(EmsFields::ASSET_CONFIG_IMAGE_FORMAT, [null, EmsFields::ASSET_CONFIG_WEBP_IMAGE_FORMAT])
             ->setAllowedValues(EmsFields::ASSET_CONFIG_RADIUS_GEOMETRY, function ($values) use ($defaults) {
                 if (!\is_array($values)) {
                     return false;
@@ -397,6 +408,7 @@ final class Config
             EmsFields::ASSET_CONFIG_BEFORE => 0,
             EmsFields::ASSET_CONFIG_AFTER => 0,
             EmsFields::ASSET_SEED => null,
+            EmsFields::ASSET_CONFIG_IMAGE_FORMAT => null,
         ];
     }
 }

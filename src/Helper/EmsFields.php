@@ -29,6 +29,8 @@ final class EmsFields
     public const ASSET_CONFIG_FILE_NAMES = '_file_names';
     public const ASSET_CONFIG_HEIGHT = '_height';
     public const ASSET_CONFIG_QUALITY = '_quality';
+    public const ASSET_CONFIG_IMAGE_FORMAT = '_image_format';
+    public const ASSET_CONFIG_WEBP_IMAGE_FORMAT = 'webp';
     public const ASSET_CONFIG_RESIZE = '_resize';
     public const ASSET_CONFIG_WIDTH = '_width';
     public const ASSET_CONFIG_RADIUS = '_radius';

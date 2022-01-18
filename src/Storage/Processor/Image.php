@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Storage\Processor;
 
+use EMS\CommonBundle\Helper\EmsFields;
 use Psr\Log\LoggerInterface;
 
 class Image
@@ -77,7 +78,10 @@ class Image
                 throw new \RuntimeException('Could not create file with unique name.');
             }
         }
-        if ($this->config->getQuality() > 0) {
+
+        if (EmsFields::ASSET_CONFIG_WEBP_IMAGE_FORMAT === $this->config->getImageFormat()) {
+            \imagewebp($image, $path, $this->config->getQuality());
+        } elseif ($this->config->getQuality() > 0) {
             \imagejpeg($image, $path, $this->config->getQuality());
         } else {
             \imagepng($image, $path);
