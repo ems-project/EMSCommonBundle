@@ -171,6 +171,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
      */
     private function getCsvStreamedResponse(array $config): StreamedResponse
     {
+        \dump($config);
         if (1 !== \count($config[self::SHEETS])) {
             throw new \RuntimeException('Exactly one sheet is expected by the CSV writer');
         }
@@ -201,7 +202,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
             throw new \RuntimeException('Exactly one sheet is expected by the CSV writer');
         }
 
-        $encoders = [new CsvEncoder()];
+        $encoders = [new CsvEncoder([CsvEncoder::NO_HEADERS_KEY => true])];
         $normalizers = [new ObjectNormalizer()];
         $serializer = new Serializer($normalizers, $encoders);
         $csvContent = $serializer->serialize($config[self::SHEETS][0]['rows'], $config[self::WRITER]);
