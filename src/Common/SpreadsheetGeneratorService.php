@@ -47,7 +47,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
      *
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function generateSpreadsheetResponse(array $config): Response
+    public function generateSpreadsheetCacheableResponse(array $config): Response
     {
         $config = $this->resolveOptions($config);
 
@@ -145,7 +145,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
                 $writer->save('php://output');
             }
         );
-        $this->attachResponseHeader($response, $config, '%s;filename="%s.xlsx"', 'application/vnd.ms-excel');
+        $this->attachResponseHeader($response, $config, 'application/vnd.ms-excel');
 
         return $response;
     }
@@ -156,12 +156,16 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     private function getXlsxResponse(array $config): Response
     {
         $spreadsheet = $this->buildUpSheets($config);
-        $writer = new Xlsx($spreadsheet);
 
-        $writer->save($config[self::CONTENT_FILENAME]);
-        $response = new Response();
-        $response->setContent(\file_get_contents($config[self::CONTENT_FILENAME]));
-        $this->attachResponseHeader($response, $config, '%s;filename="%s.xlsx"', 'application/vnd.ms-excel');
+        $writer = new Xlsx($spreadsheet);
+        $tmp = \tempnam(\sys_get_temp_dir(), 'tmp_xls_');
+        if (false === $tmp) {
+            throw new \RuntimeException('Unexpected error while creating a temp file !');
+        }
+
+        $writer->save($tmp);
+        $response = new Response(\file_get_contents($tmp));
+        $this->attachResponseHeader($response, $config, 'application/vnd.ms-excel');
 
         return $response;
     }
@@ -171,7 +175,6 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
      */
     private function getCsvStreamedResponse(array $config): StreamedResponse
     {
-        \dump($config);
         if (1 !== \count($config[self::SHEETS])) {
             throw new \RuntimeException('Exactly one sheet is expected by the CSV writer');
         }
@@ -188,7 +191,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
                 }
             }
         );
-        $this->attachResponseHeader($response, $config, '%s;filename="%s.csv', 'text/csv; charset=utf-8');
+        $this->attachResponseHeader($response, $config, 'text/csv; charset=utf-8');
 
         return $response;
     }
@@ -208,8 +211,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $csvContent = $serializer->serialize($config[self::SHEETS][0]['rows'], $config[self::WRITER]);
 
         $response = new Response($csvContent);
-        $this->attachResponseHeader($response, $config, '%s;filename="%s.csv', 'text/csv; charset=utf-8');
-        $response->headers->set('Content-Disposition', \sprintf('%s;filename="%s.csv"', $config[self::CONTENT_DISPOSITION], $config[self::CONTENT_FILENAME]));
+        $this->attachResponseHeader($response, $config, 'text/csv; charset=utf-8');
 
         return $response;
     }
@@ -218,9 +220,9 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
      * @param Response|StreamedResponse                                                   $response
      * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
      */
-    private function attachResponseHeader($response, array $config, string $filename, string $type): void
+    private function attachResponseHeader($response, array $config, string $type): void
     {
         $response->headers->set('Content-Type', $type);
-        $response->headers->set('Content-Disposition', \sprintf($filename, $config[self::CONTENT_DISPOSITION], $config[self::CONTENT_FILENAME]));
+        $response->headers->set('Content-Disposition', \sprintf('%s;filename="%s.%s"', $config[self::CONTENT_DISPOSITION], $config[self::CONTENT_FILENAME], $config[self::WRITER]));
     }
 }

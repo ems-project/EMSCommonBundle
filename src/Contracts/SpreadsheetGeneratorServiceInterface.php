@@ -24,5 +24,5 @@ interface SpreadsheetGeneratorServiceInterface
     /**
      * @param array<mixed> $config
      */
-    public function generateSpreadsheetResponse(array $config): Response;
+    public function generateSpreadsheetCacheableResponse(array $config): Response;
 }
