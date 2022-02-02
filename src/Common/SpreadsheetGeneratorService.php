@@ -8,8 +8,12 @@ use EMS\CommonBundle\Contracts\SpreadsheetGeneratorServiceInterface;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Serializer\Encoder\CsvEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceInterface
 {
@@ -19,6 +23,31 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
     public function generateSpreadsheet(array $config): StreamedResponse
+    {
+        $config = $this->resolveOptions($config);
+
+        switch ($config[self::WRITER]) {
+            case self::XLSX_WRITER:
+                $response = $this->getXlsxStreamedResponse($config);
+                break;
+            case self::CSV_WRITER:
+                $response = $this->getCsvStreamedResponse($config);
+                break;
+            default:
+                throw new \RuntimeException('Unknown Spreadsheet writer');
+        }
+
+        $response->headers->set('Cache-Control', 'max-age=0');
+
+        return $response;
+    }
+
+    /**
+     * @param array<mixed> $config
+     *
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
+     */
+    public function generateSpreadsheetCacheableResponse(array $config): Response
     {
         $config = $this->resolveOptions($config);
 
@@ -106,10 +135,9 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     /**
      * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
      */
-    private function getXlsxResponse(array $config): StreamedResponse
+    private function getXlsxStreamedResponse(array $config): StreamedResponse
     {
         $spreadsheet = $this->buildUpSheets($config);
-
         $writer = new Xlsx($spreadsheet);
 
         $response = new StreamedResponse(
@@ -117,8 +145,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
                 $writer->save('php://output');
             }
         );
-        $response->headers->set('Content-Type', 'application/vnd.ms-excel');
-        $response->headers->set('Content-Disposition', \sprintf('%s;filename="%s.xlsx"', $config[self::CONTENT_DISPOSITION], $config[self::CONTENT_FILENAME]));
+        $this->attachResponseHeader($response, $config, 'application/vnd.ms-excel');
 
         return $response;
     }
@@ -126,7 +153,27 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     /**
      * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
      */
-    private function getCsvResponse(array $config): StreamedResponse
+    private function getXlsxResponse(array $config): Response
+    {
+        $spreadsheet = $this->buildUpSheets($config);
+
+        $writer = new Xlsx($spreadsheet);
+        $tmp = \tempnam(\sys_get_temp_dir(), 'tmp_xls_');
+        if (false === $tmp) {
+            throw new \RuntimeException('Unexpected error while creating a temp file !');
+        }
+
+        $writer->save($tmp);
+        $response = new Response(\file_get_contents($tmp));
+        $this->attachResponseHeader($response, $config, 'application/vnd.ms-excel');
+
+        return $response;
+    }
+
+    /**
+     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     */
+    private function getCsvStreamedResponse(array $config): StreamedResponse
     {
         if (1 !== \count($config[self::SHEETS])) {
             throw new \RuntimeException('Exactly one sheet is expected by the CSV writer');
@@ -144,10 +191,38 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
                 }
             }
         );
-
-        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
-        $response->headers->set('Content-Disposition', \sprintf('%s;filename="%s.csv"', $config[self::CONTENT_DISPOSITION], $config[self::CONTENT_FILENAME]));
+        $this->attachResponseHeader($response, $config, 'text/csv; charset=utf-8');
 
         return $response;
+    }
+
+    /**
+     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     */
+    private function getCsvResponse(array $config): Response
+    {
+        if (1 !== \count($config[self::SHEETS])) {
+            throw new \RuntimeException('Exactly one sheet is expected by the CSV writer');
+        }
+
+        $encoders = [new CsvEncoder([CsvEncoder::NO_HEADERS_KEY => true])];
+        $normalizers = [new ObjectNormalizer()];
+        $serializer = new Serializer($normalizers, $encoders);
+        $csvContent = $serializer->serialize($config[self::SHEETS][0]['rows'], $config[self::WRITER]);
+
+        $response = new Response($csvContent);
+        $this->attachResponseHeader($response, $config, 'text/csv; charset=utf-8');
+
+        return $response;
+    }
+
+    /**
+     * @param Response|StreamedResponse                                                   $response
+     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     */
+    private function attachResponseHeader($response, array $config, string $type): void
+    {
+        $response->headers->set('Content-Type', $type);
+        $response->headers->set('Content-Disposition', \sprintf('%s;filename="%s.%s"', $config[self::CONTENT_DISPOSITION], $config[self::CONTENT_FILENAME], $config[self::WRITER]));
     }
 }
