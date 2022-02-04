@@ -24,4 +24,24 @@ class ContentType implements ConfigInterface
     {
         return self::CONTENT_TYPE;
     }
+
+    /**
+     * @return iterable<string, mixed[]>
+     */
+    public function index(): iterable
+    {
+        $names = $this->client->get(\implode('/', $this->endPoint))->getData();
+
+        foreach ($names as $name) {
+            yield $name => $this->get($name);
+        }
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function get(string $name): array
+    {
+        return $this->client->get(\implode('/', \array_merge($this->endPoint, [$name])))->getData();
+    }
 }
