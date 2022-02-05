@@ -10,4 +10,6 @@ interface AdminInterface
      * @return ConfigInterface[]
      */
     public function getConfigs(): array;
+
+    public function getConfig(string $typeName): ConfigInterface;
 }

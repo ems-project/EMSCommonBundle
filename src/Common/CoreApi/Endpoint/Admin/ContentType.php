@@ -9,7 +9,7 @@ use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\ConfigInterface;
 
 class ContentType implements ConfigInterface
 {
-    private const CONTENT_TYPE = 'ContentType';
+    public const CONTENT_TYPE = 'content-type';
     private Client $client;
     /** @var string[] */
     private array $endPoint;
@@ -26,15 +26,11 @@ class ContentType implements ConfigInterface
     }
 
     /**
-     * @return iterable<string, mixed[]>
+     * @return string[]
      */
-    public function index(): iterable
+    public function index(): array
     {
-        $names = $this->client->get(\implode('/', $this->endPoint))->getData();
-
-        foreach ($names as $name) {
-            yield $name => $this->get($name);
-        }
+        return $this->client->get(\implode('/', $this->endPoint))->getData();
     }
 
     /**

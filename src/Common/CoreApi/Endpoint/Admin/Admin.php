@@ -27,4 +27,15 @@ final class Admin implements AdminInterface
     {
         return $this->config;
     }
+
+    public function getConfig(string $typeName): ConfigInterface
+    {
+        foreach ($this->config as $config) {
+            if ($config->getType() !== $typeName) {
+                continue;
+            }
+            return $config;
+        }
+        throw new \RuntimeException(\sprintf('Config %s not found', $typeName));
+    }
 }
