@@ -9,9 +9,9 @@ interface ConfigInterface
     public function getType(): string;
 
     /**
-     * @return iterable<string, mixed[]>
+     * @return string[]
      */
-    public function index(): iterable;
+    public function index(): array;
 
     /**
      * @return mixed[]
