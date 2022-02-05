@@ -75,6 +75,11 @@
             <argument type="service" id="logger" />
             <argument type="service" id="translator" />
         </service>
+        <service id="ems.helper.admin_api" class="EMS\CommonBundle\Common\Admin\AdminHelper">
+            <argument type="service" id="ems_common.core_api.factory" />
+            <argument type="service" id="Psr\Cache\CacheItemPoolInterface" />
+            <argument type="service" id="logger" />
+        </service>
 
         <!-- twig -->
         <service id="ems_common.twig.runtime.text" class="EMS\CommonBundle\Twig\TextRuntime">
@@ -112,6 +117,10 @@
         <service id="ems.command.logs.clear" class="EMS\CommonBundle\Command\ClearLogsCommand">
             <argument type="service" id="ems_common.repository.log"/>
             <tag name="console.command" />
+        </service>
+        <service id="ems.command.admin.login" class="EMS\CommonBundle\Command\Admin\LoginCommand">
+            <argument type="service" id="ems.helper.admin_api"/>
+            <tag name="console.command" command="emsch:admin:login"/>
         </service>
 
         <!-- envProcessor -->
