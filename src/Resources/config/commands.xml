@@ -27,5 +27,10 @@
             <argument type="service" id="ems.helper.admin_api"/>
             <tag name="console.command" command="emsch:admin:login"/>
         </service>
+        <service id="ems.command.admin.get" class="EMS\CommonBundle\Command\Admin\GetCommand">
+            <argument type="service" id="ems.helper.admin_api"/>
+            <argument type="string">%emsch.asset_local_folder%</argument>
+            <tag name="console.command" command="emsch:admin:get"/>
+        </service>
     </services>
 </container>

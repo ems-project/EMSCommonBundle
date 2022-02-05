@@ -14,6 +14,7 @@ class AdminHelper
     private CoreApiFactoryInterface $coreApiFactory;
     private CacheItemPoolInterface $cache;
     private LoggerInterface $logger;
+    private ?CoreApiInterface $coreApi = null;
 
     public function __construct(
         CoreApiFactoryInterface $coreApiFactory,
@@ -27,13 +28,13 @@ class AdminHelper
 
     public function login(string $baseUrl, string $username, string $password): CoreApiInterface
     {
-        $coreApi = $this->coreApiFactory->create($baseUrl);
-        $coreApi->authenticate($username, $password);
-        $coreApi->setLogger($this->logger);
-        $this->cache->save($this->apiCacheBaseUrl()->set($coreApi->getBaseUrl()));
-        $this->cache->save($this->apiCacheToken($coreApi)->set($coreApi->getToken()));
+        $this->coreApi = $this->coreApiFactory->create($baseUrl);
+        $this->coreApi->authenticate($username, $password);
+        $this->coreApi->setLogger($this->logger);
+        $this->cache->save($this->apiCacheBaseUrl()->set($this->coreApi->getBaseUrl()));
+        $this->cache->save($this->apiCacheToken($this->coreApi)->set($this->coreApi->getToken()));
 
-        return $coreApi;
+        return $this->coreApi;
     }
 
     private function apiCacheBaseUrl(): CacheItemInterface
@@ -48,10 +49,17 @@ class AdminHelper
 
     public function getCoreApi(): CoreApiInterface
     {
-        $coreApi = $this->coreApiFactory->create($this->apiCacheBaseUrl()->get());
-        $coreApi->setLogger($this->logger);
-        $coreApi->setToken($this->apiCacheToken($coreApi)->get());
+        if (null !== $this->coreApi) {
+            return $this->coreApi;
+        }
+        $baseUrl = $this->apiCacheBaseUrl()->get();
+        if (!\is_string($baseUrl)) {
+            throw new \RuntimeException('Your are not login, use the command ems:admin:login');
+        }
+        $this->coreApi = $this->coreApiFactory->create($baseUrl);
+        $this->coreApi->setLogger($this->logger);
+        $this->coreApi->setToken($this->apiCacheToken($this->coreApi)->get());
 
-        return $coreApi;
+        return $this->coreApi;
     }
 }
