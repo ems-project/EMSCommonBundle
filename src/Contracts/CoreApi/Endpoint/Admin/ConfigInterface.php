@@ -17,4 +17,9 @@ interface ConfigInterface
      * @return mixed[]
      */
     public function get(string $name): array;
+
+    /**
+     * @param mixed[] $data
+     */
+    public function update(string $entityName, array $data): void;
 }

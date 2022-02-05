@@ -40,4 +40,9 @@ class ContentType implements ConfigInterface
     {
         return $this->client->get(\implode('/', \array_merge($this->endPoint, [$name])))->getData();
     }
+
+    public function update(string $name, array $data): void
+    {
+        $this->client->post(\implode('/', \array_merge($this->endPoint, [$name])), $data);
+    }
 }
