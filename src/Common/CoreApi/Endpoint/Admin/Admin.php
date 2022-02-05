@@ -34,6 +34,7 @@ final class Admin implements AdminInterface
             if ($config->getType() !== $typeName) {
                 continue;
             }
+
             return $config;
         }
         throw new \RuntimeException(\sprintf('Config %s not found', $typeName));
