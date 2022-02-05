@@ -99,32 +99,8 @@
             <argument type="service" id="EMS\CommonBundle\Service\Pdf\PdfPrinterInterface"/>
         </service>
 
-        <!-- commands -->
-        <service id="ems.command.status" class="EMS\CommonBundle\Command\StatusCommand">
-            <argument type="service" id="EMS\CommonBundle\Service\ElasticaService"/>
-            <argument type="service" id="EMS\CommonBundle\Storage\StorageManager"/>
-            <tag name="console.command" />
-        </service>
-        <service id="ems.command.curl" class="EMS\CommonBundle\Command\CurlCommand">
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="controller_resolver"/>
-            <argument type="service" id="session"/>
-            <argument type="service" id="request_stack"/>
-            <argument type="service" id="ems_common.storage.manager"/>
-            <argument type="service" id="ems_common.twig.runtime.asset"/>
-            <tag name="console.command" />
-        </service>
-        <service id="ems.command.logs.clear" class="EMS\CommonBundle\Command\ClearLogsCommand">
-            <argument type="service" id="ems_common.repository.log"/>
-            <tag name="console.command" />
-        </service>
-        <service id="ems.command.admin.login" class="EMS\CommonBundle\Command\Admin\LoginCommand">
-            <argument type="service" id="ems.helper.admin_api"/>
-            <tag name="console.command" command="emsch:admin:login"/>
-        </service>
-
         <!-- envProcessor -->
-        
+
         <service id="urlencode.env_var_processor" class="EMS\CommonBundle\DependencyInjection\EnvVarProcessor\UrlEncodeEnvVarProcessor" >
               <tag name="container.env_var_processor" />
         </service>
