@@ -54,7 +54,7 @@ class AdminHelper
         }
         $baseUrl = $this->apiCacheBaseUrl()->get();
         if (!\is_string($baseUrl)) {
-            throw new \RuntimeException('Your are not login, use the command ems:admin:login');
+            throw new \RuntimeException('Not authenticated, run ems:admin:login');
         }
         $this->coreApi = $this->coreApiFactory->create($baseUrl);
         $this->coreApi->setLogger($this->logger);
