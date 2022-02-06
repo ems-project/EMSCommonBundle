@@ -12,8 +12,4 @@ interface EntityInterface
     public function getId();
 
     public function getName(): string;
-
-    public function getCreated(): \DateTime;
-
-    public function getModified(): \DateTime;
 }
