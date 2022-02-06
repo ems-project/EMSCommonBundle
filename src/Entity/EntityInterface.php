@@ -10,6 +10,4 @@ interface EntityInterface
      * @return int|string
      */
     public function getId();
-
-    public function getName(): string;
 }

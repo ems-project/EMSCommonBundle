@@ -208,9 +208,4 @@ class Log implements EntityInterface
     {
         $this->impersonator = $impersonator;
     }
-
-    public function getName(): string
-    {
-        return $this->getId();
-    }
 }
