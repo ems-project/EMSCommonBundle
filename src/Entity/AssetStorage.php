@@ -155,4 +155,9 @@ class AssetStorage implements EntityInterface
 
         return $this;
     }
+
+    public function getName(): string
+    {
+        return $this->hash;
+    }
 }

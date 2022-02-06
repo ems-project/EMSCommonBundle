@@ -10,4 +10,10 @@ interface EntityInterface
      * @return int|string
      */
     public function getId();
+
+    public function getName(): string;
+
+    public function getCreated(): \DateTime;
+
+    public function getModified(): \DateTime;
 }
