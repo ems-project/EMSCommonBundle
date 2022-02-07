@@ -11,7 +11,7 @@ final class Json
      */
     public static function encode($value, bool $pretty = false): string
     {
-        $options = $pretty ? JSON_PRETTY_PRINT : 0;
+        $options = $pretty ? (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) : 0;
         $encoded = \json_encode($value, $options);
 
         if (false === $encoded) {
