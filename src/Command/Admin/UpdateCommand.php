@@ -6,7 +6,6 @@ namespace EMS\CommonBundle\Command\Admin;
 
 use EMS\CommonBundle\Common\Admin\AdminHelper;
 use EMS\CommonBundle\Common\Command\AbstractCommand;
-use EMS\CommonBundle\Common\CoreApi\Endpoint\Admin\ContentType;
 use EMS\CommonBundle\Common\Standard\Json;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\ConfigInterface;
 use Symfony\Component\Console\Input\InputArgument;
@@ -42,9 +41,7 @@ class UpdateCommand extends AbstractCommand
     protected function configure(): void
     {
         parent::configure();
-        $this->addArgument(self::CONFIG_TYPE, InputArgument::REQUIRED, \sprintf('Type of config to get, possible values: %s', \implode(', ', [
-            ContentType::CONTENT_TYPE,
-        ])));
+        $this->addArgument(self::CONFIG_TYPE, InputArgument::REQUIRED, 'Type of config to update');
         $this->addArgument(self::ENTITY_NAME, InputArgument::REQUIRED, 'Entity\'s name to update');
         $this->addArgument(self::JSON_PATH, InputArgument::REQUIRED, 'Path to the JSON file');
     }
