@@ -10,33 +10,15 @@ use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\ConfigInterface;
 
 final class Admin implements AdminInterface
 {
-    /** @var ConfigInterface[] */
-    private array $config;
+    private Client $client;
 
     public function __construct(Client $client)
     {
-        $this->config = [
-            new ContentType($client),
-        ];
-    }
-
-    /**
-     * @return ConfigInterface[]
-     */
-    public function getConfigs(): array
-    {
-        return $this->config;
+        $this->client = $client;
     }
 
     public function getConfig(string $typeName): ConfigInterface
     {
-        foreach ($this->config as $config) {
-            if ($config->getType() !== $typeName) {
-                continue;
-            }
-
-            return $config;
-        }
-        throw new \RuntimeException(\sprintf('Config %s not found', $typeName));
+        return new Config($this->client, $typeName);
     }
 }

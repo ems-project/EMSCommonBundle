@@ -7,22 +7,23 @@ namespace EMS\CommonBundle\Common\CoreApi\Endpoint\Admin;
 use EMS\CommonBundle\Common\CoreApi\Client;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\ConfigInterface;
 
-class ContentType implements ConfigInterface
+class Config implements ConfigInterface
 {
-    public const CONTENT_TYPE = 'content-type';
     private Client $client;
     /** @var string[] */
     private array $endPoint;
+    private string $configType;
 
-    public function __construct(Client $client)
+    public function __construct(Client $client, string $configType)
     {
         $this->client = $client;
-        $this->endPoint = ['api', 'admin', 'content-type'];
+        $this->configType = $configType;
+        $this->endPoint = ['api', 'admin', $configType];
     }
 
     public function getType(): string
     {
-        return self::CONTENT_TYPE;
+        return $this->configType;
     }
 
     /**
