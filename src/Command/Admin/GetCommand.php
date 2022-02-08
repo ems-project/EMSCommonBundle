@@ -49,8 +49,6 @@ class GetCommand extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $configApi = $this->coreApi->admin()->getConfig($this->configType);
-        $configHelper = new ConfigHelper($configApi, $this->folder);
         $this->io->title('Admin - get');
         $this->io->section(\sprintf('Getting %s\'s configurations from %s', $this->configType, $this->coreApi->getBaseUrl()));
 
@@ -59,6 +57,8 @@ class GetCommand extends AbstractCommand
 
             return self::EXECUTE_ERROR;
         }
+        $configApi = $this->coreApi->admin()->getConfig($this->configType);
+        $configHelper = new ConfigHelper($configApi, $this->folder);
 
         if ($this->export) {
             $configHelper->update();

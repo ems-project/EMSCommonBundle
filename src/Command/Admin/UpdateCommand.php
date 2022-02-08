@@ -45,7 +45,6 @@ class UpdateCommand extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $configApi = $this->adminHelper->getCoreApi()->admin()->getConfig($this->configType);
         $this->io->title('Admin - update');
         $this->io->section(\sprintf('Updating %s:%s configuration to %s', $this->configType, $this->entityName, $this->adminHelper->getCoreApi()->getBaseUrl()));
         if (!$this->adminHelper->getCoreApi()->isAuthenticated()) {
@@ -53,6 +52,7 @@ class UpdateCommand extends AbstractCommand
 
             return self::EXECUTE_ERROR;
         }
+        $configApi = $this->adminHelper->getCoreApi()->admin()->getConfig($this->configType);
         $fileContent = \file_get_contents($this->jsonPath);
         if (!\is_string($fileContent)) {
             throw new \RuntimeException('Unexpected non string file content');
