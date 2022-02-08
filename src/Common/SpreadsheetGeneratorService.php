@@ -94,6 +94,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $spreadsheet = new Spreadsheet();
 
         $i = 0;
+        $maxCol = 1;
         foreach ($config[self::SHEETS] as $sheetConfig) {
             $sheet = (0 === $i) ? $spreadsheet->getActiveSheet() : $spreadsheet->createSheet($i);
             $sheet->setTitle($sheetConfig['name']);
@@ -111,8 +112,9 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
                             ->applyFromArray($value[self::CELL_STYLE]);
                     }
                     ++$k;
+                    $maxCol = $k > $maxCol ? $k : $maxCol;
                 }
-                for ($z = 1; $z <= $k; ++$z) {
+                for ($z = 1; $z <= $maxCol; ++$z) {
                     $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($z))->setAutoSize(true);
                 }
                 ++$j;
