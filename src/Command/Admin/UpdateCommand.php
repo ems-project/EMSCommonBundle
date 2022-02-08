@@ -7,7 +7,6 @@ namespace EMS\CommonBundle\Command\Admin;
 use EMS\CommonBundle\Common\Admin\AdminHelper;
 use EMS\CommonBundle\Common\Command\AbstractCommand;
 use EMS\CommonBundle\Common\Standard\Json;
-use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\ConfigInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,7 +17,6 @@ class UpdateCommand extends AbstractCommand
     public const ENTITY_NAME = 'entity-name';
     public const JSON_PATH = 'json-path';
     private string $configType;
-    private ConfigInterface $config;
     private string $entityName;
     private string $jsonPath;
     private AdminHelper $adminHelper;
@@ -35,7 +33,6 @@ class UpdateCommand extends AbstractCommand
         $this->configType = $this->getArgumentString(self::CONFIG_TYPE);
         $this->entityName = $this->getArgumentString(self::ENTITY_NAME);
         $this->jsonPath = $this->getArgumentString(self::JSON_PATH);
-        $this->config = $this->adminHelper->getCoreApi()->admin()->getConfig($this->configType);
     }
 
     protected function configure(): void
@@ -48,6 +45,7 @@ class UpdateCommand extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $configApi = $this->adminHelper->getCoreApi()->admin()->getConfig($this->configType);
         $this->io->title('Admin - update');
         $this->io->section(\sprintf('Updating %s:%s configuration to %s', $this->configType, $this->entityName, $this->adminHelper->getCoreApi()->getBaseUrl()));
         if (!$this->adminHelper->getCoreApi()->isAuthenticated()) {
@@ -59,7 +57,7 @@ class UpdateCommand extends AbstractCommand
         if (!\is_string($fileContent)) {
             throw new \RuntimeException('Unexpected non string file content');
         }
-        $this->config->update($this->entityName, Json::decode($fileContent));
+        $configApi->update($this->entityName, Json::decode($fileContent));
 
         return self::EXECUTE_SUCCESS;
     }

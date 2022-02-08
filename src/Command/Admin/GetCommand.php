@@ -8,7 +8,6 @@ use EMS\CommonBundle\Common\Admin\AdminHelper;
 use EMS\CommonBundle\Common\Admin\ConfigHelper;
 use EMS\CommonBundle\Common\Command\AbstractCommand;
 use EMS\CommonBundle\Contracts\CoreApi\CoreApiInterface;
-use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\ConfigInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -23,8 +22,6 @@ class GetCommand extends AbstractCommand
     private string $configType;
     private bool $export;
     private string $folder = 'admin';
-    private ConfigInterface $config;
-    private ConfigHelper $configHelper;
     private CoreApiInterface $coreApi;
 
     public function __construct(AdminHelper $adminHelper, string $projectFolder)
@@ -40,8 +37,6 @@ class GetCommand extends AbstractCommand
         $this->configType = $this->getArgumentString(self::CONFIG_TYPE);
         $this->export = $this->getOptionBool(self::EXPORT);
         $this->coreApi = $this->adminHelper->getCoreApi();
-        $this->config = $this->coreApi->admin()->getConfig($this->configType);
-        $this->configHelper = new ConfigHelper($this->config, $this->folder);
     }
 
     protected function configure(): void
@@ -54,6 +49,8 @@ class GetCommand extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $configApi = $this->coreApi->admin()->getConfig($this->configType);
+        $configHelper = new ConfigHelper($configApi, $this->folder);
         $this->io->title('Admin - get');
         $this->io->section(\sprintf('Getting %s\'s configurations from %s', $this->configType, $this->coreApi->getBaseUrl()));
 
@@ -64,11 +61,11 @@ class GetCommand extends AbstractCommand
         }
 
         if ($this->export) {
-            $this->configHelper->update();
+            $configHelper->update();
         }
 
         $rows = [];
-        foreach ($this->config->index() as $key => $name) {
+        foreach ($configApi->index() as $key => $name) {
             $rows[] = [$key, $name];
         }
 
