@@ -18,6 +18,25 @@ use Symfony\Component\Serializer\Serializer;
 final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceInterface
 {
     /**
+     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     */
+    public function generateSpreadsheetFile(array $config, string $filename): void
+    {
+        $config = $this->resolveOptions($config);
+
+        switch ($config[self::WRITER]) {
+            case self::XLSX_WRITER:
+                $this->getXlsxStreamedFile($config, $filename);
+                break;
+            case self::CSV_WRITER:
+                $this->getCsvStreamedFile($config, $filename);
+                break;
+            default:
+                throw new \RuntimeException('Unknown Spreadsheet writer');
+        }
+    }
+
+    /**
      * @param array<mixed> $config
      *
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
@@ -135,6 +154,16 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     /**
      * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
      */
+    private function getXlsxStreamedFile(array $config, string $filename): void
+    {
+        $spreadsheet = $this->buildUpSheets($config);
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($filename);
+    }
+
+    /**
+     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     */
     private function getXlsxStreamedResponse(array $config): StreamedResponse
     {
         $spreadsheet = $this->buildUpSheets($config);
@@ -168,6 +197,26 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $this->attachResponseHeader($response, $config, 'application/vnd.ms-excel');
 
         return $response;
+    }
+
+    /**
+     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     */
+    private function getCsvStreamedFile(array $config, string $filename): void
+    {
+        if (1 !== \count($config[self::SHEETS])) {
+            throw new \RuntimeException('Exactly one sheet is expected by the CSV writer');
+        }
+
+        $handle = \fopen($filename, 'r+');
+        if (false === $handle) {
+            throw new \RuntimeException(\sprintf('Unexpected error while opening %s', $filename));
+        }
+
+        foreach ($config[self::SHEETS][0]['rows'] ?? [] as $row) {
+            \fputcsv($handle, $row);
+        }
+        \fclose($handle);
     }
 
     /**
