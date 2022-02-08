@@ -82,7 +82,16 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
             foreach ($sheetConfig['rows'] as $row) {
                 $k = 1;
                 foreach ($row as $value) {
-                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($k).$j, Converter::stringify($value));
+                    if (!\is_array($value)) {
+                        $value = [self::CELL_DATA => $value];
+                    }
+                    $value = $this->resolveOptionsCell($value);
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($k).$j, Converter::stringify($value[self::CELL_DATA]));
+                    $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($k))->setAutoSize(true);
+                    if (!empty($value[self::CELL_STYLE])) {
+                        $sheet->getStyle(Coordinate::stringFromColumnIndex($k).$j)
+                            ->applyFromArray($value[self::CELL_STYLE]);
+                    }
                     ++$k;
                 }
                 ++$j;
@@ -127,6 +136,24 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $resolver->setAllowedValues(self::CONTENT_DISPOSITION, ['attachment', 'inline']);
 
         /** @var array{writer: string, filename: string, disposition: string, sheets: array} $resolved */
+        $resolved = $resolver->resolve($config);
+
+        return $resolved;
+    }
+
+    /**
+     * @param array<mixed> $config
+     *
+     * @return array{data: string, class: string}
+     */
+    private function resolveOptionsCell(array $config): array
+    {
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([self::CELL_STYLE => []]);
+        $resolver->setRequired([self::CELL_DATA]);
+        $resolver->setAllowedTypes(self::CELL_STYLE, ['array']);
+
+        /** @var array{data: string, class: string} $resolved */
         $resolved = $resolver->resolve($config);
 
         return $resolved;
