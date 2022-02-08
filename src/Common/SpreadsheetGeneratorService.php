@@ -106,12 +106,14 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
                     }
                     $value = $this->resolveOptionsCell($value);
                     $sheet->setCellValue(Coordinate::stringFromColumnIndex($k).$j, Converter::stringify($value[self::CELL_DATA]));
-                    $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($k))->setAutoSize(true);
                     if (!empty($value[self::CELL_STYLE])) {
                         $sheet->getStyle(Coordinate::stringFromColumnIndex($k).$j)
                             ->applyFromArray($value[self::CELL_STYLE]);
                     }
                     ++$k;
+                }
+                for ($z = 1; $z <= $k; ++$z) {
+                    $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($z))->setAutoSize(true);
                 }
                 ++$j;
             }
