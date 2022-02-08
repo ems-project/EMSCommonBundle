@@ -21,6 +21,11 @@ interface SpreadsheetGeneratorServiceInterface
     /**
      * @param array<mixed> $config
      */
+    public function generateSpreadsheetFile(array $config, string $filename): void;
+
+    /**
+     * @param array<mixed> $config
+     */
     public function generateSpreadsheet(array $config): StreamedResponse;
 
     /**
