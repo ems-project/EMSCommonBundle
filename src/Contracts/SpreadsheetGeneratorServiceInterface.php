@@ -15,6 +15,13 @@ interface SpreadsheetGeneratorServiceInterface
     public const SHEETS = 'sheets';
     public const CONTENT_FILENAME = 'filename';
     public const CONTENT_DISPOSITION = 'disposition';
+    public const CELL_DATA = 'data';
+    public const CELL_STYLE = 'style';
+
+    /**
+     * @param array<mixed> $config
+     */
+    public function generateSpreadsheetFile(array $config, string $filename): void;
 
     /**
      * @param array<mixed> $config

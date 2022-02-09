@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Common\CoreApi;
 
+use EMS\CommonBundle\Common\CoreApi\Endpoint\Admin\Admin;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\Data\Data;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\File\DataExtract;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\File\File;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\Search\Search;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\User\User;
 use EMS\CommonBundle\Contracts\CoreApi\CoreApiInterface;
+use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\AdminInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\DataInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\User\UserInterface;
 use EMS\CommonBundle\Storage\StorageManager;
@@ -103,6 +105,11 @@ final class CoreApi implements CoreApiInterface
     public function user(): UserInterface
     {
         return new User($this->client);
+    }
+
+    public function admin(): AdminInterface
+    {
+        return new Admin($this->client);
     }
 
     /**
