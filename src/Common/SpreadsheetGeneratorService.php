@@ -94,6 +94,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $spreadsheet = new Spreadsheet();
 
         $i = 0;
+        $maxCol = 1;
         foreach ($config[self::SHEETS] as $sheetConfig) {
             $sheet = (0 === $i) ? $spreadsheet->getActiveSheet() : $spreadsheet->createSheet($i);
             $sheet->setTitle($sheetConfig['name']);
@@ -101,8 +102,20 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
             foreach ($sheetConfig['rows'] as $row) {
                 $k = 1;
                 foreach ($row as $value) {
-                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($k).$j, Converter::stringify($value));
+                    if (!\is_array($value)) {
+                        $value = [self::CELL_DATA => $value];
+                    }
+                    $value = $this->resolveOptionsCell($value);
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($k).$j, Converter::stringify($value[self::CELL_DATA]));
+                    if (!empty($value[self::CELL_STYLE])) {
+                        $sheet->getStyle(Coordinate::stringFromColumnIndex($k).$j)
+                            ->applyFromArray($value[self::CELL_STYLE]);
+                    }
                     ++$k;
+                    $maxCol = $k > $maxCol ? $k : $maxCol;
+                }
+                for ($z = 1; $z <= $maxCol; ++$z) {
+                    $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($z))->setAutoSize(true);
                 }
                 ++$j;
             }
@@ -146,6 +159,24 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $resolver->setAllowedValues(self::CONTENT_DISPOSITION, ['attachment', 'inline']);
 
         /** @var array{writer: string, filename: string, disposition: string, sheets: array} $resolved */
+        $resolved = $resolver->resolve($config);
+
+        return $resolved;
+    }
+
+    /**
+     * @param array<mixed> $config
+     *
+     * @return array{data: string, class: string}
+     */
+    private function resolveOptionsCell(array $config): array
+    {
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([self::CELL_STYLE => []]);
+        $resolver->setRequired([self::CELL_DATA]);
+        $resolver->setAllowedTypes(self::CELL_STYLE, ['array']);
+
+        /** @var array{data: string, class: string} $resolved */
         $resolved = $resolver->resolve($config);
 
         return $resolved;
