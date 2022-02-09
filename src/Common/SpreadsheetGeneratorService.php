@@ -167,7 +167,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     /**
      * @param array<mixed> $config
      *
-     * @return array{data: string, class: string}
+     * @return array{data: string, style: array}
      */
     private function resolveOptionsCell(array $config): array
     {
@@ -176,7 +176,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $resolver->setRequired([self::CELL_DATA]);
         $resolver->setAllowedTypes(self::CELL_STYLE, ['array']);
 
-        /** @var array{data: string, class: string} $resolved */
+        /** @var array{data: string, style: array} $resolved */
         $resolved = $resolver->resolve($config);
 
         return $resolved;
