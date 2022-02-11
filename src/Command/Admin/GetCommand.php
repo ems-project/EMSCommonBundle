@@ -21,14 +21,14 @@ class GetCommand extends AbstractCommand
     private AdminHelper $adminHelper;
     private string $configType;
     private bool $export;
-    private string $folder = 'admin';
+    private string $folder;
     private CoreApiInterface $coreApi;
 
     public function __construct(AdminHelper $adminHelper, string $projectFolder)
     {
         parent::__construct();
         $this->adminHelper = $adminHelper;
-        $this->folder = $projectFolder.DIRECTORY_SEPARATOR.$this->folder;
+        $this->folder = $projectFolder.DIRECTORY_SEPARATOR.ConfigHelper::DEFAULT_FOLDER;
     }
 
     public function initialize(InputInterface $input, OutputInterface $output): void
@@ -36,8 +36,10 @@ class GetCommand extends AbstractCommand
         parent::initialize($input, $output);
         $this->configType = $this->getArgumentString(self::CONFIG_TYPE);
         $this->export = $this->getOptionBool(self::EXPORT);
-        $this->folder = $this->getOptionString(self::FOLDER);
-        $this->coreApi = $this->adminHelper->getCoreApi();
+        $folder = $this->getOptionStringNull(self::FOLDER);
+        if (null !== $folder) {
+            $this->folder = $folder;
+        }
     }
 
     protected function configure(): void
@@ -45,11 +47,12 @@ class GetCommand extends AbstractCommand
         parent::configure();
         $this->addArgument(self::CONFIG_TYPE, InputArgument::REQUIRED, \sprintf('Type of configs to get'));
         $this->addOption(self::EXPORT, null, InputOption::VALUE_NONE, 'Export configs in JSON files');
-        $this->addOption(self::FOLDER, null, InputOption::VALUE_OPTIONAL, 'Export folder', $this->folder);
+        $this->addOption(self::FOLDER, null, InputOption::VALUE_OPTIONAL, 'Export folder');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->coreApi = $this->adminHelper->getCoreApi();
         $this->io->title('Admin - get');
         $this->io->section(\sprintf('Getting %s\'s configurations from %s', $this->configType, $this->coreApi->getBaseUrl()));
 
