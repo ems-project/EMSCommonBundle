@@ -11,6 +11,7 @@ use Symfony\Component\Finder\SplFileInfo;
 
 final class ConfigHelper
 {
+    public const DEFAULT_FOLDER = 'admin';
     private string $directory;
     private ConfigInterface $config;
 
@@ -44,6 +45,11 @@ final class ConfigHelper
      */
     public function save(string $name, array $config): void
     {
-        \file_put_contents($this->directory.DIRECTORY_SEPARATOR.$name.'.json', Json::encode($config, true));
+        \file_put_contents($this->getFilename($name), Json::encode($config, true));
+    }
+
+    public function getFilename(string $name): string
+    {
+        return $this->directory.DIRECTORY_SEPARATOR.$name.'.json';
     }
 }
