@@ -36,6 +36,7 @@ class GetCommand extends AbstractCommand
         parent::initialize($input, $output);
         $this->configType = $this->getArgumentString(self::CONFIG_TYPE);
         $this->export = $this->getOptionBool(self::EXPORT);
+        $this->folder = $this->getOptionString(self::FOLDER);
         $this->coreApi = $this->adminHelper->getCoreApi();
     }
 
