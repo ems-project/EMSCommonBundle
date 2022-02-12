@@ -23,6 +23,8 @@ interface ConfigInterface
      */
     public function update(string $entityName, array $data): string;
 
+    public function delete(string $name): string;
+
     /**
      * @param mixed[] $data
      */
