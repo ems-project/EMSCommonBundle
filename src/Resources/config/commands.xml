@@ -42,5 +42,9 @@
             <argument type="string">%kernel.project_dir%</argument>
             <tag name="console.command" command="ems:admin:create"/>
         </service>
+        <service id="ems.command.admin.delete" class="EMS\CommonBundle\Command\Admin\DeleteCommand">
+            <argument type="service" id="ems.helper.admin_api"/>
+            <tag name="console.command" command="ems:admin:delete"/>
+        </service>
     </services>
 </container>

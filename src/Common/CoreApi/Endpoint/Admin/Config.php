@@ -53,6 +53,17 @@ class Config implements ConfigInterface
         return $id;
     }
 
+    public function delete(string $name): string
+    {
+        $result = $this->client->delete(\implode('/', \array_merge($this->endPoint, [$name])));
+        $id = $result->getData()['id'] ?? null;
+        if (!\is_string($id)) {
+            throw new \RuntimeException(\sprintf('Unexpected id type: %s', \strval($id)));
+        }
+
+        return $id;
+    }
+
     public function create(array $data): string
     {
         $result = $this->client->post(\implode('/', $this->endPoint), $data);

@@ -78,6 +78,13 @@ final class Client
         ]);
     }
 
+    public function delete(string $resource): Result
+    {
+        return $this->request(Request::METHOD_DELETE, $resource, [
+            'headers' => $this->headers,
+        ]);
+    }
+
     public function head(string $resource): bool
     {
         $response = $this->client->request(Request::METHOD_HEAD, $resource, [
