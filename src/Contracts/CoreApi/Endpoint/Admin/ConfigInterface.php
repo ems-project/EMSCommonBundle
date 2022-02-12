@@ -21,5 +21,10 @@ interface ConfigInterface
     /**
      * @param mixed[] $data
      */
-    public function update(string $entityName, array $data): void;
+    public function update(string $entityName, array $data): string;
+
+    /**
+     * @param mixed[] $data
+     */
+    public function create(array $data): string;
 }
