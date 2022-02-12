@@ -68,7 +68,8 @@ class CreateCommand extends AbstractCommand
         if (!\is_string($fileContent)) {
             throw new \RuntimeException('JSON file not found');
         }
-        $configApi->create(Json::decode($fileContent));
+        $id = $configApi->create(Json::decode($fileContent));
+        $this->io->section(\sprintf('%s with id %s has been created', $this->configType, $id));
 
         return self::EXECUTE_SUCCESS;
     }

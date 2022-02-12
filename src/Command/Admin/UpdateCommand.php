@@ -72,7 +72,8 @@ class UpdateCommand extends AbstractCommand
         if (!\is_string($fileContent)) {
             throw new \RuntimeException('Unexpected non string file content');
         }
-        $configApi->update($this->entityName, Json::decode($fileContent));
+        $id = $configApi->update($this->entityName, Json::decode($fileContent));
+        $this->io->section(\sprintf('%s %s with id %s has been updated', $this->configType, $this->entityName, $id));
 
         return self::EXECUTE_SUCCESS;
     }
