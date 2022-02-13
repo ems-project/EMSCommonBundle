@@ -5,54 +5,75 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Command\Admin;
 
 use EMS\CommonBundle\Common\Admin\AdminHelper;
+use EMS\CommonBundle\Common\Admin\ConfigHelper;
 use EMS\CommonBundle\Common\Command\AbstractCommand;
+use EMS\CommonBundle\Common\Standard\Json;
 use EMS\CommonBundle\Contracts\CoreApi\CoreApiInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class JobStatusCommand extends AbstractCommand
+class JobCommand extends AbstractCommand
 {
     public const JOB_ID = 'job-id';
     private AdminHelper $adminHelper;
     private CoreApiInterface $coreApi;
-    private string $jobId;
+    private string $jobIdOrJsonFile;
+    private string $folder;
 
-    public function __construct(AdminHelper $adminHelper)
+    public function __construct(AdminHelper $adminHelper, string $projectFolder)
     {
         parent::__construct();
         $this->adminHelper = $adminHelper;
+        $this->folder = $projectFolder.DIRECTORY_SEPARATOR.ConfigHelper::DEFAULT_FOLDER;
     }
 
     public function initialize(InputInterface $input, OutputInterface $output): void
     {
         parent::initialize($input, $output);
-        $this->jobId = $this->getArgumentString(self::JOB_ID);
+        $this->jobIdOrJsonFile = $this->getArgumentString(self::JOB_ID);
     }
 
     protected function configure(): void
     {
         parent::configure();
-        $this->addArgument(self::JOB_ID, InputArgument::REQUIRED, \sprintf('Job\'s ID'));
+        $this->addArgument(self::JOB_ID, InputArgument::REQUIRED, 'Job\'s ID or path to a json file or to a dob admin\'s file name');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->coreApi = $this->adminHelper->getCoreApi();
+        $configApi = $this->coreApi->admin()->getConfig('job');
+        $configHelper = new ConfigHelper($configApi, $this->folder);
+        $jsonPath = $configHelper->getFilename($this->jobIdOrJsonFile);
+        if (\file_exists($jsonPath)) {
+            $this->jobIdOrJsonFile = $jsonPath;
+        }
+        if (\file_exists($this->jobIdOrJsonFile)) {
+            $this->io->title('Admin - Create a job');
+            $content = \file_get_contents($this->jobIdOrJsonFile);
+            if (false === $content) {
+                throw new \RuntimeException('Unexpected false file contents');
+            }
+            $this->jobIdOrJsonFile = $configApi->create(Json::decode($content));
+            $this->io->section(\sprintf('A job %s has been created', $this->jobIdOrJsonFile));
+        }
+
         $this->io->title('Admin - Job\'s status');
-        $this->io->section(\sprintf('Getting information about Job #%s', $this->jobId));
+        $this->io->section(\sprintf('Getting information about Job #%s', $this->jobIdOrJsonFile));
 
         if (!$this->coreApi->isAuthenticated()) {
             $this->io->error(\sprintf('Not authenticated for %s, run emsch:local:login', $this->coreApi->getBaseUrl()));
 
             return self::EXECUTE_ERROR;
         }
-        $status = $this->coreApi->admin()->getJobStatus($this->jobId);
+        $status = $this->coreApi->admin()->getJobStatus($this->jobIdOrJsonFile);
         if (!$status['done']) {
             $this->echoStatus($status);
         }
         if (!$status['started']) {
-            $this->coreApi->admin()->startJob($this->jobId);
+            $this->coreApi->admin()->startJob($this->jobIdOrJsonFile);
+            $this->io->section(\sprintf('Job #%s has been started', $this->jobIdOrJsonFile));
         }
         $this->io->section('Job\'s output:');
         $this->writeOutput($status);
@@ -68,23 +89,15 @@ class JobStatusCommand extends AbstractCommand
      */
     private function echoStatus(array $status): void
     {
-        $this->io->horizontalTable([
-            'ID',
-            'Created',
-            'Modified',
-            'Command',
-            'User',
-            'Started',
-            'Done',
-        ], [[
-            $status['id'],
-            $status['created'],
-            $status['modified'],
-            $status['command'],
-            $status['user'],
-            $status['started'] ? 'true' : 'false',
-            $status['done'] ? 'true' : 'false',
-        ]]);
+        $this->io->definitionList(
+            ['ID' => $status['id']],
+            ['Created' => $status['created']],
+            ['Modified' => $status['modified']],
+            ['Command' => $status['command']],
+            ['User' => $status['user']],
+            ['Started' => $status['started'] ? 'true' : 'false'],
+            ['Done' => $status['done'] ? 'true' : 'false']
+        );
     }
 
     /**
@@ -112,7 +125,7 @@ class JobStatusCommand extends AbstractCommand
                 break;
             }
             \sleep(1);
-            $status = $this->coreApi->admin()->getJobStatus($this->jobId);
+            $status = $this->coreApi->admin()->getJobStatus($this->jobIdOrJsonFile);
         }
     }
 }
