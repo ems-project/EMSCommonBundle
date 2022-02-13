@@ -21,4 +21,15 @@ final class Admin implements AdminInterface
     {
         return new Config($this->client, $typeName);
     }
+
+    /**
+     * @return array{id: string, created: string, modified: string, command: string, user: string, started: bool, done: bool, output: string}
+     */
+    public function getJobStatus(string $jobId): array
+    {
+        /** @var array{id: string, created: string, modified: string, command: string, user: string, started: bool, done: bool, output: string} $status */
+        $status = $this->client->get(\implode('/', ['api', 'admin', 'job-status', $jobId]))->getData();
+
+        return $status;
+    }
 }

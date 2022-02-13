@@ -46,5 +46,9 @@
             <argument type="service" id="ems.helper.admin_api"/>
             <tag name="console.command" command="ems:admin:delete"/>
         </service>
+        <service id="ems.command.admin.job-status" class="EMS\CommonBundle\Command\Admin\JobStatusCommand">
+            <argument type="service" id="ems.helper.admin_api"/>
+            <tag name="console.command" command="ems:admin:job-status"/>
+        </service>
     </services>
 </container>
