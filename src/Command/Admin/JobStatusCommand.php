@@ -51,6 +51,9 @@ class JobStatusCommand extends AbstractCommand
         if (!$status['done']) {
             $this->echoStatus($status);
         }
+        if (!$status['started']) {
+            $this->coreApi->admin()->startJob($this->jobId);
+        }
         $this->io->section('Job\'s output:');
         $this->writeOutput($status);
 
@@ -61,7 +64,7 @@ class JobStatusCommand extends AbstractCommand
     }
 
     /**
-     * @param array{id: string, created: string, modified: string, command: string, user: string, started: bool, done: bool, output: string} $status
+     * @param array{id: string, created: string, modified: string, command: string, user: string, started: bool, done: bool, output: ?string} $status
      */
     private function echoStatus(array $status): void
     {
@@ -85,15 +88,15 @@ class JobStatusCommand extends AbstractCommand
     }
 
     /**
-     * @param array{id: string, created: string, modified: string, command: string, user: string, started: bool, done: bool, output: string} $status
+     * @param array{id: string, created: string, modified: string, command: string, user: string, started: bool, done: bool, output: ?string} $status
      */
     private function writeOutput($status): void
     {
         $currentLine = 0;
         while (true) {
-            if (\strlen($status['output']) > 0) {
+            if (\strlen($status['output'] ?? '') > 0) {
                 $counter = 0;
-                $lines = \preg_split("/((\r?\n)|(\r\n?))/", $status['output']);
+                $lines = \preg_split("/((\r?\n)|(\r\n?))/", $status['output'] ?? '');
                 if (false === $lines) {
                     throw new \RuntimeException('Unexpected false split lines');
                 }
@@ -108,7 +111,7 @@ class JobStatusCommand extends AbstractCommand
             if ($status['done'] ?? false) {
                 break;
             }
-            \sleep(3);
+            \sleep(1);
             $status = $this->coreApi->admin()->getJobStatus($this->jobId);
         }
     }
