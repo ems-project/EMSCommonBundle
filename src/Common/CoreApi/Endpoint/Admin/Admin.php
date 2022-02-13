@@ -41,7 +41,6 @@ final class Admin implements AdminInterface
                 'max_duration' => 1,
             ]);
         } catch (TransportException $e) {
-
         }
     }
 }
