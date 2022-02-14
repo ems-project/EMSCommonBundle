@@ -18,18 +18,20 @@ class LoginCommand extends AbstractCommand
     private const ARG_USERNAME = 'username';
     private const ARG_PASSWORD = 'password';
     private AdminHelper $adminHelper;
+    private ?string $backendUrl;
 
-    public function __construct(AdminHelper $adminHelper)
+    public function __construct(AdminHelper $adminHelper, ?string $backendUrl)
     {
         parent::__construct();
         $this->adminHelper = $adminHelper;
+        $this->backendUrl = $backendUrl;
     }
 
     protected function configure(): void
     {
         parent::configure();
         $this
-            ->addArgument(self::ARG_BASE_URL, InputArgument::REQUIRED, 'Elasticms\'s base url')
+            ->addArgument(self::ARG_BASE_URL, InputArgument::OPTIONAL, 'Elasticms\'s base url')
             ->addArgument(self::ARG_USERNAME, InputArgument::OPTIONAL, 'username')
             ->addArgument(self::ARG_PASSWORD, InputArgument::OPTIONAL, 'password')
         ;
@@ -37,6 +39,10 @@ class LoginCommand extends AbstractCommand
 
     protected function interact(InputInterface $input, OutputInterface $output): void
     {
+        if (null === $this->backendUrl) {
+            $this->backendUrl = \strval($this->io->askQuestion(new Question('Elasticm\'s URL')));
+        }
+
         if (null === $input->getArgument(self::ARG_USERNAME)) {
             $input->setArgument(self::ARG_USERNAME, $this->io->askQuestion(new Question('Username')));
         }
@@ -46,13 +52,25 @@ class LoginCommand extends AbstractCommand
         }
     }
 
+    public function initialize(InputInterface $input, OutputInterface $output): void
+    {
+        parent::initialize($input, $output);
+        $baseUrl = $this->getArgumentStringNull(self::ARG_BASE_URL);
+        if (null !== $baseUrl) {
+            $this->backendUrl = $baseUrl;
+        }
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io->title('Admin - login');
+        if (null === $this->backendUrl) {
+            throw new \RuntimeException('Backend\'s URL not defined');
+        }
 
         try {
             $coreApi = $this->adminHelper->login(
-                $this->getArgumentString(self::ARG_BASE_URL),
+                $this->backendUrl,
                 $this->getArgumentString(self::ARG_USERNAME),
                 $this->getArgumentString(self::ARG_PASSWORD)
             );
