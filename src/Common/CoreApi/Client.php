@@ -69,12 +69,20 @@ final class Client
 
     /**
      * @param array<string, mixed> $body
+     * @param array<string, mixed> $options
      */
-    public function post(string $resource, array $body = []): Result
+    public function post(string $resource, array $body = [], array $options = []): Result
     {
-        return $this->request(Request::METHOD_POST, $resource, [
+        return $this->request(Request::METHOD_POST, $resource, \array_merge($options, [
             'headers' => $this->headers,
             'json' => $body,
+        ]));
+    }
+
+    public function delete(string $resource): Result
+    {
+        return $this->request(Request::METHOD_DELETE, $resource, [
+            'headers' => $this->headers,
         ]);
     }
 

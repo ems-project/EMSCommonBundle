@@ -7,7 +7,6 @@ namespace EMS\CommonBundle\Common\Admin;
 use EMS\CommonBundle\Common\Standard\Json;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\ConfigInterface;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 final class ConfigHelper
 {
@@ -31,12 +30,6 @@ final class ConfigHelper
         foreach ($this->config->index() as $name) {
             $jsonFiles->notName($name.'.json');
             $this->save($name, $this->config->get($name));
-        }
-        foreach ($jsonFiles as $file) {
-            if (!$file instanceof SplFileInfo) {
-                throw new \RuntimeException('Unexpected non SplFileInfo object');
-            }
-            \unlink($file->getPathname());
         }
     }
 
