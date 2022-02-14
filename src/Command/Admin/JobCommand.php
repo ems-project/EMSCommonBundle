@@ -45,6 +45,13 @@ class JobCommand extends AbstractCommand
         $this->coreApi = $this->adminHelper->getCoreApi();
         $configApi = $this->coreApi->admin()->getConfig('job');
         $configHelper = new ConfigHelper($configApi, $this->folder);
+
+        if (!$this->coreApi->isAuthenticated()) {
+            $this->io->error(\sprintf('Not authenticated for %s, run emsch:local:login', $this->coreApi->getBaseUrl()));
+
+            return self::EXECUTE_ERROR;
+        }
+
         $jsonPath = $configHelper->getFilename($this->jobIdOrJsonFile);
         if (\file_exists($jsonPath)) {
             $this->jobIdOrJsonFile = $jsonPath;
@@ -61,12 +68,6 @@ class JobCommand extends AbstractCommand
 
         $this->io->title('Admin - Job\'s status');
         $this->io->section(\sprintf('Getting information about Job #%s', $this->jobIdOrJsonFile));
-
-        if (!$this->coreApi->isAuthenticated()) {
-            $this->io->error(\sprintf('Not authenticated for %s, run emsch:local:login', $this->coreApi->getBaseUrl()));
-
-            return self::EXECUTE_ERROR;
-        }
         $status = $this->coreApi->admin()->getJobStatus($this->jobIdOrJsonFile);
         if (!$status['done']) {
             $this->echoStatus($status);
