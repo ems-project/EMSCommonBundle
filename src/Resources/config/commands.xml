@@ -34,6 +34,7 @@
         </service>
         <service id="ems.command.admin.update" class="EMS\CommonBundle\Command\Admin\UpdateCommand">
             <argument type="service" id="ems.helper.admin_api"/>
+            <argument type="string">%kernel.project_dir%</argument>
             <tag name="console.command" command="ems:admin:update"/>
         </service>
     </services>
