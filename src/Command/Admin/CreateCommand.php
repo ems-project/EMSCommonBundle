@@ -7,22 +7,21 @@ namespace EMS\CommonBundle\Command\Admin;
 use EMS\CommonBundle\Common\Admin\AdminHelper;
 use EMS\CommonBundle\Common\Admin\ConfigHelper;
 use EMS\CommonBundle\Common\Command\AbstractCommand;
-use EMS\CommonBundle\Contracts\CoreApi\CoreApiInterface;
+use EMS\CommonBundle\Common\Standard\Json;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class GetCommand extends AbstractCommand
+class CreateCommand extends AbstractCommand
 {
     public const CONFIG_TYPE = 'config-type';
-    public const EXPORT = 'export';
+    public const JSON_PATH = 'json-path';
     public const FOLDER = 'folder';
-    private AdminHelper $adminHelper;
     private string $configType;
-    private bool $export;
+    private string $jsonPath;
+    private AdminHelper $adminHelper;
     private string $folder;
-    private CoreApiInterface $coreApi;
 
     public function __construct(AdminHelper $adminHelper, string $projectFolder)
     {
@@ -35,7 +34,7 @@ class GetCommand extends AbstractCommand
     {
         parent::initialize($input, $output);
         $this->configType = $this->getArgumentString(self::CONFIG_TYPE);
-        $this->export = $this->getOptionBool(self::EXPORT);
+        $this->jsonPath = $this->getArgumentString(self::JSON_PATH);
         $folder = $this->getOptionStringNull(self::FOLDER);
         if (null !== $folder) {
             $this->folder = $folder;
@@ -45,35 +44,32 @@ class GetCommand extends AbstractCommand
     protected function configure(): void
     {
         parent::configure();
-        $this->addArgument(self::CONFIG_TYPE, InputArgument::REQUIRED, \sprintf('Type of configs to get'));
-        $this->addOption(self::EXPORT, null, InputOption::VALUE_NONE, 'Export configs in JSON files');
+        $this->addArgument(self::CONFIG_TYPE, InputArgument::REQUIRED, 'Type of config to update');
+        $this->addArgument(self::JSON_PATH, InputArgument::OPTIONAL, 'Path to the JSON file or JSON file name');
         $this->addOption(self::FOLDER, null, InputOption::VALUE_OPTIONAL, 'Export folder');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->coreApi = $this->adminHelper->getCoreApi();
-        $this->io->title('Admin - get');
-        $this->io->section(\sprintf('Getting %s\'s configurations from %s', $this->configType, $this->coreApi->getBaseUrl()));
-
-        if (!$this->coreApi->isAuthenticated()) {
-            $this->io->error(\sprintf('Not authenticated for %s, run emsch:local:login', $this->coreApi->getBaseUrl()));
+        $this->io->title('Admin - create');
+        $this->io->section(\sprintf('Create a %s configuration to %s', $this->configType, $this->adminHelper->getCoreApi()->getBaseUrl()));
+        if (!$this->adminHelper->getCoreApi()->isAuthenticated()) {
+            $this->io->error(\sprintf('Not authenticated for %s, run ems:admin:login', $this->adminHelper->getCoreApi()->getBaseUrl()));
 
             return self::EXECUTE_ERROR;
         }
-        $configApi = $this->coreApi->admin()->getConfig($this->configType);
+        $configApi = $this->adminHelper->getCoreApi()->admin()->getConfig($this->configType);
         $configHelper = new ConfigHelper($configApi, $this->folder);
-
-        if ($this->export) {
-            $configHelper->update();
+        if (!\file_exists($this->jsonPath)) {
+            $this->jsonPath = $configHelper->getFilename($this->jsonPath);
         }
 
-        $rows = [];
-        foreach ($configApi->index() as $key => $name) {
-            $rows[] = [$key, $name];
+        $fileContent = \file_get_contents($this->jsonPath);
+        if (!\is_string($fileContent)) {
+            throw new \RuntimeException('JSON file not found');
         }
-
-        $this->io->table(['#', 'Name'], $rows);
+        $id = $configApi->create(Json::decode($fileContent));
+        $this->io->section(\sprintf('%s with id %s has been created', $this->configType, $id));
 
         return self::EXECUTE_SUCCESS;
     }

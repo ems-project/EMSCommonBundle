@@ -7,10 +7,10 @@ namespace EMS\CommonBundle\Common\Admin;
 use EMS\CommonBundle\Common\Standard\Json;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\ConfigInterface;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 
 final class ConfigHelper
 {
+    public const DEFAULT_FOLDER = 'admin';
     private string $directory;
     private ConfigInterface $config;
 
@@ -31,12 +31,6 @@ final class ConfigHelper
             $jsonFiles->notName($name.'.json');
             $this->save($name, $this->config->get($name));
         }
-        foreach ($jsonFiles as $file) {
-            if (!$file instanceof SplFileInfo) {
-                throw new \RuntimeException('Unexpected non SplFileInfo object');
-            }
-            \unlink($file->getPathname());
-        }
     }
 
     /**
@@ -44,6 +38,11 @@ final class ConfigHelper
      */
     public function save(string $name, array $config): void
     {
-        \file_put_contents($this->directory.DIRECTORY_SEPARATOR.$name.'.json', Json::encode($config, true));
+        \file_put_contents($this->getFilename($name), Json::encode($config, true));
+    }
+
+    public function getFilename(string $name): string
+    {
+        return $this->directory.DIRECTORY_SEPARATOR.$name.'.json';
     }
 }

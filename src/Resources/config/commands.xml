@@ -25,6 +25,7 @@
         </service>
         <service id="ems.command.admin.login" class="EMS\CommonBundle\Command\Admin\LoginCommand">
             <argument type="service" id="ems.helper.admin_api"/>
+            <argument type="string">%ems_common.backend_url%</argument>
             <tag name="console.command" command="ems:admin:login"/>
         </service>
         <service id="ems.command.admin.get" class="EMS\CommonBundle\Command\Admin\GetCommand">
@@ -34,7 +35,22 @@
         </service>
         <service id="ems.command.admin.update" class="EMS\CommonBundle\Command\Admin\UpdateCommand">
             <argument type="service" id="ems.helper.admin_api"/>
+            <argument type="string">%kernel.project_dir%</argument>
             <tag name="console.command" command="ems:admin:update"/>
+        </service>
+        <service id="ems.command.admin.create" class="EMS\CommonBundle\Command\Admin\CreateCommand">
+            <argument type="service" id="ems.helper.admin_api"/>
+            <argument type="string">%kernel.project_dir%</argument>
+            <tag name="console.command" command="ems:admin:create"/>
+        </service>
+        <service id="ems.command.admin.delete" class="EMS\CommonBundle\Command\Admin\DeleteCommand">
+            <argument type="service" id="ems.helper.admin_api"/>
+            <tag name="console.command" command="ems:admin:delete"/>
+        </service>
+        <service id="ems.command.admin.job" class="EMS\CommonBundle\Command\Admin\JobCommand">
+            <argument type="service" id="ems.helper.admin_api"/>
+            <argument type="string">%kernel.project_dir%</argument>
+            <tag name="console.command" command="ems:admin:job"/>
         </service>
     </services>
 </container>
