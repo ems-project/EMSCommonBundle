@@ -14,6 +14,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -136,7 +137,7 @@ class CurlCommand extends AbstractCommand
     protected function getUrl(string $hash): string
     {
         $basename = \pathinfo($this->filename, PATHINFO_BASENAME);
-        $symfonyFile = new \Symfony\Component\HttpFoundation\File\File($this->filename, false);
+        $symfonyFile = new File($this->filename, false);
 
         return $this->baseUrl.$this->assetRuntime->assetPath(
             [

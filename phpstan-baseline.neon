@@ -1,8 +1,12 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Interface EMS\\\\CommonBundle\\\\Elasticsearch\\\\Document\\\\DocumentCollectionInterface extends generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"
+			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:__construct\\(\\) has parameter \\$headerBag with no value type specified in iterable type Symfony\\\\Component\\\\HttpFoundation\\\\HeaderBag\\.$#"
 			count: 1
-			path: src/Elasticsearch/Document/DocumentCollectionInterface.php
+			path: src/Storage/Processor/StreamRange.php
 
+		-
+			message: "#^Method EMS\\\\CommonBundle\\\\Storage\\\\Processor\\\\StreamRange\\:\\:parseRangeHeader\\(\\) has parameter \\$headerBag with no value type specified in iterable type Symfony\\\\Component\\\\HttpFoundation\\\\HeaderBag\\.$#"
+			count: 1
+			path: src/Storage/Processor/StreamRange.php
 
