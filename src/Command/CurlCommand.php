@@ -14,13 +14,13 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpFoundation\File\MimeType\MimeTypeGuesser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\Mime\MimeTypes;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -137,13 +137,13 @@ class CurlCommand extends AbstractCommand
     protected function getUrl(string $hash): string
     {
         $basename = \pathinfo($this->filename, PATHINFO_BASENAME);
-        $guesser = MimeTypeGuesser::getInstance();
+        $guesser = MimeTypes::getDefault();
 
         return $this->baseUrl.$this->assetRuntime->assetPath(
             [
                 EmsFields::CONTENT_FILE_NAME_FIELD_ => $basename,
                 EmsFields::CONTENT_FILE_HASH_FIELD_ => $hash,
-                EmsFields::CONTENT_MIME_TYPE_FIELD_ => $guesser->guess($this->filename) ?? 'application/bin',
+                EmsFields::CONTENT_MIME_TYPE_FIELD_ => $guesser->guessMimeType($this->filename) ?? 'application/bin',
             ],
             [],
             'ems_asset',
