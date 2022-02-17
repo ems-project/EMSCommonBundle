@@ -18,6 +18,25 @@ use Symfony\Component\Serializer\Serializer;
 final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceInterface
 {
     /**
+     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     */
+    public function generateSpreadsheetFile(array $config, string $filename): void
+    {
+        $config = $this->resolveOptions($config);
+
+        switch ($config[self::WRITER]) {
+            case self::XLSX_WRITER:
+                $this->getXlsxStreamedFile($config, $filename);
+                break;
+            case self::CSV_WRITER:
+                $this->getCsvStreamedFile($config, $filename);
+                break;
+            default:
+                throw new \RuntimeException('Unknown Spreadsheet writer');
+        }
+    }
+
+    /**
      * @param array<mixed> $config
      *
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
@@ -75,6 +94,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $spreadsheet = new Spreadsheet();
 
         $i = 0;
+        $maxCol = 1;
         foreach ($config[self::SHEETS] as $sheetConfig) {
             $sheet = (0 === $i) ? $spreadsheet->getActiveSheet() : $spreadsheet->createSheet($i);
             $sheet->setTitle($sheetConfig['name']);
@@ -82,8 +102,20 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
             foreach ($sheetConfig['rows'] as $row) {
                 $k = 1;
                 foreach ($row as $value) {
-                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($k).$j, Converter::stringify($value));
+                    if (!\is_array($value)) {
+                        $value = [self::CELL_DATA => $value];
+                    }
+                    $value = $this->resolveOptionsCell($value);
+                    $sheet->setCellValue(Coordinate::stringFromColumnIndex($k).$j, Converter::stringify($value[self::CELL_DATA]));
+                    if (!empty($value[self::CELL_STYLE])) {
+                        $sheet->getStyle(Coordinate::stringFromColumnIndex($k).$j)
+                            ->applyFromArray($value[self::CELL_STYLE]);
+                    }
                     ++$k;
+                    $maxCol = $k > $maxCol ? $k : $maxCol;
+                }
+                for ($z = 1; $z <= $maxCol; ++$z) {
+                    $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($z))->setAutoSize(true);
                 }
                 ++$j;
             }
@@ -133,6 +165,34 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     }
 
     /**
+     * @param array<mixed> $config
+     *
+     * @return array{data: string, style: array}
+     */
+    private function resolveOptionsCell(array $config): array
+    {
+        $resolver = new OptionsResolver();
+        $resolver->setDefaults([self::CELL_STYLE => []]);
+        $resolver->setRequired([self::CELL_DATA]);
+        $resolver->setAllowedTypes(self::CELL_STYLE, ['array']);
+
+        /** @var array{data: string, style: array} $resolved */
+        $resolved = $resolver->resolve($config);
+
+        return $resolved;
+    }
+
+    /**
+     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     */
+    private function getXlsxStreamedFile(array $config, string $filename): void
+    {
+        $spreadsheet = $this->buildUpSheets($config);
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($filename);
+    }
+
+    /**
      * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
      */
     private function getXlsxStreamedResponse(array $config): StreamedResponse
@@ -172,6 +232,26 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $this->attachResponseHeader($response, $config, 'application/vnd.ms-excel');
 
         return $response;
+    }
+
+    /**
+     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     */
+    private function getCsvStreamedFile(array $config, string $filename): void
+    {
+        if (1 !== \count($config[self::SHEETS])) {
+            throw new \RuntimeException('Exactly one sheet is expected by the CSV writer');
+        }
+
+        $handle = \fopen($filename, 'r+');
+        if (false === $handle) {
+            throw new \RuntimeException(\sprintf('Unexpected error while opening %s', $filename));
+        }
+
+        foreach ($config[self::SHEETS][0]['rows'] ?? [] as $row) {
+            \fputcsv($handle, $row);
+        }
+        \fclose($handle);
     }
 
     /**
