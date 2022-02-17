@@ -34,7 +34,7 @@ class LoginCommand extends AbstractCommand
         $this
             ->addArgument(self::ARG_BASE_URL, InputArgument::OPTIONAL, 'Elasticms base url (default: EMS_BACKEND_URL)')
             ->addOption(self::OPTION_USERNAME, 'u', InputOption::VALUE_REQUIRED, 'username')
-            ->addOption(self::OPTION_PASSWORD, 'p', InputOption::VALUE_REQUIRED, 'username')
+            ->addOption(self::OPTION_PASSWORD, 'p', InputOption::VALUE_REQUIRED, 'password')
         ;
     }
 
