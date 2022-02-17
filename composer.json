@@ -30,7 +30,7 @@
 		"ext-zip": "*",
 		"aws/aws-sdk-php": "^3.109",
 		"cebe/markdown": "^1.2",
-		"doctrine/doctrine-bundle": "^1.11",
+		"doctrine/doctrine-bundle": "^1.11|^2.5",
 		"doctrine/orm": "^2.6",
 		"dompdf/dompdf": "^v1.0.2",
 		"guzzlehttp/guzzle": "^6.3",
