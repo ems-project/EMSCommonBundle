@@ -9,7 +9,6 @@ use EMS\CommonBundle\Contracts\CoreApi\Endpoint\File\FileInterface;
 use EMS\CommonBundle\Storage\Service\HttpStorage;
 use EMS\CommonBundle\Storage\StorageManager;
 use Psr\Http\Message\StreamInterface;
-use Symfony\Component\Mime\MimeTypes;
 
 final class File implements FileInterface
 {
@@ -61,9 +60,9 @@ final class File implements FileInterface
             throw new \RuntimeException('Unexpected file size type');
         }
 
-        $guesser = MimeTypes::getDefault();
+        $symfonyFile = new \Symfony\Component\HttpFoundation\File\File($realPath, false);
         $exploded = \explode(DIRECTORY_SEPARATOR, $realPath);
-        $fromByte = $this->initUpload($hash, $filesize, \end($exploded), $mimeType ?? $guesser->guessMimeType($realPath) ?? 'application/octet-stream');
+        $fromByte = $this->initUpload($hash, $filesize, \end($exploded), $mimeType ?? $symfonyFile->guessExtension() ?? 'application/octet-stream');
         if ($fromByte < 0) {
             throw new \RuntimeException(\sprintf('Unexpected negative offset: %d', $fromByte));
         }
