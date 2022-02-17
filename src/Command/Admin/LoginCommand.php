@@ -31,9 +31,9 @@ class LoginCommand extends AbstractCommand
     {
         parent::configure();
         $this
-            ->addArgument(self::ARG_BASE_URL, InputArgument::OPTIONAL, 'Elasticms\'s base url')
             ->addArgument(self::ARG_USERNAME, InputArgument::OPTIONAL, 'username')
             ->addArgument(self::ARG_PASSWORD, InputArgument::OPTIONAL, 'password')
+            ->addArgument(self::ARG_BASE_URL, InputArgument::OPTIONAL, 'Elasticms base url (default: EMS_BACKEND_URL)')
         ;
     }
 
