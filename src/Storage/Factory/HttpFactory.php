@@ -55,7 +55,7 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
     /**
      * @param array<string, mixed> $parameters
      *
-     * @return array{type: string, base-url: null|string, get-url: string, auth-key: null|string, usage: int, hot-synchronize-limit: int}
+     * @return array{type: string, base-url: string|null, get-url: string, auth-key: string|null, usage: int, hot-synchronize-limit: int}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -75,7 +75,7 @@ class HttpFactory extends AbstractFactory implements StorageFactoryInterface
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
 
-        /** @var array{type: string, base-url: null|string, get-url: string, auth-key: null|string, usage: int, hot-synchronize-limit: int} $resolvedParameter */
+        /** @var array{type: string, base-url: string|null, get-url: string, auth-key: string|null, usage: int, hot-synchronize-limit: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
 
         return $resolvedParameter;

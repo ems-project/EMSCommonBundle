@@ -8,6 +8,9 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use EMS\CommonBundle\Entity\Log;
 
+/**
+ * @extends ServiceEntityRepository<Log>
+ */
 class LogRepository extends ServiceEntityRepository
 {
     public function __construct(Registry $registry)
