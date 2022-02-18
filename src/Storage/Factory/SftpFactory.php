@@ -65,7 +65,7 @@ class SftpFactory extends AbstractFactory implements StorageFactoryInterface
     /**
      * @param array<string, mixed> $parameters
      *
-     * @return array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int, usage: int, hot-synchronize-limit: int}
+     * @return array{type: string, host: string|null, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: string|null, port: int, usage: int, hot-synchronize-limit: int}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -99,7 +99,7 @@ class SftpFactory extends AbstractFactory implements StorageFactoryInterface
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
 
-        /** @var array{type: string, host: null|string, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: null|string, port: int, usage: int, hot-synchronize-limit: int} $resolvedParameter */
+        /** @var array{type: string, host: string|null, path: string, username: string, public-key-file: string, public-key-file: string, private-key-file: string, password-phrase: string|null, port: int, usage: int, hot-synchronize-limit: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
 
         return $resolvedParameter;
