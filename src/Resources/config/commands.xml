@@ -57,5 +57,10 @@
             <argument type="string">%kernel.project_dir%</argument>
             <tag name="console.command" command="ems:document:download"/>
         </service>
+        <service id="ems.command.document.update" class="EMS\CommonBundle\Command\Document\UpdateCommand">
+            <argument type="service" id="ems.helper.admin_api"/>
+            <argument type="string">%kernel.project_dir%</argument>
+            <tag name="console.command" command="ems:document:upload"/>
+        </service>
     </services>
 </container>
