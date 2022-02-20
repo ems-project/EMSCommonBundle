@@ -13,7 +13,7 @@ interface DocumentInterface
     /**
      * @return array<mixed>
      */
-    public function getSource(): array;
+    public function getSource(bool $cleaned = false): array;
 
     /**
      * @param mixed $defaultValue
