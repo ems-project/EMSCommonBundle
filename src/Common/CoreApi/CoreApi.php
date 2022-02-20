@@ -8,10 +8,12 @@ use EMS\CommonBundle\Common\CoreApi\Endpoint\Admin\Admin;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\Data\Data;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\File\DataExtract;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\File\File;
+use EMS\CommonBundle\Common\CoreApi\Endpoint\Meta\Meta;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\Search\Search;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\User\User;
 use EMS\CommonBundle\Contracts\CoreApi\CoreApiInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\AdminInterface;
+use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\MetaInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\DataInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\User\UserInterface;
 use EMS\CommonBundle\Storage\StorageManager;
@@ -110,6 +112,11 @@ final class CoreApi implements CoreApiInterface
     public function admin(): AdminInterface
     {
         return new Admin($this->client);
+    }
+
+    public function meta(): MetaInterface
+    {
+        return new Meta($this->client);
     }
 
     /**

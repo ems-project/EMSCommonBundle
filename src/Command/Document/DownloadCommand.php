@@ -59,7 +59,8 @@ class DownloadCommand extends AbstractCommand
             return self::EXECUTE_ERROR;
         }
 
-        $search = new Search(['demo_pgsql_v1_preview']);
+        $defaultAlias = $coreApi->meta()->getDefaultContentTypeEnvironmentAlias($this->contentType);
+        $search = new Search([$defaultAlias]);
         $search->setContentTypes([$this->contentType]);
 
         $directory = \implode(DIRECTORY_SEPARATOR, [$this->folder, $this->contentType]);
