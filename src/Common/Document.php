@@ -39,6 +39,6 @@ class Document
 
     public function getEmsLink(): EMSLink
     {
-        return EMSLink::fromText("ems://object:$this->contentType:$this->ouuid");
+        return EMSLink::fromContentTypeOuuid($this->contentType, $this->ouuid);
     }
 }

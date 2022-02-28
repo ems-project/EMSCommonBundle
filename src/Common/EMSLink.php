@@ -37,6 +37,15 @@ class EMSLink
     {
     }
 
+    public static function fromContentTypeOuuid(string $contentType, string $ouuid): EMSLink
+    {
+        $link = new self();
+        $link->ouuid = $ouuid;
+        $link->contentType = $contentType;
+
+        return $link;
+    }
+
     public function isValid(): bool
     {
         return null !== $this->contentType && null !== $this->ouuid;
