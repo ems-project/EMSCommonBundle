@@ -224,7 +224,11 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         }
 
         $writer->save($tmp);
-        $response = new Response(\file_get_contents($tmp));
+        $content = \file_get_contents($tmp);
+        if (false === $content) {
+            throw new \RuntimeException('File contents not found');
+        }
+        $response = new Response();
         $this->attachResponseHeader($response, $config, 'application/vnd.ms-excel');
 
         return $response;

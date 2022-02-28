@@ -13,6 +13,10 @@
 		{
 			"name" : "David Meert",
 			"email" : "david.meert@smals.be"
+		},
+		{
+			"name" : "Mathieu De Keyzer",
+			"email" : "mathieu@dekeyzer.net"
 		}
 	],
 	"require" : {
@@ -26,25 +30,28 @@
 		"ext-zip": "*",
 		"aws/aws-sdk-php": "^3.109",
 		"cebe/markdown": "^1.2",
-		"doctrine/doctrine-bundle": "^1.11",
+		"doctrine/doctrine-bundle": "^1.11|^2.5",
 		"doctrine/orm": "^2.6",
 		"dompdf/dompdf": "^v1.0.2",
 		"guzzlehttp/guzzle": "^6.3",
 		"phpoffice/phpspreadsheet": "^1.16",
 		"ramsey/uuid-doctrine": "^1.6",
 		"ruflin/elastica": "5.3.6",
-		"symfony/dom-crawler": "^4.4",
-		"symfony/expression-language": "^4.4",
-		"symfony/framework-bundle": "^4.4",
-		"symfony/http-client": "^4.4",
-		"symfony/http-foundation": "^4.4",
-		"symfony/monolog-bridge": "^4.4",
-		"symfony/options-resolver": "^4.4",
-		"symfony/routing": "^4.4",
-		"symfony/security": "^4.4",
-		"symfony/serializer": "^4.4",
-		"symfony/stopwatch": "^4.4",
-		"symfony/translation": "^4.4",
+		"symfony/dom-crawler": "^4.4|^5.4",
+		"symfony/expression-language": "^4.4|^5.4",
+		"symfony/framework-bundle": "^4.4|^5.4",
+		"symfony/http-client": "^4.4|^5.4",
+		"symfony/http-foundation": "^4.4|^5.4",
+		"symfony/monolog-bridge": "^4.4|^5.4",
+		"symfony/options-resolver": "^4.4|^5.4",
+		"symfony/routing": "^4.4|^5.4",
+		"symfony/security-core": "^4.4|^5.4",
+		"symfony/security-http": "^4.4|^5.4",
+		"symfony/security-csrf": "^4.4|^5.4",
+		"symfony/security-guard": "^4.4|^5.4",
+		"symfony/serializer": "^4.4|^5.4",
+		"symfony/stopwatch": "^4.4|^5.4",
+		"symfony/translation": "^4.4|^5.4",
 		"twig/twig": "^2.14"
 	},
 	"require-dev" : {
@@ -53,7 +60,7 @@
 		"phpstan/phpstan": "^0.12",
 		"phpunit/phpunit" : "^9.5",
 		"symfony/test-pack": "^1.0",
-		"symfony/web-profiler-bundle": "^4.4",
+		"symfony/web-profiler-bundle": "^4.4|^5.4",
 		"phpstan/phpstan-phpunit": "^0.12.8",
 		"phpstan/extension-installer": "^1.1"
 	},

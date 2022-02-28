@@ -76,8 +76,20 @@ class Document implements DocumentInterface
     /**
      * @return array<mixed>
      */
-    public function getSource(): array
+    public function getSource(bool $cleaned = false): array
     {
+        if ($cleaned) {
+            $source = $this->source;
+            unset($source[EMSSource::FIELD_CONTENT_TYPE]);
+            unset($source[EMSSource::FIELD_FINALIZATION_DATETIME]);
+            unset($source[EMSSource::FIELD_FINALIZED_BY]);
+            unset($source[EMSSource::FIELD_HASH]);
+            unset($source[EMSSource::FIELD_PUBLICATION_DATETIME]);
+            unset($source[EMSSource::FIELD_SIGNATURE]);
+
+            return $source;
+        }
+
         return $this->source;
     }
 
