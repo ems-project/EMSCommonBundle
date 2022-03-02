@@ -21,6 +21,28 @@ You can easyly replace text, remove html tags, printUrls.
 {{ description|emsch_routing_config(emschRoutingConfig) }}
 ```
 
+## ems_nested_search
+
+Search all choices of a nested field, and this function will runtime cache the result.
+
+### Arguments
+- **alias**: name of the elasticsearch alias
+- **contentTypeNames**: string or array of contentType names
+- **nestedFieldName**: namem of the nestedField
+- **search**: key/value array, key is nested property name, value is search value
+
+### Example
+
+The following example will build 3 variables by using the *ems_nested_search*, the choices will only build once and cached.
+
+```twig
+{% set example1 = ems_nested_search('my_alias', 'structure', 'documents', {'id': 'd2214354-a946-4e60-8e1a-921a643df3ad'}) %}
+{% set example2 = ems_nested_search('my_alias', 'structure', 'documents', {'id': '9d501b0f-13c1-42e1-a4ae-242650dc6dbd'}) %}
+{% set example3 = ems_nested_search('my_alias', 'structure', 'documents', {'id': '0186c0ac-4d8f-4755-a8f0-afa9fb86d599'}) %}
+```
+
+
+
 # Twig filters
 
 ## ems_anti_spam
