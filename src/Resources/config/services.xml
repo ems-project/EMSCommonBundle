@@ -88,6 +88,10 @@
             <argument type="service" id="logger" />
             <tag name="twig.runtime" />
         </service>
+        <service id="ems_common.twig.runtime.search" class="EMS\CommonBundle\Twig\SearchRuntime">
+            <argument type="service" id="ems_common.service.elastica" />
+            <tag name="twig.runtime" />
+        </service>
 
         <!-- pdf -->
         <service id="ems_common.pdf.printer.dom" class="EMS\CommonBundle\Service\Pdf\DomPdfPrinter">
