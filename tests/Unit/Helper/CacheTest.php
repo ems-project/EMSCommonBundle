@@ -16,7 +16,7 @@ class CacheTest extends TestCase
 
     protected function setUp(): void
     {
-        $hashAlgo = 'sha1'; //Maybe SHA-256 -> sha("Secret Key" + "Timestamp" + signed message)
+        $hashAlgo = 'sha1'; // Maybe SHA-256 -> sha("Secret Key" + "Timestamp" + signed message)
         $this->cache = new Cache($hashAlgo);
         $this->response = new Response();
         parent::setUp();
