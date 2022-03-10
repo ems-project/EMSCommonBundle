@@ -34,7 +34,7 @@ class SpreadsheetGeneratorTest extends TestCase
         /** @var StreamedResponse $csv */
         $csv = $this->callMethod($this->spreadSheetGenerator, 'getCsvResponse', [$config]);
 
-        //https://github.com/symfony/symfony/issues/25005
+        // https://github.com/symfony/symfony/issues/25005
         \ob_start();
         $csv->send();
         $getContent = \ob_get_contents();
