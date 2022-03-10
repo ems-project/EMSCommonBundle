@@ -6,5 +6,8 @@ namespace EMS\CommonBundle\Contracts\File;
 
 interface FileReaderInterface
 {
-    public function getData(string $filename, bool $skipFirstRow = false);
+    /**
+     * @return array<mixed>
+     */
+    public function getData(string $filename, bool $skipFirstRow = false): array;
 }

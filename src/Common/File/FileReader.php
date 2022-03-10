@@ -9,7 +9,10 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 final class FileReader implements FileReaderInterface
 {
-    public function getData(string $filename, bool $skipFirstRow = false)
+    /**
+     * @inheritDoc
+     */
+    public function getData(string $filename, bool $skipFirstRow = false): array
     {
         $reader = IOFactory::createReaderForFile($filename);
 
