@@ -93,6 +93,8 @@
             <tag name="twig.runtime" />
         </service>
 
+        <service id="ems_common.file.reader" class="EMS\CommonBundle\Common\File\FileReader" />
+
         <!-- pdf -->
         <service id="ems_common.pdf.printer.dom" class="EMS\CommonBundle\Service\Pdf\DomPdfPrinter">
             <argument type="string">%kernel.project_dir%</argument>
