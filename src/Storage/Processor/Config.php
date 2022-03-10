@@ -45,7 +45,7 @@ final class Config
         $this->setCacheKeyAndFilename();
         $this->setCacheableResult();
 
-        unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); //the published date can't invalidate the cache as it'sbased on the config hash now.
+        unset($options[EmsFields::CONTENT_PUBLISHED_DATETIME_FIELD]); // the published date can't invalidate the cache as it'sbased on the config hash now.
     }
 
     private function makeCacheKey(string $configHash, string $assetHash): string

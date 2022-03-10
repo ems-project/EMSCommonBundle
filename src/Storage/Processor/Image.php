@@ -113,7 +113,7 @@ class Image
         $ratio = $originalWidth / $originalHeight;
 
         if ('*' == $width && '*' == $height) {
-            //unable to calculate ratio, silently return original size (backward compatibility)
+            // unable to calculate ratio, silently return original size (backward compatibility)
             return [\intval($originalWidth), \intval($originalHeight)];
         }
 
@@ -237,7 +237,7 @@ class Image
 
         $radiusGeometry = $this->config->getRadiusGeometry();
 
-        //render the top-left, bottom-left, bottom-right, top-right corners by rotating and copying the mask
+        // render the top-left, bottom-left, bottom-right, top-right corners by rotating and copying the mask
         if (false !== \in_array('topleft', $radiusGeometry)) {
             \imagecopymerge($image, $cornerImage, 0, 0, 0, 0, $radius, $radius, 100);
         }

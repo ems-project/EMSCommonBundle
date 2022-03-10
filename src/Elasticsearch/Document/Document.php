@@ -34,6 +34,7 @@ class Document implements DocumentInterface
         $contentType = $document['_source'][EMSSource::FIELD_CONTENT_TYPE] ?? null;
         if (null === $contentType) {
             $contentType = $document['_type'] ?? null;
+            $this->source[EMSSource::FIELD_CONTENT_TYPE] = $contentType;
             @\trigger_error(\sprintf('The field %s is missing in the document %s', EMSSource::FIELD_CONTENT_TYPE, $this->getEmsId()), E_USER_DEPRECATED);
         }
         if (null === $contentType) {

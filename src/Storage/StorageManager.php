@@ -192,6 +192,9 @@ class StorageManager
 
     public function computeStreamHash(StreamInterface $handler): string
     {
+        if (0 !== $handler->tell()) {
+            $handler->rewind();
+        }
         $hashContext = \hash_init($this->hashAlgo);
         while (!$handler->eof()) {
             \hash_update($hashContext, $handler->read(1024 * 1024));

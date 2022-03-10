@@ -45,7 +45,7 @@ class EncoderTest extends TestCase
     public function piiProvider(): array
     {
         $email = '&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#64;&#101;&#120;&#97;&#109;&#112;&#108;&#101;&#46;&#99;&#111;&#109;';
-        $example = '&#101;&#120;&#97;&#109;&#112;&#108;&#101;'; //example, no <span> tag included!
+        $example = '&#101;&#120;&#97;&#109;&#112;&#108;&#101;'; // example, no <span> tag included!
 
         return [
             ['example', 'example'],

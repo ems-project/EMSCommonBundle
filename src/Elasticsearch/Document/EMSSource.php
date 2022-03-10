@@ -38,7 +38,7 @@ final class EMSSource implements EMSSourceInterface
     {
         $this->contentType = $source[self::FIELD_CONTENT_TYPE];
         $this->finalizedBy = $source[self::FIELD_FINALIZED_BY] ?? null;
-        $this->hash = $source[self::FIELD_HASH];
+        $this->hash = $source[self::FIELD_HASH] ?? 'hash-not-available';
         $this->source = $source;
 
         if (isset($source[self::FIELD_FINALIZATION_DATETIME])) {
