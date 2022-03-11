@@ -197,6 +197,42 @@ class AssetRuntime
         }
     }
 
+    /**
+     * @return array<string, int|string>|null
+     */
+    public function imageInfo(string $hash): ?array
+    {
+        $tempFile = $this->temporaryFile($hash);
+
+        if (null === $tempFile) {
+            return null;
+        }
+
+        $imageSize = \getimagesize($tempFile);
+
+        if (false === $imageSize) {
+            return null;
+        }
+
+        $imageInfo = [
+            'width' => $imageSize[0],
+            'height' => $imageSize[1],
+            'mimeType' => $imageSize['mime'],
+            'extension' => \explode('/', $imageSize['mime'])[1]
+        ];
+        
+        $imageResolution = \imageresolution(\imagecreatefromstring($this->storageManager->getContents($hash)));
+
+        if (false === $imageResolution) {
+            return $imageInfo;
+        }
+
+        $imageInfo['widthResolution'] = $imageResolution[0];
+        $imageInfo['heightResolution'] = $imageResolution[1];
+
+        return $imageInfo;
+    }
+
     private function fixFileExtension(string $filename, string $mimeType): string
     {
         static $mimetypes = [
