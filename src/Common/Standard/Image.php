@@ -20,6 +20,7 @@ final class Image
 
     /**
      * @param resource $resource
+     *
      * @return array<int>
      */
     public static function imageResolution($resource): array

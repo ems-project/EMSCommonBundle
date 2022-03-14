@@ -61,7 +61,7 @@ class AssetRuntimeTest extends TestCase
             ->onlyMethods(['temporaryFile'])
             ->getMock();
 
-        $hash = sha1('testImageInfo');
+        $hash = \sha1('testImageInfo');
 
         $assetRuntime
             ->expects($this->once())

@@ -219,7 +219,7 @@ class AssetRuntime
             'width' => $imageSize[0],
             'height' => $imageSize[1],
             'mimeType' => $imageSize['mime'],
-            'extension' => \explode('/', $imageSize['mime'])[1]
+            'extension' => \explode('/', $imageSize['mime'])[1],
         ];
 
         try {
