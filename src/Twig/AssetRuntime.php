@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Twig;
 
+use EMS\CommonBundle\Common\Standard\Image;
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\NotSavedException;
 use EMS\CommonBundle\Storage\Processor\Config;
@@ -208,9 +209,9 @@ class AssetRuntime
             return null;
         }
 
-        $imageSize = \getimagesize($tempFile);
-
-        if (false === $imageSize) {
+        try {
+            $imageSize = Image::imageSize($tempFile);
+        } catch (\RuntimeException $exception) {
             return null;
         }
 
@@ -220,10 +221,11 @@ class AssetRuntime
             'mimeType' => $imageSize['mime'],
             'extension' => \explode('/', $imageSize['mime'])[1]
         ];
-        
-        $imageResolution = \imageresolution(\imagecreatefromstring($this->storageManager->getContents($hash)));
 
-        if (false === $imageResolution) {
+        try {
+            $image = Image::imageCreateFromString($this->storageManager->getContents($hash));
+            $imageResolution = Image::imageResolution($image);
+        } catch (\RuntimeException $exception) {
             return $imageInfo;
         }
 
