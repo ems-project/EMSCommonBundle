@@ -110,5 +110,9 @@
         <service id="urlencode.env_var_processor" class="EMS\CommonBundle\DependencyInjection\EnvVarProcessor\UrlEncodeEnvVarProcessor" >
               <tag name="container.env_var_processor" />
         </service>
+
+        <!-- metrics -->
+
+        <service id="ems_common.metrics.renderer" class="EMS\CommonBundle\Service\Metrics\RendererService" />
     </services>
 </container>
