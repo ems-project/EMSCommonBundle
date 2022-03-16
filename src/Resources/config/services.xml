@@ -5,7 +5,8 @@
         http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <defaults public="false" />
+        <defaults autowire="true" autoconfigure="true" public="true"/>
+<!--        <defaults public="false" />-->
 
         <service id="ems_common.elasticsearch.elastica_logger" class="EMS\CommonBundle\Elasticsearch\ElasticaLogger">
             <argument type="service" id="logger" on-invalid="null" />
@@ -113,6 +114,16 @@
 
         <!-- metrics -->
 
-        <service id="ems_common.metrics.renderer" class="EMS\CommonBundle\Service\Metrics\RendererService" />
+        <service id="prometheus_metrics_bundle.adapter" class="Prometheus\Storage\InMemory" abstract="false" public="false" autowire="false" autoconfigure="false" />
+
+        <service id="prometheus_metrics_bundle.collector_registry" class="Prometheus\CollectorRegistry" public="false" autowire="false" autoconfigure="false">
+            <argument type="service" id="prometheus_metrics_bundle.adapter" />
+        </service>
+
+        <service id="ems_common.metrics.renderer" class="EMS\CommonBundle\Service\Metrics\RendererService" public="false" autowire="false" autoconfigure="false">
+            <argument type="service" id="prometheus_metrics_bundle.collector_registry" />
+        </service>
+
+
     </services>
 </container>
