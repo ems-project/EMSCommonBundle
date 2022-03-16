@@ -114,14 +114,14 @@
 
         <!-- metrics -->
 
-        <service id="prometheus_metrics_bundle.adapter" class="Prometheus\Storage\InMemory" abstract="false" public="false" autowire="false" autoconfigure="false" />
+        <service id="ems_common.prometheus_metrics_bundle.adapter" class="Prometheus\Storage\InMemory" abstract="false" public="false" autowire="false" autoconfigure="false" />
 
-        <service id="prometheus_metrics_bundle.collector_registry" class="Prometheus\CollectorRegistry" public="false" autowire="false" autoconfigure="false">
-            <argument type="service" id="prometheus_metrics_bundle.adapter" />
+        <service id="ems_common.prometheus_metrics_bundle.collector_registry" class="Prometheus\CollectorRegistry" public="false" autowire="false" autoconfigure="false">
+            <argument type="service" id="ems_common.prometheus_metrics_bundle.adapter" />
         </service>
 
         <service id="ems_common.metrics.renderer" class="EMS\CommonBundle\Service\Metrics\RendererService" public="false" autowire="false" autoconfigure="false">
-            <argument type="service" id="prometheus_metrics_bundle.collector_registry" />
+            <argument type="service" id="ems_common.prometheus_metrics_bundle.collector_registry" />
         </service>
 
 

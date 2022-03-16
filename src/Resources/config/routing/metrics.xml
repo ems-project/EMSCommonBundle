@@ -4,7 +4,7 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <route id="ems_common_metrics_view" path="/metrics" methods="GET">
+    <route id="ems_common.metrics_view" path="/metrics" methods="GET">
         <default key="_controller">ems_common.controller.metrics::prometheus</default>
     </route>
 </routes>
