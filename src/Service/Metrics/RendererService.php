@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Service\Metrics;
 
+use EMS\CommonBundle\Contracts\Metric\EMSMetricsCollectorInterface;
 use Prometheus\CollectorRegistry;
 use Prometheus\RenderTextFormat;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Renderer class provides a functionality to render the metrics for the given collector registry.
- */
 class RendererService
 {
     private CollectorRegistry $collectionRegistry;

@@ -8,9 +8,6 @@ use EMS\CommonBundle\Service\Metrics\RendererService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Class MetricsController.
- */
 class MetricsController extends AbstractController
 {
     private RendererService $renderer;
