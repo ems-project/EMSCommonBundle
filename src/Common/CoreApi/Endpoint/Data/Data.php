@@ -92,7 +92,7 @@ final class Data implements DataInterface
     /**
      * @param array<string, mixed> $rawData
      */
-    public function save(string $ouuid, array $rawData, int $mode = self::MODE_UPDATE): int
+    public function save(string $ouuid, array $rawData, int $mode = self::MODE_UPDATE, bool $discardDraft = true): int
     {
         if (!$this->head($ouuid)) {
             $draft = $this->create($rawData, $ouuid);
@@ -107,7 +107,9 @@ final class Data implements DataInterface
         try {
             $this->finalize($draft->getRevisionId());
         } catch (CoreApiExceptionInterface $e) {
-            $this->discard($draft->getRevisionId());
+            if ($discardDraft) {
+                $this->discard($draft->getRevisionId());
+            }
             throw $e;
         }
 
