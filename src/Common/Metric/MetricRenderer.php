@@ -17,5 +17,4 @@ class MetricRenderer
     {
         $registry = $this->registry->getRegistry();
     }
-
 }

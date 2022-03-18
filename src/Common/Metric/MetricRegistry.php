@@ -19,16 +19,15 @@ class MetricRegistry
     /**
      * @param array<string, mixed> $collectors
      */
-    public function __construct(array $collectors,  CollectorRegistry $collectorRegistry)
+    public function __construct(array $collectors, CollectorRegistry $collectorRegistry)
     {
         $this->collectors = $collectors;
         $this->collectorRegistry = $collectorRegistry;
-
     }
 
     public function getRegistry(): CollectorRegistry
     {
-        foreach($this->collectors as $collector) {
+        foreach ($this->collectors as $collector) {
             $collector->collect($this->collectorRegistry);
         }
 
