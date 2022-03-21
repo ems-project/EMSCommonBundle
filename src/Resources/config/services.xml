@@ -119,8 +119,13 @@
             <argument type="service" id="ems_common.prometheus_metrics_bundle.adapter" />
         </service>
 
+        <service id="ems_common.prometheus_metrics_bundle.metric_registry" class="EMS\CommonBundle\Common\Metric\MetricRegistry">
+            <argument type="service" id="ems_common.prometheus_metrics_bundle.collector_registry"/>
+            <argument type="tagged_iterator" tag="ems.collector"/>
+        </service>
+
         <service id="ems_common.metrics.renderer" class="EMS\CommonBundle\Service\Metrics\RendererService">
-            <argument type="service" id="ems_common.prometheus_metrics_bundle.collector_registry" />
+            <argument type="service" id="ems_common.prometheus_metrics_bundle.metric_registry"/>
         </service>
 
     </services>
