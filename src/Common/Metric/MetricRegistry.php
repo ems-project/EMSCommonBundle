@@ -19,10 +19,10 @@ class MetricRegistry
     /**
      * @param array<string, mixed> $collectors
      */
-    public function __construct(array $collectors, CollectorRegistry $collectorRegistry)
+    public function __construct(CollectorRegistry $collectorRegistry, iterable $collectors)
     {
-        $this->collectors = $collectors;
         $this->collectorRegistry = $collectorRegistry;
+        $this->collectors = $collectors instanceof \Traversable ? \iterator_to_array($collectors): $collectors;
     }
 
     public function getRegistry(): CollectorRegistry
