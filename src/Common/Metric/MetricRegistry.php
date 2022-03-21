@@ -22,7 +22,7 @@ class MetricRegistry
     public function __construct(CollectorRegistry $collectorRegistry, iterable $collectors)
     {
         $this->collectorRegistry = $collectorRegistry;
-        $this->collectors = $collectors instanceof \Traversable ? \iterator_to_array($collectors): $collectors;
+        $this->collectors = $collectors instanceof \Traversable ? \iterator_to_array($collectors) : $collectors;
     }
 
     public function getRegistry(): CollectorRegistry
