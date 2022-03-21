@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Service\Metrics;
 
-use Prometheus\CollectorRegistry;
+use EMS\CommonBundle\Common\Metric\MetricRegistry;
 use Prometheus\RenderTextFormat;
 use Symfony\Component\HttpFoundation\Response;
 
 class RendererService
 {
-    private CollectorRegistry $collectionRegistry;
+    private MetricRegistry $metricRegistry;
 
-    public function __construct(CollectorRegistry $collectionRegistry)
+    public function __construct(MetricRegistry $metricRegistry)
     {
-        $this->collectionRegistry = $collectionRegistry;
+        $this->metricRegistry = $metricRegistry;
     }
 
     public function render(): string
     {
-        return (new RenderTextFormat())->render($this->collectionRegistry->getMetricFamilySamples());
+        return (new RenderTextFormat())->render($this->metricRegistry->getRegistry()->getMetricFamilySamples());
     }
 
     public function renderResponse(): Response
