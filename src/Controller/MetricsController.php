@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Controller;
 
-use EMS\CommonBundle\Service\Metrics\RendererService;
+use EMS\CommonBundle\Common\Metric\MetricRenderer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
 class MetricsController extends AbstractController
 {
-    private RendererService $renderer;
+    private MetricRenderer $renderer;
 
-    public function __construct(RendererService $metricsRenderer)
+    public function __construct(MetricRenderer $metricsRenderer)
     {
         $this->renderer = $metricsRenderer;
     }
