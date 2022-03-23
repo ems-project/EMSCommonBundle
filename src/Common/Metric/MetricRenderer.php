@@ -4,17 +4,25 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Common\Metric;
 
+use Prometheus\RenderTextFormat;
+use Symfony\Component\HttpFoundation\Response;
+
 class MetricRenderer
 {
-    private MetricRegistry $registry;
+    private MetricRegistry $metricRegistry;
 
-    public function __construct(MetricRegistry $registry)
+    public function __construct(MetricRegistry $metricRegistry)
     {
-        $this->registry = $registry;
+        $this->metricRegistry = $metricRegistry;
     }
 
-    public function render(): void
+    public function render(): string
     {
-        $registry = $this->registry->getRegistry();
+        return (new RenderTextFormat())->render($this->metricRegistry->getRegistry()->getMetricFamilySamples());
+    }
+
+    public function renderResponse(): Response
+    {
+        return new Response($this->render(), 200, ['Content-type' => RenderTextFormat::MIME_TYPE]);
     }
 }
