@@ -113,19 +113,19 @@
 
         <!-- metrics -->
 
-        <service id="ems_common.prometheus_metrics_bundle.adapter" class="Prometheus\Storage\InMemory" abstract="false"/>
+        <service id="ems_common.metric.adapter" class="Prometheus\Storage\InMemory" abstract="false"/>
 
-        <service id="ems_common.prometheus_metrics_bundle.collector_registry" class="Prometheus\CollectorRegistry">
-            <argument type="service" id="ems_common.prometheus_metrics_bundle.adapter" />
+        <service id="ems_common.metric.collector_registry" class="Prometheus\CollectorRegistry">
+            <argument type="service" id="ems_common.metric.adapter" />
         </service>
 
-        <service id="ems_common.prometheus_metrics_bundle.metric_registry" class="EMS\CommonBundle\Common\Metric\MetricRegistry">
-            <argument type="service" id="ems_common.prometheus_metrics_bundle.collector_registry"/>
+        <service id="ems_common.metric.metric_registry" class="EMS\CommonBundle\Common\Metric\MetricRegistry">
+            <argument type="service" id="ems_common.metric.collector_registry"/>
             <argument type="tagged_iterator" tag="ems.collector"/>
         </service>
 
-        <service id="ems_common.metrics.renderer" class="EMS\CommonBundle\Service\Metrics\RendererService">
-            <argument type="service" id="ems_common.prometheus_metrics_bundle.metric_registry"/>
+        <service id="ems_common.metrics.renderer" class="EMS\CommonBundle\Common\Metric\MetricRenderer">
+            <argument type="service" id="ems_common.metric.metric_registry"/>
         </service>
 
     </services>
