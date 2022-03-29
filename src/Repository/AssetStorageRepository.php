@@ -8,6 +8,9 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\QueryBuilder;
 use EMS\CommonBundle\Entity\AssetStorage;
 
+/**
+ * @extends EntityRepository<AssetStorage>
+ */
 class AssetStorageRepository extends EntityRepository
 {
     private function getQuery(string $hash, bool $confirmed): QueryBuilder

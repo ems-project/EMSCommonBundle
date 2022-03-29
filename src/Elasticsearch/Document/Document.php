@@ -34,6 +34,7 @@ class Document implements DocumentInterface
         $contentType = $document['_source'][EMSSource::FIELD_CONTENT_TYPE] ?? null;
         if (null === $contentType) {
             $contentType = $document['_type'] ?? null;
+            $this->source[EMSSource::FIELD_CONTENT_TYPE] = $contentType;
             @\trigger_error(\sprintf('The field %s is missing in the document %s', EMSSource::FIELD_CONTENT_TYPE, $this->getEmsId()), E_USER_DEPRECATED);
         }
         if (null === $contentType) {
@@ -76,8 +77,20 @@ class Document implements DocumentInterface
     /**
      * @return array<mixed>
      */
-    public function getSource(): array
+    public function getSource(bool $cleaned = false): array
     {
+        if ($cleaned) {
+            $source = $this->source;
+            unset($source[EMSSource::FIELD_CONTENT_TYPE]);
+            unset($source[EMSSource::FIELD_FINALIZATION_DATETIME]);
+            unset($source[EMSSource::FIELD_FINALIZED_BY]);
+            unset($source[EMSSource::FIELD_HASH]);
+            unset($source[EMSSource::FIELD_PUBLICATION_DATETIME]);
+            unset($source[EMSSource::FIELD_SIGNATURE]);
+
+            return $source;
+        }
+
         return $this->source;
     }
 

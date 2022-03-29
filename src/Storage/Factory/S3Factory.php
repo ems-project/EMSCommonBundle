@@ -45,7 +45,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
     /**
      * @param array<string, mixed> $parameters
      *
-     * @return array{type: string, credentials: null|array, bucket: null|string, usage: int, hot-synchronize-limit: int, upload-folder: null|string}
+     * @return array{type: string, credentials: array|null, bucket: string|null, usage: int, hot-synchronize-limit: int, upload-folder: string|null}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -62,7 +62,7 @@ class S3Factory extends AbstractFactory implements StorageFactoryInterface
             ->setAllowedTypes(self::STORAGE_CONFIG_UPLOAD_FOLDER, ['null', 'string'])
             ->setAllowedValues(self::STORAGE_CONFIG_TYPE, [self::STORAGE_TYPE])
         ;
-        /** @var array{type: string, credentials: null|array, bucket: null|string, usage: int, hot-synchronize-limit: int, upload-folder: null|string} $resolvedParameter */
+        /** @var array{type: string, credentials: array|null, bucket: string|null, usage: int, hot-synchronize-limit: int, upload-folder: string|null} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
 
         return $resolvedParameter;

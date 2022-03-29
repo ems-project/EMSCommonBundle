@@ -4,6 +4,7 @@ namespace EMS\CommonBundle\Twig;
 
 use EMS\CommonBundle\Common\Converter;
 use EMS\CommonBundle\Common\EMSLink;
+use EMS\CommonBundle\Common\Standard\Base64;
 use EMS\CommonBundle\Helper\Text\Encoder;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -17,6 +18,8 @@ class CommonExtension extends AbstractExtension
             new TwigFunction('ems_asset_path', [AssetRuntime::class, 'assetPath'], ['is_safe' => ['html']]),
             new TwigFunction('ems_unzip', [AssetRuntime::class, 'unzip']),
             new TwigFunction('ems_html', [TextRuntime::class, 'emsHtml'], ['is_safe' => ['all']]),
+            new TwigFunction('ems_nested_search', [SearchRuntime::class, 'nestedSearch']),
+            new TwigFunction('ems_image_info', [AssetRuntime::class, 'imageInfo']),
         ];
     }
 
@@ -41,6 +44,8 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('ems_temp_file', [AssetRuntime::class, 'temporaryFile']),
             new TwigFilter('ems_asset_average_color', [AssetRuntime::class, 'assetAverageColor'], ['is_safe' => ['html']]),
             new TwigFilter('ems_replace_regex', [TextRuntime::class, 'replaceRegex'], ['is_safe' => ['html']]),
+            new TwigFilter('ems_base64_encode', [Base64::class, 'encode']),
+            new TwigFilter('ems_base64_decode', [Base64::class, 'decode']),
         ];
     }
 

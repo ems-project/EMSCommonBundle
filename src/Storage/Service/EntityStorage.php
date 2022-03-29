@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Storage\Service;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use EMS\CommonBundle\Entity\AssetStorage;
 use EMS\CommonBundle\Repository\AssetStorageRepository;
 use GuzzleHttp\Psr7\Stream;
@@ -26,8 +26,8 @@ class EntityStorage implements StorageInterface
         $this->usage = $usage;
         $this->hotSynchronizeLimit = $hotSynchronizeLimit;
 
-        //TODO: Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
-        $repository = $this->manager->getRepository('EMSCommonBundle:AssetStorage');
+        // TODO: Quick fix, should be done using Dependency Injection, as it would prevent the RuntimeException!
+        $repository = $this->manager->getRepository(AssetStorage::class);
         if (!$repository instanceof AssetStorageRepository) {
             throw new \RuntimeException(\sprintf('%s has a repository that should be of type %s. But %s is given.', EntityStorage::class, AssetStorage::class, \get_class($repository)));
         }

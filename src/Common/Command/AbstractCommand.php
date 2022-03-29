@@ -71,6 +71,15 @@ abstract class AbstractCommand extends Command implements CommandInterface
         return \strval($arg);
     }
 
+    protected function getArgumentStringNull(string $name): ?string
+    {
+        if (null === $arg = $this->input->getArgument($name)) {
+            return null;
+        }
+
+        return \strval($arg);
+    }
+
     /**
      * @return string[]
      */

@@ -7,6 +7,8 @@ namespace EMS\CommonBundle\Contracts\CoreApi;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\File\DataExtract;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\File\File;
 use EMS\CommonBundle\Common\CoreApi\Endpoint\Search\Search;
+use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\AdminInterface;
+use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\MetaInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\DataInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\User\UserInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Exception\BaseUrlNotDefinedExceptionInterface;
@@ -51,6 +53,10 @@ interface CoreApiInterface
     public function test(): bool;
 
     public function user(): UserInterface;
+
+    public function admin(): AdminInterface;
+
+    public function meta(): MetaInterface;
 
     /**
      * @deprecated

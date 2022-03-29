@@ -7,5 +7,6 @@ parameters:
     excludes_analyse:
         - %currentWorkingDirectory%/vendor/*
         - %currentWorkingDirectory%/src/DependencyInjection/Configuration.php
+    reportUnmatchedIgnoredErrors: false
     level: 8
     inferPrivatePropertyTypeFromConstructor: true
