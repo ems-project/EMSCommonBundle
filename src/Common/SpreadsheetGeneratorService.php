@@ -6,8 +6,11 @@ namespace EMS\CommonBundle\Common;
 
 use EMS\CommonBundle\Contracts\SpreadsheetGeneratorServiceInterface;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Settings;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -92,6 +95,8 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     private function buildUpSheets(array $config): Spreadsheet
     {
         $spreadsheet = new Spreadsheet();
+        $cache = new Psr16Cache(new FilesystemAdapter());
+        Settings::setCache($cache);
 
         $i = 0;
         $maxCol = 1;
@@ -228,7 +233,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         if (false === $content) {
             throw new \RuntimeException('File contents not found');
         }
-        $response = new Response();
+        $response = new Response($content);
         $this->attachResponseHeader($response, $config, 'application/vnd.ms-excel');
 
         return $response;

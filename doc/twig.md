@@ -41,6 +41,28 @@ The following example will build 3 variables by using the *ems_nested_search*, t
 {% set example3 = ems_nested_search('my_alias', 'structure', 'documents', {'id': '0186c0ac-4d8f-4755-a8f0-afa9fb86d599'}) %}
 ```
 
+## ems_image_info
+Retrieve information (size, resolution, mime type and extension) about an image, based on its hash.
+If the hash can not be recognized as an image or does not exist, **_null_** is returned.
+
+### Arguments
+- **hash**: hash(sha1) of the image
+
+Where _'4ef5796bb14ce4b711737dc44aa20bff82193cf5'_ is the hash of a jpg
+```twig
+{{ ems_image_info('4ef5796bb14ce4b711737dc44aa20bff82193cf5') }}
+
+// will return
+
+{
+    'width': 128,
+    'height': 245,
+    'mimeType': 'image/jpg',
+    'extension': jpg,
+    'heightResolution': 96,
+    'widthResolution': 96
+}
+```
 
 
 # Twig filters

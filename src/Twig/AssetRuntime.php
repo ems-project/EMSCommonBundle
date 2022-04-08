@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Twig;
 
 use EMS\CommonBundle\Common\Standard\Json;
+use EMS\CommonBundle\Common\Standard\Image;
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\NotSavedException;
 use EMS\CommonBundle\Storage\Processor\Config;
@@ -204,6 +205,43 @@ class AssetRuntime
     public function jsonFromFile(string $hash): array
     {
         return Json::decode($this->storageManager->getContents($hash));
+    }
+
+    /**
+     * @return array<string, int|string>|null
+     */
+    public function imageInfo(string $hash): ?array
+    {
+        $tempFile = $this->temporaryFile($hash);
+
+        if (null === $tempFile) {
+            return null;
+        }
+
+        try {
+            $imageSize = Image::imageSize($tempFile);
+        } catch (\RuntimeException $exception) {
+            return null;
+        }
+
+        $imageInfo = [
+            'width' => $imageSize[0],
+            'height' => $imageSize[1],
+            'mimeType' => $imageSize['mime'],
+            'extension' => \explode('/', $imageSize['mime'])[1],
+        ];
+
+        try {
+            $image = Image::imageCreateFromString($this->storageManager->getContents($hash));
+            $imageResolution = Image::imageResolution($image);
+        } catch (\RuntimeException $exception) {
+            return $imageInfo;
+        }
+
+        $imageInfo['widthResolution'] = $imageResolution[0];
+        $imageInfo['heightResolution'] = $imageResolution[1];
+
+        return $imageInfo;
     }
 
     private function fixFileExtension(string $filename, string $mimeType): string
