@@ -119,6 +119,11 @@ final class Example
     > Upload a file. If the mimetype is not provided a mimetype will be guessed. It returns the file's hash
 * **headFile**(string $realPath): ?string
     > Tests if a given file has been already uploaded
+## From ([FormInterface](../src/Contracts/CoreApi/Endpoint/Form/FormInterface.php))
+* **createVerification**(string $value): string
+    > Create a new form verification value
+* **getVerification**(string $value): string
+    > Get a created form verification value
 
 ### Search ([SearchInterface](../src/Contracts/CoreApi/Endpoint/Search/SearchInterface.php))
 * **search**([Search](../src/Search/Search.php) $search): ResponseInterface

@@ -8,7 +8,7 @@ use EMS\CommonBundle\Common\Standard\Json;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-final class Result
+class Result
 {
     private ?bool $acknowledged;
     private ?bool $success;
