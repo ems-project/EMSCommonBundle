@@ -60,10 +60,14 @@ final class Client
         return $this->headers[$name];
     }
 
-    public function get(string $resource): Result
+    /**
+     * @param array<mixed> $query
+     */
+    public function get(string $resource, array $query = []): Result
     {
         return $this->request(Request::METHOD_GET, $resource, [
             'headers' => $this->headers,
+            'query' => $query,
         ]);
     }
 
