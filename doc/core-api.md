@@ -3,6 +3,11 @@
 The common bundle provides a contract for calling an elasticms (core) API.
 This codes lives in common because an elasticms backend can call another backend through this api implementation.
 
+## From Config
+
+By setting the environmnet variable **EMS_BACKEND_URL**, you can inject a CoreApiInterface.
+If **EMS_BACKEND_API_KEY** is defined, the coreApi will be authenticated.
+
 ## Creating a Core API instance
 
 Create a new service using the [CoreApiFactoryInterface](../src/Contracts/CoreApi/CoreApiFactoryInterface.php) contract.
