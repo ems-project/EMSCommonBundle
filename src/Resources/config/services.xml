@@ -110,5 +110,23 @@
         <service id="urlencode.env_var_processor" class="EMS\CommonBundle\DependencyInjection\EnvVarProcessor\UrlEncodeEnvVarProcessor" >
               <tag name="container.env_var_processor" />
         </service>
+
+        <!-- metrics -->
+
+        <service id="ems_common.metric.adapter" class="Prometheus\Storage\InMemory" abstract="false"/>
+
+        <service id="ems_common.metric.collector_registry" class="Prometheus\CollectorRegistry">
+            <argument type="service" id="ems_common.metric.adapter" />
+        </service>
+
+        <service id="ems_common.metric.metric_registry" class="EMS\CommonBundle\Common\Metric\MetricRegistry">
+            <argument type="service" id="ems_common.metric.collector_registry"/>
+            <argument type="tagged_iterator" tag="ems.collector"/>
+        </service>
+
+        <service id="ems_common.metrics.renderer" class="EMS\CommonBundle\Common\Metric\MetricRenderer">
+            <argument type="service" id="ems_common.metric.metric_registry"/>
+        </service>
+
     </services>
 </container>
