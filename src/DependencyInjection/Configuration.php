@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EMS\CommonBundle\DependencyInjection;
 
 use Monolog\Logger;
@@ -11,9 +13,8 @@ class Configuration implements ConfigurationInterface
 {
     private const ELASTICSEARCH_DEFAULT_HOSTS = ['http://localhost:9200'];
     private const LOG_LEVEL = Logger::NOTICE;
-    private const BACKEND_URL = null;
 
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('ems_common');
         /* @var $rootNode ArrayNodeDefinition */
@@ -24,7 +25,8 @@ class Configuration implements ConfigurationInterface
                 ->variableNode('storages')->defaultValue([])->end()
                 ->booleanNode('profiler')->defaultFalse()->end()
                 ->scalarNode('hash_algo')->defaultValue('sha1')->end()
-                ->scalarNode('backend_url')->defaultValue(self::BACKEND_URL)->end()
+                ->scalarNode('backend_url')->defaultValue(null)->end()
+                ->scalarNode('backend_api_key')->defaultValue(null)->end()
                 ->variableNode('elasticsearch_hosts')->defaultValue(self::ELASTICSEARCH_DEFAULT_HOSTS)->end()
                 ->integerNode('log_level')->defaultValue(self::LOG_LEVEL)->end()
             ->end()
