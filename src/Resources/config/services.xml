@@ -106,9 +106,20 @@
         </service>
 
         <!-- envProcessor -->
-
         <service id="urlencode.env_var_processor" class="EMS\CommonBundle\DependencyInjection\EnvVarProcessor\UrlEncodeEnvVarProcessor" >
               <tag name="container.env_var_processor" />
+        </service>
+
+        <service id="ems_common.redis" class="Redis">
+            <call method="connect">
+                <argument>%ems_common.redis.host%</argument>
+                <argument>%ems_common.redis.port%</argument>
+            </call>
+        </service>
+
+        <service id="ems_common.route.loader" class="EMS\CommonBundle\Common\Route\Loader">
+            <argument>%ems.metric.enabled%</argument>
+            <tag name="routing.route_loader"/>
         </service>
     </services>
 </container>

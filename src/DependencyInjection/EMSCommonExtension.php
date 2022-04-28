@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\DependencyInjection;
 
+use EMS\CommonBundle\Common\Cache\RedisInstance;
 use EMS\CommonBundle\Common\CoreApi\CoreApi;
+use EMS\CommonBundle\Common\Metric\CollectorRegistryFactory;
 use EMS\CommonBundle\Contracts\CoreApi\CoreApiInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -12,6 +14,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 class EMSCommonExtension extends Extension
 {
@@ -42,7 +45,17 @@ class EMSCommonExtension extends Extension
         $container->setParameter('ems_common.storages', $config['storages']);
         $container->setParameter('ems_common.log_level', $config['log_level']);
 
+        $container->setParameter('ems_common.redis.host', $config['redis']['host']);
+        $container->setParameter('ems_common.redis.port', $config['redis']['port']);
+        $container->setParameter('ems_common.redis.prefix', $config['redis']['prefix']);
+
         $this->defineCoreApi($container, $config);
+
+        $container->setParameter('ems.metric.enabled', $config['metric']['enabled'] ?? false);
+        if (isset($config['metric'])) {
+            $container->setParameter('ems.metric.type', $config['metric']['type']);
+            $loader->load('metric.xml');
+        }
     }
 
     /**
