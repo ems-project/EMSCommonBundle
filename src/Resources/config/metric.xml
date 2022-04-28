@@ -7,19 +7,10 @@
     <services>
         <defaults public="false" autoconfigure="false" autowire="false" />
 
-<!--        <service id="ems.metric.prometheus_storage_adapter" class="Prometheus\Storage\Adapter" abstract="true" />-->
-<!--        <service id="ems.metric.prometheus_collector_registry" class="Prometheus\CollectorRegistry">-->
-<!--            <argument type="service" id="ems.metric.prometheus_storage_adapter" />-->
-<!--        </service>-->
-
-
-
-
         <service id="ems.metric.collector_registry_factory" class="EMS\CommonBundle\Common\Metric\CollectorRegistryFactory">
             <argument type="service" id="ems_common.redis"/>
             <argument type="string">%ems_common.redis.prefix%</argument>
         </service>
-
         <service id="ems.metric.metric_collector" class="EMS\CommonBundle\Common\Metric\MetricCollector">
             <argument type="service" id="ems.metric.collector_registry_factory"/>
             <argument type="service" id="Psr\Cache\CacheItemPoolInterface"/>

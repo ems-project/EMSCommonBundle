@@ -35,6 +35,12 @@ final class MetricCollector
         $this->collectors = $collectors;
     }
 
+    public function clear(): void
+    {
+        $this->getCollectorRegistry()->wipeStorage();
+        $this->saveValidity([]);
+    }
+
     /**
      * @return MetricFamilySamples[]
      */
@@ -45,33 +51,6 @@ final class MetricCollector
         }
 
         return $this->getCollectorRegistry()->getMetricFamilySamples();
-    }
-
-    private function getCache(): CacheItemInterface
-    {
-        return $this->cache->getItem('metrics');
-    }
-
-    /**
-     * @return array<string, int>
-     */
-    private function getValidity(): array
-    {
-        $item = $this->getCache();
-        $validity =  $item->isHit() ? $item->get() : [];
-
-        return is_array($validity) ? $validity : [];
-    }
-
-    /**
-     * @param array<string, int> $validity
-     */
-    public function saveValidity(array $validity): void
-    {
-        $item = $this->getCache();
-        $item->set($validity);
-
-        $this->cache->save($item);
     }
 
     public function collect(): void
@@ -100,5 +79,32 @@ final class MetricCollector
         }
 
         return $this->collectorRegistry;
+    }
+
+    private function getCache(): CacheItemInterface
+    {
+        return $this->cache->getItem('metrics');
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function getValidity(): array
+    {
+        $item = $this->getCache();
+        $validity = $item->isHit() ? $item->get() : [];
+
+        return \is_array($validity) ? $validity : [];
+    }
+
+    /**
+     * @param array<string, int> $validity
+     */
+    private function saveValidity(array $validity): void
+    {
+        $item = $this->getCache();
+        $item->set($validity);
+
+        $this->cache->save($item);
     }
 }
