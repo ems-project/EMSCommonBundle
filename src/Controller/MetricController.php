@@ -25,7 +25,7 @@ final class MetricController extends AbstractController
         $metrics = $this->metricCollector->getMetrics();
 
         $renderFormat = new RenderTextFormat();
-        $content  = $renderFormat->render($metrics);
+        $content = $renderFormat->render($metrics);
 
         return new Response($content, Response::HTTP_OK, ['Content-type' => RenderTextFormat::MIME_TYPE]);
     }

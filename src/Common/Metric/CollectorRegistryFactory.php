@@ -6,8 +6,8 @@ namespace EMS\CommonBundle\Common\Metric;
 
 use Prometheus\CollectorRegistry;
 use Prometheus\Storage\Adapter;
+use Prometheus\Storage\APC;
 use Prometheus\Storage\InMemory;
-use Prometheus\Storage\Apc;
 use Prometheus\Storage\Redis;
 
 final class CollectorRegistryFactory
@@ -22,7 +22,7 @@ final class CollectorRegistryFactory
     public const TYPES = [
         self::TYPE_APC,
         self::TYPE_IN_MEMORY,
-        self::TYPE_REDIS
+        self::TYPE_REDIS,
     ];
 
     public function __construct(\Redis $redis, ?string $redisPrefix)
@@ -41,7 +41,7 @@ final class CollectorRegistryFactory
     private function createAdapter(string $type): Adapter
     {
         if (self::TYPE_APC === $type) {
-            return new Apc();
+            return new APC();
         }
 
         if (self::TYPE_REDIS === $type) {

@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\DependencyInjection;
 
-use EMS\CommonBundle\Common\Cache\RedisInstance;
 use EMS\CommonBundle\Common\CoreApi\CoreApi;
-use EMS\CommonBundle\Common\Metric\CollectorRegistryFactory;
 use EMS\CommonBundle\Contracts\CoreApi\CoreApiInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -14,7 +12,6 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\DependencyInjection\ServiceLocator;
 
 class EMSCommonExtension extends Extension
 {

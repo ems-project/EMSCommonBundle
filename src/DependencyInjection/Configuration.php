@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\DependencyInjection;
 
 use EMS\CommonBundle\Common\Metric\CollectorRegistryFactory;
-use EMS\CommonBundle\Common\Standard\Json;
 use Monolog\Logger;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -62,6 +61,5 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
             ->end();
-        ;
     }
 }

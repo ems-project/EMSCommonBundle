@@ -20,6 +20,9 @@ final class MetricCollector
     /** @var iterable<MetricCollectorInterface> */
     private iterable $collectors;
 
+    /**
+     * @param iterable<MetricCollectorInterface> $collectors
+     */
     public function __construct(
         CollectorRegistryFactory $collectorRegistryFactory,
         CacheItemPoolInterface $cache,
@@ -37,7 +40,7 @@ final class MetricCollector
      */
     public function getMetrics(): array
     {
-        if ($this->collectorRegistryType === CollectorRegistryFactory::TYPE_IN_MEMORY) {
+        if (CollectorRegistryFactory::TYPE_IN_MEMORY === $this->collectorRegistryType) {
             $this->collect();
         }
 
@@ -49,13 +52,20 @@ final class MetricCollector
         return $this->cache->getItem('metrics');
     }
 
+    /**
+     * @return array<string, int>
+     */
     private function getValidity(): array
     {
         $item = $this->getCache();
+        $validity =  $item->isHit() ? $item->get() : [];
 
-        return $item->isHit() ? $item->get() : [];
+        return is_array($validity) ? $validity : [];
     }
 
+    /**
+     * @param array<string, int> $validity
+     */
     public function saveValidity(array $validity): void
     {
         $item = $this->getCache();
@@ -64,7 +74,7 @@ final class MetricCollector
         $this->cache->save($item);
     }
 
-    public function collect()
+    public function collect(): void
     {
         $collectorRegistry = $this->getCollectorRegistry();
         $now = DateTime::create('now')->getTimestamp();

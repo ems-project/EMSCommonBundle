@@ -25,8 +25,8 @@ final class MetricEventListener implements EventSubscriberInterface
     {
         return [
             KernelEvents::TERMINATE => [
-                ['metricCollect', 300]
-            ]
+                ['metricCollect', 300],
+            ],
         ];
     }
 
@@ -34,7 +34,7 @@ final class MetricEventListener implements EventSubscriberInterface
     {
         $controller = $event->getRequest()->get('_controller');
 
-        if ($controller === MetricController::METRICS) {
+        if (MetricController::METRICS === $controller) {
             $this->metricCollector->collect();
         }
     }
