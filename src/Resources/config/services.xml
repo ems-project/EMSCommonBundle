@@ -119,5 +119,9 @@
             <argument>%ems.metric.enabled%</argument>
             <tag name="routing.route_loader"/>
         </service>
+
+        <service id="ems_common.composer.info" class="EMS\CommonBundle\Common\Composer\ComposerInfo">
+            <argument>%kernel.project_dir%</argument>
+        </service>
     </services>
 </container>

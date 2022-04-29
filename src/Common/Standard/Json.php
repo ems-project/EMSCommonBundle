@@ -45,6 +45,24 @@ final class Json
         return $decoded;
     }
 
+    /**
+     * @return array<mixed>
+     */
+    public static function decodeFile(string $path): array
+    {
+        if (!\file_exists($path)) {
+            throw new \RuntimeException(\sprintf('File does not exists: %s', $path));
+        }
+
+        $content = \file_get_contents($path, true);
+
+        if (!\is_string($content)) {
+            throw new \RuntimeException(\sprintf('No content for %s', $path));
+        }
+
+        return Json::decode($content);
+    }
+
     public static function isJson(string $string): bool
     {
         \json_decode($string);
