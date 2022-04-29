@@ -65,6 +65,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('metric')
                     ->children()
                         ->scalarNode('enabled')->cannotBeEmpty()->end()
+                        ->scalarNode('host')->end()
                 ->end()
             ->end()
         ;

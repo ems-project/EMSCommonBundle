@@ -49,6 +49,7 @@ class EMSCommonExtension extends Extension
         $metricsEnabled = $config['metric']['enabled'] ?? false;
         $container->setParameter('ems.metric.enabled', $metricsEnabled);
         if ($metricsEnabled) {
+            $container->setParameter('ems.metric.host', $config['metric']['host'] ?? null);
             $loader->load('metric.xml');
         }
     }

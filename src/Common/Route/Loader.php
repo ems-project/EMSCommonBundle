@@ -24,6 +24,7 @@ final class Loader
         if ($this->metricEnabled) {
             $metricRoute = new Route('/metrics');
             $metricRoute->setMethods(['GET']);
+            $metricRoute->setHost('%ems.metric.host%');
             $metricRoute->setDefault('_controller', MetricController::METRICS);
             $commonRouteCollection->add('ems_metric', $metricRoute);
         }
