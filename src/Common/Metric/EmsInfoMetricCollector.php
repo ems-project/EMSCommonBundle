@@ -24,7 +24,7 @@ final class EmsInfoMetricCollector implements MetricCollectorInterface
 
     public function validUntil(): int
     {
-        return DateTime::create('+1 seconds')->getTimestamp();
+        return DateTime::create('+1 day')->getTimestamp();
     }
 
     public function collect(CollectorRegistry $collectorRegistry): void
