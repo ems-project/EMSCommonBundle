@@ -5,13 +5,21 @@ declare(strict_types=1);
 namespace EMS\CommonBundle\Common\Composer;
 
 use EMS\CommonBundle\Common\Standard\Json;
-use EMS\CommonBundle\Contracts\Composer\ComposerInfoInterface;
 
-final class ComposerInfo implements ComposerInfoInterface
+final class ComposerInfo
 {
     private string $projectDir;
     /** @var array<string, string> */
     private array $versionPackages = [];
+
+    public const PACKAGES = [
+        'elasticms/core-bundle' => 'core',
+        'elasticms/client-helper-bundle' => 'client',
+        'elasticms/common-bundle' => 'common',
+        'elasticms/form-bundle' => 'form',
+        'elasticms/submission-bundle' => 'submission',
+        'symfony/framework-bundle' => 'symfony',
+    ];
 
     public function __construct(string $rootDir)
     {
@@ -26,9 +34,6 @@ final class ComposerInfo implements ComposerInfoInterface
         return $this->versionPackages;
     }
 
-    /**
-     * @return array<mixed>
-     */
     public function build(): void
     {
         $path = $this->projectDir.DIRECTORY_SEPARATOR.'composer.lock';
