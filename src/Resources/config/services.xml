@@ -106,9 +106,23 @@
         </service>
 
         <!-- envProcessor -->
-
         <service id="urlencode.env_var_processor" class="EMS\CommonBundle\DependencyInjection\EnvVarProcessor\UrlEncodeEnvVarProcessor" >
               <tag name="container.env_var_processor" />
+        </service>
+
+        <service id="ems.common.cache" class="EMS\CommonBundle\Common\Cache\Cache">
+            <argument>%ems_common.cache_config%</argument>
+            <argument>%kernel.cache_dir%</argument>
+        </service>
+
+        <service id="ems_common.route.loader" class="EMS\CommonBundle\Common\Route\Loader">
+            <argument>%ems.metric.enabled%</argument>
+            <tag name="routing.route_loader"/>
+        </service>
+
+        <service id="ems_common.composer.info" class="EMS\CommonBundle\Common\Composer\ComposerInfo">
+            <argument>%kernel.project_dir%</argument>
+            <call method="build"></call>
         </service>
     </services>
 </container>

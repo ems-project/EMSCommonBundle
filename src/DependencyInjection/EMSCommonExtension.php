@@ -42,7 +42,16 @@ class EMSCommonExtension extends Extension
         $container->setParameter('ems_common.storages', $config['storages']);
         $container->setParameter('ems_common.log_level', $config['log_level']);
 
+        $container->setParameter('ems_common.cache_config', $config['cache']);
+
         $this->defineCoreApi($container, $config);
+
+        $metricsEnabled = $config['metric']['enabled'] ?? false;
+        $container->setParameter('ems.metric.enabled', $metricsEnabled);
+        if ($metricsEnabled) {
+            $container->setParameter('ems.metric.host', $config['metric']['host'] ?? null);
+            $loader->load('metric.xml');
+        }
     }
 
     /**
