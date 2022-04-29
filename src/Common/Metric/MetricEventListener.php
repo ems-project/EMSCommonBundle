@@ -34,7 +34,7 @@ final class MetricEventListener implements EventSubscriberInterface
     {
         $controller = $event->getRequest()->get('_controller');
 
-        if (MetricController::METRICS === $controller && !$this->metricCollector->isInMemoryCaching()) {
+        if (MetricController::METRICS === $controller && !$this->metricCollector->isInMemoryStorage()) {
             $this->metricCollector->collectWithValidity();
         }
     }

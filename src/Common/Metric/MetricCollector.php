@@ -40,7 +40,7 @@ final class MetricCollector
         $this->saveValidity([]);
     }
 
-    public function isInMemoryCaching(): bool
+    public function isInMemoryStorage(): bool
     {
         return $this->getStorageAdapter() instanceof InMemory;
     }
@@ -50,7 +50,7 @@ final class MetricCollector
      */
     public function getMetrics(): array
     {
-        if ($this->isInMemoryCaching()) {
+        if ($this->isInMemoryStorage()) {
             $this->collect();
         }
 
