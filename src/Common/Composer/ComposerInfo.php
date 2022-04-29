@@ -10,8 +10,8 @@ use EMS\CommonBundle\Contracts\Composer\ComposerInfoInterface;
 final class ComposerInfo implements ComposerInfoInterface
 {
     private string $projectDir;
-    /** @var ?array<mixed> */
-    private ?array $composerLockFile = null;
+    /** @var array<string, string> */
+    private array $versionPackages = [];
 
     public function __construct(string $rootDir)
     {
@@ -23,36 +23,23 @@ final class ComposerInfo implements ComposerInfoInterface
      */
     public function getVersionPackages(): array
     {
-        $composerLockFile = $this->getComposerLockFile();
+        return $this->versionPackages;
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    public function build(): void
+    {
+        $path = $this->projectDir.DIRECTORY_SEPARATOR.'composer.lock';
+        $composerLockFile = Json::decodeFile($path);
+
         $allPackages = $composerLockFile['packages'] ?? [];
         $packages = \array_filter($allPackages, fn (array $p) => \array_key_exists($p['name'], self::PACKAGES));
 
-        $versionPackages = [];
-
         foreach ($packages as $p) {
             $shortname = self::PACKAGES[$p['name']];
-            $versionPackages[$shortname] = $p['version'];
+            $this->versionPackages[$shortname] = $p['version'];
         }
-
-        return $versionPackages;
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function getComposerLockFile(): array
-    {
-        return $this->composerLockFile ?: $this->createComposerLockFile();
-    }
-
-    /**
-     * @return array<mixed>
-     */
-    private function createComposerLockFile(): array
-    {
-        $path = $this->projectDir.DIRECTORY_SEPARATOR.'composer.lock';
-        $this->composerLockFile = Json::decodeFile($path);
-
-        return $this->composerLockFile;
     }
 }
