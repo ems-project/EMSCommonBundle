@@ -37,7 +37,7 @@ final class MetricCollector
     public function clear(): void
     {
         $this->getCollectorRegistry()->wipeStorage();
-//        $this->saveValidity([]);
+        $this->saveValidity([]);
     }
 
     public function isInMemoryCaching(): bool
