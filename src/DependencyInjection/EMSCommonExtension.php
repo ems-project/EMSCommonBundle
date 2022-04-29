@@ -42,15 +42,13 @@ class EMSCommonExtension extends Extension
         $container->setParameter('ems_common.storages', $config['storages']);
         $container->setParameter('ems_common.log_level', $config['log_level']);
 
-        $container->setParameter('ems_common.redis.host', $config['redis']['host']);
-        $container->setParameter('ems_common.redis.port', $config['redis']['port']);
-        $container->setParameter('ems_common.redis.prefix', $config['redis']['prefix']);
+        $container->setParameter('ems_common.cache_config', $config['cache']);
 
         $this->defineCoreApi($container, $config);
 
-        $container->setParameter('ems.metric.enabled', $config['metric']['enabled'] ?? false);
-        if (isset($config['metric'])) {
-            $container->setParameter('ems.metric.type', $config['metric']['type']);
+        $metricsEnabled = $config['metric']['enabled'] ?? false;
+        $container->setParameter('ems.metric.enabled', $metricsEnabled);
+        if ($metricsEnabled) {
             $loader->load('metric.xml');
         }
     }

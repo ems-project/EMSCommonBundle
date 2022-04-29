@@ -4,33 +4,32 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Common\Metric;
 
+use EMS\CommonBundle\Common\Cache\Cache;
 use EMS\CommonBundle\Common\Standard\DateTime;
 use Prometheus\CollectorRegistry;
 use Prometheus\MetricFamilySamples;
+use Prometheus\Storage\Adapter;
+use Prometheus\Storage\APC;
+use Prometheus\Storage\InMemory;
+use Prometheus\Storage\Redis;
 use Psr\Cache\CacheItemInterface;
-use Psr\Cache\CacheItemPoolInterface;
 
 final class MetricCollector
 {
-    private CollectorRegistryFactory $collectorRegistryFactory;
-    private CacheItemPoolInterface $cache;
-    private ?CollectorRegistry $collectorRegistry = null;
-    private string $collectorRegistryType;
-
+    private Cache $cache;
     /** @var iterable<MetricCollectorInterface> */
     private iterable $collectors;
+
+    private ?CollectorRegistry $collectorRegistry = null;
+    private ?Adapter $storageAdapter = null;
+
+    private const CACHE_VALIDITY = 'ems_metrics_validity';
 
     /**
      * @param iterable<MetricCollectorInterface> $collectors
      */
-    public function __construct(
-        CollectorRegistryFactory $collectorRegistryFactory,
-        CacheItemPoolInterface $cache,
-        string $collectorRegistryType,
-        iterable $collectors
-    ) {
-        $this->collectorRegistryFactory = $collectorRegistryFactory;
-        $this->collectorRegistryType = $collectorRegistryType;
+    public function __construct(Cache $cache, iterable $collectors)
+    {
         $this->cache = $cache;
         $this->collectors = $collectors;
     }
@@ -38,7 +37,12 @@ final class MetricCollector
     public function clear(): void
     {
         $this->getCollectorRegistry()->wipeStorage();
-        $this->saveValidity([]);
+//        $this->saveValidity([]);
+    }
+
+    public function isInMemoryCaching(): bool
+    {
+        return $this->getStorageAdapter() instanceof InMemory;
     }
 
     /**
@@ -46,7 +50,7 @@ final class MetricCollector
      */
     public function getMetrics(): array
     {
-        if (CollectorRegistryFactory::TYPE_IN_MEMORY === $this->collectorRegistryType) {
+        if ($this->isInMemoryCaching()) {
             $this->collect();
         }
 
@@ -56,12 +60,23 @@ final class MetricCollector
     public function collect(): void
     {
         $collectorRegistry = $this->getCollectorRegistry();
+
+        foreach ($this->collectors as $collector) {
+            $collector->collect($collectorRegistry);
+        }
+    }
+
+    public function collectWithValidity(): void
+    {
+        $collectorRegistry = $this->getCollectorRegistry();
+
         $now = DateTime::create('now')->getTimestamp();
         $validity = $this->getValidity();
 
         foreach ($this->collectors as $collector) {
-            $validUntil = $validity[$collector->getName()] ?? null;
-            if (null !== $validUntil && $validUntil > $now) {
+            $collectorValidity = $validity[$collector->getName()] ?? null;
+
+            if (null !== $collectorValidity && $collectorValidity > $now) {
                 continue;
             }
 
@@ -74,16 +89,38 @@ final class MetricCollector
 
     private function getCollectorRegistry(): CollectorRegistry
     {
-        if (null === $this->collectorRegistry) {
-            $this->collectorRegistry = $this->collectorRegistryFactory->create($this->collectorRegistryType);
-        }
+        return $this->collectorRegistry ?: $this->createCollectorRegistry();
+    }
+
+    private function getStorageAdapter(): Adapter
+    {
+        return $this->storageAdapter ?: $this->createStorageAdapter();
+    }
+
+    private function createCollectorRegistry(): CollectorRegistry
+    {
+        $adapter = $this->getStorageAdapter();
+        $this->collectorRegistry = new CollectorRegistry($adapter);
 
         return $this->collectorRegistry;
     }
 
-    private function getCache(): CacheItemInterface
+    private function createStorageAdapter(): Adapter
     {
-        return $this->cache->getItem('metrics');
+        $prefix = $this->cache->getPrefix();
+
+        if ($this->cache->isApc()) {
+            $storageAdapter = new APC($prefix);
+        } elseif ($this->cache->isRedis()) {
+            $storageAdapter = Redis::fromExistingConnection($this->cache->getRedis());
+            $storageAdapter::setPrefix($prefix);
+        } else {
+            $storageAdapter = new InMemory();
+        }
+
+        $this->storageAdapter = $storageAdapter;
+
+        return $storageAdapter;
     }
 
     /**
@@ -91,7 +128,7 @@ final class MetricCollector
      */
     private function getValidity(): array
     {
-        $item = $this->getCache();
+        $item = $this->getValidityCacheItem();
         $validity = $item->isHit() ? $item->get() : [];
 
         return \is_array($validity) ? $validity : [];
@@ -102,9 +139,14 @@ final class MetricCollector
      */
     private function saveValidity(array $validity): void
     {
-        $item = $this->getCache();
+        $item = $this->getValidityCacheItem();
         $item->set($validity);
 
         $this->cache->save($item);
+    }
+
+    private function getValidityCacheItem(): CacheItemInterface
+    {
+        return $this->cache->getItem(self::CACHE_VALIDITY);
     }
 }

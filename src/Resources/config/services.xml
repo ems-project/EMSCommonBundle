@@ -110,11 +110,9 @@
               <tag name="container.env_var_processor" />
         </service>
 
-        <service id="ems_common.redis" class="Redis">
-            <call method="connect">
-                <argument>%ems_common.redis.host%</argument>
-                <argument>%ems_common.redis.port%</argument>
-            </call>
+        <service id="ems.common.cache" class="EMS\CommonBundle\Common\Cache\Cache">
+            <argument>%ems_common.cache_config%</argument>
+            <argument>%kernel.cache_dir%</argument>
         </service>
 
         <service id="ems_common.route.loader" class="EMS\CommonBundle\Common\Route\Loader">

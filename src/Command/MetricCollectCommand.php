@@ -35,9 +35,12 @@ final class MetricCollectCommand extends AbstractCommand
 
         if ($this->getOptionBool(self::OPTION_CLEAR)) {
             $this->metricCollector->clear();
+            $this->io->comment('Cleared metrics');
         }
 
         $this->metricCollector->collect();
+
+        $this->io->success('Collected metrics');
 
         return self::EXECUTE_SUCCESS;
     }

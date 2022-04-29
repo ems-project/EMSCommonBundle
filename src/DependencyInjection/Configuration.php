@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\DependencyInjection;
 
-use EMS\CommonBundle\Common\Metric\CollectorRegistryFactory;
 use Monolog\Logger;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -30,19 +29,33 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('backend_api_key')->defaultValue(null)->end()
                 ->variableNode('elasticsearch_hosts')->defaultValue(self::ELASTICSEARCH_DEFAULT_HOSTS)->end()
                 ->integerNode('log_level')->defaultValue(self::LOG_LEVEL)->end()
-                ->arrayNode('redis')
+            ->end()
+        ;
+
+        $this->addCacheSection($rootNode);
+        $this->addMetricSection($rootNode);
+
+        return $treeBuilder;
+    }
+
+    private function addCacheSection(ArrayNodeDefinition $rootNode): void
+    {
+        $rootNode
+            ->children()
+                ->arrayNode('cache')
                     ->children()
-                        ->scalarNode('host')->end()
-                        ->integerNode('port')->end()
-                        ->scalarNode('prefix')->end()
+                        ->scalarNode('type')->defaultValue('filesystem')->end()
+                        ->scalarNode('prefix')->defaultValue('ems_cache')->end()
+                        ->arrayNode('redis')
+                            ->children()
+                                ->scalarNode('host')->cannotBeEmpty()->end()
+                                ->scalarNode('port')->cannotBeEmpty()->end()
+                            ->end()
+                        ->end()
                     ->end()
                 ->end()
             ->end()
         ;
-
-        $this->addMetricSection($rootNode);
-
-        return $treeBuilder;
     }
 
     private function addMetricSection(ArrayNodeDefinition $rootNode): void
@@ -51,15 +64,9 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->arrayNode('metric')
                     ->children()
-                        ->booleanNode('enabled')
-                            ->defaultFalse()
-                        ->end()
-                        ->scalarNode('type')
-                            ->defaultValue(CollectorRegistryFactory::TYPE_IN_MEMORY)
-                            ->cannotBeEmpty()
-                        ->end()
-                    ->end()
+                        ->scalarNode('enabled')->cannotBeEmpty()->end()
                 ->end()
-            ->end();
+            ->end()
+        ;
     }
 }
