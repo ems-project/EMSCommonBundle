@@ -23,6 +23,10 @@
         <service id="ems_common.twig.runtime.manifest" class="EMS\CommonBundle\Twig\ManifestRuntime">
             <tag name="twig.runtime" />
         </service>
+        <service id="ems_common.twig.runtime.info" class="EMS\CommonBundle\Twig\InfoRuntime">
+            <argument type="service" id="ems_common.composer.info"/>
+            <tag name="twig.runtime" />
+        </service>
         <service id="EMS\CommonBundle\Twig\RequestRuntime">
             <argument type="service" id="request_stack" />
             <argument type="service" id="EMS\CommonBundle\Twig\AssetRuntime" />

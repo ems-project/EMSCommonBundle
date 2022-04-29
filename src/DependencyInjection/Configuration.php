@@ -32,6 +32,42 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
+        $this->addCacheSection($rootNode);
+        $this->addMetricSection($rootNode);
+
         return $treeBuilder;
+    }
+
+    private function addCacheSection(ArrayNodeDefinition $rootNode): void
+    {
+        $rootNode
+            ->children()
+                ->arrayNode('cache')
+                    ->children()
+                        ->scalarNode('type')->defaultValue('filesystem')->end()
+                        ->scalarNode('prefix')->defaultValue('ems_cache')->end()
+                        ->arrayNode('redis')
+                            ->children()
+                                ->scalarNode('host')->cannotBeEmpty()->end()
+                                ->scalarNode('port')->cannotBeEmpty()->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    private function addMetricSection(ArrayNodeDefinition $rootNode): void
+    {
+        $rootNode
+            ->children()
+                ->arrayNode('metric')
+                    ->children()
+                        ->scalarNode('enabled')->cannotBeEmpty()->end()
+                        ->scalarNode('host')->end()
+                ->end()
+            ->end()
+        ;
     }
 }
