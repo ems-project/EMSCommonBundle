@@ -23,6 +23,7 @@
         </service>
         <service id="ems.controller.metric" class="EMS\CommonBundle\Controller\MetricController">
             <argument type="service" id="ems.metric.collector" />
+            <argument>%ems.metric.port%</argument>
             <tag name="controller.service_arguments"/>
         </service>
 
