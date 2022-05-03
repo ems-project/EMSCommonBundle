@@ -50,6 +50,7 @@ class EMSCommonExtension extends Extension
         $container->setParameter('ems.metric.enabled', $metricsEnabled);
         if ($metricsEnabled) {
             $container->setParameter('ems.metric.host', $config['metric']['host'] ?? null);
+            $container->setParameter('ems.metric.port', $config['metric']['port'] ?? null);
             $loader->load('metric.xml');
         }
     }
