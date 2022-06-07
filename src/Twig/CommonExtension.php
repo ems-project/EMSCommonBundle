@@ -17,9 +17,11 @@ class CommonExtension extends AbstractExtension
         return [
             new TwigFunction('ems_asset_path', [AssetRuntime::class, 'assetPath'], ['is_safe' => ['html']]),
             new TwigFunction('ems_unzip', [AssetRuntime::class, 'unzip']),
+            new TwigFunction('ems_json_file', [AssetRuntime::class, 'jsonFromFile']),
             new TwigFunction('ems_html', [TextRuntime::class, 'emsHtml'], ['is_safe' => ['all']]),
             new TwigFunction('ems_nested_search', [SearchRuntime::class, 'nestedSearch']),
             new TwigFunction('ems_image_info', [AssetRuntime::class, 'imageInfo']),
+            new TwigFunction('ems_version', [InfoRuntime::class, 'version']),
         ];
     }
 

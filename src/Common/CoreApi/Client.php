@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class Client
+class Client
 {
     /** @var array<string, string> */
     private array $headers = [];
@@ -60,10 +60,14 @@ final class Client
         return $this->headers[$name];
     }
 
-    public function get(string $resource): Result
+    /**
+     * @param array<mixed> $query
+     */
+    public function get(string $resource, array $query = []): Result
     {
         return $this->request(Request::METHOD_GET, $resource, [
             'headers' => $this->headers,
+            'query' => $query,
         ]);
     }
 

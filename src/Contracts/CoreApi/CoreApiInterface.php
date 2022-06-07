@@ -10,6 +10,7 @@ use EMS\CommonBundle\Common\CoreApi\Endpoint\Search\Search;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\AdminInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Admin\MetaInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Data\DataInterface;
+use EMS\CommonBundle\Contracts\CoreApi\Endpoint\Form\FormInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Endpoint\User\UserInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Exception\BaseUrlNotDefinedExceptionInterface;
 use EMS\CommonBundle\Contracts\CoreApi\Exception\NotAuthenticatedExceptionInterface;
@@ -57,6 +58,8 @@ interface CoreApiInterface
     public function admin(): AdminInterface;
 
     public function meta(): MetaInterface;
+
+    public function form(): FormInterface;
 
     /**
      * @deprecated
