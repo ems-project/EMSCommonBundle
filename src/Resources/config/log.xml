@@ -11,9 +11,7 @@
             <argument type="service" id="doctrine"/>
         </service>
 
-        <service id="ems.logger" alias="ems_common.localized_logger"/>
-        <service id="ems_common.localized_logger" class="EMS\CommonBundle\Common\Log\LocalizedLogger">
-            <argument type="service" id="logger" />
+        <service id="ems_common.common_log.localized_logger_factory" class="EMS\CommonBundle\Common\Log\LocalizedLoggerFactory">
             <argument type="service" id="translator" />
         </service>
 
