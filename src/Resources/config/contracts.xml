@@ -13,6 +13,8 @@
         <service id="EMS\CommonBundle\Contracts\File\FileReaderInterface" alias="ems_common.file.reader" />
         <service id="EMS\CommonBundle\Contracts\Generator\Pdf\PdfGeneratorInterface" alias="emsch.common.pdf_generator" />
 
+        <service id="EMS\CommonBundle\Contracts\Log\LocalizedLoggerFactoryInterface" alias="ems_common.common_log.localized_logger_factory" />
+
         <service id="EMS\CommonBundle\Contracts\ExpressionServiceInterface" alias="ems_common.service.expression_service" />
         <service id="EMS\CommonBundle\Contracts\SpreadsheetGeneratorServiceInterface" alias="ems_common.service.spreadsheet_generator_service" />
 
