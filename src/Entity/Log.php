@@ -45,6 +45,11 @@ class Log implements EntityInterface
     private array $context = [];
 
     /**
+     * @ORM\Column(type="uuid", unique=true)
+     */
+    private ?UuidInterface $ouuid;
+
+    /**
      * @ORM\Column(type="smallint")
      */
     private int $level;
@@ -131,6 +136,16 @@ class Log implements EntityInterface
     public function setContext(array $context): void
     {
         $this->context = $context;
+    }
+
+    public function getOuuid(): ?UuidInterface
+    {
+        return $this->ouuid;
+    }
+
+    public function setOuuid(?UuidInterface $ouuid): void
+    {
+        $this->ouuid = $ouuid;
     }
 
     public function getLevel(): int
