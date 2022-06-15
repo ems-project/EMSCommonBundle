@@ -9,6 +9,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
 use EMS\CommonBundle\Entity\Log;
+use EMS\CommonBundle\Helper\EmsFields;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -31,6 +32,7 @@ class LogRepository extends ServiceEntityRepository
         'formatted' => Types::TEXT,
         'username' => Types::STRING,
         'impersonator' => Types::STRING,
+        'ouuid' => Types::STRING,
     ];
 
     public function __construct(Registry $registry)
@@ -49,16 +51,17 @@ class LogRepository extends ServiceEntityRepository
             INSERT INTO log_message (
                 id, created, modified, message, context, 
                 level, level_name, channel, extra, formatted, 
-                username, impersonator
+                username, impersonator, ouuid
             ) VALUES (
                 :id, :created, :modified, :message, :context, 
                 :level, :level_name, :channel, :extra, :formatted, 
-                :username, :impersonator);
+                :username, :impersonator, :ouuid);
 QUERY;
 
         $record['id'] = Uuid::uuid1()->toString();
         $record['created'] = $record['datetime'];
         $record['modified'] = $record['datetime'];
+        $record['ouuid'] = $record['context'][EmsFields::LOG_OUUID_FIELD] ?? null;
 
         $stmt = $this->connection->prepare($query);
         foreach (self::COLUMN_TYPES as $name => $type) {
