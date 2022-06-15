@@ -45,9 +45,9 @@ class Log implements EntityInterface
     private array $context = [];
 
     /**
-     * @ORM\Column(type="uuid", unique=true)
+     * @ORM\Column(type="uuid", unique=true, nullable=true)
      */
-    private ?UuidInterface $ouuid;
+    private ?UuidInterface $ouuid = null;
 
     /**
      * @ORM\Column(type="smallint")
