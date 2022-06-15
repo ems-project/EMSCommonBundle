@@ -30,7 +30,7 @@ class LogRepository extends ServiceEntityRepository
         'extra' => Types::JSON,
         'formatted' => Types::TEXT,
         'username' => Types::STRING,
-        'impersonator' => Types::STRING
+        'impersonator' => Types::STRING,
     ];
 
     public function __construct(Registry $registry)
