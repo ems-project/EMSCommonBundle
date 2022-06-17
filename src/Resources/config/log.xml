@@ -16,7 +16,7 @@
         </service>
 
         <service id="ems_common.monolog.doctrine" class="EMS\CommonBundle\Common\Log\DoctrineHandler">
-            <argument type="service" id="doctrine.orm.default_entity_manager" />
+            <argument type="service" id="ems_common.repository.log" />
             <argument type="service" id="security.token_storage" />
             <argument type="string">%ems_common.log_level%</argument>
         </service>
