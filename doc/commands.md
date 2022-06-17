@@ -1,5 +1,29 @@
 # Commands
 
+## Clear logs
+
+Remove stored logs from the database.
+
+```
+Description:
+  Clear doctrine logs
+
+Usage:
+  ems:logs:clear [options]
+
+Options:
+      --before[=BEFORE]    CLear logs older than the strtotime (-1day, -5min, now) [default: "-1week"]
+      --channel[=CHANNEL]  Define channels default [app] [default: ["app"]] (multiple values allowed)
+```
+
+### Example
+
+Remove all logs created before now for the channels `app` and `core`
+
+```bash
+php bin/console ems:logs:clear --before=now --channel=app --channel=core
+```
+
 ## Status
 
 This command give a basic status of the elasticsearch cluster and for the different storage services:

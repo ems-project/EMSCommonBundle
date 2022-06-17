@@ -8,6 +8,7 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Types\Types;
+use EMS\CommonBundle\Common\Standard\Type;
 use EMS\CommonBundle\Entity\Log;
 use EMS\CommonBundle\Helper\EmsFields;
 use Ramsey\Uuid\Uuid;
@@ -70,17 +71,25 @@ QUERY;
         $stmt->executeStatement();
     }
 
-    public function clearLogs(\DateTime $before): bool
+    /**
+     * @param string[] $channels
+     */
+    public function clearLogs(\DateTime $before, array $channels = []): int
     {
-        try {
-            $qb = $this->createQueryBuilder('log')
-                ->delete()
-                ->where('log.created < :before')
-                ->setParameter('before', $before);
+        $qb = $this->createQueryBuilder('log');
+        $qb
+            ->delete()
+            ->andWhere($qb->expr()->lt('log.created', ':before'))
+            ->setParameter('before', $before);
 
-            return false !== $qb->getQuery()->execute();
-        } catch (\Throwable $e) {
-            return false;
+        if (\count($channels) > 0) {
+            $qb
+                ->andWhere($qb->expr()->in('log.channel', ':channels'))
+                ->setParameter(':channels', $channels, Types::SIMPLE_ARRAY);
         }
+
+        $logsDeleted = $qb->getQuery()->execute();
+
+        return Type::integer($logsDeleted);
     }
 }
