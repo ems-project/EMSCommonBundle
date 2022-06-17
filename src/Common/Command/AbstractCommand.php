@@ -171,10 +171,10 @@ abstract class AbstractCommand extends Command implements CommandInterface
     /**
      * @return string[]
      */
-    protected function getOptionStringArray(string $name): array
+    protected function getOptionStringArray(string $name, bool $required = true): array
     {
         $option = $this->input->getOption($name);
-        if (!\is_array($option) || empty($option)) {
+        if ($required && (!\is_array($option) || empty($option))) {
             throw new \RuntimeException(\sprintf('Missing array option "%s"', $name));
         }
 
