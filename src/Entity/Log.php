@@ -45,9 +45,9 @@ class Log implements EntityInterface
     private array $context = [];
 
     /**
-     * @ORM\Column(type="uuid", unique=true, nullable=true)
+     * @ORM\Column(type="string", unique=true, nullable=true)
      */
-    private ?UuidInterface $ouuid = null;
+    private ?string $ouuid = null;
 
     /**
      * @ORM\Column(type="smallint")
@@ -138,12 +138,12 @@ class Log implements EntityInterface
         $this->context = $context;
     }
 
-    public function getOuuid(): ?UuidInterface
+    public function getOuuid(): ?string
     {
         return $this->ouuid;
     }
 
-    public function setOuuid(?UuidInterface $ouuid): void
+    public function setOuuid(?string $ouuid): void
     {
         $this->ouuid = $ouuid;
     }
