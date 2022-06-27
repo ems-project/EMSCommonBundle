@@ -161,7 +161,7 @@ class AssetRuntime
                 $stream = $this->processor->getStream($configObj, $filename);
                 \file_put_contents($cacheFilename, $stream->getContents());
             } catch (\Throwable $e) {
-                $this->logger->error('Generate the {cacheFilename} failed : {error}', ['hash'=> $hash, 'cacheFilename' => $cacheFilename, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+                $this->logger->error('Generate the {cacheFilename} failed : {error}', ['hash' => $hash, 'cacheFilename' => $cacheFilename, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             }
         }
 
