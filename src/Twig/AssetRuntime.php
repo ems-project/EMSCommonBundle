@@ -157,8 +157,12 @@ class AssetRuntime
         $cacheFilename = $this->cacheDir.DIRECTORY_SEPARATOR.'ems_asset_path'.DIRECTORY_SEPARATOR.$hashConfig.DIRECTORY_SEPARATOR.$hash;
 
         if (!$filesystem->exists($cacheFilename)) {
-            $stream = $this->processor->getStream($configObj, $filename);
-            \file_put_contents($cacheFilename, $stream->getContents());
+            try {
+                $stream = $this->processor->getStream($configObj, $filename);
+                \file_put_contents($cacheFilename, $stream->getContents());
+            } catch (\Throwable $e) {
+                $this->logger->error('Generate the {cacheFilename} failed : {error}', ['hash' => $hash, 'cacheFilename' => $cacheFilename, 'error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            }
         }
 
         return $cacheFilename;
