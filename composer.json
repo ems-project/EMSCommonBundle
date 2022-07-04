@@ -6,19 +6,13 @@
 		"elasticms"
 	],
 	"license" : "MIT",
-	"authors" : [{
-			"name" : "David Mattei",
-			"email" : "david.mattei@smals.be"
-		},
+	"authors" : [
 		{
-			"name" : "David Meert",
-			"email" : "david.meert@smals.be"
-		},
-		{
-			"name" : "Mathieu De Keyzer",
-			"email" : "mathieu@dekeyzer.net"
+			"name" : "EMS Community",
+			"homepage" : "https://github.com/ems-project/EMSCommonBundle/contributors"
 		}
 	],
+	"minimum-stability": "dev",
 	"require" : {
 		"php": "^7.4",
 		"ext-dom": "*",
@@ -83,11 +77,6 @@
 		"sort-packages": true,
 		"allow-plugins": {
 			"phpstan/extension-installer": true
-		}
-	},
-	"extra" : {
-		"branch-alias" : {
-			"dev-master" : "0.1-dev"
 		}
 	},
 	"scripts": {
