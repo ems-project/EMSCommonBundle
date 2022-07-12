@@ -1,67 +1,42 @@
 <?php
 
-namespace EMS\CommonBundle\Tests\Unit\Helper\Text;
+namespace EMS\CommonBundle\Tests\Unit\Json;
 
 use EMS\CommonBundle\Json\JsonMenuNested;
 use PHPUnit\Framework\TestCase;
 
 class JsonMenuNestedTest extends TestCase
 {
-    /** @var JsonMenuNested */
-    private $jsonMenuNested;
+    private JsonMenuNested $jsonMenuNested;
 
     protected function setUp(): void
     {
-        $data = '{
-                    "id": "102a603e-b2ab-499d-b1d3-687a2e4ee168",
-                    "type": "theme",
-                    "object": 
-                    {
-                        "label_nl": "testExampleAdrienFR",
-                        "label_fr": "testExampleAdrienNL"
-                    },
-                    "label": "testadrienLabel",
-                    "children": 
-                    [
-                        {
-                            "id": "7b4f228f-3d04-4eb0-a826-aeaa1e8bc8aa",
-                            "object": {
-                            "label_nl": "testDocNL",
-                            "label_fr": "testDocFR"
-                            },
-                            "type": "theme_document",
-                            "label": "testDoc"
-                        }
-                    ]
-                }';
-        $data = \json_decode($data, true);
-        $this->jsonMenuNested = new JsonMenuNested($data);
+        $this->jsonMenuNested = JsonMenuNested::fromStructure(file_get_contents(__DIR__.'/json_menu_nested_1.json'));
     }
 
-    public function testGetter(): void
+    public function testMethods(): void
     {
-        self::assertSame('102a603e-b2ab-499d-b1d3-687a2e4ee168', $this->jsonMenuNested->getId());
-        self::assertSame('theme', $this->jsonMenuNested->getType());
-        self::assertSame('testadrienLabel', $this->jsonMenuNested->getLabel());
+        $this->assertSame('root', $this->jsonMenuNested->getId());
+        $this->assertSame('root', $this->jsonMenuNested->getLabel());
+
+        $player1Item = $this->jsonMenuNested->getItemById('0d19f63f-30c8-4bad-b0fd-ecc9d7b16c48');
+
+        $this->assertSame('player 1', $player1Item->getLabel());
+        $this->assertSame('player', $player1Item->getType());
     }
 
-    public function testGetIterator(): void
+    public function testLoopJsonMenuNested(): void
     {
+        $this->assertTrue($this->jsonMenuNested->hasChildren());
+        $this->assertTrue($this->jsonMenuNested->isRoot());
+
         $count = 0;
-        foreach ($this->jsonMenuNested->getIterator() as $json) {
-            self::assertInstanceOf(JsonMenuNested::class, $json);
+        foreach ($this->jsonMenuNested as $item) {
+            $this->assertInstanceOf(JsonMenuNested::class, $item);
             ++$count;
         }
-        $this->assertEquals(1, $count);
+        $this->assertEquals(6, $count);
     }
 
-    public function testHasChildren(): void
-    {
-        self::assertTrue($this->jsonMenuNested->hasChildren(), 'Has Children true');
-    }
 
-    public function testIsRoot(): void
-    {
-        self::assertTrue($this->jsonMenuNested->isRoot(), 'is Root true');
-    }
 }
