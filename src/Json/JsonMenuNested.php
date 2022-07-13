@@ -132,13 +132,21 @@ final class JsonMenuNested implements \IteratorAggregate, \Countable
     {
         return $this->filterChildren(function (JsonMenuNested $child) use ($compareJsonMenuNested) {
             if (null === $compareChild = $compareJsonMenuNested->getItemById($child->getId())) {
-                return true;
+                return true; // removed
+            }
+
+            if ($compareChild->getObject() !== $child->getObject()) {
+                return true; // updated
+            }
+
+            if (\count($compareChild->getChildren()) !== \count($child->getChildren())) {
+                return true; // new child
             }
 
             $childPath = $child->getPath(fn (JsonMenuNested $p) => $p->getId());
             $comparePath = $compareChild->getPath(fn (JsonMenuNested $p) => $p->getId());
 
-            return $childPath !== $comparePath;
+            return $childPath !== $comparePath; // moved
         });
     }
 
