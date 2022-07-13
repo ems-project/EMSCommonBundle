@@ -13,6 +13,8 @@ class Configuration implements ConfigurationInterface
 {
     private const ELASTICSEARCH_DEFAULT_HOSTS = ['http://localhost:9200'];
     private const LOG_LEVEL = Logger::NOTICE;
+    public const WEBALIZE_REMOVABLE_REGEX = "/([^a-zA-Z\_\|\ \-\.])|(\.$)/";
+    public const WEBALIZE_DASHABLE_REGEX = "/[\/\|\ ]+/";
 
     public function getConfigTreeBuilder(): TreeBuilder
     {
@@ -34,6 +36,7 @@ class Configuration implements ConfigurationInterface
 
         $this->addCacheSection($rootNode);
         $this->addMetricSection($rootNode);
+        $this->addWebalizeSection($rootNode);
 
         return $treeBuilder;
     }
@@ -67,6 +70,19 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('enabled')->cannotBeEmpty()->end()
                         ->scalarNode('host')->end()
                         ->scalarNode('port')->defaultNull()->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    private function addWebalizeSection(ArrayNodeDefinition $rootNode): void
+    {
+        $rootNode
+            ->children()
+                ->arrayNode('webalize')
+                    ->children()
+                        ->scalarNode('removable_regex')->defaultValue(self::WEBALIZE_REMOVABLE_REGEX)->end()
+                        ->scalarNode('dashable_regex')->defaultValue(self::WEBALIZE_DASHABLE_REGEX)->end()
                 ->end()
             ->end()
         ;
