@@ -111,9 +111,9 @@ class EMSLink
     {
         return \vsprintf('ems://%s:%s%s%s', [
             $this->linkType,
-            ($this->contentType ? $this->contentType.':' : ''),
+            $this->contentType ? $this->contentType.':' : '',
             $this->ouuid,
-            ($this->query ? '?'.$this->query : ''),
+            $this->query ? '?'.$this->query : '',
         ]);
     }
 

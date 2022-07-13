@@ -61,6 +61,6 @@ class CacheTest extends TestCase
     public function testMakeResponseCacheableReturnSameImmutableRoute(): void
     {
         $this->cache->makeResponseCacheable($this->response, 'test', null, false);
-        self::assertSame(true, !($this->response->isImmutable()));
+        self::assertSame(true, !$this->response->isImmutable());
     }
 }

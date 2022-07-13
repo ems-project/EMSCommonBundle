@@ -51,11 +51,11 @@ abstract class AbstractFactory implements StorageFactoryInterface
             $prefix = \strtolower(\strval($matches['prefix'] ?? ''));
             switch ($prefix) {
                 case 't': $limit *= 1024;
-                // no break
+                    // no break
                 case 'g': $limit *= 1024;
-                // no break
+                    // no break
                 case 'm': $limit *= 1024;
-                // no break
+                    // no break
                 case 'k': $limit *= 1024;
             }
 
