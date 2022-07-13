@@ -42,7 +42,7 @@ class FileSystemFactory extends AbstractFactory implements StorageFactoryInterfa
             return null;
         }
 
-        if (('.') === \substr($path, 0, 1)) {
+        if ('.' === \substr($path, 0, 1)) {
             $path = $this->projectDir.DIRECTORY_SEPARATOR.$path;
         }
 

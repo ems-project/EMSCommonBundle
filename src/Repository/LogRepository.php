@@ -66,7 +66,7 @@ QUERY;
 
         $stmt = $this->connection->prepare($query);
         foreach (self::COLUMN_TYPES as $name => $type) {
-            $stmt->bindValue(':'.$name, ($record[$name] ?? null), $type);
+            $stmt->bindValue(':'.$name, $record[$name] ?? null, $type);
         }
         $stmt->executeStatement();
     }
