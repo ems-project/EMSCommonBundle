@@ -30,4 +30,12 @@ class FileSystemStorage extends AbstractUrlStorage
     {
         return FileSystemStorage::class." ($this->storagePath)";
     }
+
+    /**
+     * @return null
+     */
+    protected function getContext()
+    {
+        return null;
+    }
 }
