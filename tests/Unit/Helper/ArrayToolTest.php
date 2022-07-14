@@ -1,6 +1,6 @@
 <?php
 
-namespace EMS\CommonBundle\Tests\Unit\Helper\Text;
+namespace EMS\CommonBundle\Tests\Unit\Helper;
 
 use EMS\CommonBundle\Helper\ArrayTool;
 use PHPUnit\Framework\TestCase;
