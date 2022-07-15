@@ -195,4 +195,12 @@ class HttpStorage extends AbstractUrlStorage
     public function removeUpload(string $hash): void
     {
     }
+
+    /**
+     * @return null
+     */
+    protected function getContext()
+    {
+        return null;
+    }
 }

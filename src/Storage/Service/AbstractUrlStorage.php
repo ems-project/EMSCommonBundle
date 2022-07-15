@@ -80,7 +80,12 @@ abstract class AbstractUrlStorage implements StorageInterface
         if (!\file_exists($out)) {
             throw new NotFoundHttpException($hash);
         }
-        $resource = \fopen($out, 'rb');
+        $context = $this->getContext();
+        if (null === $context) {
+            $resource = \fopen($out, 'rb');
+        } else {
+            $resource = \fopen($out, 'rb', false, $context);
+        }
         if (!\is_resource($resource)) {
             throw new NotFoundHttpException($hash);
         }
@@ -204,4 +209,9 @@ abstract class AbstractUrlStorage implements StorageInterface
         } catch (\Throwable $e) {
         }
     }
+
+    /**
+     * @return resource|null
+     */
+    abstract protected function getContext();
 }

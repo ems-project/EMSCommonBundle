@@ -112,4 +112,14 @@ class S3Storage extends AbstractUrlStorage
             'Key' => \substr($source, 1 + \strlen($this->getBaseUrl())),
         ]);
     }
+
+    /**
+     * @return resource
+     */
+    protected function getContext()
+    {
+        return \stream_context_create([
+            's3' => ['seekable' => true],
+        ]);
+    }
 }

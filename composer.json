@@ -33,6 +33,7 @@
 		"doctrine/doctrine-bundle": "^1.11|^2.5",
 		"doctrine/orm": "^2.6",
 		"dompdf/dompdf": "^v1.0.2",
+		"elasticms/helpers": "^1.0",
 		"guzzlehttp/guzzle": "^6.3",
 		"phpoffice/phpspreadsheet": "^1.16",
 		"promphp/prometheus_client_php": "^2.6",
@@ -57,21 +58,14 @@
 	},
 	"require-dev" : {
 		"friendsofphp/php-cs-fixer" : "^3.0",
-		"mockery/mockery" : "^0.9",
 		"phpstan/phpstan": "^0.12",
-		"phpunit/phpunit" : "^9.5",
-		"symfony/test-pack": "^1.0",
-		"symfony/web-profiler-bundle": "^4.4|^5.4",
-		"phpstan/phpstan-phpunit": "^0.12.8",
-		"phpstan/extension-installer": "^1.1"
+		"phpstan/extension-installer": "^1.1",
+		"symfony/test-pack": "^1.0"
 	},
 	"autoload" : {
 		"psr-4" : {
 			"EMS\\CommonBundle\\" : "src/"
-		},
-		"exclude-from-classmap" : [
-			"tests/"
-		]
+		}
 	},
 	"autoload-dev" : {
 		"psr-4" : {

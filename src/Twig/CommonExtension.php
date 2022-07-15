@@ -40,7 +40,7 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('ems_json_menu_decode', [TextRuntime::class, 'jsonMenuDecode']),
             new TwigFilter('ems_json_menu_nested_decode', [TextRuntime::class, 'jsonMenuNestedDecode']),
             new TwigFilter('ems_json_decode', [TextRuntime::class, 'jsonDecode']),
-            new TwigFilter('ems_webalize', [Encoder::class, 'webalize']),
+            new TwigFilter('ems_webalize', [Encoder::class, 'webalizeForUsers']),
             new TwigFilter('ems_markdown', [Encoder::class, 'markdownToHtml'], ['is_safe' => ['html']]),
             new TwigFilter('ems_stringify', [Converter::class, 'stringify']),
             new TwigFilter('ems_temp_file', [AssetRuntime::class, 'temporaryFile']),
