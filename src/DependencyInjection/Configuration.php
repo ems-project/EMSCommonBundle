@@ -29,6 +29,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('hash_algo')->defaultValue('sha1')->end()
                 ->scalarNode('backend_url')->defaultValue(null)->end()
                 ->scalarNode('backend_api_key')->defaultValue(null)->end()
+                ->scalarNode('backend_api_insecure')->defaultValue(false)->end()
                 ->variableNode('elasticsearch_hosts')->defaultValue(self::ELASTICSEARCH_DEFAULT_HOSTS)->end()
                 ->integerNode('log_level')->defaultValue(self::LOG_LEVEL)->end()
             ->end()
@@ -80,6 +81,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('webalize')
+                    ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('removable_regex')->defaultValue(self::WEBALIZE_REMOVABLE_REGEX)->end()
                         ->scalarNode('dashable_regex')->defaultValue(self::WEBALIZE_DASHABLE_REGEX)->end()
