@@ -53,7 +53,7 @@ final class File implements FileInterface
         return $hash;
     }
 
-    public function uploadFile(string $realPath, string $mimeType = null): string
+    public function uploadFile(string $realPath, ?string $mimeType = null, ?string $filename = null, ?callable $callback = null): string
     {
         $hash = $this->hashFile($realPath);
         $filesize = \filesize($realPath);
@@ -63,7 +63,11 @@ final class File implements FileInterface
 
         $symfonyFile = new SymfonyFile($realPath, false);
         $exploded = \explode(DIRECTORY_SEPARATOR, $realPath);
-        $fromByte = $this->initUpload($hash, $filesize, \end($exploded), $mimeType ?? $symfonyFile->guessExtension() ?? 'application/octet-stream');
+
+        $mimeType = $mimeType ?? $symfonyFile->guessExtension() ?? 'application/octet-stream';
+        $filename = $filename ?? \end($exploded);
+
+        $fromByte = $this->initUpload($hash, $filesize, $filename, $mimeType);
         if ($fromByte < 0) {
             throw new \RuntimeException(\sprintf('Unexpected negative offset: %d', $fromByte));
         }
@@ -92,6 +96,10 @@ final class File implements FileInterface
                 throw new \RuntimeException('Unexpected chunk type');
             }
             $uploaded = $this->addChunk($hash, $chunk);
+
+            if (null !== $callback) {
+                $callback($chunk);
+            }
         }
         \fclose($handle);
         if ($uploaded !== $filesize) {
