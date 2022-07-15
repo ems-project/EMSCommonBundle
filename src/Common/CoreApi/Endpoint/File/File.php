@@ -22,7 +22,7 @@ final class File implements FileInterface
         $this->storageManager = $storageManager;
     }
 
-    public function uploadStream(StreamInterface $stream, string $filename, string $mimeType): ?string
+    public function uploadStream(StreamInterface $stream, string $filename, string $mimeType): string
     {
         $hash = $this->hashStream($stream);
         if ($this->headHash($hash)) {
@@ -53,7 +53,7 @@ final class File implements FileInterface
         return $hash;
     }
 
-    public function uploadFile(string $realPath, string $mimeType = null): ?string
+    public function uploadFile(string $realPath, string $mimeType = null): string
     {
         $hash = $this->hashFile($realPath);
         $filesize = \filesize($realPath);

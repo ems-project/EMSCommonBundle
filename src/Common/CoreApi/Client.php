@@ -22,14 +22,14 @@ class Client
     private HttpClientInterface $client;
     private LoggerInterface $logger;
 
-    public function __construct(string $baseUrl, LoggerInterface $logger)
+    public function __construct(string $baseUrl, LoggerInterface $logger, bool $insecure)
     {
         $this->baseUrl = $baseUrl;
         $this->client = new CurlHttpClient([
             'base_uri' => $baseUrl,
-            'headers' => [
-                'Content-Type' => 'application/json',
-            ],
+            'headers' => ['Content-Type' => 'application/json'],
+            'verify_host' => !$insecure,
+            'verify_peer' => !$insecure,
             'timeout' => 30,
         ]);
 

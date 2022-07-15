@@ -16,9 +16,9 @@ interface FileInterface
 
     public function addChunk(string $hash, string $chunk): int;
 
-    public function uploadFile(string $realPath, string $mimeType = null): ?string;
+    public function uploadFile(string $realPath, string $mimeType = null): string;
 
-    public function uploadStream(StreamInterface $stream, string $filename, string $mimeType): ?string;
+    public function uploadStream(StreamInterface $stream, string $filename, string $mimeType): string;
 
     public function headFile(string $realPath): bool;
 
