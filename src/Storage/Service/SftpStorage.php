@@ -79,4 +79,12 @@ class SftpStorage extends AbstractUrlStorage
     {
         return SftpStorage::class." ($this->host)";
     }
+
+    /**
+     * @return null
+     */
+    protected function getContext()
+    {
+        return null;
+    }
 }

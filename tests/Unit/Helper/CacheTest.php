@@ -1,6 +1,6 @@
 <?php
 
-namespace EMS\CommonBundle\Tests\Unit\Helper\Text;
+namespace EMS\CommonBundle\Tests\Unit\Helper;
 
 use EMS\CommonBundle\Helper\Cache;
 use PHPUnit\Framework\TestCase;
@@ -61,6 +61,6 @@ class CacheTest extends TestCase
     public function testMakeResponseCacheableReturnSameImmutableRoute(): void
     {
         $this->cache->makeResponseCacheable($this->response, 'test', null, false);
-        self::assertSame(true, !($this->response->isImmutable()));
+        self::assertSame(true, !$this->response->isImmutable());
     }
 }

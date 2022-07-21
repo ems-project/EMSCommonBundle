@@ -4,25 +4,23 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Json;
 
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
  * @implements \IteratorAggregate<JsonMenuNested>
  */
-final class JsonMenuNested implements \IteratorAggregate
+final class JsonMenuNested implements \IteratorAggregate, \Countable
 {
-    /** @var string */
-    private $id;
-    /** @var string */
-    private $type;
-    /** @var string */
-    private $label;
+    private string $id;
+    private string $type;
+    private string $label;
     /** @var array<mixed> */
-    private $object;
+    private array $object;
     /** @var JsonMenuNested[] */
-    private $children = [];
-    /** @var JsonMenuNested|null */
-    private $parent;
+    private array $children = [];
+    /** @var ?JsonMenuNested */
+    private ?JsonMenuNested $parent = null;
     /** @var string[] */
     private array $descendantIds;
 
@@ -114,6 +112,44 @@ final class JsonMenuNested implements \IteratorAggregate
         }
     }
 
+    public function count(): int
+    {
+        return \count($this->children);
+    }
+
+    public function filterChildren(callable $callback): JsonMenuNested
+    {
+        $jsonMenuNested = new self(['id' => 'root', 'type' => 'root', 'label' => 'root']);
+        $jsonMenuNested->setChildren($this->recursiveFilterChildren($callback));
+
+        return $jsonMenuNested;
+    }
+
+    /**
+     * Return children that are not found in passed compareJsonMenuNested OR if found but the path is different (moved).
+     */
+    public function diffChildren(JsonMenuNested $compareJsonMenuNested): JsonMenuNested
+    {
+        return $this->filterChildren(function (JsonMenuNested $child) use ($compareJsonMenuNested) {
+            if (null === $compareChild = $compareJsonMenuNested->getItemById($child->getId())) {
+                return true; // removed
+            }
+
+            if ($compareChild->getObject() !== $child->getObject()) {
+                return true; // updated
+            }
+
+            if (\count($compareChild->getChildren()) !== \count($child->getChildren())) {
+                return true; // new child
+            }
+
+            $childPath = $child->getPath(fn (JsonMenuNested $p) => $p->getId());
+            $comparePath = $compareChild->getPath(fn (JsonMenuNested $p) => $p->getId());
+
+            return $childPath !== $comparePath; // moved
+        });
+    }
+
     /**
      * @return iterable<JsonMenuNested>|JsonMenuNested[]
      */
@@ -136,6 +172,13 @@ final class JsonMenuNested implements \IteratorAggregate
                 yield $child;
             }
         }
+    }
+
+    public function changeId(): JsonMenuNested
+    {
+        $this->id = Uuid::uuid4()->toString();
+
+        return $this;
     }
 
     public function getItemById(string $id): ?JsonMenuNested
@@ -183,20 +226,20 @@ final class JsonMenuNested implements \IteratorAggregate
     /**
      * @return JsonMenuNested[]
      */
-    public function getChildren(): array
+    public function getChildren(?callable $map = null): array
     {
-        return $this->children;
+        return $map ? \array_map($map, $this->children) : $this->children;
     }
 
     /**
      * @return JsonMenuNested[]
      */
-    public function getPath(): array
+    public function getPath(?callable $map = null): array
     {
-        $path = [$this];
+        $path = [$map ? $map($this) : $this];
 
         if (null !== $this->parent && !$this->parent->isRoot()) {
-            $path = \array_merge($this->parent->getPath(), $path);
+            $path = \array_merge($this->parent->getPath($map), $path);
         }
 
         return $path;
@@ -207,9 +250,32 @@ final class JsonMenuNested implements \IteratorAggregate
         return $this->parent;
     }
 
+    public function addChild(JsonMenuNested $child): JsonMenuNested
+    {
+        $addChild = clone $child;
+        $addChild->setParent($this);
+
+        $this->children[] = $addChild;
+
+        return $this;
+    }
+
+    /**
+     * @param array{'id': string, 'label': ?string, 'type': string, 'children': array<mixed>} $child
+     */
+    public function addChildByArray(array $child): JsonMenuNested
+    {
+        return $this->addChild(new JsonMenuNested($child));
+    }
+
     public function hasChildren(): bool
     {
         return \count($this->children) > 0;
+    }
+
+    public function hasChild(JsonMenuNested $jsonMenuNested): bool
+    {
+        return 1 === \count($this->filterChildren(fn (JsonMenuNested $child) => $child->getId() === $jsonMenuNested->getId()));
     }
 
     public function isRoot(): bool
@@ -274,5 +340,24 @@ final class JsonMenuNested implements \IteratorAggregate
                 break;
             }
         }
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private function recursiveFilterChildren(callable $callback): array
+    {
+        $result = [];
+
+        foreach ($this->children as $child) {
+            if ($callback($child)) {
+                $result[] = clone $child;
+            }
+            if ($child->hasChildren()) {
+                $result = [...$result, ...$child->recursiveFilterChildren($callback)];
+            }
+        }
+
+        return $result;
     }
 }
