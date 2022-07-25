@@ -35,7 +35,7 @@ final class EmsHtml extends Markup
 
     public function printUrls(string $format = ':content (:href)'): self
     {
-        $pattern = '/<a.*?href=[\n\s\r]*?"(?<href>.*?)"(.|\s)*?>(?<content>(.|\s)*?)<\/a>/';
+        $pattern = '/<a(.|\s)*?href=\s*?"(?<href>(.|\s)*?)"(.|\s)*?>(?<content>(.|\s)*?)<\/a>/';
 
         $replaced = \preg_replace_callback($pattern, function ($match) use ($format) {
             return \str_replace([':content', ':href'], [$match['content'], $match['href']], $format);
