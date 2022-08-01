@@ -54,7 +54,8 @@
 	},
 	"require-dev" : {
 		"friendsofphp/php-cs-fixer": "^3.0",
-		"phpstan/phpstan": "^0.12",
+		"phpstan/phpstan": "^1.0",
+		"phpstan/phpstan-symfony": "^1.2",
 		"symfony/test-pack": "^1.0",
 		"symfony/yaml": "^4.4|^5.4"
 	},

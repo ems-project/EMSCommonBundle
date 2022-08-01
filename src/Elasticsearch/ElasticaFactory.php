@@ -25,7 +25,7 @@ class ElasticaFactory
     public function fromConfig(array $hosts, string $connectionPool = SniffingConnectionPool::class): Client
     {
         $servers = [];
-        foreach ($hosts ?? [] as $host) {
+        foreach ($hosts as $host) {
             if ('/' !== \substr($host, -1)) {
                 $host .= '/';
             }

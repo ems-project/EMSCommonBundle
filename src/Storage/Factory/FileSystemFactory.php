@@ -36,7 +36,7 @@ class FileSystemFactory extends AbstractFactory implements StorageFactoryInterfa
 
         $path = $config[self::STORAGE_CONFIG_PATH] ?? null;
 
-        if ('' === $path) {
+        if ('' === $path || null === $path) {
             @\trigger_error('You should consider to migrate you storage service configuration to the EMS_STORAGES variable', \E_USER_DEPRECATED);
 
             return null;
@@ -75,7 +75,7 @@ class FileSystemFactory extends AbstractFactory implements StorageFactoryInterfa
     /**
      * @param array<string, mixed> $parameters
      *
-     * @return array{type: string, path: string, usage: int, hot-synchronize-limit: int}
+     * @return array{type: string, path?: string, usage: int, hot-synchronize-limit: int}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -90,7 +90,7 @@ class FileSystemFactory extends AbstractFactory implements StorageFactoryInterfa
             ->setAllowedTypes(self::STORAGE_CONFIG_PATH, 'string')
         ;
 
-        /** @var array{type: string, path: string, usage: int, hot-synchronize-limit: int} $resolvedParameter */
+        /** @var array{type: string, path?: string, usage: int, hot-synchronize-limit: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
 
         return $resolvedParameter;

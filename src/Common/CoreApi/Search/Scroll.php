@@ -19,7 +19,6 @@ class Scroll implements \Iterator
     private ?string $nextScrollId;
     private int $currentPage;
     private ResponseInterface $currentResponse;
-    private int $count;
     private int $index = 0;
 
     public function __construct(Client $client, Search $search, string $expireTime = '3m')

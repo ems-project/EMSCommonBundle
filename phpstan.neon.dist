@@ -1,12 +1,10 @@
 includes:
-    - phpstan-baseline.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-symfony/rules.neon
 
 parameters:
     paths:
         - %currentWorkingDirectory%/src
-    excludes_analyse:
-        - %currentWorkingDirectory%/vendor/*
-        - %currentWorkingDirectory%/src/DependencyInjection/Configuration.php
-    reportUnmatchedIgnoredErrors: false
+    excludePaths:
+        - %currentWorkingDirectory%/Resources/*
     level: 8
-    inferPrivatePropertyTypeFromConstructor: true

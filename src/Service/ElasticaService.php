@@ -627,7 +627,7 @@ class ElasticaService
     /**
      * @param array<mixed> $parameters
      *
-     * @return array{aggs: ?array, query: ?array, post_filter: ?array, size: int, from: int, _source: ?string[], sort: ?array}
+     * @return array{aggs: ?array<mixed>, query: ?array<mixed>, post_filter: ?array<mixed>, size: int, from: int, _source: ?string[], sort: ?array<mixed>}
      */
     private function resolveElasticsearchBody(array $parameters): array
     {
@@ -651,7 +651,7 @@ class ElasticaService
                 return $value;
             });
         }
-        /** @var array{aggs: ?array, query: ?array, post_filter: ?array, size: int, from: int, _source: ?string[], sort: ?array} $resolvedParameters */
+        /** @var array{aggs: ?array<mixed>, query: ?array<mixed>, post_filter: ?array<mixed>, size: int, from: int, _source: ?string[], sort: ?array<mixed>} $resolvedParameters */
         $resolvedParameters = $resolver->resolve($parameters);
 
         return $resolvedParameters;
@@ -734,7 +734,7 @@ class ElasticaService
     }
 
     /**
-     * @param array{size: int, from: int, sort: ?array, _source: ?array} $options
+     * @param array{size: int, from: int, sort: ?array<mixed>, _source: ?array<mixed>} $options
      */
     private function setSearchDefaultOptions(Search $search, array $options): void
     {

@@ -54,6 +54,8 @@ class TextRuntime implements RuntimeExtensionInterface
     }
 
     /**
+     * @param int<1, 512> $depth
+     *
      * @return mixed
      */
     public function jsonDecode(string $json, bool $assoc = true, int $depth = 512, int $options = 0)

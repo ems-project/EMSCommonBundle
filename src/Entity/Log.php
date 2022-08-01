@@ -102,6 +102,11 @@ class Log implements EntityInterface
         return $this->id->toString();
     }
 
+    public function setId(UuidInterface $id): void
+    {
+        $this->id = $id;
+    }
+
     public function getCreated(): \DateTime
     {
         return $this->created;

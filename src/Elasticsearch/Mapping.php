@@ -17,7 +17,7 @@ final class Mapping
     }
 
     /**
-     * @return array<string, array>
+     * @return array<string, array<mixed>>
      */
     public function defaultMapping(): array
     {
