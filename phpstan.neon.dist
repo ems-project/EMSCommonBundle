@@ -6,5 +6,5 @@ parameters:
     paths:
         - %currentWorkingDirectory%/src
     excludePaths:
-        - %currentWorkingDirectory%/vendor/*
+        - %currentWorkingDirectory%/Resources/*
     level: 8
