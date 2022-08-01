@@ -27,7 +27,7 @@ final class Kernel extends BaseKernel
         return [
             new FrameworkBundle(),
             new DoctrineBundle(),
-            new EMSCommonBundle()
+            new EMSCommonBundle(),
         ];
     }
 
