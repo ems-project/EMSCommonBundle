@@ -291,13 +291,13 @@ final class Config
 
         if (\is_string($before)) {
             $beforeTime = \strtotime($before);
-            $before = $beforeTime !== false ? $beforeTime : $before;
+            $before = false !== $beforeTime ? $beforeTime : $before;
         }
         $before = \intval($before);
 
         if (\is_string($after)) {
             $afterTime = \strtotime($after);
-            $after = $afterTime !== false ? $afterTime : $after;
+            $after = false !== $afterTime ? $afterTime : $after;
         }
         $after = \intval($after);
 

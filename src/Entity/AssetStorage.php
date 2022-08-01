@@ -120,6 +120,10 @@ class AssetStorage implements EntityInterface
 
     public function getCreated(): \DateTime
     {
+        if (null === $this->created) {
+            throw new \RuntimeException('Not yet created');
+        }
+
         return $this->created;
     }
 
