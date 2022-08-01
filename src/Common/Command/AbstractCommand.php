@@ -7,6 +7,7 @@ namespace EMS\CommonBundle\Common\Command;
 use EMS\CommonBundle\Command\CommandInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProcessHelper;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -31,7 +32,9 @@ abstract class AbstractCommand extends Command implements CommandInterface
         $this->io = new SymfonyStyle($input, $output);
         $this->input = $input;
         $this->output = $output;
-        $this->processHelper = $this->getHelper('process');
+        /** @var ProcessHelper $processHelper */
+        $processHelper = $this->getHelper('process');
+        $this->processHelper = $processHelper;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -46,6 +49,7 @@ abstract class AbstractCommand extends Command implements CommandInterface
      */
     protected function askChoiceQuestion(string $question, array $choices)
     {
+        /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
         $question = new ChoiceQuestion($question, $choices);
         $question->setErrorMessage('Choice %s is invalid.');

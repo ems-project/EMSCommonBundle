@@ -23,11 +23,9 @@ class AssetStorage implements EntityInterface
     private $id;
 
     /**
-     * @var \DateTime
-     *
      * @ORM\Column(name="created", type="datetime")
      */
-    private $created;
+    private ?\DateTime $created = null;
 
     /**
      * @var \DateTime
@@ -64,6 +62,11 @@ class AssetStorage implements EntityInterface
      */
     private $confirmed;
 
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
     /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
@@ -71,7 +74,7 @@ class AssetStorage implements EntityInterface
     public function updateModified(): void
     {
         $this->modified = new \DateTime();
-        if (!isset($this->created)) {
+        if (null === $this->created) {
             $this->created = $this->modified;
         }
     }

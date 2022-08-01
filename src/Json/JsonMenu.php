@@ -39,7 +39,7 @@ class JsonMenu
         foreach ($menu as &$item) {
             $slug = $basePath.$item['label'];
             $this->items[$item['id']] = $item;
-            $this->slugs[$item['id']] = $slug;
+            $this->slugs[(string) $item['id']] = $slug;
             $this->bySlugs[$slug] = $item;
             if (isset($item['children'])) {
                 $item['contains'] = $this->recursiveWalk($item['children'], $slug.$this->glue);

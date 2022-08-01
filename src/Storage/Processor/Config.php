@@ -8,6 +8,7 @@ use EMS\CommonBundle\Common\Standard\Base64;
 use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\FileCollection;
 use EMS\CommonBundle\Storage\StorageManager;
+use EMS\Helpers\Standard\Type;
 use function GuzzleHttp\Psr7\mimetype_from_filename;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -139,7 +140,9 @@ final class Config
 
     public function getQuality(): int
     {
-        return (int) $this->options[EmsFields::ASSET_CONFIG_QUALITY] ?? 0;
+        $quality = $this->options[EmsFields::ASSET_CONFIG_QUALITY] ?? null;
+
+        return Type::integer($quality ?? 0);
     }
 
     /**
@@ -287,12 +290,14 @@ final class Config
         $after = $this->options[EmsFields::ASSET_CONFIG_AFTER] ?? 0;
 
         if (\is_string($before)) {
-            $before = \strtotime($before) ?? $before;
+            $beforeTime = \strtotime($before);
+            $before = $beforeTime !== false ? $beforeTime : $before;
         }
         $before = \intval($before);
 
         if (\is_string($after)) {
-            $after = \strtotime($after) ?? $after;
+            $afterTime = \strtotime($after);
+            $after = $afterTime !== false ? $afterTime : $after;
         }
         $after = \intval($after);
 
@@ -329,9 +334,9 @@ final class Config
     }
 
     /**
-     * @param array<string, int|string|array|bool|\DateTime|null> $options
+     * @param array<string, int|string|array<mixed>|bool|\DateTime|null> $options
      *
-     * @return array<string, int|string|array|bool|\DateTime|null>
+     * @return array<string, int|string|array<mixed>|bool|\DateTime|null>
      */
     private function resolve(array $options): array
     {
@@ -383,7 +388,7 @@ final class Config
     }
 
     /**
-     * @return array<string, int|string|array|bool|\DateTime|null>
+     * @return array<string, int|string|array<mixed>|bool|\DateTime|null>
      */
     public static function getDefaults(): array
     {

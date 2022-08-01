@@ -102,7 +102,7 @@ class JobCommand extends AbstractCommand
     }
 
     /**
-     * @param array{id: string, created: string, modified: string, command: string, user: string, started: bool, done: bool, output: ?string} $status
+     * @param array{id: string, created: string, modified: string, command: string, user: string, started: bool, done?: bool, output: ?string} $status
      */
     private function writeOutput($status): void
     {

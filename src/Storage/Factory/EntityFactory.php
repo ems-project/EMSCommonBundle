@@ -35,7 +35,9 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
     {
         $config = $this->resolveParameters($parameters);
 
-        if (false === $config[self::STORAGE_CONFIG_ACTIVATE] ?? true) {
+        $storageConfigActivate = $config[self::STORAGE_CONFIG_ACTIVATE] ?? true;
+
+        if (false === $storageConfigActivate) {
             return null;
         }
 
@@ -57,7 +59,7 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
     /**
      * @param array<string, mixed> $parameters
      *
-     * @return array{type: string, activate: bool, usage: int, hot-synchronize-limit: int}
+     * @return array{type: string, activate?: bool, usage: int, hot-synchronize-limit: int}
      */
     private function resolveParameters(array $parameters): array
     {
@@ -73,7 +75,7 @@ class EntityFactory extends AbstractFactory implements StorageFactoryInterface
             ->setAllowedValues(self::STORAGE_CONFIG_ACTIVATE, [true, false])
         ;
 
-        /** @var array{type: string, activate: bool, usage: int, hot-synchronize-limit: int} $resolvedParameter */
+        /** @var array{type: string, activate?: bool, usage: int, hot-synchronize-limit: int} $resolvedParameter */
         $resolvedParameter = $resolver->resolve($parameters);
 
         return $resolvedParameter;

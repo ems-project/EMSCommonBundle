@@ -26,7 +26,7 @@ class DoctrineHandler extends AbstractProcessingHandler
     }
 
     /**
-     * @param array{message: string, level: int, level_name: string, context: array, channel: string, formatted: string, datetime: \DateTimeImmutable, extra: array} $record
+     * @param array{message: string, level: int, level_name: string, context: array<mixed>, channel: string, formatted: string, datetime: \DateTimeImmutable, extra: array<mixed>} $record
      */
     protected function write(array $record): void
     {
