@@ -9,7 +9,7 @@ use EMS\CommonBundle\Helper\EmsFields;
 use EMS\CommonBundle\Storage\FileCollection;
 use EMS\CommonBundle\Storage\StorageManager;
 use EMS\Helpers\Standard\Type;
-use function GuzzleHttp\Psr7\mimetype_from_filename;
+use GuzzleHttp\Psr7\MimeType;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
@@ -81,7 +81,7 @@ final class Config
         }
 
         if ($this->hasDefaultMimeType()) {
-            $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] = mimetype_from_filename($this->filename) ?? $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
+            $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE] = MimeType::fromFilename($this->filename) ?? $this->options[EmsFields::ASSET_CONFIG_MIME_TYPE];
         }
     }
 
