@@ -182,7 +182,7 @@ abstract class AbstractCommand extends Command implements CommandInterface
             throw new \RuntimeException(\sprintf('Missing array option "%s"', $name));
         }
 
-        return is_array($option) ? array_map(fn ($v) => (string) $v, $option) : [];
+        return \is_array($option) ? \array_map(fn ($v) => (string) $v, $option) : [];
     }
 
     protected function getOptionStringNull(string $name): ?string
