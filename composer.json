@@ -12,8 +12,6 @@
 			"homepage" : "https://github.com/ems-project/EMSCommonBundle/contributors"
 		}
 	],
-	"minimum-stability": "dev",
-	"prefer-stable" : true,
 	"require" : {
 		"php": "^7.4",
 		"ext-dom": "*",
