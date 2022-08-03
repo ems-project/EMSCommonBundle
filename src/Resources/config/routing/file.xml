@@ -4,13 +4,19 @@
         xsi:schemaLocation="http://symfony.com/schema/routing
         http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <route id="ems_common_file_view" path="/file/view/{sha1}" methods="GET">
-        <default key="_controller">ems_common.controller.file::view</default>
+    <route id="ems_common_file_view"
+           path="/file/view/{sha1}"
+           methods="GET"
+           controller="EMS\CommonBundle\Controller\FileController::view">
     </route>
-    <route id="ems_common_file_download" path="/file/download/{sha1}" methods="GET">
-        <default key="_controller">ems_common.controller.file::download</default>
+    <route id="ems_common_file_download"
+           path="/file/download/{sha1}"
+           methods="GET"
+           controller="EMS\CommonBundle\Controller\FileController::download">
     </route>
-    <route id="ems_asset" path="/file/{hash_config}/{hash}/{filename}" methods="GET">
-        <default key="_controller">ems_common.controller.file::asset</default>
+    <route id="ems_asset"
+           path="/file/{hash_config}/{hash}/{filename}"
+           methods="GET"
+           controller="EMS\CommonBundle\Controller\FileController::asset">
     </route>
 </routes>
