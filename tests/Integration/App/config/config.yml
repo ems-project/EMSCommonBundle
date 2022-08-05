@@ -2,10 +2,12 @@ parameters:
   locale: 'en'
 
 framework:
+  secret: 1621180219f163d89dc399e88cfc1807ab6448cf
   session:
     handler_id: ~
   router:
     resource: ~
+    utf8: true
     strict_requirements: ~
 
 doctrine:
