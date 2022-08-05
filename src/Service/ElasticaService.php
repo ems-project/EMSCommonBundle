@@ -30,6 +30,7 @@ use EMS\CommonBundle\Elasticsearch\Exception\NotFoundException;
 use EMS\CommonBundle\Elasticsearch\Exception\NotSingleResultException;
 use EMS\CommonBundle\Elasticsearch\Response\Response as EmsResponse;
 use EMS\CommonBundle\Search\Search;
+use EMS\Helpers\Standard\Type;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -49,7 +50,7 @@ class ElasticaService
     {
         $url = $this->client->getConnection()->getConfig('url');
 
-        return \is_array($url) ? \implode(' | ', $url) : $url;
+        return \is_array($url) ? \implode(' | ', $url) : Type::string($url);
     }
 
     public function refresh(?string $index): bool
@@ -106,7 +107,7 @@ class ElasticaService
             throw new NotSingleResultException(0);
         }
         $result = $resultSet->offsetGet(0);
-        if (1 !== $resultSet->count() || null === $result) {
+        if (1 !== $resultSet->count()) {
             throw new NotSingleResultException($resultSet->count());
         }
 
@@ -174,7 +175,7 @@ class ElasticaService
         $search = clone $search;
         $search->setSort(null);
         $elasticaSearch = $this->createElasticaSearch($search, $search->getScrollOptions());
-        $elasticaSearch->addIndices($this->getIndices($search));
+        $elasticaSearch->addIndicesByName($this->getIndices($search));
 
         return new EmsScroll($elasticaSearch, $expiryTime);
     }
@@ -192,7 +193,7 @@ class ElasticaService
     public function nextScroll(string $scrollId, string $expiryTime = '1m'): Response
     {
         $endpoint = new ScrollEndpoints();
-        $endpoint->setScroll($expiryTime);
+        $endpoint->setBody(['scroll' => $expiryTime]);
         $endpoint->setScrollId($scrollId);
 
         return $this->client->requestEndpoint($endpoint);
@@ -294,7 +295,7 @@ class ElasticaService
         $query = new Query();
         $query->addAggregation($terms);
         $esSearch->setQuery($query);
-        $esSearch->addIndex($alias);
+        $esSearch->addIndexByName($alias);
         $buckets = $esSearch->search()->getAggregation('indexes')['buckets'] ?? [];
 
         $indices = [];
@@ -526,7 +527,7 @@ class ElasticaService
 
         $esSearch = new ElasticaSearch($this->client);
         $esSearch->setQuery($query);
-        $esSearch->addIndices($this->getIndices($search));
+        $esSearch->addIndicesByName($this->getIndices($search));
         $esSearch->setOptions($options);
         if (null !== $search->getPostFilter()) {
             $query->setPostFilter($search->getPostFilter());
@@ -602,7 +603,7 @@ class ElasticaService
 
         $esSearch = new ElasticaSearch($this->client);
         $esSearch->setQuery($esQuery);
-        $esSearch->addIndices($aliases);
+        $esSearch->addIndicesByName($aliases);
 
         $indices = [];
         $response = EmsResponse::fromResultSet($esSearch->search());

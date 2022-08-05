@@ -89,9 +89,7 @@ final class SearchRuntime implements RuntimeExtensionInterface
 
         foreach ($scroll as $resultSet) {
             foreach ($resultSet as $result) {
-                if ($result) {
-                    yield $result;
-                }
+                yield $result;
             }
         }
     }

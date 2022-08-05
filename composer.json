@@ -31,7 +31,7 @@
 		"phpoffice/phpspreadsheet": "^1.16",
 		"promphp/prometheus_client_php": "^2.6",
 		"ramsey/uuid-doctrine": "^1.6",
-		"ruflin/elastica": "5.3.6",
+		"ruflin/elastica": "^7.2",
 		"symfony/console": "^4.4|^5.4",
 		"symfony/dom-crawler": "^4.4|^5.4",
 		"symfony/event-dispatcher": "^4.4|^5.4",
