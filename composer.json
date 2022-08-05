@@ -25,7 +25,7 @@
 		"cebe/markdown": "^1.2",
 		"doctrine/doctrine-bundle": "^2.7",
 		"doctrine/orm": "^2.6",
-		"dompdf/dompdf": "^v1.0.2",
+		"dompdf/dompdf": "^v2.0",
 		"elasticms/helpers": "^1.0",
 		"guzzlehttp/guzzle": "^6.3",
 		"phpoffice/phpspreadsheet": "^1.16",
