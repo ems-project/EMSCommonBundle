@@ -18,8 +18,8 @@ class JsonMenuNestedTest extends TestCase
 
     public function testMethods(): void
     {
-        $this->assertSame('root', $this->jsonMenuNested1->getId());
-        $this->assertSame('root', $this->jsonMenuNested1->getLabel());
+        $this->assertSame('_root', $this->jsonMenuNested1->getId());
+        $this->assertSame('_root', $this->jsonMenuNested1->getLabel());
 
         $player1Item = $this->jsonMenuNested1->getItemById('c7b74edf-5cd1-4af8-a5f0-2ae8fdcc1540');
 
@@ -51,9 +51,9 @@ class JsonMenuNestedTest extends TestCase
 
     public function testChangeId()
     {
-        $this->assertEquals('root', $this->jsonMenuNested1->getId());
+        $this->assertEquals('_root', $this->jsonMenuNested1->getId());
         $this->jsonMenuNested1->changeId();
-        $this->assertNotEquals('root', $this->jsonMenuNested1->getId());
+        $this->assertNotEquals('_root', $this->jsonMenuNested1->getId());
     }
 
     public function testPathMap()
@@ -61,7 +61,7 @@ class JsonMenuNestedTest extends TestCase
         $callback = fn (JsonMenuNested $p) => $p->getLabel();
         $player1 = $this->jsonMenuNested1->getItemById('c7b74edf-5cd1-4af8-a5f0-2ae8fdcc1540');
 
-        $this->assertSame(['root'], $this->jsonMenuNested1->getPath($callback));
+        $this->assertSame(['_root'], $this->jsonMenuNested1->getPath($callback));
         $this->assertSame(['League 1', 'club 1', 'test player 1'], $player1->getPath($callback));
     }
 
