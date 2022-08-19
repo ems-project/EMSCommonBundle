@@ -49,9 +49,9 @@ final class JsonMenuNested implements \IteratorAggregate, \Countable
     public static function fromStructure(string $structure): JsonMenuNested
     {
         return new self([
-           'id' => 'root',
-           'type' => 'root',
-           'label' => 'root',
+           'id' => '_root',
+           'type' => '_root',
+           'label' => '_root',
            'children' => \json_decode($structure, true),
         ]);
     }
@@ -119,7 +119,7 @@ final class JsonMenuNested implements \IteratorAggregate, \Countable
 
     public function filterChildren(callable $callback): JsonMenuNested
     {
-        $jsonMenuNested = new self(['id' => 'root', 'type' => 'root', 'label' => 'root']);
+        $jsonMenuNested = new self(['id' => '_root', 'type' => '_root', 'label' => '_root']);
         $jsonMenuNested->setChildren($this->recursiveFilterChildren($callback));
 
         return $jsonMenuNested;
