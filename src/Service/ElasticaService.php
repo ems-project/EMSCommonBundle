@@ -36,7 +36,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ElasticaService
 {
-    public const MAX_INDICES_BY_ALIAS = 100;
+    private const MAX_INDICES_BY_ALIAS = 100;
     private LoggerInterface $logger;
     private Client $client;
 
