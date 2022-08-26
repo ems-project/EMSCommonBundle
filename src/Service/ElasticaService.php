@@ -36,6 +36,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ElasticaService
 {
+    private const MAX_INDICES_BY_ALIAS = 100;
     private LoggerInterface $logger;
     private Client $client;
 
@@ -287,7 +288,7 @@ class ElasticaService
     public function getIndicesFromAlias(string $alias): array
     {
         $terms = new TermsAggregation('indexes');
-        $terms->setSize(2);
+        $terms->setSize(self::MAX_INDICES_BY_ALIAS);
         $terms->setField('_index');
         $esSearch = new ElasticaSearch($this->client);
         $esSearch->setOption(ElasticaSearch::OPTION_SIZE, 0);
@@ -589,7 +590,7 @@ class ElasticaService
 
         $aggIndexes = new TermsAggregation('indexes');
         $aggIndexes->setField('_index');
-        $aggIndexes->setSize(100);
+        $aggIndexes->setSize(self::MAX_INDICES_BY_ALIAS);
 
         $aggContentType = new TermsAggregation('contentTypes');
         $aggContentType->setField('_contenttype');
