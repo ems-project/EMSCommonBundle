@@ -236,8 +236,7 @@ class AssetRuntime
         ];
 
         try {
-            $image = Image::imageCreateFromString($this->storageManager->getContents($hash));
-            $imageResolution = Image::imageResolution($image);
+            $imageResolution = Image::imageResolution($tempFile);
         } catch (\RuntimeException $exception) {
             return $imageInfo;
         }
