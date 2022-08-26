@@ -93,12 +93,6 @@ class AssetRuntimeTest extends TestCase
             ->with($hash)
             ->willReturn(__DIR__.'/ems.png');
 
-        $this->storageManager
-            ->expects($this->once())
-            ->method('getContents')
-            ->with($hash)
-            ->willReturn(\file_get_contents(__DIR__.'/ems.png'));
-
         $expected = [
             'width' => 128,
             'height' => 128,
@@ -106,6 +100,39 @@ class AssetRuntimeTest extends TestCase
             'extension' => 'png',
             'widthResolution' => 96,
             'heightResolution' => 96,
+        ];
+
+        $this->assertEquals($expected, $assetRuntime->imageInfo($hash));
+    }
+
+    public function testImageJpegInfo()
+    {
+        $assetRuntime = $this->getMockBuilder(AssetRuntime::class)
+            ->setConstructorArgs([
+                $this->storageManager,
+                $this->logger,
+                $this->urlGenerator,
+                $this->processor,
+                '',
+            ])
+            ->onlyMethods(['temporaryFile'])
+            ->getMock();
+
+        $hash = \sha1('testImageInfo');
+
+        $assetRuntime
+            ->expects($this->once())
+            ->method('temporaryFile')
+            ->with($hash)
+            ->willReturn(__DIR__.'/test_350dpi.jpg');
+
+        $expected = [
+            'width' => 300,
+            'height' => 300,
+            'mimeType' => 'image/jpeg',
+            'extension' => 'jpeg',
+            'widthResolution' => 350,
+            'heightResolution' => 350,
         ];
 
         $this->assertEquals($expected, $assetRuntime->imageInfo($hash));
