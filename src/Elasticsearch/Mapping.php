@@ -49,20 +49,13 @@ final class Mapping
     }
 
     /**
-     * @return array<mixed>
+     * @return array{type: 'text', index: false}
      */
     public function getNotIndexedStringMapping(): array
     {
-        if ($this->compare('5') > 0) {
-            return [
-                'type' => 'text',
-                'index' => false,
-            ];
-        }
-
         return [
-            'type' => 'string',
-            'index' => 'no',
+            'type' => 'text',
+            'index' => false,
         ];
     }
 
