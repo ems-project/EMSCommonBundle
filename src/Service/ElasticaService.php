@@ -17,7 +17,7 @@ use Elastica\Search as ElasticaSearch;
 use Elasticsearch\Endpoints\Cluster\Health;
 use Elasticsearch\Endpoints\Count;
 use Elasticsearch\Endpoints\Indices\Analyze;
-use Elasticsearch\Endpoints\Indices\Mapping\GetField;
+use Elasticsearch\Endpoints\Indices\GetFieldMapping;
 use Elasticsearch\Endpoints\Indices\Refresh;
 use Elasticsearch\Endpoints\Info;
 use Elasticsearch\Endpoints\Scroll as ScrollEndpoints;
@@ -247,20 +247,10 @@ class ElasticaService
 
         $contentType = new Terms(EMSSource::FIELD_CONTENT_TYPE, $contentTypes);
 
-        $version = $this->getVersion();
-        if (\version_compare($version, '6.0') >= 0) {
-            if ($query instanceof BoolQuery) {
-                $boolQuery = $query;
-            }
-            $boolQuery->addMust($contentType);
-
-            return $boolQuery;
+        if ($query instanceof BoolQuery) {
+            $boolQuery = $query;
         }
-
-        $boolQuery->setMinimumShouldMatch(1);
-        $type = new Terms('_type', $contentTypes);
-        $boolQuery->addShould($type);
-        $boolQuery->addShould($contentType);
+        $boolQuery->addMust($contentType);
 
         return $boolQuery;
     }
@@ -353,29 +343,6 @@ class ElasticaService
         return $search;
     }
 
-    public function getTypeName(string $contentTypeName): string
-    {
-        $version = $this->getVersion();
-        if (\version_compare($version, '7.0') >= 0) {
-            return '_doc';
-        }
-        if (\version_compare($version, '6.0') >= 0) {
-            return 'doc';
-        }
-
-        return $contentTypeName;
-    }
-
-    public function getTypePath(string $contentTypeName): string
-    {
-        $version = $this->getVersion();
-        if (\version_compare($version, '7.0') >= 0) {
-            return '.';
-        }
-
-        return $this->getTypeName($contentTypeName);
-    }
-
     /**
      * @param string[] $sourceIncludes
      * @param string[] $sourcesExcludes
@@ -432,7 +399,7 @@ class ElasticaService
 
     public function getFieldAnalyzer(string $index, string $field): string
     {
-        $endpoint = new GetField();
+        $endpoint = new GetFieldMapping();
         $endpoint->setIndex($index);
         $endpoint->setFields($field);
 
@@ -530,17 +497,13 @@ class ElasticaService
         $esSearch->setQuery($query);
         $esSearch->addIndicesByName($this->getIndices($search));
         $esSearch->setOptions($options);
+        $esSearch->getQuery()->setParam('track_total_hits', true);
+
         if (null !== $search->getPostFilter()) {
             $query->setPostFilter($search->getPostFilter());
         }
-        $suggest = $search->getSuggest();
-
-        $version = $this->getVersion();
-        if (null !== $suggest && \count($suggest) > 0 && \version_compare($version, '7.0') < 0) {
+        if (null !== $suggest = $search->getSuggest()) {
             $esSearch->setSuggest($suggest);
-        }
-        if (\version_compare($version, '7.0') >= 0 && $trackTotalHits) {
-            $esSearch->getQuery()->setParam('track_total_hits', true);
         }
 
         return $esSearch;
