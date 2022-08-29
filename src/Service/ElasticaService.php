@@ -17,7 +17,7 @@ use Elastica\Search as ElasticaSearch;
 use Elasticsearch\Endpoints\Cluster\Health;
 use Elasticsearch\Endpoints\Count;
 use Elasticsearch\Endpoints\Indices\Analyze;
-use Elasticsearch\Endpoints\Indices\Mapping\GetField;
+use Elasticsearch\Endpoints\Indices\GetFieldMapping;
 use Elasticsearch\Endpoints\Indices\Refresh;
 use Elasticsearch\Endpoints\Info;
 use Elasticsearch\Endpoints\Scroll as ScrollEndpoints;
@@ -399,7 +399,7 @@ class ElasticaService
 
     public function getFieldAnalyzer(string $index, string $field): string
     {
-        $endpoint = new GetField();
+        $endpoint = new GetFieldMapping();
         $endpoint->setIndex($index);
         $endpoint->setFields($field);
 
