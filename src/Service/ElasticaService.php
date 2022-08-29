@@ -497,17 +497,13 @@ class ElasticaService
         $esSearch->setQuery($query);
         $esSearch->addIndicesByName($this->getIndices($search));
         $esSearch->setOptions($options);
+        $esSearch->getQuery()->setParam('track_total_hits', true);
+
         if (null !== $search->getPostFilter()) {
             $query->setPostFilter($search->getPostFilter());
         }
-        $suggest = $search->getSuggest();
-
-        $version = $this->getVersion();
-        if (null !== $suggest && \count($suggest) > 0 && \version_compare($version, '7.0') < 0) {
+        if (null !== $suggest = $search->getSuggest()) {
             $esSearch->setSuggest($suggest);
-        }
-        if (\version_compare($version, '7.0') >= 0 && $trackTotalHits) {
-            $esSearch->getQuery()->setParam('track_total_hits', true);
         }
 
         return $esSearch;
