@@ -76,20 +76,13 @@ final class Mapping
     }
 
     /**
-     * @return array<mixed>
+     * @return array{type: 'text', index: true}
      */
     public function getIndexedStringMapping(): array
     {
-        if ($this->compare('5') >= 0) {
-            return [
-                'type' => 'text',
-                'index' => true,
-            ];
-        }
-
         return [
-            'type' => 'string',
-            'index' => 'analyzed',
+            'type' => 'text',
+            'index' => true,
         ];
     }
 
