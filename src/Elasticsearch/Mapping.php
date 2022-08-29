@@ -27,19 +27,12 @@ final class Mapping
     }
 
     /**
-     * @return string[]
+     * @return array{type: 'keyword'}
      */
     public function getKeywordMapping(): array
     {
-        if (\version_compare($this->getVersion(), '5') >= 0) {
-            return [
-                'type' => 'keyword',
-            ];
-        }
-
         return [
-            'type' => 'string',
-            'index' => 'not_analyzed',
+            'type' => 'keyword',
         ];
     }
 
