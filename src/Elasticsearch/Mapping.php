@@ -59,11 +59,6 @@ final class Mapping
         ];
     }
 
-    public function compare(string $version): int
-    {
-        return (int) \version_compare($this->getVersion(), $version);
-    }
-
     /**
      * @return string[]
      */
