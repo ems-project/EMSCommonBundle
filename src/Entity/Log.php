@@ -40,6 +40,7 @@ class Log implements EntityInterface
 
     /**
      * @var array<mixed>
+     *
      * @ORM\Column(type="json")
      */
     private array $context = [];
@@ -66,6 +67,7 @@ class Log implements EntityInterface
 
     /**
      * @var array<mixed>
+     *
      * @ORM\Column(type="json")
      */
     private array $extra = [];
