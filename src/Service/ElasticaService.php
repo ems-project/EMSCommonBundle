@@ -493,6 +493,11 @@ class ElasticaService
             $query->addAggregation($aggregation);
         }
 
+        $suggest = $search->getSuggest();
+        if (null !== $suggest && \count($suggest) > 0) {
+            $query->setSuggest($suggest);
+        }
+
         $esSearch = new ElasticaSearch($this->client);
         $esSearch->setQuery($query);
         $esSearch->addIndicesByName($this->getIndices($search));
@@ -504,9 +509,6 @@ class ElasticaService
 
         if (null !== $search->getPostFilter()) {
             $query->setPostFilter($search->getPostFilter());
-        }
-        if (null !== $suggest = $search->getSuggest()) {
-            $esSearch->setSuggest($suggest);
         }
 
         return $esSearch;
