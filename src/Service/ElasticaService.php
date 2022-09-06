@@ -497,7 +497,10 @@ class ElasticaService
         $esSearch->setQuery($query);
         $esSearch->addIndicesByName($this->getIndices($search));
         $esSearch->setOptions($options);
-        $esSearch->getQuery()->setParam('track_total_hits', true);
+
+        if ($trackTotalHits) {
+            $esSearch->getQuery()->setParam('track_total_hits', true);
+        }
 
         if (null !== $search->getPostFilter()) {
             $query->setPostFilter($search->getPostFilter());
