@@ -19,7 +19,6 @@
             <argument type="service" id="ems_common.repository.log" />
             <argument type="service" id="security.token_storage" />
             <argument type="string">%ems_common.log_level%</argument>
-            <argument type="collection">%ems_common.log_level%</argument>
         </service>
     </services>
 </container>
