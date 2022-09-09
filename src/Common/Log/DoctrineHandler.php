@@ -41,7 +41,7 @@ class DoctrineHandler extends AbstractProcessingHandler
         $record['username'] = $token instanceof TokenInterface ? $token->getUsername() : null;
         $record['impersonator'] = $token instanceof SwitchUserToken ? $token->getOriginalToken()->getUsername() : null;
 
-        $record['context'] = DoctrineHandler::secertContext($record['context']);
+        $record['context'] = DoctrineHandler::secretContext($record['context']);
 
         $this->logRepository->insertRecord($record);
     }
@@ -51,7 +51,7 @@ class DoctrineHandler extends AbstractProcessingHandler
      *
      * @return array<string, mixed>
      */
-    private static function secertContext(array $context): array
+    private static function secretContext(array $context): array
     {
         $contextKeys = \array_keys($context);
         $secretKeys = \array_filter($contextKeys, fn ($key) => \in_array($key, self::SECRET_KEYS));
