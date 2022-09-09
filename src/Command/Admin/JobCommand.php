@@ -104,13 +104,13 @@ class JobCommand extends AbstractCommand
     /**
      * @param array{id: string, created: string, modified: string, command: string, user: string, started: bool, done?: bool, output: ?string} $status
      */
-    private function writeOutput($status): void
+    private function writeOutput(array $status): void
     {
         $currentLine = 0;
         while (true) {
             if (\strlen($status['output'] ?? '') > 0) {
                 $counter = 0;
-                $lines = \preg_split("/((\r?\n)|(\r\n?))/", $status['output'] ?? '');
+                $lines = \preg_split("/((\r?\n)|(\r\n?))/", $status['output']);
                 if (false === $lines) {
                     throw new \RuntimeException('Unexpected false split lines');
                 }
