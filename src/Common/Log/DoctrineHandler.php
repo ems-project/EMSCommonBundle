@@ -16,6 +16,9 @@ class DoctrineHandler extends AbstractProcessingHandler
     private TokenStorageInterface $tokenStorage;
     private int $minLevel;
 
+    private const SECRET_VALUE = '***';
+    private const SECRET_KEYS = ['api_key'];
+
     public function __construct(LogRepository $logRepository, TokenStorageInterface $tokenStorage, int $minLevel)
     {
         parent::__construct();
@@ -35,9 +38,28 @@ class DoctrineHandler extends AbstractProcessingHandler
         }
 
         $token = $this->tokenStorage->getToken();
-        $record['username'] = ($token instanceof TokenInterface ? $token->getUsername() : null);
-        $record['impersonator'] = ($token instanceof SwitchUserToken ? $token->getOriginalToken()->getUsername() : null);
+        $record['username'] = $token instanceof TokenInterface ? $token->getUsername() : null;
+        $record['impersonator'] = $token instanceof SwitchUserToken ? $token->getOriginalToken()->getUsername() : null;
+
+        $record['context'] = DoctrineHandler::secretContext($record['context']);
 
         $this->logRepository->insertRecord($record);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     *
+     * @return array<string, mixed>
+     */
+    private static function secretContext(array $context): array
+    {
+        $contextKeys = \array_keys($context);
+        $secretKeys = \array_filter($contextKeys, fn ($key) => \in_array($key, self::SECRET_KEYS));
+
+        foreach ($secretKeys as $secretKey) {
+            $context[$secretKey] = self::SECRET_VALUE;
+        }
+
+        return $context;
     }
 }
