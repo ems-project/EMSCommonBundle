@@ -40,12 +40,13 @@ class Log implements EntityInterface
 
     /**
      * @var array<mixed>
+     *
      * @ORM\Column(type="json")
      */
     private array $context = [];
 
     /**
-     * @ORM\Column(type="string", unique=true, nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
     private ?string $ouuid = null;
 
@@ -66,6 +67,7 @@ class Log implements EntityInterface
 
     /**
      * @var array<mixed>
+     *
      * @ORM\Column(type="json")
      */
     private array $extra = [];
@@ -100,6 +102,11 @@ class Log implements EntityInterface
     public function getId(): string
     {
         return $this->id->toString();
+    }
+
+    public function setId(UuidInterface $id): void
+    {
+        $this->id = $id;
     }
 
     public function getCreated(): \DateTime

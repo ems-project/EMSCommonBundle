@@ -19,7 +19,7 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('ems_common');
-        /* @var $rootNode ArrayNodeDefinition */
+        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
@@ -47,10 +47,12 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('cache')
+                    ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('type')->defaultValue('filesystem')->end()
                         ->scalarNode('prefix')->defaultValue('ems_cache')->end()
                         ->arrayNode('redis')
+                            ->addDefaultsIfNotSet()
                             ->children()
                                 ->scalarNode('host')->cannotBeEmpty()->end()
                                 ->scalarNode('port')->cannotBeEmpty()->end()
@@ -67,6 +69,7 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->arrayNode('metric')
+                    ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('enabled')->cannotBeEmpty()->end()
                         ->scalarNode('host')->end()

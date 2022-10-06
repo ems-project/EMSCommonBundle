@@ -25,7 +25,10 @@ final class FileCollection implements \IteratorAggregate
         $this->storageManager = $storageManager;
     }
 
-    public function getIterator()
+    /**
+     * @return \Generator<array<mixed>>
+     */
+    public function getIterator(): \Generator
     {
         foreach ($this->files as $file) {
             $file['stream'] = $this->storageManager->getStream($file['sha1']);

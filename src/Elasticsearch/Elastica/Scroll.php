@@ -8,7 +8,7 @@ use Elastica\Search as ElasticaSearch;
 
 class Scroll extends ElasticaScroll
 {
-    public function next()
+    public function next(): void
     {
         $options = $this->_search->getOptions();
         if (isset($options[ElasticaSearch::OPTION_SIZE])) {
@@ -18,12 +18,9 @@ class Scroll extends ElasticaScroll
         parent::next();
     }
 
-    // phpcs:disable
     protected function _setScrollId(ElasticaResultSet $resultSet): void
     {
         $newResultSet = new ResultSet($resultSet->getResponse(), $resultSet->getQuery(), $resultSet->getResults());
         parent::_setScrollId($newResultSet);
     }
-
-    // phpcs:disable
 }

@@ -32,7 +32,9 @@ final class Response implements ResponseInterface
     {
         $this->total = $response['hits']['total']['value'] ?? $response['hits']['total'] ?? 0;
         $this->accurate = true;
-        if (\is_array($response['hits']['total'] ?? null) && 'eq' !== $response['hits']['total']['relation'] ?? null) {
+
+        $relation = $response['hits']['total']['relation'] ?? null;
+        if (null !== $relation && 'eq' !== $relation) {
             $this->accurate = false;
         }
         $this->hits = $response['hits']['hits'] ?? [];

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Storage\Processor;
 
+use EMS\CommonBundle\Common\Standard\Type;
 use EMS\CommonBundle\Helper\EmsFields;
 use Psr\Log\LoggerInterface;
 
@@ -50,8 +51,9 @@ class Image
         $image = $this->autorotate($filename, $image);
         $this->applyFlips($image, $this->config->getFlipHorizontal(), $this->config->getFlipVertical());
         $image = $this->rotate($image, $this->config->getRotate());
-        $rotatedWidth = \imagesx($image);
-        $rotatedHeight = \imagesy($image);
+
+        $rotatedWidth = Type::integer(\imagesx($image));
+        $rotatedHeight = Type::integer(\imagesy($image));
 
         list($width, $height) = $this->getWidthHeight($rotatedWidth, $rotatedHeight);
 
@@ -289,8 +291,8 @@ class Image
         if (false === $stamp) {
             throw new \RuntimeException('Could not convert watermark to image');
         }
-        $sx = \imagesx($stamp);
-        $sy = \imagesy($stamp);
+        $sx = Type::integer(\imagesx($stamp));
+        $sy = Type::integer(\imagesy($stamp));
         \imagecopy($image, $stamp, (int) ($width - $sx) / 2, (int) ($height - $sy) / 2, 0, 0, $sx, $sy);
 
         return $image;
@@ -341,7 +343,7 @@ class Image
             (int) \hexdec(\substr($background, 1, 2)),
             (int) \hexdec(\substr($background, 3, 2)),
             (int) \hexdec(\substr($background, 5, 2)),
-            \intval(\hexdec(\substr($background, 7, 2) ?? '00') / 2)
+            \intval(\hexdec(\substr($background, 7, 2)) / 2)
         );
         if (false === $solidColour) {
             throw new \RuntimeException('Unexpected false imagecolorallocatealpha');

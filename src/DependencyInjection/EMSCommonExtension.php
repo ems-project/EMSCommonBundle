@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\Reference;
 class EMSCommonExtension extends Extension
 {
     /**
-     * @param array<mixed> $configs
+     * {@inheritDoc}
      */
     public function load(array $configs, ContainerBuilder $container): void
     {

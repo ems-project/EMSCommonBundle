@@ -87,7 +87,7 @@ class EMSLink
     }
 
     /**
-     * @param array{_id: string, _type?: string, _source: array} $document
+     * @param array{_id: string, _type?: string, _source: array<mixed>} $document
      */
     public static function fromDocument(array $document): EMSLink
     {
@@ -133,7 +133,7 @@ class EMSLink
     }
 
     /**
-     * @return array<string|array>
+     * @return array<string|array<mixed>>
      */
     public function getQuery(): array
     {

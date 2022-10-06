@@ -8,17 +8,12 @@ use Psr\Log\LoggerInterface;
 
 class FileSystemStorage extends AbstractUrlStorage
 {
-    /** @var string */
-    private $storagePath;
+    private string $storagePath;
 
-    /** @var string */
-    private $directorySeparator;
-
-    public function __construct(LoggerInterface $logger, string $storagePath, int $usage, int $hotSynchronizeLimit = 0, string $directorySeparator = DIRECTORY_SEPARATOR)
+    public function __construct(LoggerInterface $logger, string $storagePath, int $usage, int $hotSynchronizeLimit = 0)
     {
         parent::__construct($logger, $usage, $hotSynchronizeLimit);
         $this->storagePath = $storagePath;
-        $this->directorySeparator = $directorySeparator;
     }
 
     protected function getBaseUrl(): string
