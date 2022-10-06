@@ -17,7 +17,7 @@ use Elastica\Search as ElasticaSearch;
 use Elasticsearch\Endpoints\Cluster\Health;
 use Elasticsearch\Endpoints\Count;
 use Elasticsearch\Endpoints\Indices\Analyze;
-use Elasticsearch\Endpoints\Indices\Mapping\GetField;
+use Elasticsearch\Endpoints\Indices\GetFieldMapping;
 use Elasticsearch\Endpoints\Indices\Refresh;
 use Elasticsearch\Endpoints\Info;
 use Elasticsearch\Endpoints\Scroll as ScrollEndpoints;
@@ -30,6 +30,7 @@ use EMS\CommonBundle\Elasticsearch\Exception\NotFoundException;
 use EMS\CommonBundle\Elasticsearch\Exception\NotSingleResultException;
 use EMS\CommonBundle\Elasticsearch\Response\Response as EmsResponse;
 use EMS\CommonBundle\Search\Search;
+use EMS\Helpers\Standard\Type;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -50,7 +51,7 @@ class ElasticaService
     {
         $url = $this->client->getConnection()->getConfig('url');
 
-        return \is_array($url) ? \implode(' | ', $url) : $url;
+        return \is_array($url) ? \implode(' | ', $url) : Type::string($url);
     }
 
     public function refresh(?string $index): bool
@@ -107,7 +108,7 @@ class ElasticaService
             throw new NotSingleResultException(0);
         }
         $result = $resultSet->offsetGet(0);
-        if (1 !== $resultSet->count() || null === $result) {
+        if (1 !== $resultSet->count()) {
             throw new NotSingleResultException($resultSet->count());
         }
 
@@ -175,7 +176,7 @@ class ElasticaService
         $search = clone $search;
         $search->setSort(null);
         $elasticaSearch = $this->createElasticaSearch($search, $search->getScrollOptions());
-        $elasticaSearch->addIndices($this->getIndices($search));
+        $elasticaSearch->addIndicesByName($this->getIndices($search));
 
         return new EmsScroll($elasticaSearch, $expiryTime);
     }
@@ -193,7 +194,7 @@ class ElasticaService
     public function nextScroll(string $scrollId, string $expiryTime = '1m'): Response
     {
         $endpoint = new ScrollEndpoints();
-        $endpoint->setScroll($expiryTime);
+        $endpoint->setBody(['scroll' => $expiryTime]);
         $endpoint->setScrollId($scrollId);
 
         return $this->client->requestEndpoint($endpoint);
@@ -246,20 +247,10 @@ class ElasticaService
 
         $contentType = new Terms(EMSSource::FIELD_CONTENT_TYPE, $contentTypes);
 
-        $version = $this->getVersion();
-        if (\version_compare($version, '6.0') >= 0) {
-            if ($query instanceof BoolQuery) {
-                $boolQuery = $query;
-            }
-            $boolQuery->addMust($contentType);
-
-            return $boolQuery;
+        if ($query instanceof BoolQuery) {
+            $boolQuery = $query;
         }
-
-        $boolQuery->setMinimumShouldMatch(1);
-        $type = new Terms('_type', $contentTypes);
-        $boolQuery->addShould($type);
-        $boolQuery->addShould($contentType);
+        $boolQuery->addMust($contentType);
 
         return $boolQuery;
     }
@@ -295,7 +286,7 @@ class ElasticaService
         $query = new Query();
         $query->addAggregation($terms);
         $esSearch->setQuery($query);
-        $esSearch->addIndex($alias);
+        $esSearch->addIndexByName($alias);
         $buckets = $esSearch->search()->getAggregation('indexes')['buckets'] ?? [];
 
         $indices = [];
@@ -350,29 +341,6 @@ class ElasticaService
         $this->setSearchDefaultOptions($search, $options);
 
         return $search;
-    }
-
-    public function getTypeName(string $contentTypeName): string
-    {
-        $version = $this->getVersion();
-        if (\version_compare($version, '7.0') >= 0) {
-            return '_doc';
-        }
-        if (\version_compare($version, '6.0') >= 0) {
-            return 'doc';
-        }
-
-        return $contentTypeName;
-    }
-
-    public function getTypePath(string $contentTypeName): string
-    {
-        $version = $this->getVersion();
-        if (\version_compare($version, '7.0') >= 0) {
-            return '.';
-        }
-
-        return $this->getTypeName($contentTypeName);
     }
 
     /**
@@ -431,7 +399,7 @@ class ElasticaService
 
     public function getFieldAnalyzer(string $index, string $field): string
     {
-        $endpoint = new GetField();
+        $endpoint = new GetFieldMapping();
         $endpoint->setIndex($index);
         $endpoint->setFields($field);
 
@@ -525,21 +493,22 @@ class ElasticaService
             $query->addAggregation($aggregation);
         }
 
+        $suggest = $search->getSuggest();
+        if (null !== $suggest && \count($suggest) > 0) {
+            $query->setSuggest($suggest);
+        }
+
         $esSearch = new ElasticaSearch($this->client);
         $esSearch->setQuery($query);
-        $esSearch->addIndices($this->getIndices($search));
+        $esSearch->addIndicesByName($this->getIndices($search));
         $esSearch->setOptions($options);
+
+        if ($trackTotalHits) {
+            $esSearch->getQuery()->setParam('track_total_hits', true);
+        }
+
         if (null !== $search->getPostFilter()) {
             $query->setPostFilter($search->getPostFilter());
-        }
-        $suggest = $search->getSuggest();
-
-        $version = $this->getVersion();
-        if (null !== $suggest && \count($suggest) > 0 && \version_compare($version, '7.0') < 0) {
-            $esSearch->setSuggest($suggest);
-        }
-        if (\version_compare($version, '7.0') >= 0 && $trackTotalHits) {
-            $esSearch->getQuery()->setParam('track_total_hits', true);
         }
 
         return $esSearch;
@@ -603,7 +572,7 @@ class ElasticaService
 
         $esSearch = new ElasticaSearch($this->client);
         $esSearch->setQuery($esQuery);
-        $esSearch->addIndices($aliases);
+        $esSearch->addIndicesByName($aliases);
 
         $indices = [];
         $response = EmsResponse::fromResultSet($esSearch->search());
@@ -628,7 +597,7 @@ class ElasticaService
     /**
      * @param array<mixed> $parameters
      *
-     * @return array{aggs: ?array, query: ?array, post_filter: ?array, size: int, from: int, _source: ?string[], sort: ?array}
+     * @return array{aggs: ?array<mixed>, query: ?array<mixed>, post_filter: ?array<mixed>, size: int, from: int, _source: ?string[], sort: ?array<mixed>}
      */
     private function resolveElasticsearchBody(array $parameters): array
     {
@@ -652,7 +621,7 @@ class ElasticaService
                 return $value;
             });
         }
-        /** @var array{aggs: ?array, query: ?array, post_filter: ?array, size: int, from: int, _source: ?string[], sort: ?array} $resolvedParameters */
+        /** @var array{aggs: ?array<mixed>, query: ?array<mixed>, post_filter: ?array<mixed>, size: int, from: int, _source: ?string[], sort: ?array<mixed>} $resolvedParameters */
         $resolvedParameters = $resolver->resolve($parameters);
 
         return $resolvedParameters;
@@ -735,7 +704,7 @@ class ElasticaService
     }
 
     /**
-     * @param array{size: int, from: int, sort: ?array, _source: ?array} $options
+     * @param array{size: int, from: int, sort: ?array<mixed>, _source: ?array<mixed>} $options
      */
     private function setSearchDefaultOptions(Search $search, array $options): void
     {

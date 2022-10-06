@@ -17,7 +17,11 @@
         <service id="ems_common.controller.file" class="EMS\CommonBundle\Controller\FileController">
             <argument type="service" id="ems_common.storage.processor"/>
             <argument type="service" id="ems_common.twig.runtime.request"/>
+            <call method="setContainer">
+                <argument type="service" id="Psr\Container\ContainerInterface"/>
+            </call>
             <tag name="controller.service_arguments"/>
+            <tag name="container.service_subscriber"/>
         </service>
 
         <service id="ems_common.storage.processor" class="EMS\CommonBundle\Storage\Processor\Processor">

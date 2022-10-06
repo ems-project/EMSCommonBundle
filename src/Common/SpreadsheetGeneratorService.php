@@ -21,7 +21,7 @@ use Symfony\Component\Serializer\Serializer;
 final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceInterface
 {
     /**
-     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     * @param array{writer: string, filename: string, disposition: string, sheets: array<mixed>} $config
      */
     public function generateSpreadsheetFile(array $config, string $filename): void
     {
@@ -150,7 +150,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     /**
      * @param array<mixed> $config
      *
-     * @return array{writer: string, filename: string, disposition: string, sheets: array}
+     * @return array{writer: string, filename: string, disposition: string, sheets: array<mixed>}
      */
     private function resolveOptions(array $config): array
     {
@@ -163,7 +163,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $resolver->setAllowedValues(self::WRITER, [self::XLSX_WRITER, self::CSV_WRITER]);
         $resolver->setAllowedValues(self::CONTENT_DISPOSITION, ['attachment', 'inline']);
 
-        /** @var array{writer: string, filename: string, disposition: string, sheets: array} $resolved */
+        /** @var array{writer: string, filename: string, disposition: string, sheets: array<mixed>} $resolved */
         $resolved = $resolver->resolve($config);
 
         return $resolved;
@@ -172,7 +172,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     /**
      * @param array<mixed> $config
      *
-     * @return array{data: string, style: array}
+     * @return array{data: string, style: array<mixed>}
      */
     private function resolveOptionsCell(array $config): array
     {
@@ -181,14 +181,14 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
         $resolver->setRequired([self::CELL_DATA]);
         $resolver->setAllowedTypes(self::CELL_STYLE, ['array']);
 
-        /** @var array{data: string, style: array} $resolved */
+        /** @var array{data: string, style: array<mixed>} $resolved */
         $resolved = $resolver->resolve($config);
 
         return $resolved;
     }
 
     /**
-     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     * @param array{writer: string, filename: string, disposition: string, sheets: array<mixed>} $config
      */
     private function getXlsxStreamedFile(array $config, string $filename): void
     {
@@ -198,7 +198,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     }
 
     /**
-     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     * @param array{writer: string, filename: string, disposition: string, sheets: array<mixed>} $config
      */
     private function getXlsxStreamedResponse(array $config): StreamedResponse
     {
@@ -216,7 +216,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     }
 
     /**
-     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     * @param array{writer: string, filename: string, disposition: string, sheets: array<mixed>} $config
      */
     private function getXlsxResponse(array $config): Response
     {
@@ -240,7 +240,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     }
 
     /**
-     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     * @param array{writer: string, filename: string, disposition: string, sheets: array<mixed>} $config
      */
     private function getCsvStreamedFile(array $config, string $filename): void
     {
@@ -260,7 +260,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     }
 
     /**
-     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     * @param array{writer: string, filename: string, disposition: string, sheets: array<mixed>} $config
      */
     private function getCsvStreamedResponse(array $config): StreamedResponse
     {
@@ -286,7 +286,7 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     }
 
     /**
-     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     * @param array{writer: string, filename: string, disposition: string, sheets: array<mixed>} $config
      */
     private function getCsvResponse(array $config): Response
     {
@@ -306,8 +306,8 @@ final class SpreadsheetGeneratorService implements SpreadsheetGeneratorServiceIn
     }
 
     /**
-     * @param Response|StreamedResponse                                                   $response
-     * @param array{writer: string, filename: string, disposition: string, sheets: array} $config
+     * @param Response|StreamedResponse                                                          $response
+     * @param array{writer: string, filename: string, disposition: string, sheets: array<mixed>} $config
      */
     private function attachResponseHeader($response, array $config, string $type): void
     {

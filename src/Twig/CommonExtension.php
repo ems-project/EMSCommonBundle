@@ -12,7 +12,7 @@ use Twig\TwigFunction;
 
 class CommonExtension extends AbstractExtension
 {
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('ems_asset_path', [AssetRuntime::class, 'assetPath'], ['is_safe' => ['html']]),
@@ -25,7 +25,7 @@ class CommonExtension extends AbstractExtension
         ];
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('array_key', [$this, 'arrayKey']),

@@ -17,7 +17,7 @@ final class Mapping
     }
 
     /**
-     * @return array<string, array>
+     * @return array<string, array<mixed>>
      */
     public function defaultMapping(): array
     {
@@ -27,19 +27,12 @@ final class Mapping
     }
 
     /**
-     * @return string[]
+     * @return array{type: 'keyword'}
      */
     public function getKeywordMapping(): array
     {
-        if (\version_compare($this->getVersion(), '5') >= 0) {
-            return [
-                'type' => 'keyword',
-            ];
-        }
-
         return [
-            'type' => 'string',
-            'index' => 'not_analyzed',
+            'type' => 'keyword',
         ];
     }
 
@@ -49,26 +42,14 @@ final class Mapping
     }
 
     /**
-     * @return array<mixed>
+     * @return array{type: 'text', index: false}
      */
     public function getNotIndexedStringMapping(): array
     {
-        if ($this->compare('5') > 0) {
-            return [
-                'type' => 'text',
-                'index' => false,
-            ];
-        }
-
         return [
-            'type' => 'string',
-            'index' => 'no',
+            'type' => 'text',
+            'index' => false,
         ];
-    }
-
-    public function compare(string $version): int
-    {
-        return (int) \version_compare($this->getVersion(), $version);
     }
 
     /**
@@ -83,20 +64,13 @@ final class Mapping
     }
 
     /**
-     * @return array<mixed>
+     * @return array{type: 'text', index: true}
      */
     public function getIndexedStringMapping(): array
     {
-        if ($this->compare('5') >= 0) {
-            return [
-                'type' => 'text',
-                'index' => true,
-            ];
-        }
-
         return [
-            'type' => 'string',
-            'index' => 'analyzed',
+            'type' => 'text',
+            'index' => true,
         ];
     }
 
