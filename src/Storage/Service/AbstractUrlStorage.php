@@ -138,7 +138,11 @@ abstract class AbstractUrlStorage implements StorageInterface
     {
         $path = $this->getUploadPath($hash);
         if (!\file_exists($path)) {
-            throw new NotFoundHttpException('temporary file not found');
+            $this->logger->warning('Upload temporary file {path} not found', [
+                'path' => $path,
+            ]);
+
+            return false;
         }
 
         $file = \fopen($path, 'a');
