@@ -170,7 +170,7 @@ Example replace all ems links by a span tag.
 
 ## ems_html_decode
 
-Convert HTML entities  to their corresponding characters
+Convert HTML entities to their corresponding characters
 
 The following example will generate a `è` :
 
@@ -182,3 +182,19 @@ The following example will generate a `è` :
 
  - flags: [refers to html_entity_decode's flags paramter](https://www.php.net/manual/en/function.html-entity-decode.php), default value `ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5`
  - encoding: [defining the encoding used when converting characters](https://www.php.net/manual/en/function.html-entity-decode.php), default value `"UTF-8""`
+
+
+## ems_hash
+
+Generate a hash value from the message. See the [PHP hash function](https://php.net/manual/en/function.hash.php).
+
+```twig
+{{ 'foobar'|ems_hash }}
+{{ 'foobar'|ems_hash('sha1') }}
+```
+
+### Other parameters:
+
+- algo: [refers to the hash's algo paramter](https://php.net/manual/en/function.hash.php), default value `null` which means that the `ems_common.hash_algo` will be used
+- binary: [refers to the hash's binary paramter](https://php.net/manual/en/function.hash.php), default value `false`. When set to `true`, outputs raw binary data
+
