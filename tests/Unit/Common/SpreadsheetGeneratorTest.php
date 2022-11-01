@@ -49,8 +49,6 @@ class SpreadsheetGeneratorTest extends TestCase
     }
 
     /**
-     * @param $object
-     *
      * @return mixed
      *
      * @throws \Exception
