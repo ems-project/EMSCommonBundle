@@ -190,11 +190,11 @@ Generate a hash value from the message. See the [PHP hash function](https://php.
 
 ```twig
 {{ 'foobar'|ems_hash }}
-{{ 'foobar'|ems_hash('sha1') }}
+{{ 'foobar'|ems_hash('sha1') }} {# outputs 8843d7f92416211de9ebb963ff4ce28125932878 #}
 ```
 
 ### Other parameters:
 
-- algo: [refers to the hash's algo paramter](https://php.net/manual/en/function.hash.php), default value `null` which means that the `ems_common.hash_algo` will be used
-- binary: [refers to the hash's binary paramter](https://php.net/manual/en/function.hash.php), default value `false`. When set to `true`, outputs raw binary data
+- algo: [refers to the hash's algo parameter](https://php.net/manual/en/function.hash.php), default value `null` which means that the `ems_common.hash_algo` will be used
+- binary: [refers to the hash's binary parameter](https://php.net/manual/en/function.hash.php), default value `false`. When set to `true`, outputs raw binary data
 
