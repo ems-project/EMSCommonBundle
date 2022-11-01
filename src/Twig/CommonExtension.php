@@ -48,6 +48,7 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('ems_replace_regex', [TextRuntime::class, 'replaceRegex'], ['is_safe' => ['html']]),
             new TwigFilter('ems_base64_encode', [Base64::class, 'encode']),
             new TwigFilter('ems_base64_decode', [Base64::class, 'decode']),
+            new TwigFilter('ems_hash', [AssetRuntime::class, 'hash']),
         ];
     }
 

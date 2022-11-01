@@ -18,7 +18,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use ZipArchive;
 
 class AssetRuntime
 {
@@ -106,7 +105,7 @@ class AssetRuntime
     {
         $path = self::streamToTempFile($stream);
 
-        $zip = new ZipArchive();
+        $zip = new \ZipArchive();
         if (true !== $open = $zip->open($path)) {
             throw new \RuntimeException(\sprintf('Failed opening zip %s (ZipArchive %s)', $path, $open));
         }
@@ -245,6 +244,11 @@ class AssetRuntime
         $imageInfo['heightResolution'] = $imageResolution[1];
 
         return $imageInfo;
+    }
+
+    public function hash(string $input, ?string $hashAlgo = null, bool $binary = false): string
+    {
+        return $this->storageManager->computeStringHash($input, $hashAlgo, $binary);
     }
 
     private function fixFileExtension(string $filename, string $mimeType): string
