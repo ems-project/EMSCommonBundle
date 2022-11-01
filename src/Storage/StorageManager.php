@@ -175,9 +175,9 @@ class StorageManager
         return $hash;
     }
 
-    public function computeStringHash(string $string): string
+    public function computeStringHash(string $string, ?string $hashAlgo = null, bool $binary = false): string
     {
-        return \hash($this->hashAlgo, $string);
+        return \hash($hashAlgo ?? $this->hashAlgo, $string, $binary);
     }
 
     public function computeFileHash(string $filename): string

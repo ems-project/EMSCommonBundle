@@ -246,6 +246,11 @@ class AssetRuntime
         return $imageInfo;
     }
 
+    public function hash(string $input, ?string $hashAlgo = null, bool $binary = false): string
+    {
+        return $this->storageManager->computeStringHash($input, $hashAlgo, $binary);
+    }
+
     private function fixFileExtension(string $filename, string $mimeType): string
     {
         static $mimetypes = [
