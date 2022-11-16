@@ -101,20 +101,32 @@ abstract class AbstractCommand extends Command implements CommandInterface
     /**
      * @param string[] $choices
      */
-    protected function chooseArgument(string $name, string $question, array $choices, bool $multiple = false): void
+    protected function chooseArgumentArray(string $name, string $question, array $choices): void
     {
         $argument = $this->input->getArgument($name);
 
-        if (($multiple && \count($argument) > 0) || (!$multiple && null !== $this->input->getArgument($name))) {
+        if (\count($argument) > 0) {
             return;
         }
 
-        $allChoices = ($multiple ? ['all', ...$choices] : $choices);
+        $allChoices = ['all', ...$choices];
+        $answer = $this->askChoiceQuestion($question, $allChoices, true);
 
-        $answer = $this->askChoiceQuestion($question, $allChoices, $multiple);
+        $argument = \in_array('all', $answer) ? $choices : $answer;
 
-        $argument = ($multiple && \in_array('all', $answer) ? $choices : $answer);
         $this->input->setArgument($name, $argument);
+    }
+
+    /**
+     * @param string[] $choices
+     */
+    protected function choiceArgumentString(string $name, string $question, array $choices): void
+    {
+        if (null !== $this->input->getArgument($name)) {
+            return;
+        }
+
+        $this->input->setArgument($name, $this->askChoiceQuestion($question, $choices));
     }
 
     protected function getArgumentInt(string $name): int
