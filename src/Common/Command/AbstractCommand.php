@@ -47,11 +47,12 @@ abstract class AbstractCommand extends Command implements CommandInterface
      *
      * @return mixed
      */
-    protected function askChoiceQuestion(string $question, array $choices)
+    protected function askChoiceQuestion(string $question, array $choices, bool $multiple = false)
     {
         /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
         $question = new ChoiceQuestion($question, $choices);
+        $question->setMultiselect($multiple);
         $question->setErrorMessage('Choice %s is invalid.');
 
         return $helper->ask($this->input, $this->output, $question);
@@ -100,13 +101,20 @@ abstract class AbstractCommand extends Command implements CommandInterface
     /**
      * @param string[] $choices
      */
-    protected function choiceArgumentString(string $name, string $question, array $choices): void
+    protected function chooseArgument(string $name, string $question, array $choices, bool $multiple = false): void
     {
-        if (null !== $this->input->getArgument($name)) {
+        $argument = $this->input->getArgument($name);
+
+        if ((\is_array($argument) && \count($argument) > 0) && null !== $this->input->getArgument($name)) {
             return;
         }
 
-        $this->input->setArgument($name, $this->askChoiceQuestion($question, $choices));
+        $allChoices = ($multiple ? ['all', ...$choices] : $choices);
+
+        $answer = $this->askChoiceQuestion($question, $allChoices, $multiple);
+
+        $argument = ($multiple && \in_array('all', $answer) ? $choices : $answer);
+        $this->input->setArgument($name, $argument);
     }
 
     protected function getArgumentInt(string $name): int
