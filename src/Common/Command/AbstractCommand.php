@@ -105,7 +105,7 @@ abstract class AbstractCommand extends Command implements CommandInterface
     {
         $argument = $this->input->getArgument($name);
 
-        if ((\is_array($argument) && \count($argument) > 0) && null !== $this->input->getArgument($name)) {
+        if (($multiple && \count($argument) > 0) || (!$multiple && null !== $this->input->getArgument($name))) {
             return;
         }
 
