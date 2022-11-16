@@ -47,11 +47,12 @@ abstract class AbstractCommand extends Command implements CommandInterface
      *
      * @return mixed
      */
-    protected function askChoiceQuestion(string $question, array $choices)
+    protected function askChoiceQuestion(string $question, array $choices, bool $multiple = false)
     {
         /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
         $question = new ChoiceQuestion($question, $choices);
+        $question->setMultiselect($multiple);
         $question->setErrorMessage('Choice %s is invalid.');
 
         return $helper->ask($this->input, $this->output, $question);
@@ -95,6 +96,25 @@ abstract class AbstractCommand extends Command implements CommandInterface
         }
 
         return $arg;
+    }
+
+    /**
+     * @param string[] $choices
+     */
+    protected function chooseArgumentArray(string $name, string $question, array $choices): void
+    {
+        $argument = $this->input->getArgument($name);
+
+        if (\count($argument) > 0) {
+            return;
+        }
+
+        $allChoices = ['all', ...$choices];
+        $answer = $this->askChoiceQuestion($question, $allChoices, true);
+
+        $argument = \in_array('all', $answer) ? $choices : $answer;
+
+        $this->input->setArgument($name, $argument);
     }
 
     /**
