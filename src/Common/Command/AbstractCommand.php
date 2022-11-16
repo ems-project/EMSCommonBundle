@@ -107,6 +107,7 @@ abstract class AbstractCommand extends Command implements CommandInterface
 
         if (\in_array('all', $argument)) {
             $this->input->setArgument($name, $choices);
+
             return;
         }
 
