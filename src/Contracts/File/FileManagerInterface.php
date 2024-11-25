@@ -8,7 +8,7 @@ use Psr\Http\Message\StreamInterface;
 
 interface FileManagerInterface
 {
-    public const HEADS_CHUNK_SIZE = 1000;
+    public const HEADS_CHUNK_SIZE = 256;
 
     public function downloadFile(string $hash): string;
 
@@ -19,11 +19,16 @@ interface FileManagerInterface
     public function getStream(string $hash): StreamInterface;
 
     /**
-     * @return \Traversable<int, string>
+     * @return \Traversable<int, string|true>
      */
     public function heads(string ...$fileHashes): \Traversable;
 
     public function uploadContents(string $contents, string $filename, string $mimeType): string;
 
     public function uploadFile(string $realPath, ?string $mimeType = null, ?string $filename = null, ?callable $callback = null): string;
+
+    /**
+     * @param int<1, max> $chunkSize
+     */
+    public function setHeadChunkSize(int $chunkSize): void;
 }
