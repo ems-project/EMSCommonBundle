@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace EMS\CommonBundle\Storage\Service;
 
+use Aws\CommandPool;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use EMS\CommonBundle\Common\Cache\Cache;
+use EMS\CommonBundle\Storage\Archive;
 use EMS\CommonBundle\Storage\File\FileInterface;
 use EMS\CommonBundle\Storage\Processor\Config;
 use EMS\CommonBundle\Storage\StreamWrapper;
@@ -307,12 +309,25 @@ class S3Storage extends AbstractUrlStorage
         } catch (\RuntimeException) {
             return null;
         }
-        $stream = $response['Body'] ?? null;
+
+        $hash = $response->get('Metadata')['hash'] ?? null;
+        if (\is_string($hash)) {
+            $masterResponse = $this->getS3Client()->getObject([
+                'Bucket' => $this->bucket,
+                'Key' => $this->key($hash),
+            ]);
+            $stream = $masterResponse['Body'] ?? null;
+            $size = \intval($masterResponse['ContentLength']);
+        } else {
+            $stream = $response['Body'] ?? null;
+            $size = \intval($response['ContentLength']);
+        }
+
         if (!$stream instanceof StreamInterface) {
             return null;
         }
 
-        return new StreamWrapper($stream, $response['ContentType'] ?? MimeTypes::APPLICATION_OCTET_STREAM->value, \intval($response['ContentLength']));
+        return new StreamWrapper($stream, $response['ContentType'] ?? MimeTypes::APPLICATION_OCTET_STREAM->value, $size);
     }
 
     public function addFileInArchiveCache(string $hash, SplFileInfo $file, string $mimeType): bool
@@ -332,23 +347,35 @@ class S3Storage extends AbstractUrlStorage
         return $result->hasKey('ETag');
     }
 
-    public function copyFileInArchiveCache(string $archiveHash, string $fileHash, string $path, string $mimeType): bool
+    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, callable $callback = null): bool
     {
-        $sourceKey = $this->key($fileHash);
-        $result = $this->getS3Client()->copyObject([
-            'Bucket' => $this->bucket,
-            'ContentType' => $mimeType,
-            'Key' => \implode('/', [
-                'cache',
-                \substr($archiveHash, 0, 3),
-                \substr($archiveHash, 3),
-                $path,
-            ]),
-            'CopySource' => "$this->bucket/$sourceKey",
-            'MetadataDirective' => 'REPLACE',
+        $batch = [];
+        $client = $this->getS3Client();
+        foreach ($archive->iterator() as $item) {
+            $batch[] = $client->getCommand('PutObject', [
+                'Bucket' => $this->bucket,
+                'ContentType' => $item->type,
+                'Key' => \implode('/', [
+                    'cache',
+                    \substr($archiveHash, 0, 3),
+                    \substr($archiveHash, 3),
+                    $item->filename,
+                ]),
+                'MetadataDirective' => 'REPLACE',
+                'Metadata' => [
+                    'hash' => $item->hash,
+                ],
+            ]);
+        }
+        $pool = new CommandPool($client, $batch, [
+            'concurrency' => 250,
+            'fulfilled' => $callback,
+            'rejected' => $callback,
         ]);
+        $promise = $pool->promise();
+        $promise->wait();
 
-        return $result->hasKey('ETag');
+        return true;
     }
 
     public function heads(string ...$hashes): array

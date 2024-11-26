@@ -23,14 +23,11 @@ class FileStructurePushCommand extends AbstractCommand
     protected static $defaultName = Commands::FILE_STRUCTURE_PUSH;
     private const ARGUMENT_FOLDER = 'folder';
     private const OPTION_ADMIN = 'admin';
-    private const OPTION_QUIET = 'quiet';
     private const OPTION_CHUNK_SIZE = 'chunk-size';
-    private const OPTION_QUIET_SHORTCUT = 'q';
     private const OPTION_SAVE_HASH_FILENAME = 'save-hash-filename';
     private const DEFAULT_SAVE_HASH_FILE = '.hash';
     private string $folderPath;
     private FileManagerInterface $fileManager;
-    private bool $quiet;
     private int $chunkSize;
     private string $saveHashFilename;
 
@@ -48,7 +45,6 @@ class FileStructurePushCommand extends AbstractCommand
             ->setDescription('Push an EMS Archive file structure into a EMS Admin storage services (via the API)')
             ->addArgument(self::ARGUMENT_FOLDER, InputArgument::REQUIRED, 'Source folder')
             ->addOption(self::OPTION_ADMIN, null, InputOption::VALUE_NONE, 'Push to admin')
-            ->addOption(self::OPTION_QUIET, self::OPTION_QUIET_SHORTCUT, InputOption::VALUE_NONE, 'only displays the archive hash (if succeed)')
             ->addOption(self::OPTION_CHUNK_SIZE, null, InputOption::VALUE_OPTIONAL, 'Set the heads method chunk size', FileManagerInterface::HEADS_CHUNK_SIZE)
             ->addOption(self::OPTION_SAVE_HASH_FILENAME, null, InputOption::VALUE_OPTIONAL, 'File where to save the structure hash within the source folder (used to avoid head request). Delete the file to force recheck all files.', self::DEFAULT_SAVE_HASH_FILE)
         ;
@@ -62,38 +58,42 @@ class FileStructurePushCommand extends AbstractCommand
             true => $this->adminHelper->getCoreApi()->file(),
             false => $this->storageManager,
         };
-        $this->quiet = $this->getOptionBool(self::OPTION_QUIET);
         $this->chunkSize = $this->getOptionInt(self::OPTION_CHUNK_SIZE);
         $this->saveHashFilename = $this->getOptionString(self::OPTION_SAVE_HASH_FILENAME);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->quiet) {
-            $this->io->title('EMS - File structure - Push');
-        }
+        $this->io->title('EMS - File structure - Push');
         $algo = $this->fileManager->getHashAlgo();
 
-        if (!$this->quiet) {
-            $this->io->section('Building archive');
-        }
-        $archive = Archive::fromDirectory($this->folderPath, $algo);
+        $this->io->section('Building archive');
+        $progressBar = $this->io->createProgressBar();
+        $archive = Archive::fromDirectory($this->folderPath, $algo, $this->output->isQuiet() ? null : function ($maxSteps, $progress) use ($progressBar) {
+            if ($maxSteps !== $progressBar->getMaxSteps()) {
+                $progressBar->setMaxSteps($maxSteps);
+            }
+            $progressBar->setProgress($progress);
+        });
+        $progressBar->finish();
+        $this->io->newLine();
+
+        $this->io->section('Comparing with previous archive');
         $previousArchive = null;
         $hashFilename = \implode(DIRECTORY_SEPARATOR, [$this->folderPath, $this->saveHashFilename]);
         if (\file_exists($hashFilename)) {
             $previousArchive = Archive::fromStructure($this->fileManager->getContents(File::fromFilename($hashFilename)->getContents()), $algo);
         }
+        $diffArchive = $archive->diff($previousArchive);
 
-        if (!$this->quiet) {
-            $this->io->section('Pushing archive');
-        }
+        $this->io->section('Pushing archive');
         $progressBar = $this->io->createProgressBar($archive->getCount());
         $failedCount = 0;
         if ($this->chunkSize < 1) {
             throw new \RuntimeException(\sprintf('Chunk size must greater than 0, %d given', $this->chunkSize));
         }
         $this->fileManager->setHeadChunkSize($this->chunkSize);
-        foreach ($this->fileManager->heads(...$archive->getHashes($previousArchive)) as $hash) {
+        foreach ($this->fileManager->heads(...$diffArchive->getHashes()) as $hash) {
             if (true === $hash) {
                 $progressBar->advance();
                 continue;
@@ -111,17 +111,26 @@ class FileStructurePushCommand extends AbstractCommand
             $progressBar->advance();
         }
         $progressBar->finish();
-        $hash = $this->fileManager->uploadContents(Json::encode($archive), 'archive.json', MimeTypes::APPLICATION_JSON->value);
         $this->io->newLine();
+        $hash = $this->fileManager->uploadContents(Json::encode($archive), 'archive.json', MimeTypes::APPLICATION_JSON->value);
         if (0 !== $failedCount) {
             $this->io->error(\sprintf('%d files faced an issue while uploading, please retry.', $failedCount));
 
             return self::EXECUTE_ERROR;
         }
+
+        $this->io->section('Building cache');
+        $progressBar = $this->io->createProgressBar($archive->getCount());
+        $this->fileManager->loadArchiveItemsInCache($hash, $archive, $this->output->isQuiet() ? null : function () use ($progressBar) {
+            $progressBar->advance();
+        });
+        $progressBar->finish();
+        $this->io->newLine();
+
         \file_put_contents($hashFilename, $hash);
 
-        if ($this->quiet) {
-            $this->io->write($hash);
+        if ($this->output->isQuiet()) {
+            echo $hash;
         } else {
             $this->io->success(\sprintf('Archive %s have been uploaded with the directory content of %s', $hash, $this->folderPath));
         }
