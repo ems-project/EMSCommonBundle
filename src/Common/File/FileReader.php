@@ -66,7 +66,7 @@ final class FileReader implements FileReaderInterface
             }
 
             if (!$headings) {
-                $headings = \array_map(static fn ($v) => u($v)->trim()->toString(), $row);
+                $headings = \array_map(static fn ($v, $k) => ('' === u($v)->trim()->toString()) ? \strval($k) : u($v)->trim()->toString(), $row, \array_keys($row));
                 continue;
             }
 
@@ -75,7 +75,7 @@ final class FileReader implements FileReaderInterface
                 continue;
             }
 
-            $rowData = \array_filter(\array_combine($headings, $row), static fn ($v) => '' !== $v and null !== $v);
+            $rowData = \array_filter(\array_combine($headings, $row), static fn ($v) => '' !== $v && null !== $v);
             if (\count($rowData) > 0) {
                 yield $rowData;
             }
