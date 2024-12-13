@@ -109,7 +109,7 @@ class FileSystemStorage extends AbstractUrlStorage
         return \copy($file->getPathname(), $filename);
     }
 
-    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, callable $callback = null): bool
+    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, ?callable $callback = null): bool
     {
         return false;
     }

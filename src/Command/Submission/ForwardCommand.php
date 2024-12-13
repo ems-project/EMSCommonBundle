@@ -108,7 +108,7 @@ class ForwardCommand extends AbstractCommand
 
             return self::EXECUTE_ERROR;
         }
-        $results = JSON::decode($httpResponse->getContent());
+        $results = Json::decode($httpResponse->getContent());
         foreach (($results['summaries'] ?? []) as $result) {
             $this->io->writeln(\sprintf('%s with %s %s', $result['data'] ?? '', $result['status'] ?? '', $result['uid'] ?? ''));
         }

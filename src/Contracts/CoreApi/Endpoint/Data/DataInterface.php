@@ -78,5 +78,5 @@ interface DataInterface
      */
     public function save(string $ouuid, array $rawData, int $mode = self::MODE_UPDATE, bool $discardDraft = true): int;
 
-    public function publish(string $ouuid, string $environment, string $revisionId = null): bool;
+    public function publish(string $ouuid, string $environment, ?string $revisionId = null): bool;
 }

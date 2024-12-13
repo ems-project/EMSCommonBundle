@@ -530,7 +530,7 @@ class StorageManager implements FileManagerInterface
         }
     }
 
-    public function getStreamFromArchive(string $hash, string $path, bool $extract = true, string $indexResource = null): StreamWrapper
+    public function getStreamFromArchive(string $hash, string $path, bool $extract = true, ?string $indexResource = null): StreamWrapper
     {
         if (null !== $indexResource && ('' === $path || \str_ends_with($path, '/'))) {
             $path .= $indexResource;
@@ -701,7 +701,7 @@ class StorageManager implements FileManagerInterface
         $this->headChunkSize = $chunkSize;
     }
 
-    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, callable $callback = null): void
+    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, ?callable $callback = null): void
     {
         foreach ($this->adapters as $adapter) {
             if ($adapter->loadArchiveItemsInCache($archiveHash, $archive, $callback)) {

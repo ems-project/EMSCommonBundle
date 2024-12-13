@@ -202,7 +202,7 @@ class AssetRuntime
     /**
      * @param mixed[] $options
      */
-    public function fileFromArchive(string $hash, string $path, array $options = []): null|string|TempFile
+    public function fileFromArchive(string $hash, string $path, array $options = []): string|TempFile|null
     {
         $extract = Type::bool($options['extract'] ?? true);
         $asTempFile = Type::bool($options['asTempFile'] ?? false);

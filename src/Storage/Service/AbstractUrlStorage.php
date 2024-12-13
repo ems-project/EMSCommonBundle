@@ -251,7 +251,7 @@ abstract class AbstractUrlStorage implements StorageInterface, \Stringable
         return false;
     }
 
-    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, callable $callback = null): bool
+    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, ?callable $callback = null): bool
     {
         return false;
     }

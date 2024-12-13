@@ -350,7 +350,7 @@ class S3Storage extends AbstractUrlStorage
         return $result->hasKey('ETag');
     }
 
-    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, callable $callback = null): bool
+    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, ?callable $callback = null): bool
     {
         $batch = [];
         $client = $this->getS3Client();

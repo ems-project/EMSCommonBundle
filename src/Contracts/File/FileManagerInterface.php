@@ -36,5 +36,5 @@ interface FileManagerInterface
      */
     public function setHeadChunkSize(int $chunkSize): void;
 
-    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, callable $callback = null): void;
+    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, ?callable $callback = null): void;
 }

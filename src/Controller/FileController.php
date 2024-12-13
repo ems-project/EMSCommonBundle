@@ -90,7 +90,7 @@ class FileController extends AbstractController
         return $response;
     }
 
-    public function assetInArchive(Request $request, string $hash, string $path, int $maxAge = 604800, bool $extract = true, string $indexResource = null, string $notFoundTemplate = null): Response
+    public function assetInArchive(Request $request, string $hash, string $path, int $maxAge = 604800, bool $extract = true, ?string $indexResource = null, ?string $notFoundTemplate = null): Response
     {
         $this->closeSession($request);
 

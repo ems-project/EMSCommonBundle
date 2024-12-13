@@ -15,9 +15,6 @@ use function Symfony\Component\String\u;
 
 final class FileReader implements FileReaderInterface
 {
-    /**
-     * {@inheritDoc}
-     */
     public function getData(string $filename, array $options = []): array
     {
         $reader = IOFactory::createReaderForFile($filename);
@@ -34,9 +31,6 @@ final class FileReader implements FileReaderInterface
         return $reader->load($filename)->getActiveSheet()->toArray();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function readCells(string $filename, array $options = []): \Generator
     {
         $isCsv = 0 === \strcasecmp(\pathinfo($filename, PATHINFO_EXTENSION), 'csv');

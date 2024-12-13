@@ -209,7 +209,7 @@ final class File implements FileInterface
         $this->headChunkSize = $chunkSize;
     }
 
-    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, callable $callback = null): void
+    public function loadArchiveItemsInCache(string $archiveHash, Archive $archive, ?callable $callback = null): void
     {
         $admin = new Admin($this->client);
         $command = \sprintf('%s %s', Commands::LOAD_ARCHIVE_IN_CACHE, $archiveHash);

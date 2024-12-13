@@ -150,7 +150,7 @@ final class Data implements DataInterface
         return \implode('/', \array_merge($this->endPoint, \array_filter($path)));
     }
 
-    public function publish(string $ouuid, string $environment, string $revisionId = null): bool
+    public function publish(string $ouuid, string $environment, ?string $revisionId = null): bool
     {
         $resource = $this->makeResource('publish', $ouuid, $environment, $revisionId ?? '');
         $success = $this->client->post($resource)->getData()['success'] ?? null;

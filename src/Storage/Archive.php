@@ -21,7 +21,7 @@ class Archive implements \JsonSerializable
     {
     }
 
-    public static function fromDirectory(string $directory, string $hashAlgo, callable $callback = null): self
+    public static function fromDirectory(string $directory, string $hashAlgo, ?callable $callback = null): self
     {
         $archive = new self($hashAlgo);
         $finder = new Finder();
