@@ -9,6 +9,7 @@ use EMS\Helpers\Standard\Base64;
 use EMS\Helpers\Standard\Color;
 use EMS\Helpers\Standard\DateTime;
 use EMS\Helpers\Standard\UuidGenerator;
+use Twig\DeprecatedCallableInfo;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -19,7 +20,6 @@ class CommonExtension extends AbstractExtension
     {
         return [
             new TwigFunction('ems_asset_path', [AssetRuntime::class, 'assetPath'], ['is_safe' => ['html']]),
-            new TwigFunction('ems_unzip', [AssetRuntime::class, 'unzip'], ['deprecated' => true, 'alternative' => 'ems_file_from_archive']),
             new TwigFunction('ems_json_file', [AssetRuntime::class, 'jsonFromFile']),
             new TwigFunction('ems_asset_get_content', [AssetRuntime::class, 'getContent']),
             new TwigFunction('ems_html', [TextRuntime::class, 'emsHtml'], ['is_safe' => ['all']]),
@@ -34,6 +34,9 @@ class CommonExtension extends AbstractExtension
             new TwigFunction('ems_store_delete', [StoreDataRuntime::class, 'delete']),
             new TwigFunction('ems_template_exists', [TemplateRuntime::class, 'templateExists']),
             new TwigFunction('ems_file_from_archive', [AssetRuntime::class, 'fileFromArchive']),
+            new TwigFunction('ems_unzip', [AssetRuntime::class, 'unzip'], [
+                'deprecation_info' => new DeprecatedCallableInfo('elasticms/common-bundle', '5.19.0', 'ems_file_from_archive'),
+            ]),
         ];
     }
 
@@ -52,7 +55,6 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('ems_json_menu_decode', [TextRuntime::class, 'jsonMenuDecode']),
             new TwigFilter('ems_json_menu_nested_decode', [TextRuntime::class, 'jsonMenuNestedDecode']),
             new TwigFilter('ems_json_decode', [TextRuntime::class, 'jsonDecode']),
-            new TwigFilter('ems_slug', [Encoder::class, 'slug'], ['deprecated' => true, 'alternative' => 'ems_slug']),
             new TwigFilter('ems_ascii_folding', Encoder::asciiFolding(...)),
             new TwigFilter('ems_markdown', Encoder::markdownToHtml(...), ['is_safe' => ['html']]),
             new TwigFilter('ems_slug', [Encoder::class, 'slug']),
@@ -79,7 +81,9 @@ class CommonExtension extends AbstractExtension
             new TwigFilter('ems_contrast_ratio', $this->contrastRatio(...)),
             new TwigFilter('ems_first_in_array', $this->firstInArray(...)),
             // deprecated
-            new TwigFilter('ems_webalize', (new Encoder())->webalizeForUsers(...), ['deprecated' => true, 'alternative' => 'ems_slug']),
+            new TwigFilter('ems_webalize', [Encoder::class, 'webalizeForUsers'], [
+                'deprecation_info' => new DeprecatedCallableInfo('elasticms/common-bundle', '5.17.1', 'ems_slug'),
+            ]),
             new TwigFilter('array_key', $this->arrayKey(...), ['deprecated' => true, 'alternative' => 'ems_array_key']),
             new TwigFilter('format_bytes', Converter::formatBytes(...), ['deprecated' => true, 'alternative' => 'ems_format_bytes']),
             new TwigFilter('locale_attr', [RequestRuntime::class, 'localeAttribute'], ['deprecated' => true, 'alternative' => 'ems_locale_attr']),
