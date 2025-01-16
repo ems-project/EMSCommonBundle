@@ -19,9 +19,16 @@
             <argument type="string">%ems_common.backend_api_key%</argument>
         </service>
 
+        <service id="ems_common.core_api" class="EMS\CommonBundle\Common\CoreApi\CoreApi">
+            <factory service="ems_common.core_api.factory" method="create" />
+        </service>
+
         <service id="ems_common.core_api.factory" class="EMS\CommonBundle\Common\CoreApi\CoreApiFactory">
             <argument type="service" id="logger" />
             <argument type="service" id="ems_common.storage.manager" />
+            <argument>%ems_common.core_api.options%</argument>
+            <argument type="string">%ems_common.backend_url%</argument>
+            <argument type="string">%ems_common.backend_api_key%</argument>
         </service>
 
         <!-- use this factory services, it will set the tracer to common.ems.logger -->
@@ -85,7 +92,7 @@
             <argument type="string">%ems_common.elasticsearch_proxy_api%</argument>
         </service>
         <service id="ems.helper.admin_api" class="EMS\CommonBundle\Common\Admin\AdminHelper">
-            <argument type="service" id="ems_common.core_api.factory" />
+            <argument type="service" id="ems_common.core_api" />
             <argument type="service" id="ems_common.core_api.token_store" />
             <argument type="service" id="logger" />
         </service>
