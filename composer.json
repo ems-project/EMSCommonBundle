@@ -9,7 +9,7 @@
     "authors": [
         {
             "name": "EMS Community",
-            "homepage": "https://github.com/ems-project/EMSCommonBundle/contributors"
+            "homepage": "https://github.com/ems-project/elasticms/contributors"
         }
     ],
     "require": {
@@ -60,25 +60,13 @@
         "twig/string-extra": "^3.8",
         "twig/twig": "^3.8"
     },
-    "require-dev": {
-        "symfony/test-pack": "^1.0",
-        "symfony/yaml": "6.4.*"
-    },
     "autoload": {
         "psr-4": {
             "EMS\\CommonBundle\\": "src/"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "EMS\\CommonBundle\\Tests\\": "tests/"
-        }
-    },
     "config": {
         "lock": false,
         "sort-packages": true
-    },
-    "scripts": {
-        "phpunit": "phpunit"
     }
 }
