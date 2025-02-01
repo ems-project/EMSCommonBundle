@@ -43,7 +43,7 @@ final readonly class Data implements DataInterface
     #[\Override]
     public function discard(int $revisionId): bool
     {
-        $resource = $this->makeResource('discard', \strval($revisionId));
+        $resource = $this->makeResource('discard', (string) $revisionId);
 
         return $this->client->post($resource)->isSuccess();
     }
