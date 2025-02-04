@@ -37,6 +37,7 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('log_level')->defaultValue(self::LOG_LEVEL)->end()
                 ->variableNode('excluded_content_types')->defaultValue([])->end()
                 ->variableNode('slug_symbol_map')->defaultValue(null)->end()
+                ->scalarNode('vite_dev_server')->defaultNull()->end()
             ->end()
         ;
 

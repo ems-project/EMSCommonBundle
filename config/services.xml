@@ -13,6 +13,12 @@
             <tag name="monolog.logger" channel="elastica" />
         </service>
 
+        <service id="ems.vite" class="EMS\CommonBundle\Common\Asset\ViteService">
+            <argument type="service" id="ems_common.storage.manager"/>
+            <argument type="service" id="http_client"/>
+            <argument>%ems_common.vite_dev_server%</argument>
+        </service>
+
         <service id="ems.core_bridge.api" class="EMS\CommonBundle\Common\Bridge\Core\CoreApiBridge">
             <argument type="service" id="ems_common.core_api" />
         </service>
